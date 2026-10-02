@@ -98,6 +98,15 @@ theme_override_styles/pressed = SubResource("StyleBoxFlat_ue45v")
 theme_override_styles/hover = SubResource("StyleBoxFlat_wem23")
 text = "开始游戏"
 
+[node name="ContinueButton" type="Button" parent="VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+theme_override_styles/normal = SubResource("StyleBoxFlat_ob46e")
+theme_override_styles/normal_mirrored = SubResource("StyleBoxFlat_u2er5")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_ue45v")
+theme_override_styles/hover = SubResource("StyleBoxFlat_wem23")
+text = "继续游戏"
+
 [node name="QuitButton" type="Button" parent="VBoxContainer" unique_id=1811266116]
 layout_mode = 2
 theme_override_font_sizes/font_size = 24

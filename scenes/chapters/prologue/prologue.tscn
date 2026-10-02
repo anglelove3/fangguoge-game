@@ -10,6 +10,9 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+ChapterTitle = "序章：那首歌"
+ChapterSubtitle = "深夜实验室，耳机里循环播放着那首歌"
+ChapterIndex = 0
 
 [node name="Background" type="ColorRect" parent="."]
 layout_mode = 1
@@ -20,47 +23,64 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0.08, 0.08, 0.12, 1)
 
-[node name="TitleLabel" type="Label" parent="."]
+[node name="ChapterTitle" type="Label" parent="."]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
-anchor_top = 0.4
+anchor_top = 0.35
 anchor_right = 0.5
-anchor_bottom = 0.4
-offset_left = -300.0
-offset_top = -40.0
-offset_right = 300.0
-offset_bottom = 40.0
+anchor_bottom = 0.35
+offset_left = -400.0
+offset_top = -30.0
+offset_right = 400.0
+offset_bottom = 30.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_font_sizes/font_size = 36
+theme_override_font_sizes/font_size = 42
 text = "序章：那首歌"
+horizontal_alignment = 1
+
+[node name="ChapterSubtitle" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.48
+anchor_right = 0.5
+anchor_bottom = 0.48
+offset_left = -400.0
+offset_top = -20.0
+offset_right = 400.0
+offset_bottom = 20.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_font_sizes/font_size = 20
+text = "深夜实验室，耳机里循环播放着那首歌"
 horizontal_alignment = 1
 
 [node name="HintLabel" type="Label" parent="."]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
-anchor_top = 0.55
+anchor_top = 0.6
 anchor_right = 0.5
-anchor_bottom = 0.55
+anchor_bottom = 0.6
 offset_left = -200.0
 offset_top = -20.0
 offset_right = 200.0
 offset_bottom = 20.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_font_sizes/font_size = 18
-text = "（序章内容待开发）"
+theme_override_font_sizes/font_size = 16
+text = "（序章互动内容待开发 —— Day 8）"
 horizontal_alignment = 1
 
 [node name="BackButton" type="Button" parent="."]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
-anchor_top = 0.7
+anchor_top = 0.75
 anchor_right = 0.5
-anchor_bottom = 0.7
+anchor_bottom = 0.75
 offset_left = -80.0
 offset_top = -20.0
 offset_right = 80.0
@@ -68,5 +88,3 @@ offset_bottom = 20.0
 grow_horizontal = 2
 grow_vertical = 2
 text = "返回菜单"
-
-[connection signal="pressed" from="BackButton" to="." method="OnBackButtonPressed"]

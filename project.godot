@@ -17,6 +17,8 @@ config/features=PackedStringArray("4.7", "C#", "GL Compatibility")
 [autoload]
 
 GameManager="*res://scripts/autoload/GameManager.cs"
+TransitionManager="*res://scripts/autoload/TransitionManager.cs"
+DebugPanel="*res://scripts/autoload/DebugPanel.cs"
 
 [display]
 
