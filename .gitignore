@@ -1,0 +1,40 @@
+# Godot 4+ specific ignores
+.godot/
+*.translation
+
+# C#/Godot specific
+.vs/
+.vscode/
+*.sln
+*.suo
+*.user
+*.pidb
+*.booproj
+*.svd
+*.pdb
+*.mdb
+*.opendb
+*.opensdb
+
+# Mono
+mono_crash.*.json
+
+# Build results
+bin/
+obj/
+[Dd]ebug/
+[Rr]elease/
+*.apk
+*.aab
+*.apkx
+*.aabx
+
+# OS generated
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
