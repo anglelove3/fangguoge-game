@@ -1,0 +1,8 @@
+gymnopedie_no1.ogg
+曲目：Erik Satie — Gymnopédie No. 1（钢琴演奏：Robin Alciatore）
+来源：https://commons.wikimedia.org/wiki/File:Erik_Satie_-_gymnopedies_-_la_1_ere._lent_et_douloureux.ogg
+许可证：公有领域（Public Domain）
+
+说明：这是 DEMO 阶段的占位背景音乐。之后想换音乐，
+替换 assets/audio/bgm/ 里的文件，并同步修改
+scripts/autoload/AudioManager.cs 里的 DefaultBgmPath 即可。

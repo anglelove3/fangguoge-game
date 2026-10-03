@@ -38,3 +38,10 @@ obj/
 ehthumbs.db
 Thumbs.db
 desktop.ini
+
+# 临时备份文件（编辑器/工具自动生成）
+*.bak
+*.old
+
+# AI 生成图片的原始输出目录（用到的图都已复制进 assets/art/）
+vibe_images/

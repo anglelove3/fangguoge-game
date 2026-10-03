@@ -19,6 +19,7 @@ public partial class MainMenu : Control
     {
         // 获取按钮节点
         var startButton = GetNode<Button>("VBoxContainer/StartButton");
+        var settingsButton = GetNode<Button>("VBoxContainer/SettingsButton");
         var quitButton = GetNode<Button>("VBoxContainer/QuitButton");
 
         // 检查是否有存档，决定"继续游戏"按钮是否可用
@@ -38,6 +39,7 @@ public partial class MainMenu : Control
 
         // 绑定按钮事件
         startButton.Pressed += OnStartGamePressed;
+        settingsButton.Pressed += OnSettingsPressed;
         quitButton.Pressed += OnQuitPressed;
 
         GD.Print("主菜单已加载");
@@ -71,6 +73,15 @@ public partial class MainMenu : Control
     }
 
     /// <summary>
+    /// 点击"设置"→ 打开设置界面
+    /// </summary>
+    private void OnSettingsPressed()
+    {
+        GD.Print("→ 打开设置");
+        GameManager.Instance.ChangeSceneWithTransition("res://scenes/ui/settings/settings.tscn");
+    }
+
+    /// <summary>
     /// 点击"退出游戏"
     /// </summary>
     private void OnQuitPressed()
@@ -88,9 +99,10 @@ public partial class MainMenu : Control
         return chapter switch
         {
             0 => "res://scenes/chapters/prologue/prologue.tscn",
+            1 => "res://scenes/chapters/ch01/ch01.tscn",
+            99 => "res://scenes/ui/demo_end/demo_end.tscn", // 试玩结束页
             // 后续章节在这里添加：
-            // 1 => "res://scenes/chapters/ch01/ch01.tscn",
-            // 2 => "res://scenes/chapters/ch02/ch02.tscn",
+            // 2 => "res://scenes/chapters/ch02_thousand_km/ch02.tscn",
             _ => "res://scenes/chapters/prologue/prologue.tscn"
         };
     }

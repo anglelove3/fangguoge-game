@@ -89,7 +89,8 @@ public partial class ChapterBase : Control
     /// </summary>
     protected virtual void OnBackPressed()
     {
-        // 先存档再返回
+        // 停掉可能正在播的对话，再存档返回
+        DialogueManager.Instance?.Stop();
         GameManager.Instance.SaveGame();
         GameManager.Instance.ReturnToMainMenu();
     }

@@ -1,90 +1,297 @@
-[gd_scene load_steps=2 format=3 uid="uid://prologue001"]
+[gd_scene load_steps=10 format=3 uid="uid://prologue001"]
 
-[ext_resource type="Script" path="res://scripts/chapters/Prologue.cs" id="1_prologue"]
+[ext_resource type="Script" uid="uid://dm262xhoukd4o" path="res://scripts/chapters/Prologue.cs" id="1_prologue"]
+[ext_resource type="Texture2D" path="res://assets/art/backgrounds/night_lab_v1.png" id="2_bg"]
+
+[sub_resource type="StyleBoxFlat" id="SB_hot_normal"]
+bg_color = Color(1, 0.95, 0.85, 0.07)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(1, 0.9, 0.7, 0.35)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
+corner_detail = 14
+
+[sub_resource type="StyleBoxFlat" id="SB_hot_hover"]
+bg_color = Color(1, 0.95, 0.85, 0.2)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(1, 0.88, 0.6, 0.8)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
+corner_detail = 14
+
+[sub_resource type="StyleBoxFlat" id="SB_hot_pressed"]
+bg_color = Color(1, 0.95, 0.85, 0.13)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
+corner_detail = 14
+
+[sub_resource type="StyleBoxFlat" id="SB_hot_disabled"]
+bg_color = Color(0.6, 0.6, 0.65, 0.06)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.6, 0.6, 0.65, 0.18)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
+corner_detail = 14
+
+[sub_resource type="StyleBoxFlat" id="SB_back_normal"]
+bg_color = Color(0.83137256, 0.64705884, 0.45490196, 1)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+corner_detail = 12
+
+[sub_resource type="StyleBoxFlat" id="SB_back_hover"]
+bg_color = Color(0.9098039, 0.76862746, 0.6039216, 1)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+corner_detail = 12
+
+[sub_resource type="StyleBoxFlat" id="SB_back_pressed"]
+bg_color = Color(0.72156864, 0.5372549, 0.30588236, 1)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+corner_detail = 12
 
 [node name="Prologue" type="Control"]
-script = ExtResource("1_prologue")
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+script = ExtResource("1_prologue")
 ChapterTitle = "序章：那首歌"
 ChapterSubtitle = "深夜实验室，耳机里循环播放着那首歌"
 ChapterIndex = 0
 
-[node name="Background" type="ColorRect" parent="."]
+[node name="Background" type="TextureRect" parent="."]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.08, 0.08, 0.12, 1)
+texture = ExtResource("2_bg")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="Vignette" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.02, 0.02, 0.08, 0.25)
+
+[node name="HintLabel" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -340.0
+offset_top = 24.0
+offset_right = 340.0
+offset_bottom = 64.0
+grow_horizontal = 2
+theme_override_colors/font_color = Color(1, 0.95, 0.85, 1)
+theme_override_colors/font_outline_color = Color(0.05, 0.05, 0.1, 0.9)
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 24
+text = "点击场景中的物品看看（0/3）"
+horizontal_alignment = 1
+
+[node name="Hotspots" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="ComputerBtn" type="Button" parent="Hotspots"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.12
+anchor_top = 0.16
+anchor_right = 0.44
+anchor_bottom = 0.62
+grow_horizontal = 2
+grow_vertical = 2
+mouse_default_cursor_shape = 2
+theme_override_colors/font_color = Color(1, 1, 1, 0.9)
+theme_override_colors/font_hover_color = Color(1, 0.95, 0.8, 1)
+theme_override_colors/font_disabled_color = Color(0.75, 0.75, 0.8, 0.55)
+theme_override_font_sizes/font_size = 26
+theme_override_styles/normal = SubResource("SB_hot_normal")
+theme_override_styles/hover = SubResource("SB_hot_hover")
+theme_override_styles/pressed = SubResource("SB_hot_pressed")
+theme_override_styles/disabled = SubResource("SB_hot_disabled")
+text = "看看电脑"
+
+[node name="EarphonesBtn" type="Button" parent="Hotspots"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.5
+anchor_top = 0.48
+anchor_right = 0.68
+anchor_bottom = 0.64
+grow_horizontal = 2
+grow_vertical = 2
+mouse_default_cursor_shape = 2
+theme_override_colors/font_color = Color(1, 1, 1, 0.9)
+theme_override_colors/font_hover_color = Color(1, 0.95, 0.8, 1)
+theme_override_colors/font_disabled_color = Color(0.75, 0.75, 0.8, 0.55)
+theme_override_font_sizes/font_size = 26
+theme_override_styles/normal = SubResource("SB_hot_normal")
+theme_override_styles/hover = SubResource("SB_hot_hover")
+theme_override_styles/pressed = SubResource("SB_hot_pressed")
+theme_override_styles/disabled = SubResource("SB_hot_disabled")
+text = "看看耳机"
+
+[node name="WindowBtn" type="Button" parent="Hotspots"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.48
+anchor_top = 0.02
+anchor_right = 0.99
+anchor_bottom = 0.45
+grow_horizontal = 2
+grow_vertical = 2
+mouse_default_cursor_shape = 2
+theme_override_colors/font_color = Color(1, 1, 1, 0.9)
+theme_override_colors/font_hover_color = Color(1, 0.95, 0.8, 1)
+theme_override_colors/font_disabled_color = Color(0.75, 0.75, 0.8, 0.55)
+theme_override_font_sizes/font_size = 26
+theme_override_styles/normal = SubResource("SB_hot_normal")
+theme_override_styles/hover = SubResource("SB_hot_hover")
+theme_override_styles/pressed = SubResource("SB_hot_pressed")
+theme_override_styles/disabled = SubResource("SB_hot_disabled")
+text = "看看窗外"
+
+[node name="TitleCard" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Dark" type="ColorRect" parent="TitleCard"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.03, 0.03, 0.08, 0.9)
+
+[node name="StartHint" type="Label" parent="TitleCard"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.5
+anchor_top = 0.72
+anchor_right = 0.5
+anchor_bottom = 0.72
+offset_left = -250.0
+offset_top = -22.0
+offset_right = 250.0
+offset_bottom = 22.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.92, 0.92, 0.95, 1)
+theme_override_font_sizes/font_size = 20
+text = "点击任意位置开始"
+horizontal_alignment = 1
+
+[node name="StartOverlay" type="Button" parent="TitleCard"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+focus_mode = 0
+mouse_default_cursor_shape = 2
+flat = true
 
 [node name="ChapterTitle" type="Label" parent="."]
 layout_mode = 1
-anchors_preset = 8
+anchors_preset = -1
 anchor_left = 0.5
-anchor_top = 0.35
+anchor_top = 0.5
 anchor_right = 0.5
-anchor_bottom = 0.35
-offset_left = -400.0
-offset_top = -30.0
-offset_right = 400.0
-offset_bottom = 30.0
+anchor_bottom = 0.5
+offset_left = -520.0
+offset_top = -130.0
+offset_right = 520.0
+offset_bottom = -40.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_font_sizes/font_size = 42
+theme_override_colors/font_color = Color(1, 0.97, 0.92, 1)
+theme_override_colors/font_outline_color = Color(0.05, 0.05, 0.1, 0.9)
+theme_override_constants/outline_size = 8
+theme_override_font_sizes/font_size = 76
 text = "序章：那首歌"
 horizontal_alignment = 1
 
 [node name="ChapterSubtitle" type="Label" parent="."]
 layout_mode = 1
-anchors_preset = 8
+anchors_preset = -1
 anchor_left = 0.5
-anchor_top = 0.48
+anchor_top = 0.5
 anchor_right = 0.5
-anchor_bottom = 0.48
-offset_left = -400.0
-offset_top = -20.0
-offset_right = 400.0
-offset_bottom = 20.0
+anchor_bottom = 0.5
+offset_left = -520.0
+offset_top = -14.0
+offset_right = 520.0
+offset_bottom = 36.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_font_sizes/font_size = 20
+theme_override_colors/font_color = Color(0.85, 0.87, 0.95, 1)
+theme_override_font_sizes/font_size = 24
 text = "深夜实验室，耳机里循环播放着那首歌"
-horizontal_alignment = 1
-
-[node name="HintLabel" type="Label" parent="."]
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.6
-anchor_right = 0.5
-anchor_bottom = 0.6
-offset_left = -200.0
-offset_top = -20.0
-offset_right = 200.0
-offset_bottom = 20.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_font_sizes/font_size = 16
-text = "（序章互动内容待开发 —— Day 8）"
 horizontal_alignment = 1
 
 [node name="BackButton" type="Button" parent="."]
 layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.75
-anchor_right = 0.5
-anchor_bottom = 0.75
-offset_left = -80.0
-offset_top = -20.0
-offset_right = 80.0
-offset_bottom = 20.0
-grow_horizontal = 2
-grow_vertical = 2
+anchors_preset = -1
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -176.0
+offset_top = -64.0
+offset_right = -24.0
+offset_bottom = -20.0
+grow_horizontal = 0
+grow_vertical = 0
+mouse_default_cursor_shape = 2
+theme_override_font_sizes/font_size = 18
+theme_override_styles/normal = SubResource("SB_back_normal")
+theme_override_styles/hover = SubResource("SB_back_hover")
+theme_override_styles/pressed = SubResource("SB_back_pressed")
 text = "返回菜单"

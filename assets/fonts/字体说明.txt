@@ -1,0 +1,7 @@
+LXGWWenKai-Regular.ttf（霞鹜文楷）
+来源：https://github.com/lxgw/LxgwWenKai
+版本：v1.522
+许可证：SIL Open Font License 1.1（可免费用于个人与商业项目，可自由分发）
+
+说明：这是 DEMO 阶段的占位字体，之后如需更换只需替换本文件并在
+project.godot 的 [gui] 段（theme/custom_font）中修改路径。

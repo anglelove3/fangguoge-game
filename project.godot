@@ -18,17 +18,27 @@ config/features=PackedStringArray("4.7", "C#", "GL Compatibility")
 
 GameManager="*res://scripts/autoload/GameManager.cs"
 TransitionManager="*res://scripts/autoload/TransitionManager.cs"
+DialogueManager="*res://scripts/autoload/DialogueManager.cs"
+AudioManager="*res://scripts/autoload/AudioManager.cs"
 DebugPanel="*res://scripts/autoload/DebugPanel.cs"
 
 [display]
 
 window/size/viewport_width=1920
 window/size/viewport_height=1080
+window/size/window_width_override=1280
+window/size/window_height_override=720
+window/size/mode=0
 window/stretch/mode="canvas_items"
+window/stretch/aspect="expand"
 
 [dotnet]
 
 project/assembly_name="FangGuogeGame"
+
+[gui]
+
+theme/custom_font="res://assets/fonts/LXGWWenKai-Regular.ttf"
 
 [rendering]
 

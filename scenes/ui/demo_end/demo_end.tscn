@@ -1,0 +1,104 @@
+[gd_scene load_steps=5 format=3 uid="uid://demoend001"]
+
+[ext_resource type="Script" path="res://scripts/ui/DemoEnd.cs" id="1_demoend"]
+
+[sub_resource type="StyleBoxFlat" id="SB_back_normal"]
+bg_color = Color(0.83137256, 0.64705884, 0.45490196, 1)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+corner_detail = 12
+
+[sub_resource type="StyleBoxFlat" id="SB_back_hover"]
+bg_color = Color(0.9098039, 0.76862746, 0.6039216, 1)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+corner_detail = 12
+
+[sub_resource type="StyleBoxFlat" id="SB_back_pressed"]
+bg_color = Color(0.72156864, 0.5372549, 0.30588236, 1)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+corner_detail = 12
+
+[node name="DemoEnd" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_demoend")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.07, 0.06, 0.1, 1)
+
+[node name="Center" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBox" type="VBoxContainer" parent="Center"]
+layout_mode = 2
+theme_override_constants/separation = 24
+
+[node name="Title" type="Label" parent="Center/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.97, 0.92, 1)
+theme_override_font_sizes/font_size = 64
+text = "感谢试玩！"
+horizontal_alignment = 1
+
+[node name="SubTitle" type="Label" parent="Center/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.75, 0.78, 0.88, 1)
+theme_override_font_sizes/font_size = 22
+text = "本 DEMO 章节：序章《那首歌》 + 第一章《寄居蟹》"
+horizontal_alignment = 1
+
+[node name="Spacer" type="Control" parent="Center/VBox"]
+custom_minimum_size = Vector2(0, 20)
+layout_mode = 2
+
+[node name="StatsLabel" type="Label" parent="Center/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.88, 0.65, 1)
+theme_override_font_sizes/font_size = 26
+text = "好感度：0    勇气值：0\n当前结局倾向：寄居蟹（遗憾结局）"
+horizontal_alignment = 1
+
+[node name="HintLabel" type="Label" parent="Center/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.55, 0.58, 0.68, 1)
+theme_override_font_sizes/font_size = 18
+text = "完整的十五个章节正在路上，敬请期待。"
+horizontal_alignment = 1
+
+[node name="Spacer2" type="Control" parent="Center/VBox"]
+custom_minimum_size = Vector2(0, 12)
+layout_mode = 2
+
+[node name="BackButton" type="Button" parent="Center/VBox"]
+custom_minimum_size = Vector2(320, 56)
+layout_mode = 2
+size_flags_horizontal = 4
+mouse_default_cursor_shape = 2
+theme_override_font_sizes/font_size = 22
+theme_override_styles/normal = SubResource("SB_back_normal")
+theme_override_styles/hover = SubResource("SB_back_hover")
+theme_override_styles/pressed = SubResource("SB_back_pressed")
+text = "返回主菜单"
