@@ -33,6 +33,7 @@ public partial class DialogueManager : CanvasLayer
 
     private DialogueBox dialogueBox;
     private ChoicePanel choicePanel;
+    private StatToast statToast;
 
     // 当前播放的语句队列
     private Queue<DialogueLine> lineQueue = new();
@@ -59,6 +60,11 @@ public partial class DialogueManager : CanvasLayer
         var choiceScene = GD.Load<PackedScene>("res://scenes/ui/choice_panel/choice_panel.tscn");
         choicePanel = choiceScene.Instantiate<ChoicePanel>();
         AddChild(choicePanel);
+
+        // 实例化数值飘字 UI（加在最后 → 显示在最上层）
+        var toastScene = GD.Load<PackedScene>("res://scenes/ui/stat_toast/stat_toast.tscn");
+        statToast = toastScene.Instantiate<StatToast>();
+        AddChild(statToast);
 
         GD.Print("[对话系统] 已加载");
     }
@@ -106,7 +112,7 @@ public partial class DialogueManager : CanvasLayer
         state = State.WaitingChoice;
 
         // 提示语直接显示（不做打字机，等玩家看选项）
-        dialogueBox.ShowLine(group.PromptSpeaker, group.Prompt, instant: true);
+        dialogueBox.ShowLine(group.PromptSpeaker, group.Prompt, instant: true, portraitId: group.PromptPortrait);
         dialogueBox.SetContinueHintVisible(false); // 选项阶段不需要"点击继续"
 
         choicePanel.ShowChoices(group.Options, index =>
@@ -116,6 +122,9 @@ public partial class DialogueManager : CanvasLayer
             // 应用属性变化
             if (option.Affection != 0) GameManager.Instance.AddAffection(option.Affection);
             if (option.Courage != 0) GameManager.Instance.AddCourage(option.Courage);
+
+            // 数值飘字：让玩家立刻看到"这个选择有分量"
+            statToast?.ShowDeltas(option.Affection, option.Courage);
 
             // 记录选择（结局判定会用到）
             GameManager.Instance.RecordChoice($"{chapterId}_{choiceGroupId}", index);
@@ -135,6 +144,7 @@ public partial class DialogueManager : CanvasLayer
         state = State.Idle;
         dialogueBox?.HideBox();
         choicePanel?.Hide();
+        statToast?.HideToast();
     }
 
     // ==================== 内部逻辑 ====================
@@ -157,7 +167,7 @@ public partial class DialogueManager : CanvasLayer
 
         var line = lineQueue.Dequeue();
         state = State.Typing;
-        dialogueBox.ShowLine(line.Speaker, line.Text);
+        dialogueBox.ShowLine(line.Speaker, line.Text, portraitId: line.Portrait);
     }
 
     /// <summary>
@@ -200,6 +210,9 @@ public partial class DialogueManager : CanvasLayer
         if (!advance) return;
 
         GetViewport().SetInputAsHandled();
+
+        // 推进对话的"咔"声
+        AudioManager.Instance?.PlaySfx(AudioManager.SfxClick, -14f);
 
         if (state == State.Typing)
         {
@@ -254,6 +267,10 @@ public class DialogueLine
 {
     public string Speaker { get; set; } = ""; // 说话人（空 = 旁白）
     public string Text { get; set; } = "";    // 文字内容
+
+    // 立绘编号（比如 "roommate_smile"）。
+    // JSON 里不写 = null → 保持当前立绘；写 "" = 收起立绘；写编号 = 换立绘
+    public string Portrait { get; set; } = null;
 }
 
 /// <summary>一个章节的全部剧情数据（对应一个 JSON 文件）</summary>
@@ -274,6 +291,7 @@ public class ChoiceGroupData
 {
     public string Prompt { get; set; } = "";        // 提示语（显示在对话框里）
     public string PromptSpeaker { get; set; } = ""; // 提示语说话人
+    public string PromptPortrait { get; set; } = null; // 提示语立绘（不写 = 保持当前）
     public List<ChoiceOptionData> Options { get; set; } = new();
 }
 

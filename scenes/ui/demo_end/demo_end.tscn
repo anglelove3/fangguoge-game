@@ -67,7 +67,7 @@ horizontal_alignment = 1
 layout_mode = 2
 theme_override_colors/font_color = Color(0.75, 0.78, 0.88, 1)
 theme_override_font_sizes/font_size = 22
-text = "本 DEMO 章节：序章《那首歌》 + 第一章《寄居蟹》"
+text = "本 DEMO 章节：序章《那首歌》 + 第一章《寄居蟹》 + 第二章《一千公里》"
 horizontal_alignment = 1
 
 [node name="Spacer" type="Control" parent="Center/VBox"]

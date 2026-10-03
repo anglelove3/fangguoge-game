@@ -52,8 +52,17 @@ public partial class ChoicePanel : Control
             int index = i; // 记下编号（不能直接用 i，会被后面的循环改掉）
             btn.Pressed += () => OnOptionPressed(index);
 
+            // 悬停音：鼠标扫过选项时轻轻"嗒"一声
+            btn.MouseEntered += () => AudioManager.Instance?.PlaySfx(AudioManager.SfxHover, -16f);
+
             optionsBox.AddChild(btn);
             buttons.Add(btn);
+
+            // 小演出：选项按钮一个一个错开淡入，像发牌一样
+            btn.Modulate = new Color(1, 1, 1, 0);
+            var tween = CreateTween();
+            tween.TweenInterval(i * 0.07f);
+            tween.TweenProperty(btn, "modulate:a", 1.0f, 0.15f);
         }
 
         Show();
@@ -61,6 +70,9 @@ public partial class ChoicePanel : Control
 
     private void OnOptionPressed(int index)
     {
+        // 确定音：比普通点击更"扎实"，给玩家"这一下算数"的感觉
+        AudioManager.Instance?.PlaySfx(AudioManager.SfxConfirm, -8f);
+
         Hide();
 
         var cb = callback;

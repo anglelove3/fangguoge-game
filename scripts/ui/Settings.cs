@@ -29,6 +29,9 @@ public partial class Settings : Control
         fullscreenCheck.Toggled += OnFullscreenToggled;
         backButton.Pressed += OnBackPressed;
 
+        // 按钮音效
+        UiSounds.WireAll(this);
+
         GD.Print("[设置界面] 已加载");
     }
 

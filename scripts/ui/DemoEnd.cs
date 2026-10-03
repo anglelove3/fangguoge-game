@@ -16,6 +16,9 @@ public partial class DemoEnd : Control
 
         GetNode<Button>("Center/VBox/BackButton").Pressed += OnBackPressed;
 
+        // 按钮音效
+        UiSounds.WireAll(this);
+
         GD.Print("[DEMO结束] 展示结算数据完成");
     }
 

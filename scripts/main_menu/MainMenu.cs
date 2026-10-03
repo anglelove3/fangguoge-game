@@ -42,6 +42,9 @@ public partial class MainMenu : Control
         settingsButton.Pressed += OnSettingsPressed;
         quitButton.Pressed += OnQuitPressed;
 
+        // 给所有按钮挂上"悬停/点击"音效
+        UiSounds.WireAll(this);
+
         GD.Print("主菜单已加载");
     }
 
@@ -100,9 +103,10 @@ public partial class MainMenu : Control
         {
             0 => "res://scenes/chapters/prologue/prologue.tscn",
             1 => "res://scenes/chapters/ch01/ch01.tscn",
+            2 => "res://scenes/chapters/ch02/ch02.tscn",
             99 => "res://scenes/ui/demo_end/demo_end.tscn", // 试玩结束页
             // 后续章节在这里添加：
-            // 2 => "res://scenes/chapters/ch02_thousand_km/ch02.tscn",
+            // 3 => "res://scenes/chapters/ch03/xxx/ch03.tscn",
             _ => "res://scenes/chapters/prologue/prologue.tscn"
         };
     }

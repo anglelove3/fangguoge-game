@@ -1,7 +1,7 @@
-[gd_scene load_steps=10 format=3 uid="uid://prologue001"]
+[gd_scene load_steps=12 format=3 uid="uid://ch02scene001"]
 
-[ext_resource type="Script" uid="uid://dm262xhoukd4o" path="res://scripts/chapters/Prologue.cs" id="1_prologue"]
-[ext_resource type="Texture2D" path="res://assets/art/backgrounds/night_lab_v1.png" id="2_bg"]
+[ext_resource type="Script" path="res://scripts/chapters/Ch02.cs" id="1_ch02"]
+[ext_resource type="Texture2D" path="res://assets/art/backgrounds/dorm_night_v1.png" id="2_dorm"]
 
 [sub_resource type="StyleBoxFlat" id="SB_hot_normal"]
 bg_color = Color(0, 0, 0, 0)
@@ -56,17 +56,17 @@ corner_radius_bottom_right = 12
 corner_radius_bottom_left = 12
 corner_detail = 12
 
-[node name="Prologue" type="Control"]
+[node name="Ch02" type="Control"]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-script = ExtResource("1_prologue")
-ChapterTitle = "序章：那首歌"
-ChapterSubtitle = "深夜实验室，耳机里循环播放着那首歌"
-ChapterIndex = 0
+script = ExtResource("1_ch02")
+ChapterTitle = "第二章：一千公里"
+ChapterSubtitle = "隔着一千公里，和一句没说完的晚安"
+ChapterIndex = 2
 
 [node name="Background" type="TextureRect" parent="."]
 layout_mode = 1
@@ -75,7 +75,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-texture = ExtResource("2_bg")
+texture = ExtResource("2_dorm")
 expand_mode = 1
 stretch_mode = 6
 
@@ -86,7 +86,25 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.02, 0.02, 0.08, 0.25)
+color = Color(0.02, 0.02, 0.1, 0.25)
+
+[node name="CallLabel" type="Label" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -420.0
+offset_top = 150.0
+offset_right = -60.0
+offset_bottom = 190.0
+grow_horizontal = 0
+theme_override_colors/font_color = Color(0.65, 0.9, 1, 1)
+theme_override_colors/font_outline_color = Color(0.05, 0.05, 0.1, 0.9)
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 24
+text = "视频通话中……"
+horizontal_alignment = 2
 
 [node name="HintLabel" type="Label" parent="."]
 layout_mode = 1
@@ -102,7 +120,7 @@ theme_override_colors/font_color = Color(1, 0.95, 0.85, 1)
 theme_override_colors/font_outline_color = Color(0.05, 0.05, 0.1, 0.9)
 theme_override_constants/outline_size = 6
 theme_override_font_sizes/font_size = 24
-text = "深夜的实验室……好像有什么在等着你（0/3）"
+text = "晚上十点的宿舍……好像有什么在等着你（0/2）"
 horizontal_alignment = 1
 
 [node name="Hotspots" type="Control" parent="."]
@@ -114,28 +132,13 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
-[node name="ComputerBtn" type="Button" parent="Hotspots"]
+[node name="PhoneBtn" type="Button" parent="Hotspots"]
 layout_mode = 1
 anchors_preset = -1
-anchor_left = 0.12
-anchor_top = 0.16
-anchor_right = 0.44
-anchor_bottom = 0.62
-grow_horizontal = 2
-grow_vertical = 2
-mouse_default_cursor_shape = 2
-theme_override_styles/normal = SubResource("SB_hot_normal")
-theme_override_styles/hover = SubResource("SB_hot_hover")
-theme_override_styles/pressed = SubResource("SB_hot_pressed")
-theme_override_styles/disabled = SubResource("SB_hot_disabled")
-
-[node name="EarphonesBtn" type="Button" parent="Hotspots"]
-layout_mode = 1
-anchors_preset = -1
-anchor_left = 0.5
-anchor_top = 0.48
-anchor_right = 0.68
-anchor_bottom = 0.64
+anchor_left = 0.72
+anchor_top = 0.64
+anchor_right = 0.95
+anchor_bottom = 0.9
 grow_horizontal = 2
 grow_vertical = 2
 mouse_default_cursor_shape = 2
@@ -147,10 +150,10 @@ theme_override_styles/disabled = SubResource("SB_hot_disabled")
 [node name="WindowBtn" type="Button" parent="Hotspots"]
 layout_mode = 1
 anchors_preset = -1
-anchor_left = 0.48
+anchor_left = 0.0
 anchor_top = 0.02
-anchor_right = 0.99
-anchor_bottom = 0.45
+anchor_right = 0.22
+anchor_bottom = 0.66
 grow_horizontal = 2
 grow_vertical = 2
 mouse_default_cursor_shape = 2
@@ -159,59 +162,13 @@ theme_override_styles/hover = SubResource("SB_hot_hover")
 theme_override_styles/pressed = SubResource("SB_hot_pressed")
 theme_override_styles/disabled = SubResource("SB_hot_disabled")
 
-[node name="TitleCard" type="Control" parent="."]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="Dark" type="ColorRect" parent="TitleCard"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-color = Color(0.03, 0.03, 0.08, 0.9)
-
-[node name="StartHint" type="Label" parent="TitleCard"]
-layout_mode = 1
-anchors_preset = -1
-anchor_left = 0.5
-anchor_top = 0.72
-anchor_right = 0.5
-anchor_bottom = 0.72
-offset_left = -250.0
-offset_top = -22.0
-offset_right = 250.0
-offset_bottom = 22.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_colors/font_color = Color(0.92, 0.92, 0.95, 1)
-theme_override_font_sizes/font_size = 20
-text = "点击任意位置开始"
-horizontal_alignment = 1
-
-[node name="StartOverlay" type="Button" parent="TitleCard"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-focus_mode = 0
-mouse_default_cursor_shape = 2
-flat = true
-
 [node name="ChapterTitle" type="Label" parent="."]
 layout_mode = 1
 anchors_preset = -1
 anchor_left = 0.5
-anchor_top = 0.5
+anchor_top = 0.42
 anchor_right = 0.5
-anchor_bottom = 0.5
+anchor_bottom = 0.42
 offset_left = -520.0
 offset_top = -130.0
 offset_right = 520.0
@@ -222,25 +179,25 @@ theme_override_colors/font_color = Color(1, 0.97, 0.92, 1)
 theme_override_colors/font_outline_color = Color(0.05, 0.05, 0.1, 0.9)
 theme_override_constants/outline_size = 8
 theme_override_font_sizes/font_size = 76
-text = "序章：那首歌"
+text = "第二章：一千公里"
 horizontal_alignment = 1
 
 [node name="ChapterSubtitle" type="Label" parent="."]
 layout_mode = 1
 anchors_preset = -1
 anchor_left = 0.5
-anchor_top = 0.5
+anchor_top = 0.42
 anchor_right = 0.5
-anchor_bottom = 0.5
+anchor_bottom = 0.42
 offset_left = -520.0
-offset_top = -14.0
+offset_top = 70.0
 offset_right = 520.0
-offset_bottom = 36.0
+offset_bottom = 120.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_colors/font_color = Color(0.85, 0.87, 0.95, 1)
+theme_override_colors/font_color = Color(0.35, 0.37, 0.45, 1)
 theme_override_font_sizes/font_size = 24
-text = "深夜实验室，耳机里循环播放着那首歌"
+text = "隔着一千公里，和一句没说完的晚安"
 horizontal_alignment = 1
 
 [node name="BackButton" type="Button" parent="."]

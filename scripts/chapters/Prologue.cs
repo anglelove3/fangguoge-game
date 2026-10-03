@@ -24,6 +24,13 @@ public partial class Prologue : ChapterBase
     private Label hintLabel;
     private Control titleCard;
 
+    // 每个热点的微光层（itemId → 发光 Panel）
+    private readonly Dictionary<string, Panel> glows = new();
+
+    // 玩家上一次"有进展"的时间（毫秒），用来判断是不是发呆了
+    private ulong lastActivityMsec;
+    private const ulong IdleHintDelayMsec = 12000; // 12 秒没动静就给个微光提示
+
     public override void _Ready()
     {
         base._Ready(); // 基类负责找节点、绑定返回按钮、存档
@@ -40,18 +47,64 @@ public partial class Prologue : ChapterBase
         hintLabel = GetNode<Label>("HintLabel");
         titleCard = GetNode<Control>("TitleCard");
 
-        // 绑定三个物品热点按钮
-        GetNode<Button>("Hotspots/ComputerBtn").Pressed += () => OnHotspotPressed("computer", "Hotspots/ComputerBtn");
-        GetNode<Button>("Hotspots/EarphonesBtn").Pressed += () => OnHotspotPressed("earphones", "Hotspots/EarphonesBtn");
-        GetNode<Button>("Hotspots/WindowBtn").Pressed += () => OnHotspotPressed("window", "Hotspots/WindowBtn");
+        // 绑定三个物品热点按钮（点击完全隐形，鼠标悬停才发光）
+        var computerBtn = GetNode<Button>("Hotspots/ComputerBtn");
+        var earphonesBtn = GetNode<Button>("Hotspots/EarphonesBtn");
+        var windowBtn = GetNode<Button>("Hotspots/WindowBtn");
+        computerBtn.Pressed += () => OnHotspotPressed("computer", "Hotspots/ComputerBtn");
+        earphonesBtn.Pressed += () => OnHotspotPressed("earphones", "Hotspots/EarphonesBtn");
+        windowBtn.Pressed += () => OnHotspotPressed("window", "Hotspots/WindowBtn");
+
+        // 给每个热点挂上隐形微光层（发呆提示用）
+        glows["computer"] = HotspotGlow.Attach(computerBtn);
+        glows["earphones"] = HotspotGlow.Attach(earphonesBtn);
+        glows["window"] = HotspotGlow.Attach(windowBtn);
 
         // 标题卡：点任意位置开始
         var startOverlay = GetNode<Button>("TitleCard/StartOverlay");
         startOverlay.Pressed += BeginIntro;
 
+        // 全场景按钮音效（热点悬停"嗒"、点击"咔"）
+        UiSounds.WireAll(this);
+
         // 开场先藏起热点提示
         hotspotsRoot.Visible = false;
         hintLabel.Visible = false;
+    }
+
+    /// <summary>
+    /// 每帧检查：玩家长时间没进展 & 没在看对话 → 让还没找到的热点轻轻呼吸一下
+    /// </summary>
+    public override void _Process(double delta)
+    {
+        var dm = DialogueManager.Instance;
+        if (dm != null && dm.IsBusy)
+        {
+            // 正在看对话不算发呆，计时器跟着走
+            lastActivityMsec = Time.GetTicksMsec();
+            return;
+        }
+
+        if (!hotspotsRoot.Visible || foundItems.Count >= 3)
+            return;
+
+        if (Time.GetTicksMsec() - lastActivityMsec < IdleHintDelayMsec)
+            return;
+
+        lastActivityMsec = Time.GetTicksMsec();
+        PulseUnfoundHotspots();
+    }
+
+    private void PulseUnfoundHotspots()
+    {
+        float delay = 0f;
+        foreach (var (itemId, glow) in glows)
+        {
+            if (foundItems.Contains(itemId))
+                continue;
+            HotspotGlow.Pulse(glow, delay);
+            delay += 0.4f; // 错开闪，像波浪扫过去
+        }
     }
 
     /// <summary>
@@ -84,6 +137,7 @@ public partial class Prologue : ChapterBase
     {
         hotspotsRoot.Visible = true;
         hintLabel.Visible = true;
+        lastActivityMsec = Time.GetTicksMsec();
         UpdateHint();
     }
 
@@ -92,11 +146,12 @@ public partial class Prologue : ChapterBase
         int n = foundItems.Count;
         hintLabel.Text = n >= 3
             ? "（场景里的东西都看过了）"
-            : $"点击场景中的物品看看（{n}/3）";
+            : $"深夜的实验室……好像有什么在等着你（{n}/3）";
     }
 
     /// <summary>
-    /// 点击物品热点：播放对应的探索对白，看完后按钮变灰
+    /// 点击物品热点：播放对应的探索对白，看完后按钮失效
+    /// （看不到"已看过"的框——这条线索是隐形的，进度看顶部提示）
     /// </summary>
     private void OnHotspotPressed(string itemId, string buttonPath)
     {
@@ -105,10 +160,14 @@ public partial class Prologue : ChapterBase
             return; // 对话进行中或已经看过 → 忽略
 
         foundItems.Add(itemId);
+        lastActivityMsec = Time.GetTicksMsec();
+
+        // 点中的瞬间闪一下微光（"找到了！"的小反馈）
+        if (glows.TryGetValue(itemId, out var glow))
+            HotspotGlow.Pulse(glow);
 
         var btn = GetNode<Button>(buttonPath);
-        btn.Text = "已看过";
-        btn.Disabled = true;
+        btn.Disabled = true; // 禁用后悬停也不再发光，等于"看过了"
         UpdateHint();
 
         dm.PlaySequence(ChapterId, $"explore_{itemId}", () =>

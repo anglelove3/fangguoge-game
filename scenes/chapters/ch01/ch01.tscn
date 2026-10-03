@@ -5,17 +5,8 @@
 [ext_resource type="Texture2D" path="res://assets/art/backgrounds/restaurant_v1.png" id="3_rest"]
 
 [sub_resource type="StyleBoxFlat" id="SB_hot_normal"]
-bg_color = Color(1, 0.95, 0.85, 0.07)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(1, 0.9, 0.7, 0.35)
-corner_radius_top_left = 14
-corner_radius_top_right = 14
-corner_radius_bottom_right = 14
-corner_radius_bottom_left = 14
-corner_detail = 14
+bg_color = Color(0, 0, 0, 0)
+border_color = Color(0, 0, 0, 0)
 
 [sub_resource type="StyleBoxFlat" id="SB_hot_hover"]
 bg_color = Color(1, 0.95, 0.85, 0.2)
@@ -39,17 +30,8 @@ corner_radius_bottom_left = 14
 corner_detail = 14
 
 [sub_resource type="StyleBoxFlat" id="SB_hot_disabled"]
-bg_color = Color(0.6, 0.6, 0.65, 0.06)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.6, 0.6, 0.65, 0.18)
-corner_radius_top_left = 14
-corner_radius_top_right = 14
-corner_radius_bottom_right = 14
-corner_radius_bottom_left = 14
-corner_detail = 14
+bg_color = Color(0, 0, 0, 0)
+border_color = Color(0, 0, 0, 0)
 
 [sub_resource type="StyleBoxFlat" id="SB_back_normal"]
 bg_color = Color(0.83137256, 0.64705884, 0.45490196, 1)
@@ -133,7 +115,7 @@ theme_override_colors/font_color = Color(1, 0.95, 0.85, 1)
 theme_override_colors/font_outline_color = Color(0.05, 0.05, 0.1, 0.9)
 theme_override_constants/outline_size = 6
 theme_override_font_sizes/font_size = 24
-text = "点击场景里的东西看看（0/2）"
+text = "热闹的川菜馆……好像有什么在等着你（0/2）"
 horizontal_alignment = 1
 
 [node name="Hotspots" type="Control" parent="."]
@@ -155,15 +137,10 @@ anchor_bottom = 0.97
 grow_horizontal = 2
 grow_vertical = 2
 mouse_default_cursor_shape = 2
-theme_override_colors/font_color = Color(1, 1, 1, 0.9)
-theme_override_colors/font_hover_color = Color(1, 0.95, 0.8, 1)
-theme_override_colors/font_disabled_color = Color(0.75, 0.75, 0.8, 0.55)
-theme_override_font_sizes/font_size = 26
 theme_override_styles/normal = SubResource("SB_hot_normal")
 theme_override_styles/hover = SubResource("SB_hot_hover")
 theme_override_styles/pressed = SubResource("SB_hot_pressed")
 theme_override_styles/disabled = SubResource("SB_hot_disabled")
-text = "看看菜单"
 
 [node name="GroupBtn" type="Button" parent="Hotspots"]
 layout_mode = 1
@@ -175,15 +152,10 @@ anchor_bottom = 0.62
 grow_horizontal = 2
 grow_vertical = 2
 mouse_default_cursor_shape = 2
-theme_override_colors/font_color = Color(1, 1, 1, 0.9)
-theme_override_colors/font_hover_color = Color(1, 0.95, 0.8, 1)
-theme_override_colors/font_disabled_color = Color(0.75, 0.75, 0.8, 0.55)
-theme_override_font_sizes/font_size = 26
 theme_override_styles/normal = SubResource("SB_hot_normal")
 theme_override_styles/hover = SubResource("SB_hot_hover")
 theme_override_styles/pressed = SubResource("SB_hot_pressed")
 theme_override_styles/disabled = SubResource("SB_hot_disabled")
-text = "看看大家"
 
 [node name="ChapterTitle" type="Label" parent="."]
 layout_mode = 1

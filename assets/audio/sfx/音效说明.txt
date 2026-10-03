@@ -1,0 +1,13 @@
+音效说明
+========
+
+来源：Kenney "UI Audio" 素材包（https://kenney.nl/assets/ui-audio）
+授权：CC0 1.0（公有领域，可商用、无需署名——详见同目录 授权_License.txt）
+
+本目录用到的 4 个文件（改了名字方便代码里读）：
+  ui_click.ogg    —— 原 click1.ogg     用途：推进对话 / 通用点击
+  ui_confirm.ogg  —— 原 click3.ogg     用途：选项确定（比 click 更"扎实"）
+  ui_hover.ogg    —— 原 rollover3.ogg  用途：鼠标悬停到选项上
+  ui_tick.ogg     —— 原 rollover1.ogg  用途：打字机"滴滴答答"（压低音量+随机音高）
+
+以后想换音效：直接替换同名文件即可，代码不用改。

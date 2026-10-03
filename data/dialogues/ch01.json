@@ -2,7 +2,7 @@
   "sequences": {
     "intro": [
       { "speaker": "", "text": "第二天中午，实验室的窗帘全拉开了，阳光晒得人想打瞌睡。" },
-      { "speaker": "室友", "text": "醒醒，今晚聚餐，老地方川菜馆，你可必须来啊。" },
+      { "speaker": "室友", "text": "醒醒，今晚聚餐，老地方川菜馆，你可必须来啊。", "portrait": "roommate_laugh" },
       { "speaker": "我", "text": "（……聚餐。）" },
       { "speaker": "室友", "text": "别又想当「都行哥」啊，放过哥——今晚说好了必须到！" },
       { "speaker": "我", "text": "（……好。）" }
@@ -32,13 +32,13 @@
     "order_0": [
       { "speaker": "我", "text": "要一份辣子鸡吧，最近馋这个。" },
       { "speaker": "", "text": "桌上静了一秒，然后室友第一个喊起来。" },
-      { "speaker": "室友", "text": "嚯！放过哥主动点菜了！今天太阳打西边出来了！" },
+      { "speaker": "室友", "text": "嚯！放过哥主动点菜了！今天太阳打西边出来了！", "portrait": "roommate_surprised" },
       { "speaker": "", "text": "大家都笑起来，气氛一下子松快了。" },
       { "speaker": "我", "text": "（……好像，也没那么难。）" }
     ],
     "order_1": [
       { "speaker": "我", "text": "我都可以，你们看着点吧。" },
-      { "speaker": "室友", "text": "行行行，放过哥嘛，都行都行。" },
+      { "speaker": "室友", "text": "行行行，放过哥嘛，都行都行。", "portrait": "roommate_smile" },
       { "speaker": "", "text": "菜单被传了一圈，最后点了七个菜，没有一个是你点的。" },
       { "speaker": "我", "text": "（也挺好。省事。）" }
     ],
@@ -46,7 +46,7 @@
       { "speaker": "我", "text": "……随便。" },
       { "speaker": "服务员", "text": "额……同学，我们菜单上……没有「随便」这道菜。" },
       { "speaker": "", "text": "一阵尴尬的安静。室友赶紧打圆场。" },
-      { "speaker": "室友", "text": "他随便，他都随便。来——毛血旺、辣子鸡、土豆丝，再加个汤！" },
+      { "speaker": "室友", "text": "他随便，他都随便。来——毛血旺、辣子鸡、土豆丝，再加个汤！", "portrait": "roommate_laugh" },
       { "speaker": "我", "text": "（谢谢。还有，对不起。）" }
     ],
     "outro": [
@@ -63,6 +63,7 @@
     "order_food": {
       "prompt": "服务员在等你开口。你说：",
       "promptSpeaker": "服务员",
+      "promptPortrait": "roommate_laugh",
       "options": [
         { "text": "要一份辣子鸡吧，最近馋这个。", "affection": 0, "courage": 5 },
         { "text": "我都可以，你们看着点。", "affection": 0, "courage": 0 },
