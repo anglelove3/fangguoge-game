@@ -17,8 +17,8 @@ public partial class Ch01 : ChapterBase
     private Control hotspotsRoot;
     private Label hintLabel;
 
-    // 每个热点的微光层（itemId → 发光 Panel）
-    private readonly Dictionary<string, Panel> glows = new();
+    // 每个热点的柔光层（itemId → 柔光 Control，发呆提示用）
+    private readonly Dictionary<string, Control> glows = new();
 
     // 发呆计时：12 秒没进展就给微光提示
     private ulong lastActivityMsec;
@@ -139,11 +139,9 @@ public partial class Ch01 : ChapterBase
         foundItems.Add(itemId);
         lastActivityMsec = Time.GetTicksMsec();
 
-        // 点中的瞬间闪一下微光（"找到了！"的小反馈）
-        if (glows.TryGetValue(itemId, out var glow))
-            HotspotGlow.Pulse(glow);
-
+        // 点中的瞬间：指尖冒出两三颗小星光（"找到了！"的反馈，没有框）
         var btn = GetNode<Button>(buttonPath);
+        HotspotGlow.Sparkle(btn);
         btn.Disabled = true; // 看过了：不再发光，也没有痕迹
         UpdateHint();
 

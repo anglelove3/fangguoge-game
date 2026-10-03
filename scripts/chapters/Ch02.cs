@@ -23,7 +23,11 @@ public partial class Ch02 : ChapterBase
     private Label callLabel;
     private Tween callLabelTween;
 
-    private readonly Dictionary<string, Panel> glows = new();
+    // 每个热点的柔光层（itemId → 柔光 Control，发呆提示用）
+    private readonly Dictionary<string, Control> glows = new();
+
+    // 手机聊天界面是否打开中（打开时暂停发呆提示）
+    private bool chatOpen;
 
     private ulong lastActivityMsec;
     private const ulong IdleHintDelayMsec = 12000;
@@ -61,6 +65,12 @@ public partial class Ch02 : ChapterBase
     /// <summary>发呆 12 秒 → 未找到的热点轻轻呼吸</summary>
     public override void _Process(double delta)
     {
+        if (chatOpen)
+        {
+            lastActivityMsec = Time.GetTicksMsec(); // 在看聊天记录 = 有进展
+            return;
+        }
+
         var dm = DialogueManager.Instance;
         if (dm != null && dm.IsBusy)
         {
@@ -105,26 +115,56 @@ public partial class Ch02 : ChapterBase
     private void OnHotspotPressed(string itemId, string buttonPath)
     {
         var dm = DialogueManager.Instance;
-        if (dm == null || dm.IsBusy || foundItems.Contains(itemId))
+        if (dm == null || dm.IsBusy || chatOpen || foundItems.Contains(itemId))
             return;
 
         foundItems.Add(itemId);
         lastActivityMsec = Time.GetTicksMsec();
 
-        if (glows.TryGetValue(itemId, out var glow))
-            HotspotGlow.Pulse(glow);
-
+        // 点中的瞬间：指尖冒出两三颗小星光（"找到了！"的反馈，没有框）
         var btn = GetNode<Button>(buttonPath);
+        HotspotGlow.Sparkle(btn);
         btn.Disabled = true;
         UpdateHint();
 
-        dm.PlaySequence(ChapterId, $"explore_{itemId}", () =>
+        if (itemId == "phone")
         {
-            if (foundItems.Count >= 2)
-            {
-                PlayAllFound();
-            }
-        });
+            // 手机：先播一句引导语，然后真正"打开手机"看聊天记录
+            dm.PlaySequence(ChapterId, "explore_phone", OpenPhoneChat);
+        }
+        else
+        {
+            dm.PlaySequence(ChapterId, $"explore_{itemId}", OnExploreFinished);
+        }
+    }
+
+    /// <summary>看完一处 → 两处都看完就进入"室友去睡"的后续</summary>
+    private void OnExploreFinished()
+    {
+        if (foundItems.Count >= 2)
+        {
+            PlayAllFound();
+        }
+    }
+
+    /// <summary>
+    /// 打开手机聊天界面（微信风格，可以一条条往上翻旧消息）。
+    /// 玩家点"收起手机"后，接着播"翻完聊天记录"的感想对白。
+    /// </summary>
+    private void OpenPhoneChat()
+    {
+        chatOpen = true;
+
+        var overlay = GD.Load<PackedScene>("res://scenes/ui/chat/chat_overlay.tscn")
+            .Instantiate<ChatOverlay>();
+        AddChild(overlay);
+        overlay.Closed += () =>
+        {
+            chatOpen = false;
+            lastActivityMsec = Time.GetTicksMsec();
+            DialogueManager.Instance.PlaySequence(ChapterId, "explore_phone_after", OnExploreFinished);
+        };
+        overlay.Open("ch02_phone");
     }
 
     private void PlayAllFound()

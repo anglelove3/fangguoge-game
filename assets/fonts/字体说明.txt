@@ -3,5 +3,13 @@ LXGWWenKai-Regular.ttf（霞鹜文楷）
 版本：v1.522
 许可证：SIL Open Font License 1.1（可免费用于个人与商业项目，可自由分发）
 
-说明：这是 DEMO 阶段的占位字体，之后如需更换只需替换本文件并在
+说明：这是 DEMO 阶段的占位字体（正文/按钮/对话框），之后如需更换只需替换本文件并在
 project.godot 的 [gui] 段（theme/custom_font）中修改路径。
+
+— — —
+
+NotoSerifSC-Bold.otf（思源宋体 Bold，Noto Serif SC）
+来源：https://github.com/notofonts/noto-cjk
+许可证：SIL Open Font License 1.1（可免费用于个人与商业项目，可自由分发）
+用途：主菜单大标题等"需要质感"的标题场景（衬线字，文艺感）。
+正文仍用霞鹜文楷，"宋体标题 + 楷体正文"是爱情文学类常见搭配。

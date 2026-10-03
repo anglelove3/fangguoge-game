@@ -45,3 +45,6 @@ desktop.ini
 
 # AI 生成图片的原始输出目录（用到的图都已复制进 assets/art/）
 vibe_images/
+
+# 本地回归测试脚本与截图（只在开发机上用，不进仓库）
+test/

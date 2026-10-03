@@ -1,0 +1,28 @@
+{
+  "title": "同桌",
+  "messages": [
+    { "type": "divider", "text": "2月24日" },
+    { "sender": "her", "type": "text", "text": "到啦！这边风是真的大，行李箱差点被吹跑" },
+    { "sender": "me", "type": "text", "text": "嗯，到了就好，注意安全" },
+    { "type": "divider", "text": "3月2日" },
+    { "sender": "her", "type": "image", "image": "res://assets/art/chat/photo_milktea_v1.png" },
+    { "sender": "her", "type": "text", "text": "学校门口新开的奶茶店，我排了四十分钟队！" },
+    { "sender": "me", "type": "text", "text": "看起来不错" },
+    { "type": "divider", "text": "3月9日" },
+    { "sender": "her", "type": "image", "image": "res://assets/art/chat/photo_office_v1.png" },
+    { "sender": "her", "type": "text", "text": "加班到十点，今天的工位长这样" },
+    { "sender": "me", "type": "text", "text": "辛苦了，早点回去休息" },
+    { "type": "divider", "text": "3月15日" },
+    { "sender": "her", "type": "image", "image": "res://assets/art/chat/photo_cat_v1.png" },
+    { "sender": "her", "type": "text", "text": "楼下的小猫，每天准时来蹭饭，像个小闹钟" },
+    { "sender": "me", "type": "text", "text": "嗯，可爱" },
+    { "type": "divider", "text": "3月21日" },
+    { "sender": "her", "type": "image", "image": "res://assets/art/chat/photo_riverside_v1.png" },
+    { "sender": "her", "type": "text", "text": "我们这边夜景也不错哦" },
+    { "sender": "me", "type": "text", "text": "嗯，好看" },
+    { "type": "divider", "text": "7天前" },
+    { "sender": "me", "type": "text", "text": "最近有点忙，回头聊。" },
+    { "type": "divider", "text": "今天 22:07" },
+    { "sender": "her", "type": "text", "text": "下个月，我去你那边出差，顺路。见一面吗？" }
+  ]
+}
