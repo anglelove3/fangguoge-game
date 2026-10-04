@@ -1,0 +1,63 @@
+{
+  "cover": "res://assets/art/chat/photo_riverside_v1.png",
+  "posts": [
+    {
+      "id": "m1",
+      "author": "同桌",
+      "avatar": "res://assets/art/chat/her_avatar_v1.png",
+      "time": "2 小时前",
+      "text": "学校门口新开的店，珍珠奶茶好喝到哭，标记一下。",
+      "images": ["res://assets/art/chat/photo_milktea_v1.png"],
+      "likes": ["小米师妹", "三金师兄"],
+      "comments": [
+        { "author": "小米师妹", "text": "师兄下次带我！" },
+        { "author": "三金师兄", "text": "看着不错，记下了" }
+      ]
+    },
+    {
+      "id": "m2",
+      "author": "俊杰（师弟）",
+      "time": "5 小时前",
+      "text": "实验室的又一个深夜，窗外的景色居然还不错。",
+      "images": ["res://assets/art/chat/photo_office_v1.png"],
+      "likes": ["三金师兄"],
+      "comments": [
+        { "author": "三金师兄", "text": "早点回宿舍，别熬太晚" }
+      ]
+    },
+    {
+      "id": "m3",
+      "author": "同桌",
+      "avatar": "res://assets/art/chat/her_avatar_v1.png",
+      "time": "昨天",
+      "text": "回实验室的路上捡到一只猫，有人想收养吗？",
+      "images": ["res://assets/art/chat/photo_cat_v1.png"],
+      "likes": ["叶冰玉（高中同学）", "小米师妹", "诚哥"],
+      "comments": [
+        { "author": "叶冰玉（高中同学）", "text": "好可爱！！" }
+      ]
+    },
+    {
+      "id": "m4",
+      "author": "叶冰玉（高中同学）",
+      "time": "2 天前",
+      "text": "傍晚去江边走了走，风很舒服。突然有点想念高中。",
+      "images": ["res://assets/art/chat/photo_riverside_v1.png"],
+      "likes": ["诚哥", "金艮"],
+      "comments": [
+        { "author": "金艮", "text": "这是老家那条江？" }
+      ]
+    },
+    {
+      "id": "m5",
+      "author": "妈",
+      "time": "3 天前",
+      "text": "今天做了红烧肉，可惜娃不在家吃。",
+      "images": [],
+      "likes": ["爸"],
+      "comments": [
+        { "author": "爸", "text": "给我留点" }
+      ]
+    }
+  ]
+}
