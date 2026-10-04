@@ -87,6 +87,9 @@ public partial class MainMenu : Control
         GetNode<Node2D>("FxBehind").AddChild(MakeDustLayer(64, 0.05f, 0.2f, 0.5f, -2.5f));
         GetNode<Node2D>("FxFront").AddChild(MakeDustLayer(22, 0.1f, 0.34f, 0.3f, -4.0f));
 
+        // 5) 咖啡杯蒸汽：从杯子位置缓缓升起白色半透明雾气
+        AddChild(MakeSteamParticles());
+
         // 4) 按钮果冻反馈
         WireButtonJuice(startButton);
         WireButtonJuice(settingsButton);
@@ -167,6 +170,71 @@ public partial class MainMenu : Control
             new Color(1, 1, 1, 0f),
         };
         return gradient;
+    }
+
+    /// <summary>
+    /// 咖啡杯蒸汽：从杯口位置缓缓升起的白色半透明雾气
+    /// 咖啡杯在背景图左下，杯口大约在 viewport (344, 631)
+    /// </summary>
+    private static CpuParticles2D MakeSteamParticles()
+    {
+        // 蒸汽贴图：比浮尘更大、更软的白色圆斑
+        var steamGradient = new Gradient();
+        steamGradient.Offsets = new float[] { 0f, 0.3f, 0.7f, 1f };
+        steamGradient.Colors = new Color[]
+        {
+            new Color(1, 1, 1, 0.6f),
+            new Color(1, 1, 1, 0.35f),
+            new Color(1, 1, 1, 0.1f),
+            new Color(1, 1, 1, 0f),
+        };
+        var steamTexture = new GradientTexture2D
+        {
+            Gradient = steamGradient,
+            Width = 128,
+            Height = 128,
+            Fill = GradientTexture2D.FillEnum.Radial,
+            FillFrom = new Vector2(0.5f, 0.5f),
+            FillTo = new Vector2(1f, 0.5f),
+        };
+
+        // 蒸汽颜色渐变：从白色半透明 → 完全透明
+        var steamRamp = new Gradient();
+        steamRamp.Offsets = new float[] { 0f, 0.15f, 0.6f, 1f };
+        steamRamp.Colors = new Color[]
+        {
+            new Color(1, 1, 1, 0f),
+            new Color(1, 1, 1, 0.22f),
+            new Color(1, 1, 1, 0.12f),
+            new Color(1, 1, 1, 0f),
+        };
+
+        return new CpuParticles2D
+        {
+            Name = "CoffeeSteam",
+            Amount = 10,
+            Lifetime = 2.8,
+            Preprocess = 2.0, // 提前"热身"，进菜单就能看到蒸汽
+            Randomness = 0.5f,
+            LifetimeRandomness = 0.4f,
+            Position = new Vector2(344, 631), // 杯口位置（viewport 坐标）
+            EmissionShape = CpuParticles2D.EmissionShapeEnum.Rectangle,
+            EmissionRectExtents = new Vector2(50, 8), // 窄长的发射区域（杯口宽度）
+            Direction = new Vector2(0, -1),
+            Spread = 25.0f, // 轻微左右散开
+            Gravity = new Vector2(0, -12), // 缓慢上升
+            InitialVelocityMin = 8.0f,
+            InitialVelocityMax = 18.0f,
+            ScaleAmountMin = 0.4f,
+            ScaleAmountMax = 1.2f,
+            AngularVelocityMin = -15f,
+            AngularVelocityMax = 15f,
+            Color = Colors.White,
+            Texture = steamTexture,
+            ColorRamp = steamRamp,
+            // 正常混合（不用 Add，蒸汽是半透明白色而非发光）
+            Seed = GD.Randi(),
+        };
     }
 
     /// <summary>

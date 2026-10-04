@@ -33,10 +33,15 @@ public partial class ChatOverlay : Control
     private static readonly Color HerBubbleColor = new Color(1f, 1f, 1f);           // 她：白
     private static readonly Color TextColor = new Color(0.09f, 0.09f, 0.11f);
     private static readonly Color DividerColor = new Color(0.55f, 0.55f, 0.58f);
+    private static readonly Color HeaderBgColor = new Color(0.925f, 0.925f, 0.935f); // 微信顶栏浅灰
+    private static readonly Color HeaderTextColor = new Color(0.12f, 0.12f, 0.14f);
+    private static readonly Color TimestampColor = new Color(0.55f, 0.55f, 0.58f);
+    private static readonly Color InputBgColor = new Color(0.96f, 0.96f, 0.97f);
 
     private const int FontSize = 28;
     private const float MaxTextBubbleWidth = 540f; // 气泡最宽（超过就换行）
     private const float ImageBubbleWidth = 380f;
+    private const float TailSize = 10f; // 气泡小尾巴尺寸
 
     // 遮罩着色器只加载一次（静态缓存）
     private static Shader roundedMaskShader;
@@ -46,9 +51,11 @@ public partial class ChatOverlay : Control
     private Control hintChip;
     private Label nameLabel;
     private Panel phonePanel;
+    private Control header;
 
     private bool closing;    // 正在收起（防止重复触发）
     private bool hintArmed;  // "滑一滑"提示是否已武装（入场滚动不算）
+    private int messageIndex; // 消息序号（用于生成时间戳）
 
     public override void _Ready()
     {
@@ -57,6 +64,7 @@ public partial class ChatOverlay : Control
         hintChip = GetNode<Control>("PhonePanel/HintChip");
         nameLabel = GetNode<Label>("PhonePanel/Header/NameLabel");
         phonePanel = GetNode<Panel>("PhonePanel");
+        header = GetNode<Control>("PhonePanel/Header");
 
         // 点黑幕 = 收起手机
         GetNode<ColorRect>("Backdrop").GuiInput += OnBackdropInput;
@@ -80,6 +88,10 @@ public partial class ChatOverlay : Control
     {
         var data = LoadChatData(chatId);
         nameLabel.Text = data.Title;
+        messageIndex = 0;
+
+        // 微信风格顶栏
+        StyleHeader();
 
         // 生成所有消息行
         foreach (var msg in data.Messages)
@@ -170,10 +182,43 @@ public partial class ChatOverlay : Control
 
     // ==================== 消息行生成 ====================
 
+    /// <summary>微信风格顶栏：浅灰背景 + 细字体</summary>
+    private void StyleHeader()
+    {
+        if (header == null) return;
+        // 给 Header 加浅灰背景
+        var headerStyle = new StyleBoxFlat
+        {
+            BgColor = HeaderBgColor,
+            CornerRadiusTopLeft = 28,
+            CornerRadiusTopRight = 28,
+        };
+        header.AddThemeStyleboxOverride("panel", headerStyle);
+
+        // 返回箭头和更多按钮用细字体
+        var backLabel = GetNode<Label>("PhonePanel/Header/BackLabel");
+        var moreLabel = GetNode<Label>("PhonePanel/Header/MoreLabel");
+        backLabel.AddThemeFontSizeOverride("font_size", 36);
+        backLabel.AddThemeColorOverride("font_color", HeaderTextColor);
+        moreLabel.AddThemeFontSizeOverride("font_size", 32);
+        moreLabel.AddThemeColorOverride("font_color", HeaderTextColor);
+
+        // 联系人名字
+        nameLabel.AddThemeFontSizeOverride("font_size", 30);
+        nameLabel.AddThemeColorOverride("font_color", HeaderTextColor);
+    }
+
     private Control MakeMessageRow(ChatMessageData msg)
     {
         if (msg.Type == "divider")
             return MakeDivider(msg.Text);
+
+        // 每 3 条消息插入一个时间戳（模拟微信的时间显示）
+        if (messageIndex > 0 && messageIndex % 3 == 0)
+        {
+            rows.AddChild(MakeTimestamp());
+        }
+        messageIndex++;
 
         bool mine = msg.Sender == "me";
 
@@ -220,7 +265,25 @@ public partial class ChatOverlay : Control
         return label;
     }
 
-    /// <summary>文字气泡（靠近头像的那只角收小 = 气泡"尾巴"）</summary>
+    /// <summary>微信风格时间戳（居中灰色小字，如 "晚上 9:32"）</summary>
+    private static Control MakeTimestamp()
+    {
+        // 模拟微信的时间格式
+        string[] times = { "晚上 9:20", "晚上 9:25", "晚上 9:31", "晚上 9:38", "晚上 9:45", "晚上 10:02", "晚上 10:15" };
+        string time = times[GD.Randi() % times.Length];
+
+        var label = new Label
+        {
+            Text = time,
+            HorizontalAlignment = HorizontalAlignment.Center,
+            MouseFilter = MouseFilterEnum.Ignore,
+        };
+        label.AddThemeFontSizeOverride("font_size", 22);
+        label.AddThemeColorOverride("font_color", TimestampColor);
+        return label;
+    }
+
+    /// <summary>文字气泡（靠近头像的那只角收小 + 小尾巴 + 微阴影）</summary>
     private Control MakeTextBubble(string text, bool mine)
     {
         var label = new Label
@@ -247,13 +310,26 @@ public partial class ChatOverlay : Control
 
         var bubble = new PanelContainer { MouseFilter = MouseFilterEnum.Ignore };
         var style = new StyleBoxFlat { BgColor = mine ? MyBubbleColor : HerBubbleColor };
-        style.SetCornerRadiusAll(14);
+
+        // 微信风格不对称圆角：远离头像的三角大圆角(16)，靠近头像的角小圆角(4)
+        style.SetCornerRadiusAll(16);
         if (mine)
-            style.CornerRadiusTopRight = 4;
+            style.CornerRadiusTopRight = 4; // 我的气泡：右上角小（靠近头像）
         else
-            style.CornerRadiusTopLeft = 4;
+            style.CornerRadiusTopLeft = 4;  // 她的气泡：左上角小（靠近头像）
+
+        // 微阴影
+        style.ShadowColor = new Color(0, 0, 0, 0.08f);
+        style.ShadowSize = 3;
+        style.ShadowOffset = new Vector2(0, 1);
+
         bubble.AddThemeStyleboxOverride("panel", style);
         bubble.AddChild(margin);
+
+        // 气泡小尾巴（三角形，指向头像方向）
+        var tail = new BubbleTail(mine ? MyBubbleColor : HerBubbleColor, mine);
+        bubble.AddChild(tail);
+
         return bubble;
     }
 
@@ -360,4 +436,53 @@ public class ChatMessageData
     public string Type { get; set; } = "text";  // text / image / divider
     public string Text { get; set; } = "";      // 文字内容（divider 用 text 存日期）
     public string Image { get; set; } = "";     // 图片路径（type = image 时用）
+}
+
+/// <summary>
+/// 气泡小尾巴：在气泡靠近头像那一侧画一个小三角形
+/// mine=true 时尾巴在右侧（指向右边的头像），mine=false 时在左侧
+/// </summary>
+public partial class BubbleTail : Control
+{
+    private readonly Color tailColor;
+    private readonly bool onRight; // true = 尾巴在右边（我的消息）
+
+    public BubbleTail(Color color, bool onRightSide)
+    {
+        tailColor = color;
+        onRight = onRightSide;
+        CustomMinimumSize = new Vector2(12, 12);
+        MouseFilter = MouseFilterEnum.Ignore;
+    }
+
+    public override void _Draw()
+    {
+        float w = Size.X;
+        float h = Size.Y;
+
+        // 三角形三个顶点
+        Vector2[] points;
+        if (onRight)
+        {
+            // 尾巴在右侧：指向右
+            points = new Vector2[]
+            {
+                new Vector2(0, 2),
+                new Vector2(w, h * 0.35f),
+                new Vector2(0, h - 2),
+            };
+        }
+        else
+        {
+            // 尾巴在左侧：指向左
+            points = new Vector2[]
+            {
+                new Vector2(w, 2),
+                new Vector2(0, h * 0.35f),
+                new Vector2(w, h - 2),
+            };
+        }
+
+        DrawColoredPolygon(points, tailColor);
+    }
 }
