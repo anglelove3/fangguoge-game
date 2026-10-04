@@ -19,6 +19,8 @@ public partial class Ch02 : ChapterBase
     private readonly HashSet<string> foundItems = new();
     private bool phoneUsedOnce; // 手机是否已经看过一次（之后再点击只打开聊天）
     private bool phoneChatSeenBefore; // 聊天后的感想对白是否已播过
+    private int ashtrayStage;   // 烟灰缸：第几次数烟头（彩蛋，可反复点，文案递进）
+    private bool lighterTaken;  // 窗台打火机：收进物品栏一次就不再触发
 
     private Control hotspotsRoot;
     private Label hintLabel;
@@ -44,8 +46,12 @@ public partial class Ch02 : ChapterBase
 
         var phoneBtn = GetNode<Button>("Hotspots/PhoneBtn");
         var windowBtn = GetNode<Button>("Hotspots/WindowBtn");
+        var ashtrayBtn = GetNode<Button>("Hotspots/AshtrayBtn");
+        var lighterBtn = GetNode<Button>("Hotspots/LighterBtn");
         phoneBtn.Pressed += () => OnHotspotPressed("phone", "Hotspots/PhoneBtn");
         windowBtn.Pressed += () => OnHotspotPressed("window", "Hotspots/WindowBtn");
+        ashtrayBtn.Pressed += () => OnEasterEggPressed("ashtray", "Hotspots/AshtrayBtn");
+        lighterBtn.Pressed += () => OnEasterEggPressed("lighter", "Hotspots/LighterBtn");
 
         glows["phone"] = HotspotGlow.Attach(phoneBtn);
         glows["window"] = HotspotGlow.Attach(windowBtn);
@@ -157,6 +163,43 @@ public partial class Ch02 : ChapterBase
         UpdateHint();
 
         dm.PlaySequence(ChapterId, $"explore_{itemId}", OnExploreFinished);
+    }
+
+    /// <summary>
+    /// 第九轮彩蛋热点（不计入 2/2 主线进度）：
+    /// 烟灰缸——可反复点，每点一次数一段（文案递进，暗示熬夜实验的压力）；
+    /// 打火机——一次性，看完收进口袋，隐藏物品 +1。
+    /// </summary>
+    private void OnEasterEggPressed(string itemId, string buttonPath)
+    {
+        var dm = DialogueManager.Instance;
+        if (dm == null || dm.IsBusy || chatOpen)
+            return;
+
+        lastActivityMsec = Time.GetTicksMsec();
+        var btn = GetNode<Button>(buttonPath);
+        HotspotGlow.Sparkle(btn);
+
+        if (itemId == "ashtray")
+        {
+            ashtrayStage++;
+            string seq = ashtrayStage switch
+            {
+                1 => "egg_ashtray_1",
+                2 => "egg_ashtray_2",
+                3 => "egg_ashtray_3",
+                _ => "egg_ashtray_more",
+            };
+            dm.PlaySequence(ChapterId, seq, null);
+            return;
+        }
+
+        if (itemId == "lighter" && !lighterTaken)
+        {
+            lighterTaken = true;
+            btn.Disabled = true;
+            dm.PlaySequence(ChapterId, "explore_lighter", FindHiddenItem);
+        }
     }
 
     /// <summary>看完一处 → 两处都看完就进入"室友去睡"的后续</summary>

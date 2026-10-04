@@ -1,0 +1,26 @@
+{
+  "title": "li-lab",
+  "messages": [
+    { "type": "divider", "text": "上周四 晚上 6:41" },
+    { "sender": "other", "senderName": "研究生导师", "text": "转发公众号《用了AI跑实验的研究生，已经提前毕业了》，写得很好，大家都看看" },
+    { "sender": "other", "senderName": "研究生导师", "text": "@全体成员 下周组会抽半小时讨论一下这个方向" },
+    { "sender": "other", "senderName": "三金师兄", "text": "收到" },
+    { "sender": "other", "senderName": "俊杰（师弟）", "text": "收到＋1" },
+    { "sender": "other", "senderName": "小米师妹", "text": "收到＋1" },
+    { "sender": "other", "senderName": "金艮", "text": "就是说，老师，这篇去年就看过了吧……" },
+    { "sender": "other", "senderName": "研究生导师", "text": "我刚刷到" },
+    { "sender": "other", "senderName": "研究生导师", "text": "标题写的是“已经”，说明还在进行的就不算旧，常看常新" },
+    { "type": "divider", "text": "今天 凌晨 0:47" },
+    { "sender": "other", "senderName": "研究生导师", "text": "转发公众号《凌晨两点还在群里转文章的导师，带的组都在出大成果》" },
+    { "sender": "other", "senderName": "研究生导师", "text": "@全体成员 都仔细读读，这就是我们组该有的状态" },
+    { "sender": "other", "senderName": "俊杰（师弟）", "text": "老师，这篇好像是从学生视角吐槽的……" },
+    { "sender": "other", "senderName": "三金师兄", "text": "一点了，大家都睡吧" },
+    { "sender": "other", "senderName": "金艮", "text": "就是说，老师这个点转发这篇文章，本身就是答案" },
+    { "sender": "other", "senderName": "小米师妹", "text": "[表情：小狗流泪]" },
+    { "sender": "other", "senderName": "研究生导师", "text": "你们不懂，灵感这种东西晚上最稠。我再跑个数据" },
+    { "type": "divider", "text": "今天 早上 8:02" },
+    { "sender": "other", "senderName": "研究生导师", "text": "@全体成员 今天组会提前到九点，聊聊昨晚的灵感" },
+    { "sender": "other", "senderName": "三金师兄", "text": "收到" },
+    { "sender": "other", "senderName": "金艮", "text": "就——是——说——，灵感还带加班的" }
+  ]
+}

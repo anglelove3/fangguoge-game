@@ -17,6 +17,8 @@ public partial class WeChatMainPage : Control
 {
     /// <summary>点了某位联系人（参数 = 联系人 id）</summary>
     public event Action<string> ContactSelected;
+    /// <summary>点了"订阅号消息 / 微信运动"这类系统入口（参数 = 页面 key）</summary>
+    public event Action<string> PageOpened;
     /// <summary>点了"朋友圈"</summary>
     public event Action MomentsOpened;
     /// <summary>点了占位条目（参数 = 提示文案）</summary>
@@ -179,41 +181,55 @@ public partial class WeChatMainPage : Control
         pad.AddChild(box);
 
         foreach (var c in contacts.Contacts)
-        {
-            var id = c.Id;
-            var row = new Button { MouseFilter = MouseFilterEnum.Stop };
-            row.CustomMinimumSize = new Vector2(0, 128);
-            ApplyEmptyStyle(row);
-            row.AddThemeStyleboxOverride("pressed", new StyleBoxFlat { BgColor = new Color(0, 0, 0, 0.05f) });
-
-            var hbox = new HBoxContainer { MouseFilter = MouseFilterEnum.Ignore };
-            hbox.AddThemeConstantOverride("separation", 20);
-            var hboxWrap = UiKit.WrapMargin(hbox, 24, 0, 24, 0);
-            row.AddChild(hboxWrap);
-            hboxWrap.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect); // Button 不是容器，子节点要手动铺满
-
-            hbox.AddChild(MakeAvatar(c, 96));
-
-            var mid = new VBoxContainer { MouseFilter = MouseFilterEnum.Ignore };
-            mid.SizeFlagsHorizontal = SizeFlags.ExpandFill;
-            mid.SizeFlagsVertical = SizeFlags.ShrinkCenter;
-            mid.AddThemeConstantOverride("separation", 10);
-            hbox.AddChild(mid);
-
-            mid.AddChild(MakeLabel(c.Name, 28, TextDark));
-            var preview = MakeLabel(PreviewOf(c), 24, TextGray);
-            preview.TextOverrunBehavior = TextServer.OverrunBehavior.TrimEllipsis;
-            preview.MaxLinesVisible = 1;
-            mid.AddChild(preview);
-
-            var time = MakeLabel(c.SessionTime, 22, TextGray);
-            time.SizeFlagsVertical = SizeFlags.ShrinkBegin;
-            hbox.AddChild(time);
-
-            row.Pressed += () => ContactSelected?.Invoke(id);
-            box.AddChild(row);
-        }
+            box.AddChild(MakeSessionRow(c));
         return scroll;
+    }
+
+    /// <summary>会话列表的一行：头像（含角标）+ 名字 + 预览 + 时间</summary>
+    private Control MakeSessionRow(ContactData c)
+    {
+        var row = new Button { MouseFilter = MouseFilterEnum.Stop };
+        row.CustomMinimumSize = new Vector2(0, 128);
+        ApplyEmptyStyle(row);
+        row.AddThemeStyleboxOverride("pressed", new StyleBoxFlat { BgColor = new Color(0, 0, 0, 0.05f) });
+
+        var hbox = new HBoxContainer { MouseFilter = MouseFilterEnum.Ignore };
+        hbox.AddThemeConstantOverride("separation", 20);
+        var hboxWrap = UiKit.WrapMargin(hbox, 24, 0, 24, 0);
+        row.AddChild(hboxWrap);
+        hboxWrap.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect); // Button 不是容器，子节点要手动铺满
+
+        hbox.AddChild(WrapBadge(MakeListAvatar(c, 96), c.Badge, 96));
+
+        var mid = new VBoxContainer { MouseFilter = MouseFilterEnum.Ignore };
+        mid.SizeFlagsHorizontal = SizeFlags.ExpandFill;
+        mid.SizeFlagsVertical = SizeFlags.ShrinkCenter;
+        mid.AddThemeConstantOverride("separation", 10);
+        hbox.AddChild(mid);
+
+        mid.AddChild(MakeLabel(c.Name, 28, TextDark));
+        var preview = MakeLabel(PreviewOf(c), 24, TextGray);
+        preview.TextOverrunBehavior = TextServer.OverrunBehavior.TrimEllipsis;
+        preview.MaxLinesVisible = 1;
+        mid.AddChild(preview);
+
+        var time = MakeLabel(c.SessionTime, 22, TextGray);
+        time.SizeFlagsVertical = SizeFlags.ShrinkBegin;
+        hbox.AddChild(time);
+
+        row.Pressed += () => RouteClick(c);
+        return row;
+    }
+
+    /// <summary>点击分流：纯装饰行 → toast；系统页面入口 → PageOpened；其余 → 打开聊天</summary>
+    private void RouteClick(ContactData c)
+    {
+        if (!string.IsNullOrEmpty(c.Toast))
+            ToastRequested?.Invoke(c.Toast);
+        else if (!string.IsNullOrEmpty(c.OpenPage))
+            PageOpened?.Invoke(c.OpenPage);
+        else
+            ContactSelected?.Invoke(c.Id);
     }
 
     /// <summary>通讯录 tab：联系人列表</summary>
@@ -230,32 +246,47 @@ public partial class WeChatMainPage : Control
         box.AddThemeConstantOverride("separation", 0);
         pad.AddChild(box);
 
-        var count = MakeLabel($"{contacts.Contacts.Count} 位联系人", 24, TextGray);
+        // 通讯录只列"真人"：群聊和系统账号不算联系人（真微信也这样）
+        var people = contacts.Contacts.FindAll(c => string.IsNullOrEmpty(c.Kind) && string.IsNullOrEmpty(c.Icon));
+        var groups = contacts.Contacts.FindAll(c => c.Kind == "group");
+
+        var count = MakeLabel($"{people.Count} 位联系人", 24, TextGray);
         box.AddChild(UiKit.WrapMargin(count, 24, 12, 0, 12));
 
-        foreach (var c in contacts.Contacts)
+        // 群聊分区（点群名直接进群聊记录）
+        foreach (var g in groups)
+            box.AddChild(MakeContactsRow(g.Name, MakeListAvatar(g, 80), () => ContactSelected?.Invoke(g.Id)));
+
+        foreach (var c in people)
         {
-            var id = c.Id;
-            var row = new Button { MouseFilter = MouseFilterEnum.Stop };
-            row.CustomMinimumSize = new Vector2(0, 108);
-            ApplyEmptyStyle(row);
-            row.AddThemeStyleboxOverride("pressed", new StyleBoxFlat { BgColor = new Color(0, 0, 0, 0.05f) });
-
-            var hbox = new HBoxContainer { MouseFilter = MouseFilterEnum.Ignore };
-            hbox.AddThemeConstantOverride("separation", 20);
-            var hboxWrap = UiKit.WrapMargin(hbox, 24, 0, 24, 0);
-            row.AddChild(hboxWrap);
-            hboxWrap.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect); // Button 不是容器，子节点要手动铺满
-
-            hbox.AddChild(MakeAvatar(c, 80));
-            var name = MakeLabel(c.Name, 28, TextDark);
-            name.SizeFlagsVertical = SizeFlags.ShrinkCenter;
-            hbox.AddChild(name);
-
-            row.Pressed += () => ContactSelected?.Invoke(id);
-            box.AddChild(row);
+            var contact = c;
+            box.AddChild(MakeContactsRow(contact.Name, MakeAvatar(contact, 80),
+                () => ContactSelected?.Invoke(contact.Id)));
         }
         return scroll;
+    }
+
+    /// <summary>通讯录的一行（头像 + 名字）</summary>
+    private Control MakeContactsRow(string name, Control avatar, Action onClick)
+    {
+        var row = new Button { MouseFilter = MouseFilterEnum.Stop };
+        row.CustomMinimumSize = new Vector2(0, 108);
+        ApplyEmptyStyle(row);
+        row.AddThemeStyleboxOverride("pressed", new StyleBoxFlat { BgColor = new Color(0, 0, 0, 0.05f) });
+
+        var hbox = new HBoxContainer { MouseFilter = MouseFilterEnum.Ignore };
+        hbox.AddThemeConstantOverride("separation", 20);
+        var hboxWrap = UiKit.WrapMargin(hbox, 24, 0, 24, 0);
+        row.AddChild(hboxWrap);
+        hboxWrap.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect); // Button 不是容器，子节点要手动铺满
+
+        hbox.AddChild(avatar);
+        var label = MakeLabel(name, 28, TextDark);
+        label.SizeFlagsVertical = SizeFlags.ShrinkCenter;
+        hbox.AddChild(label);
+
+        row.Pressed += () => onClick?.Invoke();
+        return row;
     }
 
     /// <summary>发现 tab：朋友圈入口 + 占位条目</summary>
@@ -370,9 +401,11 @@ public partial class WeChatMainPage : Control
 
     // ==================== 小工具 ====================
 
-    /// <summary>会话列表预览文字（同桌走聊天文件，其他人走内嵌消息）</summary>
+    /// <summary>会话列表预览文字（显式 previewText 优先；同桌走聊天文件，其他人走内嵌消息）</summary>
     private static string PreviewOf(ContactData c)
     {
+        if (!string.IsNullOrEmpty(c.PreviewText))
+            return c.PreviewText;
         if (!string.IsNullOrEmpty(c.ChatFile))
         {
             var chat = ChatOverlay.LoadChatData(c.ChatFile);
@@ -384,6 +417,55 @@ public partial class WeChatMainPage : Control
             return "[图片]";
         }
         return c.Preview;
+    }
+
+    /// <summary>会话列表头像分流：系统图标 > 群聊九宫格 > 照片 > 首字色块</summary>
+    public static Control MakeListAvatar(ContactData c, float size)
+    {
+        if (!string.IsNullOrEmpty(c.Icon))
+        {
+            var icon = new SystemIcon(ParseHex(c.IconColor, new Color(0.16f, 0.53f, 0.96f)), c.Icon, size)
+            {
+                CustomMinimumSize = new Vector2(size, size),
+                SizeFlagsVertical = SizeFlags.ShrinkBegin,
+                MouseFilter = MouseFilterEnum.Ignore,
+            };
+            return icon;
+        }
+        if (c.Kind == "group" && c.GroupAvatars.Count > 0)
+        {
+            var grid = new GroupAvatar(c.GroupAvatars, size)
+            {
+                CustomMinimumSize = new Vector2(size, size),
+                SizeFlagsVertical = SizeFlags.ShrinkBegin,
+                MouseFilter = MouseFilterEnum.Ignore,
+            };
+            return grid;
+        }
+        return MakeAvatar(c, size);
+    }
+
+    /// <summary>头像右上角红点角标（"2" "1" 这类未读数）</summary>
+    private static Control WrapBadge(Control avatar, string badge, float size)
+    {
+        if (string.IsNullOrEmpty(badge))
+            return avatar;
+        var host = new Control { CustomMinimumSize = new Vector2(size, size), MouseFilter = MouseFilterEnum.Ignore };
+        host.AddChild(avatar);
+        var dot = new BadgeBubble(badge)
+        {
+            Position = new Vector2(size - 34, -6),
+        };
+        host.AddChild(dot);
+        return host;
+    }
+
+    /// <summary>"#RRGGBB" → Color；解析失败用兜底色（Godot 的 FromHtml 不校验，先自己查格式）</summary>
+    public static Color ParseHex(string hex, Color fallback)
+    {
+        if (!string.IsNullOrEmpty(hex) && hex.StartsWith("#") && hex.Length == 7)
+            return Color.FromHtml(hex);
+        return fallback;
     }
 
     /// <summary>联系人头像：有图用图，没图用首字色块</summary>
@@ -524,5 +606,108 @@ public partial class RedDot : Control
     public override void _Draw()
     {
         DrawCircle(Size / 2, Mathf.Min(Size.X, Size.Y) / 2, new Color(0.92f, 0.25f, 0.20f));
+    }
+}
+
+// ==================== 第九轮：系统账号 / 群头像 ====================
+
+/// <summary>系统账号图标：圆角色块 + 白色字形（订阅号消息 / 微信运动 / 文件传输助手…）</summary>
+public partial class SystemIcon : Control
+{
+    private readonly Color bg;
+    private readonly string glyph;
+
+    public SystemIcon(Color color, string text, float size)
+    {
+        bg = color;
+        glyph = text;
+        CustomMinimumSize = new Vector2(size, size);
+    }
+
+    public override void _Draw()
+    {
+        float r = Size.X * 0.18f;
+        DrawRounded(new Rect2(Vector2.Zero, Size), r, bg);
+        int fontSize = (int)(Size.Y * 0.52f);
+        var font = GetThemeDefaultFont();
+        var pos = new Vector2(0, Size.Y * 0.5f + fontSize * 0.36f);
+        DrawString(font, pos, glyph, HorizontalAlignment.Center, Size.X, fontSize, Colors.White);
+    }
+
+    /// <summary>Godot 4 的 CanvasItem 没有 draw_round_rect——直边矩形 + 四角圆拼一个</summary>
+    private void DrawRounded(Rect2 r, float rad, Color color)
+    {
+        DrawRect(new Rect2(r.Position.X, r.Position.Y + rad, r.Size.X, r.Size.Y - 2 * rad), color);
+        DrawRect(new Rect2(r.Position.X + rad, r.Position.Y, r.Size.X - 2 * rad, r.Size.Y), color);
+        DrawCircle(new Vector2(r.Position.X + rad, r.Position.Y + rad), rad, color);
+        DrawCircle(new Vector2(r.Position.X + r.Size.X - rad, r.Position.Y + rad), rad, color);
+        DrawCircle(new Vector2(r.Position.X + rad, r.Position.Y + r.Size.Y - rad), rad, color);
+        DrawCircle(new Vector2(r.Position.X + r.Size.X - rad, r.Position.Y + r.Size.Y - rad), rad, color);
+    }
+}
+
+/// <summary>群聊头像：最多 4 张成员头像拼 2×2 九宫格（真微信群头像的样子）</summary>
+public partial class GroupAvatar : Control
+{
+    private readonly List<string> paths;
+    private readonly float size;
+
+    public GroupAvatar(List<string> avatarPaths, float avatarSize)
+    {
+        paths = avatarPaths;
+        size = avatarSize;
+        CustomMinimumSize = new Vector2(avatarSize, avatarSize);
+    }
+
+    public override void _Draw()
+    {
+        float gap = size * 0.06f;
+        float cell = (size - gap) / 2f;
+        float rad = size * 0.12f;
+        // Godot 4 没有 draw_round_rect：直边 + 四角圆拼一个圆角底
+        DrawRect(new Rect2(0, rad, size, size - 2 * rad), new Color(0.86f, 0.86f, 0.88f));
+        DrawRect(new Rect2(rad, 0, size - 2 * rad, size), new Color(0.86f, 0.86f, 0.88f));
+        DrawCircle(new Vector2(rad, rad), rad, new Color(0.86f, 0.86f, 0.88f));
+        DrawCircle(new Vector2(size - rad, rad), rad, new Color(0.86f, 0.86f, 0.88f));
+        DrawCircle(new Vector2(rad, size - rad), rad, new Color(0.86f, 0.86f, 0.88f));
+        DrawCircle(new Vector2(size - rad, size - rad), rad, new Color(0.86f, 0.86f, 0.88f));
+
+        for (int i = 0; i < paths.Count && i < 4; i++)
+        {
+            var tex = GD.Load<Texture2D>(paths[i]);
+            if (tex == null) continue;
+            int col = i % 2, row = i / 2;
+            var dst = new Rect2(col * (cell + gap), row * (cell + gap), cell, cell);
+            // 中心方图裁切（cover）：取原图中央正方形塞进方形格子
+            float side = Mathf.Min(tex.GetWidth(), tex.GetHeight());
+            var src = new Rect2((tex.GetWidth() - side) / 2f, (tex.GetHeight() - side) / 2f, side, side);
+            DrawTextureRectRegion(tex, dst, src);
+        }
+    }
+}
+
+/// <summary>头像角标：红底白字小圆点（未读数）</summary>
+public partial class BadgeBubble : PanelContainer
+{
+    public BadgeBubble(string text)
+    {
+        var style = new StyleBoxFlat { BgColor = new Color(0.92f, 0.25f, 0.20f) };
+        style.SetCornerRadiusAll(18);
+        style.ContentMarginLeft = 12;
+        style.ContentMarginRight = 12;
+        style.ContentMarginTop = 4;
+        style.ContentMarginBottom = 4;
+        AddThemeStyleboxOverride("panel", style);
+        MouseFilter = MouseFilterEnum.Ignore;
+
+        var label = new Label
+        {
+            Text = text,
+            HorizontalAlignment = HorizontalAlignment.Center,
+            MouseFilter = MouseFilterEnum.Ignore,
+        };
+        label.AddThemeFontSizeOverride("font_size", 20);
+        label.AddThemeColorOverride("font_color", Colors.White);
+        AddChild(label);
     }
 }

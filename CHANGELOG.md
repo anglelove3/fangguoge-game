@@ -5,6 +5,42 @@
 
 ---
 
+## 2026-10-04 · 第九轮反馈：头像替换 + 金艮口头禅 + 微信逼真化（li-lab群聊/系统账号） + 宿舍背景重绘（烟灰缸/打火机彩蛋）
+
+### 1. 三金师兄 & 诚哥头像替换
+
+- 用户提供两张真实微信头像截图 → 自动裁切为 256px 正方形（白边去除/中心裁方），替换 `assets/art/chat/avatar_sanjin.png` 和 `avatar_chengge.png`，文件名不变无需改代码
+
+### 2. 金艮人设重写（"就是说"口头禅）
+
+- `data/contacts.json`：会话预览 5 条消息全部改为各种语调的"就是说"变体
+- `data/chat/replies.json`：金艮的 fallback/nudge/grudge/8 个话题池全部重写，每句开头或结尾带"就是说！/就是说啊……/就是说嘛？/就——是——说——"；回复不影响好感/勇气数值
+
+### 3. 微信逼真化：li-lab 群聊 + 5 个系统账号行 + 2 个可点开占位页
+
+- **li-lab 实验群**（`data/chat/lilab_group.json`，19 条只读消息）：导师转发公众号文章 → 金艮吐槽 → 凌晨转发 → 早 8 点 @全体成员 改组会时间。群聊渲染新增成员头像 + 发送者昵称（ChatOverlay group 分支）
+- **5 个系统账号**（`data/contacts.json` 新增）：订阅号消息(角标1)、服务号(toast)、微信运动(角标2)、文件传输助手(只读3条文件消息)、微信支付(toast)——列表头像为彩色圆角方块+字形
+- **订阅号文章列表页**（`scripts/ui/wechat/SystemPages.cs` SubscriptionsPage）：8 篇讽刺文章（含导师转发的 2 篇），点击弹 toast
+- **微信运动排行页**（StepsRankingPage）：我 385 步垫底、导师 28654 登顶，排行头像复用联系人照片，金银铜色名次
+- **只读模式**：群聊/文件传输助手输入框 `Editable=false` + placeholder "群聊围观中，不参与发言"；发送/加号 → 弹 toast
+- **通讯录过滤**：只列"真人"（Kind/Icon 为空的条目），群聊和系统账号不出现在通讯录 tab
+- **数据层**（`scripts/ui/wechat/WeChatData.cs`）：ContactData 新增 Kind/Members/ReadOnly/PreviewText/Toast/Icon/IconColor/Badge/GroupAvatars/OpenPage；新增 `LoadSystem()` 读 `data/system_wechat.json`
+- **修复 bug**：SystemPages.BuildHeader 传参 `BackPressed` 事件在 Build 时值为 null（ShowMain 之后才 += 订阅），改为 lambda 延迟取 `() => BackPressed?.Invoke()`
+
+### 4. 第二章宿舍背景重绘 + 烟灰缸/打火机彩蛋
+
+- **AI 重绘** `assets/art/backgrounds/dorm_night_v2.png`（1792×1024）：保持原构图，新增烟灰缸（台灯左侧桌面）、蓝色打火机（窗台）、手机位置微调（右下角）；去水印
+- **热点坐标更新**（`scenes/chapters/ch02/ch02.tscn`）：PhoneBtn 右移对齐新手机位置；新增 AshtrayBtn（0.565,0.70→0.705,0.83）、LighterBtn（0.09,0.67→0.21,0.78）
+- **烟灰缸递进彩蛋**（`scripts/chapters/Ch02.cs` + `data/dialogues/ch02.json`）：可重复点击，4 段递进文案（数烟头→比数据收敛→把没说出口的话收好→别数了去回她消息），不计入 2/2 主线进度
+- **打火机隐藏物品**：一次性收取 → Disabled + 触发对白 → `FindHiddenItem("一只蓝色的打火机")` → 隐藏物品计数 +1
+
+### 5. 验证
+
+- 临时 autoload 驱动器全流程截图 12 张：金艮聊天(就是说回复)/会话列表顶+底(系统账号+角标)/li-lab群聊(成员头像+只读)/订阅号文章页/微信运动排行页/新宿舍背景/烟灰缸彩蛋/打火机收取；构建 0 错 0 警；验证后驱动已删除
+- 修复 SystemPages 返回按钮 bug 后重跑确认订阅号/微信运动页返回均正常
+
+---
+
 ## 2026-10-04 · 第八轮反馈：13 位联系人全部换上头像（用户提供 4 张 + 网络 CC0/公有领域 5 张 + AI 插画 2 张）
 
 ### 1. 用户提供的 4 张微信资料页截图 → 裁出方形头像

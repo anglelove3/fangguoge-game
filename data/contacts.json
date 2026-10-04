@@ -31,7 +31,7 @@
       "messages": [
         {
           "sender": "other",
-          "text": "人呢？外卖到了"
+          "text": "就是说！人呢？外卖到了"
         },
         {
           "sender": "me",
@@ -39,11 +39,15 @@
         },
         {
           "sender": "other",
-          "text": "晚了，你的那份黄焖鸡我已经替你尝过了"
+          "text": "就是说晚了，你的那份黄焖鸡我已经替你尝过了"
         },
         {
           "sender": "me",
           "text": "金艮，明天再跟你算账"
+        },
+        {
+          "sender": "other",
+          "text": "就——是——说——，你急什么，明天我还替你尝"
         }
       ],
       "avatar": "res://assets/art/chat/avatar_jingen.png"
@@ -115,6 +119,22 @@
         }
       ],
       "avatar": "res://assets/art/chat/avatar_daoshi.png"
+    },
+    {
+      "id": "lilab",
+      "name": "li-lab",
+      "kind": "group",
+      "members": 8,
+      "readOnly": true,
+      "chatFile": "lilab_group",
+      "sessionTime": "上午 8:02",
+      "previewText": "[3条] 研究生导师: @全体成员 今天组会提前到九点",
+      "groupAvatars": [
+        "res://assets/art/chat/avatar_daoshi.png",
+        "res://assets/art/chat/avatar_sanjin.png",
+        "res://assets/art/chat/avatar_junjie.png",
+        "res://assets/art/chat/avatar_xiaomi.png"
+      ]
     },
     {
       "id": "baobao",
@@ -266,6 +286,59 @@
         }
       ],
       "avatar": "res://assets/art/chat/avatar_yebingyu.png"
+    },
+    {
+      "id": "dingyuehao",
+      "name": "订阅号消息",
+      "icon": "订",
+      "iconColor": "#2B88F5",
+      "badge": "1",
+      "sessionTime": "晚上 10:57",
+      "previewText": "[1条通知] 快讯: 江苏高速多个入口临时关闭",
+      "openPage": "subscriptions"
+    },
+    {
+      "id": "fuwuhao",
+      "name": "服务号",
+      "icon": "服",
+      "iconColor": "#12B7F5",
+      "sessionTime": "晚上 10:26",
+      "previewText": "[多多买菜代收…等20条通知] 绿茶餐厅: 会员日…",
+      "toast": "服务号消息目前只是摆设～"
+    },
+    {
+      "id": "weixinsteps",
+      "name": "微信运动",
+      "icon": "步",
+      "iconColor": "#07C160",
+      "badge": "2",
+      "sessionTime": "晚上 10:24",
+      "previewText": "[应用消息] 导师登顶了今日步数榜",
+      "openPage": "steps"
+    },
+    {
+      "id": "filehelper",
+      "name": "文件传输助手",
+      "icon": "文",
+      "iconColor": "#07C160",
+      "readOnly": true,
+      "sessionTime": "晚上 6:42",
+      "previewText": "[文件] 小论文.docx",
+      "messages": [
+        { "type": "divider", "text": "来自 Windows 微信的自动同步" },
+        { "sender": "other", "senderName": "文件传输助手", "text": "[文件] 小论文.docx（2.4 MB）" },
+        { "sender": "other", "senderName": "文件传输助手", "text": "[文件] 组会PPT最终版v7.pptx（18.9 MB）" },
+        { "sender": "other", "senderName": "文件传输助手", "text": "[文件] 毕业论文-真的最终版-再改我是狗.docx（3.1 MB）" }
+      ]
+    },
+    {
+      "id": "wxpay",
+      "name": "微信支付",
+      "icon": "¥",
+      "iconColor": "#07C160",
+      "sessionTime": "晚上 6:34",
+      "previewText": "已支付¥4.00（黄焖鸡加个蛋）",
+      "toast": "微信支付目前只是摆设～"
     }
   ]
 }

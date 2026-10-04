@@ -35,6 +35,23 @@ public static class WeChatData
         return momentsCache;
     }
 
+    private static SystemWechatData systemCache;
+
+    /// <summary>订阅号文章 / 微信运动排行等"系统账号"数据</summary>
+    public static SystemWechatData LoadSystem()
+    {
+        if (systemCache != null) return systemCache;
+        systemCache = Load<SystemWechatData>("res://data/system_wechat.json") ?? new SystemWechatData();
+        return systemCache;
+    }
+
+    /// <summary>按昵称找联系人（群聊消息给发言人配头像用）；找不到返回 null</summary>
+    public static ContactData FindByName(string name)
+    {
+        if (string.IsNullOrEmpty(name)) return null;
+        return LoadContacts().Contacts.Find(c => c.Name == name);
+    }
+
     private static T Load<T>(string path) where T : class
     {
         if (!FileAccess.FileExists(path))
@@ -61,7 +78,7 @@ public class ContactsData
     public List<ContactData> Contacts { get; set; } = new();
 }
 
-/// <summary>一位联系人（附带 ta 的占位聊天记录）</summary>
+/// <summary>一位联系人（附带 ta 的占位聊天记录）；也承载群聊和系统账号条目</summary>
 public class ContactData
 {
     public string Id { get; set; } = "";
@@ -71,11 +88,44 @@ public class ContactData
     public string SessionTime { get; set; } = "昨天";
     public List<ChatMessageData> Messages { get; set; } = new();
 
+    // ---------- 第九轮：群聊 / 系统账号 ----------
+
+    /// <summary>"group" = 群聊（气泡上方显示发言人昵称）；留空 = 普通联系人</summary>
+    public string Kind { get; set; } = "";
+
+    /// <summary>群成员数（顶栏显示"群名（N）"）</summary>
+    public int Members { get; set; }
+
+    /// <summary>只读会话：输入框禁言（群聊围观 / 系统消息都用它）</summary>
+    public bool ReadOnly { get; set; }
+
+    /// <summary>会话列表预览文字；留空 = 自动取最后一条消息</summary>
+    public string PreviewText { get; set; } = "";
+
+    /// <summary>非空 = 点击不打开聊天，只弹这条 toast（服务号/微信支付这类纯装饰行）</summary>
+    public string Toast { get; set; } = "";
+
+    /// <summary>系统账号图标字形（白字色块，如 "订""步""¥"）；非空时优先于 Avatar</summary>
+    public string Icon { get; set; } = "";
+
+    /// <summary>系统账号图标底色，如 "#2B7CFF"；留空默认蓝色</summary>
+    public string IconColor { get; set; } = "";
+
+    /// <summary>头像右上角红点角标文字（如 "2"）；留空 = 无角标</summary>
+    public string Badge { get; set; } = "";
+
+    /// <summary>群头像拼格：取前 4 位成员的头像路径画 2×2 九宫格</summary>
+    public List<string> GroupAvatars { get; set; } = new();
+
+    /// <summary>点开的页面："subscriptions" = 订阅号文章列表，"steps" = 微信运动排行；留空 = 聊天页</summary>
+    public string OpenPage { get; set; } = "";
+
     /// <summary>会话列表里的"最后一条消息"预览</summary>
     public string Preview
     {
         get
         {
+            if (!string.IsNullOrEmpty(PreviewText)) return PreviewText;
             for (int i = Messages.Count - 1; i >= 0; i--)
             {
                 if (Messages[i].Type != "divider" && Messages[i].Type != "image")
@@ -127,4 +177,34 @@ public class MomentComment
 {
     public string Author { get; set; } = "";
     public string Text { get; set; } = "";
+}
+
+// ==================== 系统账号数据（第九轮） ====================
+
+/// <summary>data/system_wechat.json：订阅号文章列表 + 微信运动排行</summary>
+public class SystemWechatData
+{
+    public List<SubscriptionArticle> Articles { get; set; } = new();
+    public List<StepEntry> Steps { get; set; } = new();
+
+    /// <summary>微信运动顶部卡片文案（男主自己的步数感悟）</summary>
+    public string MySteps { get; set; } = "385";
+    public string MyStepsCaption { get; set; } = "";
+}
+
+/// <summary>一条订阅号文章（列表行；点击只弹 toast，正文是摆设）</summary>
+public class SubscriptionArticle
+{
+    public string Title { get; set; } = "";
+    public string Source { get; set; } = "";  // 公众号名
+    public string Time { get; set; } = "";
+    public string Reads { get; set; } = "";   // "10万+"
+}
+
+/// <summary>微信运动排行的一行</summary>
+public class StepEntry
+{
+    public string Name { get; set; } = "";
+    public int Count { get; set; }
+    public string Remark { get; set; } = "";  // 点赞小字（可选）
 }

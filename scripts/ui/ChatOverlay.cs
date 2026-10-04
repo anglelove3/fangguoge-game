@@ -59,6 +59,8 @@ public partial class ChatOverlay : Control
     private Control chatPage;
     private WeChatMainPage mainPage;
     private MomentsPage momentsPage;
+    private SubscriptionsPage subscriptionsPage; // 订阅号消息（第九轮）
+    private StepsRankingPage stepsPage;          // 微信运动排行（第九轮）
 
     // 聊天页节点
     private ScrollContainer scroll;
@@ -130,6 +132,7 @@ public partial class ChatOverlay : Control
         BuildChatPage();
         BuildMainPage(contacts);
         BuildMomentsPage();
+        BuildSystemPages();
         BuildToast();
 
         // 页面搭好之后再统一接按钮音效
@@ -202,13 +205,16 @@ public partial class ChatOverlay : Control
         chatPage.Visible = page == chatPage;
         mainPage.Visible = page == mainPage;
         momentsPage.Visible = page == momentsPage;
+        if (subscriptionsPage != null) subscriptionsPage.Visible = page == subscriptionsPage;
+        if (stepsPage != null) stepsPage.Visible = page == stepsPage;
     }
 
-    /// <summary>打开某位联系人的聊天</summary>
+    /// <summary>打开某位联系人 / 群聊 / 只读会话</summary>
     private void ShowChat(ContactData contact)
     {
         currentContact = contact;
-        nameLabel.Text = contact.Name;
+        nameLabel.Text = contact.Members > 0 ? $"{contact.Name}（{contact.Members}）" : contact.Name;
+        ApplyReadOnlyMode(contact);
         HideMenu();
         HideTypingChip();
         RebuildChatRows();
@@ -730,6 +736,11 @@ public partial class ChatOverlay : Control
             var c = contacts.Contacts.Find(x => x.Id == id);
             if (c != null) ShowChat(c);
         };
+        mainPage.PageOpened += key =>
+        {
+            if (key == "subscriptions") SetPage(subscriptionsPage);
+            else if (key == "steps") SetPage(stepsPage);
+        };
         mainPage.MomentsOpened += () => SetPage(momentsPage);
         mainPage.ToastRequested += ShowToast;
         mainPage.Visible = false;
@@ -743,6 +754,28 @@ public partial class ChatOverlay : Control
         momentsPage.Build(WeChatData.LoadMoments());
         momentsPage.BackPressed += ShowMain;
         momentsPage.Visible = false;
+    }
+
+    /// <summary>订阅号消息 / 微信运动两个可点开的系统页（第九轮）</summary>
+    private void BuildSystemPages()
+    {
+        var data = WeChatData.LoadSystem();
+
+        subscriptionsPage = new SubscriptionsPage();
+        subscriptionsPage.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
+        pageHost.AddChild(subscriptionsPage);
+        subscriptionsPage.Build(data);
+        subscriptionsPage.BackPressed += ShowMain;
+        subscriptionsPage.ToastRequested += ShowToast;
+        subscriptionsPage.Visible = false;
+
+        stepsPage = new StepsRankingPage();
+        stepsPage.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
+        pageHost.AddChild(stepsPage);
+        stepsPage.Build(data);
+        stepsPage.BackPressed += ShowMain;
+        stepsPage.ToastRequested += ShowToast;
+        stepsPage.Visible = false;
     }
 
     private void BuildToast()
@@ -918,6 +951,11 @@ public partial class ChatOverlay : Control
 
     private void TogglePlusPanel()
     {
+        if (currentContact != null && currentContact.ReadOnly)
+        {
+            ShowToast("只读会话，发不了这些～");
+            return;
+        }
         plusPanel.Visible = !plusPanel.Visible;
     }
 
@@ -927,9 +965,30 @@ public partial class ChatOverlay : Control
             plusPanel.Visible = false;
     }
 
+    /// <summary>
+    /// 只读会话（第九轮）：实验群围观模式 / 文件传输助手——输入框禁言，
+    /// 发送和＋面板改成 toast，聊天记录保持纯观赏。
+    /// </summary>
+    private void ApplyReadOnlyMode(ContactData contact)
+    {
+        bool readOnly = contact.ReadOnly;
+        inputField.Editable = !readOnly;
+        inputField.PlaceholderText = readOnly
+            ? (contact.Kind == "group" ? "群聊围观中，不参与发言" : "只读消息，无法回复")
+            : "发消息……";
+    }
+
     /// <summary>输入框/发送按钮：把文字作为我的气泡发出去（自由输入不影响数值）</summary>
     private void SendFromInput()
     {
+        if (currentContact != null && currentContact.ReadOnly)
+        {
+            ShowToast(currentContact.Kind == "group"
+                ? "群里导师随时盯着，谁也不敢接话～"
+                : "这里只能看，不能发言～");
+            return;
+        }
+
         string text = inputField.Text.Trim();
         if (text.Length == 0)
         {
@@ -1152,6 +1211,7 @@ public partial class ChatOverlay : Control
         messageIndex++;
 
         bool mine = msg.Sender == "me";
+        bool isGroup = currentContact != null && currentContact.Kind == "group";
 
         var row = new HBoxContainer();
         row.Name = "Row";
@@ -1160,7 +1220,9 @@ public partial class ChatOverlay : Control
 
         Control avatar = mine
             ? MakePhotoAvatar(WeChatData.MyAvatarPath, 84)
-            : MakeContactAvatar(currentContact, 84);
+            : isGroup && !string.IsNullOrEmpty(msg.SenderName)
+                ? MakeGroupMemberAvatar(msg.SenderName, 84)
+                : MakeContactAvatar(currentContact, 84);
 
         Control bubble = msg.Type == "image"
             ? MakeImageBubble(msg.Image)
@@ -1177,6 +1239,21 @@ public partial class ChatOverlay : Control
             row.AddChild(tail);
             row.AddChild(avatar);
         }
+        else if (isGroup && !string.IsNullOrEmpty(msg.SenderName))
+        {
+            // 群聊：头像 + [昵称 / (尾巴+气泡)] 两列，昵称浮在气泡上方
+            row.AddChild(avatar);
+            var col = new VBoxContainer { MouseFilter = MouseFilterEnum.Ignore };
+            col.AddThemeConstantOverride("separation", 8);
+            col.AddChild(MakeSenderName(msg.SenderName));
+            var inner = new HBoxContainer { MouseFilter = MouseFilterEnum.Ignore };
+            inner.AddThemeConstantOverride("separation", 0);
+            inner.AddChild(tail);
+            inner.AddChild(bubble);
+            col.AddChild(inner);
+            row.AddChild(col);
+            row.AddChild(MakeHorizontalExpander());
+        }
         else
         {
             // 对方：头像最左，尾巴在气泡左侧
@@ -1186,6 +1263,29 @@ public partial class ChatOverlay : Control
             row.AddChild(MakeHorizontalExpander());
         }
         return row;
+    }
+
+    /// <summary>群聊气泡上方的发言人昵称（微信式蓝灰小字）</summary>
+    private static Control MakeSenderName(string name)
+    {
+        var label = new Label { Text = name, MouseFilter = MouseFilterEnum.Ignore };
+        label.AddThemeFontSizeOverride("font_size", 22);
+        label.AddThemeColorOverride("font_color", new Color(0.42f, 0.48f, 0.62f));
+        var margin = UiKit.WrapMargin(label, 12, 0, 0, 0);
+        return margin;
+    }
+
+    /// <summary>群成员头像：昵称能对上联系人就用 ta 的照片，否则首字色块</summary>
+    private static Control MakeGroupMemberAvatar(string name, float size)
+    {
+        if (name == "我")
+            return MakePhotoAvatar(WeChatData.MyAvatarPath, size);
+        var member = WeChatData.FindByName(name);
+        if (member != null)
+            return MakeContactAvatar(member, size);
+        var avatar = new InitialAvatar(name, size);
+        avatar.SizeFlagsVertical = SizeFlags.ShrinkBegin;
+        return avatar;
     }
 
     /// <summary>日期分割线（居中灰字）</summary>
@@ -1298,12 +1398,14 @@ public partial class ChatOverlay : Control
         return avatar;
     }
 
-    /// <summary>对方头像：联系人有图用图，没图用首字色块</summary>
+    /// <summary>对方头像：系统账号用图标块，联系人有图用图，没图用首字色块</summary>
     private static Control MakeContactAvatar(ContactData c, float size)
     {
-        if (!string.IsNullOrEmpty(c.Avatar) && ResourceLoader.Exists(c.Avatar))
+        if (c != null && !string.IsNullOrEmpty(c.Icon))
+            return WeChatMainPage.MakeListAvatar(c, size);
+        if (c != null && !string.IsNullOrEmpty(c.Avatar) && ResourceLoader.Exists(c.Avatar))
             return MakePhotoAvatar(c.Avatar, size);
-        var avatar = new InitialAvatar(c.Name, size);
+        var avatar = new InitialAvatar(c?.Name ?? "?", size);
         avatar.SizeFlagsVertical = SizeFlags.ShrinkBegin;
         return avatar;
     }
@@ -1389,6 +1491,9 @@ public class ChatMessageData
     public string Type { get; set; } = "text";    // text / image / divider
     public string Text { get; set; } = "";        // 文字内容（divider 用 text 存日期）
     public string Image { get; set; } = "";       // 图片路径（type = image 时用）
+
+    /// <summary>群聊里的发言人昵称（非空 = 气泡上方显示昵称 + 用该联系人的头像）</summary>
+    public string SenderName { get; set; } = "";
 }
 
 /// <summary>
