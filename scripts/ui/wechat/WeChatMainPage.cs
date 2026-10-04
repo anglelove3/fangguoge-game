@@ -293,7 +293,7 @@ public partial class WeChatMainPage : Control
 
         var myAvatar = new TextureRect
         {
-            Texture = GD.Load<Texture2D>("res://assets/art/chat/mc_avatar_v1.png"),
+            Texture = GD.Load<Texture2D>(WeChatData.MyAvatarPath),
             ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,
             StretchMode = TextureRect.StretchModeEnum.KeepAspectCovered,
             CustomMinimumSize = new Vector2(128, 128),

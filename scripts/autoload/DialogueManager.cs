@@ -35,6 +35,42 @@ public partial class DialogueManager : CanvasLayer
     private ChoicePanel choicePanel;
     private StatToast statToast;
 
+    // 全屏模态界面（比如手机微信）打开时的"输入抑制"：
+    // 对话管理器不再抢点击/键盘，对话框也暂时藏起来，
+    // 否则玩家点手机屏幕的按钮时，点击会被这里当成"推进对话"吃掉
+    // （第六轮红框反馈"手机交互偏差、外面还能点"的根因）。
+    private bool uiSuppressed;
+    private string lastSpeaker = "";
+    private string lastText = "";
+    private string lastPortrait;
+
+    /// <summary>
+    /// 打开/关闭全屏模态界面时调用：
+    /// 抑制期间本管理器不吃任何输入、对话框隐藏；恢复时把当前那句对白原样显示回来
+    /// </summary>
+    public void SetUiSuppressed(bool value)
+    {
+        if (uiSuppressed == value)
+            return;
+        uiSuppressed = value;
+
+        if (value)
+        {
+            dialogueBox?.HideBox();
+        }
+        else if (state == State.Typing || state == State.WaitingAdvance)
+        {
+            dialogueBox?.ShowLine(lastSpeaker, lastText, instant: true, portraitId: lastPortrait);
+            dialogueBox?.SetContinueHintVisible(state == State.WaitingAdvance);
+        }
+    }
+
+    /// <summary>数值飘字（选项之外的地方加了好感/勇气时也能提示玩家）</summary>
+    public void ShowStatToast(int affectionDelta, int courageDelta)
+    {
+        statToast?.ShowDeltas(affectionDelta, courageDelta);
+    }
+
     // 当前播放的语句队列
     private Queue<DialogueLine> lineQueue = new();
     private Action onSequenceFinished;
@@ -112,6 +148,9 @@ public partial class DialogueManager : CanvasLayer
         state = State.WaitingChoice;
 
         // 提示语直接显示（不做打字机，等玩家看选项）
+        lastSpeaker = group.PromptSpeaker;
+        lastText = group.Prompt;
+        lastPortrait = group.PromptPortrait;
         dialogueBox.ShowLine(group.PromptSpeaker, group.Prompt, instant: true, portraitId: group.PromptPortrait);
         dialogueBox.SetContinueHintVisible(false); // 选项阶段不需要"点击继续"
 
@@ -167,6 +206,9 @@ public partial class DialogueManager : CanvasLayer
 
         var line = lineQueue.Dequeue();
         state = State.Typing;
+        lastSpeaker = line.Speaker;
+        lastText = line.Text;
+        lastPortrait = line.Portrait;
         dialogueBox.ShowLine(line.Speaker, line.Text, portraitId: line.Portrait);
     }
 
@@ -190,6 +232,9 @@ public partial class DialogueManager : CanvasLayer
     /// </summary>
     public override void _Input(InputEvent @event)
     {
+        if (uiSuppressed) // 手机等全屏模态界面打开时，输入全部交给它们
+            return;
+
         if (state != State.Typing && state != State.WaitingAdvance)
             return;
 

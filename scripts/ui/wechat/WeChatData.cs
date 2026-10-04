@@ -12,6 +12,12 @@ using System.Text.Json;
 /// </summary>
 public static class WeChatData
 {
+    /// <summary>男主自己的微信头像（和宝宝的情侣头像：我是海绵宝宝）</summary>
+    public const string MyAvatarPath = "res://assets/art/chat/avatar_spongebob_v1.png";
+
+    /// <summary>宝宝（前女友）的微信头像（情侣头像的另一半：她是派大星）</summary>
+    public const string BaobaoAvatarPath = "res://assets/art/chat/avatar_patrick_v1.png";
+
     private static ContactsData contactsCache;
     private static MomentsData momentsCache;
 

@@ -131,7 +131,7 @@ public partial class MomentsPage : Control
         // 自己的头像压在封面右下角（往下探出一点）
         var myAvatar = new TextureRect
         {
-            Texture = GD.Load<Texture2D>("res://assets/art/chat/mc_avatar_v1.png"),
+            Texture = GD.Load<Texture2D>(WeChatData.MyAvatarPath),
             ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,
             StretchMode = TextureRect.StretchModeEnum.KeepAspectCovered,
             CustomMinimumSize = new Vector2(112, 112),

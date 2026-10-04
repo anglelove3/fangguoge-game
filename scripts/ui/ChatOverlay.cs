@@ -55,6 +55,7 @@ public partial class ChatOverlay : Control
 
     // ---------- 节点 ----------
     private Panel phonePanel;
+    private Control pageHost;   // 手机内容层（底部留出"放下手机"横条）
     private Control chatPage;
     private WeChatMainPage mainPage;
     private MomentsPage momentsPage;
@@ -66,6 +67,9 @@ public partial class ChatOverlay : Control
     private Label nameLabel;
     private Control menuCatcher;
     private PanelContainer menuPanel;
+    private LineEdit inputField;
+    private Control plusPanel;
+    private Control quickBar;
 
     // toast
     private PanelContainer toastChip;
@@ -74,19 +78,38 @@ public partial class ChatOverlay : Control
 
     private ContactData currentContact;
     private bool closing;    // 正在收起（防止重复触发）
+    private bool suppressing; // 正在抑制背景对话输入
     private bool hintArmed;  // "滑一滑"提示是否已武装（入场滚动不算）
     private int messageIndex; // 消息序号（用于生成时间戳）
     private bool lastRowWasTimeInfo; // 上一行是分割线/时间戳 → 不再叠时间戳
+
+    /// <summary>本局内追加发送过的消息（联系人 id → 追加列表），重开手机还在</summary>
+    private static readonly Dictionary<string, List<ChatMessageData>> extraMessages = new();
+
+    /// <summary>已经用过预设回复的会话（预设条只出现一次）</summary>
+    private static readonly HashSet<string> usedQuickReplies = new();
 
     public override void _Ready()
     {
         phonePanel = GetNode<Panel>("PhonePanel");
 
-        // 点黑幕 = 收起手机
-        GetNode<ColorRect>("Backdrop").GuiInput += OnBackdropInput;
+        // 所有页面放在内容层里，底部 56px 留给手机框内的"放下手机"横条
+        pageHost = new Control { MouseFilter = MouseFilterEnum.Ignore };
+        pageHost.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
+        pageHost.OffsetBottom = -56;
+        phonePanel.AddChild(pageHost);
 
-        // "收起手机"按钮
-        GetNode<Button>("CloseChip").Pressed += Close;
+        BuildBottomBar();
+    }
+
+    public override void _ExitTree()
+    {
+        // 兜底：万一没走 Close 就被销毁（切场景），别把背景对话的输入锁死
+        if (suppressing)
+        {
+            suppressing = false;
+            DialogueManager.Instance?.SetUiSuppressed(false);
+        }
     }
 
     // ==================== 对外 API ====================
@@ -111,12 +134,25 @@ public partial class ChatOverlay : Control
                       ?? new ContactData
                       {
                           Id = chatId,
-                          Name = "同桌",
-                          Avatar = "res://assets/art/chat/her_avatar_v1.png",
+                          Name = "宝宝（前女友）",
+                          Avatar = WeChatData.BaobaoAvatarPath,
                           ChatFile = chatId,
                       };
 
+        // 手机比窗口还大时整体等比缩小，保证整台手机（含底部横条）永远完整可见
+        var vp = GetViewportRect().Size;
+        float s = Mathf.Min(1f, Mathf.Min((vp.Y - 32f) / 972f, (vp.X - 32f) / 760f));
+        if (s < 0.999f)
+        {
+            phonePanel.PivotOffset = phonePanel.Size * 0.5f;
+            phonePanel.Scale = new Vector2(s, s);
+        }
+
         ShowChat(contact);
+
+        // 手机打开期间：背景对话/热点全部锁死，点击只属于手机
+        suppressing = true;
+        DialogueManager.Instance?.SetUiSuppressed(true);
 
         // 入场动画：整体淡入 + 手机从下方轻轻滑上来
         Modulate = new Color(1, 1, 1, 0);
@@ -134,6 +170,11 @@ public partial class ChatOverlay : Control
         tween.TweenProperty(this, "modulate:a", 0f, 0.18);
         tween.TweenCallback(Callable.From(() =>
         {
+            if (suppressing)
+            {
+                suppressing = false;
+                DialogueManager.Instance?.SetUiSuppressed(false);
+            }
             Closed?.Invoke();
             QueueFree();
         }));
@@ -188,6 +229,8 @@ public partial class ChatOverlay : Control
             child.QueueFree();
         messageIndex = 0;
         lastRowWasTimeInfo = false;
+        HideQuickBar();
+        HidePlusPanel();
 
         if (clearedChats.Contains(currentContact.Id))
         {
@@ -195,12 +238,29 @@ public partial class ChatOverlay : Control
             return;
         }
 
-        var messages = !string.IsNullOrEmpty(currentContact.ChatFile)
-            ? LoadChatData(currentContact.ChatFile).Messages
-            : currentContact.Messages;
+        ChatScriptData chatData = null;
+        List<ChatMessageData> messages;
+        if (!string.IsNullOrEmpty(currentContact.ChatFile))
+        {
+            chatData = LoadChatData(currentContact.ChatFile);
+            messages = chatData.Messages;
+        }
+        else
+        {
+            messages = currentContact.Messages;
+        }
 
         foreach (var msg in messages)
             rows.AddChild(MakeMessageRow(msg));
+
+        // 本局内追加发送过的消息（重开手机还在）
+        if (extraMessages.TryGetValue(currentContact.Id, out var extra))
+            foreach (var msg in extra)
+                rows.AddChild(MakeMessageRow(msg));
+
+        // 预设回复条：只在有数据、没用过、没清空的会话里浮出
+        if (chatData?.QuickReplies is { Count: > 0 } && !usedQuickReplies.Contains(currentContact.Id))
+            BuildQuickBar(chatData.QuickReplies);
     }
 
     // ==================== 搭建：聊天页 ====================
@@ -209,7 +269,7 @@ public partial class ChatOverlay : Control
     {
         chatPage = new Control { MouseFilter = MouseFilterEnum.Stop };
         chatPage.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
-        phonePanel.AddChild(chatPage);
+        pageHost.AddChild(chatPage);
 
         // ---- 顶栏（返回 / 名字 / ···）----
         var header = new PanelContainer { MouseFilter = MouseFilterEnum.Ignore };
@@ -310,8 +370,7 @@ public partial class ChatOverlay : Control
         var footerStyle = new StyleBoxFlat
         {
             BgColor = HeaderBgColor,
-            CornerRadiusBottomLeft = 28,
-            CornerRadiusBottomRight = 28,
+            // 底部圆角交给手机框内的"放下手机"横条，这里做方角衔接
         };
         footer.AddThemeStyleboxOverride("panel", footerStyle);
         footer.AnchorTop = 1;
@@ -326,62 +385,121 @@ public partial class ChatOverlay : Control
         footerRow.AddThemeConstantOverride("separation", 16);
         footer.AddChild(UiKit.WrapMargin(footerRow, 24, 18, 24, 18));
 
-        // ＋ 圆圈
-        var plusCircle = new PanelContainer { MouseFilter = MouseFilterEnum.Ignore };
-        var plusStyle = new StyleBoxFlat { BgColor = new Color(1, 1, 1, 0.92f) };
-        plusStyle.SetCornerRadiusAll(32);
-        plusCircle.AddThemeStyleboxOverride("panel", plusStyle);
-        plusCircle.CustomMinimumSize = new Vector2(64, 64);
-        footerRow.AddChild(plusCircle);
-        var plusLabel = new Label
+        // ＋ 圆圈按钮：弹出微信式功能面板
+        var plusBtn = new Button
         {
             Text = "＋",
-            HorizontalAlignment = HorizontalAlignment.Center,
-            VerticalAlignment = VerticalAlignment.Center,
-            MouseFilter = MouseFilterEnum.Ignore,
+            MouseFilter = MouseFilterEnum.Stop,
+            MouseDefaultCursorShape = CursorShape.PointingHand,
+            CustomMinimumSize = new Vector2(64, 64),
         };
-        plusLabel.AddThemeFontSizeOverride("font_size", 34);
-        plusLabel.AddThemeColorOverride("font_color", new Color(0.3f, 0.3f, 0.33f));
-        plusCircle.AddChild(plusLabel);
+        var plusNormal = new StyleBoxFlat { BgColor = new Color(1, 1, 1, 0.92f) };
+        plusNormal.SetCornerRadiusAll(32);
+        var plusHover = new StyleBoxFlat { BgColor = new Color(0.92f, 0.92f, 0.93f) };
+        plusHover.SetCornerRadiusAll(32);
+        var plusPressed = new StyleBoxFlat { BgColor = new Color(0.85f, 0.85f, 0.87f) };
+        plusPressed.SetCornerRadiusAll(32);
+        plusBtn.AddThemeStyleboxOverride("normal", plusNormal);
+        plusBtn.AddThemeStyleboxOverride("hover", plusHover);
+        plusBtn.AddThemeStyleboxOverride("pressed", plusPressed);
+        plusBtn.AddThemeStyleboxOverride("focus", new StyleBoxEmpty());
+        plusBtn.AddThemeFontSizeOverride("font_size", 34);
+        plusBtn.AddThemeColorOverride("font_color", new Color(0.3f, 0.3f, 0.33f));
+        plusBtn.Pressed += TogglePlusPanel;
+        footerRow.AddChild(plusBtn);
 
-        // 输入框
-        var inputField = new PanelContainer { MouseFilter = MouseFilterEnum.Ignore };
+        // 输入框：真能打字（回车 = 发送）
+        inputField = new LineEdit
+        {
+            PlaceholderText = "发消息……",
+            MouseFilter = MouseFilterEnum.Stop,
+            SizeFlagsHorizontal = SizeFlags.ExpandFill,
+            CustomMinimumSize = new Vector2(0, 64),
+            ContextMenuEnabled = false,
+            ShortcutKeysEnabled = true,
+        };
         var inputStyle = new StyleBoxFlat { BgColor = new Color(0.96f, 0.96f, 0.97f) };
         inputStyle.SetCornerRadiusAll(10);
         inputStyle.SetBorderWidthAll(1);
         inputStyle.BorderColor = new Color(0.85f, 0.85f, 0.87f, 0.5f);
         inputStyle.ContentMarginLeft = 20;
-        inputField.AddThemeStyleboxOverride("panel", inputStyle);
-        inputField.SizeFlagsHorizontal = SizeFlags.ExpandFill;
+        inputStyle.ContentMarginRight = 20;
+        inputStyle.ContentMarginTop = 12;
+        inputStyle.ContentMarginBottom = 12;
+        inputField.AddThemeStyleboxOverride("normal", inputStyle);
+        inputField.AddThemeStyleboxOverride("focus", inputStyle);
+        inputField.AddThemeStyleboxOverride("read_only", inputStyle);
+        inputField.AddThemeFontSizeOverride("font_size", 26);
+        inputField.AddThemeFontSizeOverride("font_placeholder_size", 26);
+        inputField.AddThemeColorOverride("font_color", TextColor);
+        inputField.AddThemeColorOverride("font_placeholder_color", new Color(0.62f, 0.62f, 0.65f));
+        inputField.AddThemeColorOverride("caret_color", TextColor);
+        inputField.AddThemeColorOverride("selection_color", new Color(0.585f, 0.925f, 0.41f, 0.35f));
+        inputField.TextSubmitted += _ => SendFromInput();
         footerRow.AddChild(inputField);
-        var placeholder = new Label
-        {
-            Text = "发消息……",
-            VerticalAlignment = VerticalAlignment.Center,
-            MouseFilter = MouseFilterEnum.Ignore,
-        };
-        placeholder.AddThemeFontSizeOverride("font_size", 26);
-        placeholder.AddThemeColorOverride("font_color", new Color(0.62f, 0.62f, 0.65f));
-        inputField.AddChild(placeholder);
 
         // 发送按钮
-        var sendChip = new PanelContainer { MouseFilter = MouseFilterEnum.Ignore };
-        var sendStyle = new StyleBoxFlat { BgColor = MyBubbleColor };
-        sendStyle.SetCornerRadiusAll(10);
-        sendChip.AddThemeStyleboxOverride("panel", sendStyle);
-        sendChip.CustomMinimumSize = new Vector2(106, 52);
-        sendChip.SizeFlagsVertical = SizeFlags.ShrinkCenter;
-        footerRow.AddChild(sendChip);
-        var sendLabel = new Label
+        var sendBtn = new Button
         {
             Text = "发送",
-            HorizontalAlignment = HorizontalAlignment.Center,
-            VerticalAlignment = VerticalAlignment.Center,
-            MouseFilter = MouseFilterEnum.Ignore,
+            MouseFilter = MouseFilterEnum.Stop,
+            MouseDefaultCursorShape = CursorShape.PointingHand,
+            CustomMinimumSize = new Vector2(106, 52),
+            SizeFlagsVertical = SizeFlags.ShrinkCenter,
         };
-        sendLabel.AddThemeFontSizeOverride("font_size", 26);
-        sendLabel.AddThemeColorOverride("font_color", new Color(0.05f, 0.3f, 0.06f));
-        sendChip.AddChild(sendLabel);
+        var sendNormal = new StyleBoxFlat { BgColor = MyBubbleColor };
+        sendNormal.SetCornerRadiusAll(10);
+        var sendHover = new StyleBoxFlat { BgColor = new Color(0.65f, 0.95f, 0.48f) };
+        sendHover.SetCornerRadiusAll(10);
+        var sendPressed = new StyleBoxFlat { BgColor = new Color(0.5f, 0.82f, 0.35f) };
+        sendPressed.SetCornerRadiusAll(10);
+        sendBtn.AddThemeStyleboxOverride("normal", sendNormal);
+        sendBtn.AddThemeStyleboxOverride("hover", sendHover);
+        sendBtn.AddThemeStyleboxOverride("pressed", sendPressed);
+        sendBtn.AddThemeStyleboxOverride("focus", new StyleBoxEmpty());
+        sendBtn.AddThemeFontSizeOverride("font_size", 26);
+        sendBtn.AddThemeColorOverride("font_color", new Color(0.05f, 0.3f, 0.06f));
+        sendBtn.Pressed += SendFromInput;
+        footerRow.AddChild(sendBtn);
+
+        // ---- ＋ 功能面板（默认隐藏，弹出在输入栏上方）----
+        plusPanel = new PanelContainer { MouseFilter = MouseFilterEnum.Stop };
+        var plusPanelStyle = new StyleBoxFlat { BgColor = new Color(0.955f, 0.955f, 0.965f) };
+        plusPanelStyle.BorderWidthTop = 1;
+        plusPanelStyle.BorderColor = new Color(0, 0, 0, 0.07f);
+        plusPanel.AddThemeStyleboxOverride("panel", plusPanelStyle);
+        plusPanel.AnchorTop = 1;
+        plusPanel.AnchorRight = 1;
+        plusPanel.AnchorBottom = 1;
+        plusPanel.OffsetTop = -102 - 190;
+        plusPanel.OffsetBottom = -102;
+        plusPanel.GrowHorizontal = GrowDirection.Both;
+        plusPanel.GrowVertical = GrowDirection.Begin;
+        plusPanel.Visible = false;
+        chatPage.AddChild(plusPanel);
+
+        var plusGrid = new HBoxContainer { MouseFilter = MouseFilterEnum.Ignore };
+        plusGrid.AddThemeConstantOverride("separation", 26);
+        plusPanel.AddChild(UiKit.WrapMargin(plusGrid, 36, 40, 36, 40));
+        AddPlusItem(plusGrid, "相册");
+        AddPlusItem(plusGrid, "拍摄");
+        AddPlusItem(plusGrid, "位置");
+        AddPlusItem(plusGrid, "红包");
+
+        // ---- 预设回复条（默认隐藏，浮在输入栏上方）----
+        quickBar = new VBoxContainer { MouseFilter = MouseFilterEnum.Ignore };
+        quickBar.AddThemeConstantOverride("separation", 12);
+        quickBar.AnchorTop = 1;
+        quickBar.AnchorRight = 1;
+        quickBar.AnchorBottom = 1;
+        quickBar.OffsetLeft = 24;
+        quickBar.OffsetTop = -102 - 300;
+        quickBar.OffsetRight = -24;
+        quickBar.OffsetBottom = -114;
+        quickBar.GrowHorizontal = GrowDirection.Both;
+        quickBar.GrowVertical = GrowDirection.Begin;
+        quickBar.Visible = false;
+        chatPage.AddChild(quickBar);
 
         // ---- "往上滑"提示 ----
         hintChip = new PanelContainer { MouseFilter = MouseFilterEnum.Ignore };
@@ -530,7 +648,7 @@ public partial class ChatOverlay : Control
     {
         mainPage = new WeChatMainPage();
         mainPage.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
-        phonePanel.AddChild(mainPage);
+        pageHost.AddChild(mainPage);
         mainPage.Build(contacts);
 
         mainPage.ContactSelected += id =>
@@ -547,7 +665,7 @@ public partial class ChatOverlay : Control
     {
         momentsPage = new MomentsPage();
         momentsPage.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
-        phonePanel.AddChild(momentsPage);
+        pageHost.AddChild(momentsPage);
         momentsPage.Build(WeChatData.LoadMoments());
         momentsPage.BackPressed += ShowMain;
         momentsPage.Visible = false;
@@ -574,7 +692,7 @@ public partial class ChatOverlay : Control
         toastChip.GrowHorizontal = GrowDirection.Both;
         toastChip.GrowVertical = GrowDirection.Both;
         toastChip.Visible = false;
-        phonePanel.AddChild(toastChip);
+        pageHost.AddChild(toastChip);
 
         toastLabel = new Label
         {
@@ -632,10 +750,228 @@ public partial class ChatOverlay : Control
         scroll.ScrollVertical = (int)scroll.GetVScrollBar().MaxValue;
     }
 
-    private void OnBackdropInput(InputEvent @event)
+    /// <summary>
+    /// 手机框内底部横条：home 指示条 + "放下手机"按钮。
+    /// 收起入口放进手机框里，手机外面的世界完全不可交互（第六轮反馈）。
+    /// </summary>
+    private void BuildBottomBar()
     {
-        if (@event is InputEventMouseButton mouse && mouse.Pressed && mouse.ButtonIndex == MouseButton.Left)
-            Close();
+        var bar = new PanelContainer { MouseFilter = MouseFilterEnum.Stop };
+        var style = new StyleBoxFlat
+        {
+            BgColor = new Color(0.90f, 0.90f, 0.915f),
+            CornerRadiusBottomLeft = 28,
+            CornerRadiusBottomRight = 28,
+        };
+        style.BorderWidthTop = 1;
+        style.BorderColor = new Color(0, 0, 0, 0.06f);
+        bar.AddThemeStyleboxOverride("panel", style);
+        bar.AnchorTop = 1;
+        bar.AnchorRight = 1;
+        bar.AnchorBottom = 1;
+        bar.OffsetTop = -56;
+        bar.GrowHorizontal = GrowDirection.Both;
+        bar.GrowVertical = GrowDirection.Begin;
+        phonePanel.AddChild(bar);
+
+        var box = new Control { MouseFilter = MouseFilterEnum.Ignore };
+        box.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
+        bar.AddChild(box);
+
+        // home 指示条（真手机底部的那根小横线）
+        var home = new ColorRect { Color = new Color(0, 0, 0, 0.18f), MouseFilter = MouseFilterEnum.Ignore };
+        home.AnchorLeft = 0.5f;
+        home.AnchorRight = 0.5f;
+        home.OffsetLeft = -60;
+        home.OffsetRight = 60;
+        home.OffsetTop = 7;
+        home.OffsetBottom = 11;
+        home.GrowHorizontal = GrowDirection.Both;
+        box.AddChild(home);
+
+        var closeBtn = new Button
+        {
+            Text = "放下手机",
+            MouseFilter = MouseFilterEnum.Stop,
+            MouseDefaultCursorShape = CursorShape.PointingHand,
+        };
+        closeBtn.AddThemeFontSizeOverride("font_size", 22);
+        closeBtn.AddThemeColorOverride("font_color", new Color(0.38f, 0.38f, 0.42f));
+        var hover = new StyleBoxFlat { BgColor = new Color(0, 0, 0, 0.06f) };
+        hover.SetCornerRadiusAll(12);
+        var pressed = new StyleBoxFlat { BgColor = new Color(0, 0, 0, 0.12f) };
+        pressed.SetCornerRadiusAll(12);
+        closeBtn.AddThemeStyleboxOverride("normal", new StyleBoxEmpty());
+        closeBtn.AddThemeStyleboxOverride("hover", hover);
+        closeBtn.AddThemeStyleboxOverride("pressed", pressed);
+        closeBtn.AddThemeStyleboxOverride("focus", new StyleBoxEmpty());
+        closeBtn.AnchorLeft = 0.5f;
+        closeBtn.AnchorRight = 0.5f;
+        closeBtn.OffsetLeft = -90;
+        closeBtn.OffsetRight = 90;
+        closeBtn.OffsetTop = 15;
+        closeBtn.OffsetBottom = 50;
+        closeBtn.GrowHorizontal = GrowDirection.Both;
+        closeBtn.Pressed += Close;
+        box.AddChild(closeBtn);
+    }
+
+    /// <summary>＋ 面板里的一格（演示版：点了弹提示）</summary>
+    private void AddPlusItem(HBoxContainer grid, string name)
+    {
+        var btn = new Button
+        {
+            Text = name,
+            CustomMinimumSize = new Vector2(112, 100),
+            MouseFilter = MouseFilterEnum.Stop,
+            MouseDefaultCursorShape = CursorShape.PointingHand,
+        };
+        var normal = new StyleBoxFlat { BgColor = new Color(1, 1, 1, 0.95f) };
+        normal.SetCornerRadiusAll(12);
+        var hover = new StyleBoxFlat { BgColor = new Color(0.93f, 0.93f, 0.94f) };
+        hover.SetCornerRadiusAll(12);
+        var pressed = new StyleBoxFlat { BgColor = new Color(0.87f, 0.87f, 0.88f) };
+        pressed.SetCornerRadiusAll(12);
+        btn.AddThemeStyleboxOverride("normal", normal);
+        btn.AddThemeStyleboxOverride("hover", hover);
+        btn.AddThemeStyleboxOverride("pressed", pressed);
+        btn.AddThemeStyleboxOverride("focus", new StyleBoxEmpty());
+        btn.AddThemeFontSizeOverride("font_size", 26);
+        btn.AddThemeColorOverride("font_color", new Color(0.32f, 0.32f, 0.36f));
+        btn.Pressed += () => ShowToast($"演示版：「{name}」暂未开放");
+        grid.AddChild(btn);
+    }
+
+    private void TogglePlusPanel()
+    {
+        plusPanel.Visible = !plusPanel.Visible;
+    }
+
+    private void HidePlusPanel()
+    {
+        if (plusPanel != null)
+            plusPanel.Visible = false;
+    }
+
+    /// <summary>输入框/发送按钮：把文字作为我的气泡发出去（自由输入不影响数值）</summary>
+    private void SendFromInput()
+    {
+        string text = inputField.Text.Trim();
+        if (text.Length == 0)
+        {
+            ShowToast("先输入一点内容再发送～");
+            return;
+        }
+
+        inputField.Text = "";
+        HidePlusPanel();
+        AppendMessage(new ChatMessageData { Sender = "me", Text = text });
+    }
+
+    /// <summary>往当前会话追加一条消息（本局内重开手机也还在）</summary>
+    private void AppendMessage(ChatMessageData msg)
+    {
+        if (!extraMessages.TryGetValue(currentContact.Id, out var list))
+        {
+            list = new List<ChatMessageData>();
+            extraMessages[currentContact.Id] = list;
+        }
+        list.Add(msg);
+
+        rows.AddChild(MakeMessageRow(msg));
+        ScrollToBottom();
+    }
+
+    /// <summary>预设回复条：标题 + 若干候选回复（选哪条会影响好感/勇气 → 影响结局）</summary>
+    private void BuildQuickBar(List<QuickReplyData> replies)
+    {
+        foreach (var child in quickBar.GetChildren())
+            child.QueueFree();
+
+        var title = new Label
+        {
+            Text = "怎么回？",
+            HorizontalAlignment = HorizontalAlignment.Center,
+            MouseFilter = MouseFilterEnum.Ignore,
+        };
+        title.AddThemeFontSizeOverride("font_size", 22);
+        title.AddThemeColorOverride("font_color", new Color(0.45f, 0.45f, 0.5f));
+        quickBar.AddChild(title);
+
+        foreach (var q in replies)
+        {
+            var chip = new Button
+            {
+                Text = q.Text,
+                MouseFilter = MouseFilterEnum.Stop,
+                MouseDefaultCursorShape = CursorShape.PointingHand,
+                SizeFlagsHorizontal = SizeFlags.ExpandFill, // 整条宽，单行居中（不开自动换行，避免被压成竖条）
+                CustomMinimumSize = new Vector2(0, 56),
+                TextOverrunBehavior = TextServer.OverrunBehavior.TrimEllipsis,
+            };
+            var normal = new StyleBoxFlat { BgColor = new Color(1, 1, 1, 0.97f) };
+            normal.SetCornerRadiusAll(18);
+            normal.SetBorderWidthAll(1);
+            normal.BorderColor = new Color(0.34f, 0.42f, 0.58f, 0.35f);
+            normal.ContentMarginLeft = 24;
+            normal.ContentMarginRight = 24;
+            normal.ContentMarginTop = 12;
+            normal.ContentMarginBottom = 12;
+            normal.ShadowColor = new Color(0, 0, 0, 0.12f);
+            normal.ShadowSize = 6;
+            normal.ShadowOffset = new Vector2(0, 2);
+            var hover = (StyleBoxFlat)normal.Duplicate();
+            hover.BgColor = new Color(0.93f, 0.95f, 0.99f);
+            var pressedSb = (StyleBoxFlat)normal.Duplicate();
+            pressedSb.BgColor = new Color(0.87f, 0.9f, 0.96f);
+            chip.AddThemeStyleboxOverride("normal", normal);
+            chip.AddThemeStyleboxOverride("hover", hover);
+            chip.AddThemeStyleboxOverride("pressed", pressedSb);
+            chip.AddThemeStyleboxOverride("focus", new StyleBoxEmpty());
+            chip.AddThemeFontSizeOverride("font_size", 24);
+            chip.AddThemeColorOverride("font_color", new Color(0.34f, 0.42f, 0.58f));
+            chip.Pressed += () => OnQuickReply(q);
+            quickBar.AddChild(chip);
+        }
+
+        quickBar.Visible = true;
+    }
+
+    private void HideQuickBar()
+    {
+        if (quickBar == null)
+            return;
+        quickBar.Visible = false;
+        foreach (var child in quickBar.GetChildren())
+            child.QueueFree();
+    }
+
+    /// <summary>
+    /// 选了某条预设回复：发出去 → 加数值（飘字）→ 她隔一小会儿回一句。
+    /// 数值进 GameManager，结局判定（好感/勇气档位）就会因此不同。
+    /// </summary>
+    private void OnQuickReply(QuickReplyData q)
+    {
+        usedQuickReplies.Add(currentContact.Id);
+        HideQuickBar();
+        HidePlusPanel();
+
+        AppendMessage(new ChatMessageData { Sender = "me", Text = q.Text });
+
+        if (q.Affection != 0) GameManager.Instance.AddAffection(q.Affection);
+        if (q.Courage != 0) GameManager.Instance.AddCourage(q.Courage);
+        if (q.Affection != 0 || q.Courage != 0)
+            DialogueManager.Instance?.ShowStatToast(q.Affection, q.Courage);
+
+        if (!string.IsNullOrEmpty(q.Reply))
+        {
+            GetTree().CreateTimer(0.9).Timeout += () =>
+            {
+                if (!IsInsideTree() || closing)
+                    return;
+                AppendMessage(new ChatMessageData { Sender = "other", Text = q.Reply });
+            };
+        }
     }
 
     /// <summary>玩家一滑动 → 提示气泡淡出（只触发一次）</summary>
@@ -679,7 +1015,7 @@ public partial class ChatOverlay : Control
         row.MouseFilter = MouseFilterEnum.Ignore;
 
         Control avatar = mine
-            ? MakePhotoAvatar("res://assets/art/chat/mc_avatar_v1.png", 84)
+            ? MakePhotoAvatar(WeChatData.MyAvatarPath, 84)
             : MakeContactAvatar(currentContact, 84);
 
         Control bubble = msg.Type == "image"
@@ -884,10 +1220,22 @@ public class ChatScriptData
     public string Title { get; set; } = "聊天";
     public List<ChatMessageData> Messages { get; set; }
 
+    /// <summary>预设回复候选（浮在输入栏上方；选哪条加不同数值 → 影响结局）</summary>
+    public List<QuickReplyData> QuickReplies { get; set; }
+
     public void EnsureInitialized()
     {
         Messages ??= new();
     }
+}
+
+/// <summary>一条预设回复：文案 + 好感/勇气增量 + 她的回应</summary>
+public class QuickReplyData
+{
+    public string Text { get; set; } = "";
+    public int Affection { get; set; }
+    public int Courage { get; set; }
+    public string Reply { get; set; } = "";
 }
 
 /// <summary>一条聊天消息</summary>

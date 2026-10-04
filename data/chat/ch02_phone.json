@@ -1,5 +1,5 @@
 {
-  "title": "同桌",
+  "title": "宝宝（前女友）",
   "messages": [
     { "type": "divider", "text": "2月24日" },
     { "sender": "her", "type": "text", "text": "到啦！这边风是真的大，行李箱差点被吹跑" },
@@ -24,5 +24,25 @@
     { "sender": "me", "type": "text", "text": "最近有点忙，回头聊。" },
     { "type": "divider", "text": "今天 22:07" },
     { "sender": "her", "type": "text", "text": "下个月，我去你那边出差，顺路。见一面吗？" }
+  ],
+  "quickReplies": [
+    {
+      "text": "好啊，那天我把时间空出来。",
+      "affection": 2,
+      "courage": 2,
+      "reply": "难得你这么干脆。那就说定了。"
+    },
+    {
+      "text": "那个月我可能有点忙……再说吧。",
+      "affection": -1,
+      "courage": -1,
+      "reply": "嗯，我知道，你一直都很忙。"
+    },
+    {
+      "text": "见一面吧。有些事，我也想当面跟你说。",
+      "affection": 1,
+      "courage": 3,
+      "reply": "……好。那我到了，给你打电话。"
+    }
   ]
 }

@@ -1,4 +1,4 @@
-[gd_scene load_steps=5 format=3 uid="uid://chatoverylay001"]
+[gd_scene load_steps=2 format=3 uid="uid://chatoverylay001"]
 
 [ext_resource type="Script" path="res://scripts/ui/ChatOverlay.cs" id="1_chat"]
 
@@ -12,48 +12,6 @@ corner_detail = 24
 shadow_color = Color(0, 0, 0, 0.42)
 shadow_size = 24
 shadow_offset = Vector2(0, 8)
-
-[sub_resource type="StyleBoxFlat" id="SB_chip"]
-content_margin_left = 20.0
-content_margin_top = 8.0
-content_margin_right = 20.0
-content_margin_bottom = 8.0
-bg_color = Color(0.898, 0.729, 0.478, 0.96)
-corner_radius_top_left = 22
-corner_radius_top_right = 22
-corner_radius_bottom_right = 22
-corner_radius_bottom_left = 22
-corner_detail = 22
-shadow_color = Color(0.1, 0.06, 0.02, 0.3)
-shadow_size = 8
-shadow_offset = Vector2(0, 3)
-
-[sub_resource type="StyleBoxFlat" id="SB_chip_hover"]
-content_margin_left = 20.0
-content_margin_top = 8.0
-content_margin_right = 20.0
-content_margin_bottom = 8.0
-bg_color = Color(0.96, 0.816, 0.58, 1)
-corner_radius_top_left = 22
-corner_radius_top_right = 22
-corner_radius_bottom_right = 22
-corner_radius_bottom_left = 22
-corner_detail = 22
-shadow_color = Color(0.1, 0.06, 0.02, 0.35)
-shadow_size = 12
-shadow_offset = Vector2(0, 4)
-
-[sub_resource type="StyleBoxFlat" id="SB_chip_pressed"]
-content_margin_left = 20.0
-content_margin_top = 8.0
-content_margin_right = 20.0
-content_margin_bottom = 8.0
-bg_color = Color(0.78, 0.6, 0.36, 1)
-corner_radius_top_left = 22
-corner_radius_top_right = 22
-corner_radius_bottom_right = 22
-corner_radius_bottom_left = 22
-corner_detail = 22
 
 [node name="ChatOverlay" type="Control"]
 layout_mode = 3
@@ -87,26 +45,3 @@ offset_bottom = 486.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_styles/panel = SubResource("SB_phone")
-
-[node name="CloseChip" type="Button" parent="."]
-layout_mode = 1
-anchors_preset = -1
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -110.0
-offset_top = 494.0
-offset_right = 110.0
-offset_bottom = 540.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_default_cursor_shape = 2
-theme_override_colors/font_color = Color(0.25, 0.15, 0.05, 1)
-theme_override_colors/font_hover_color = Color(0.18, 0.1, 0.03, 1)
-theme_override_colors/font_pressed_color = Color(0.99, 0.96, 0.9, 1)
-theme_override_font_sizes/font_size = 26
-theme_override_styles/normal = SubResource("SB_chip")
-theme_override_styles/hover = SubResource("SB_chip_hover")
-theme_override_styles/pressed = SubResource("SB_chip_pressed")
-text = "收起手机"
