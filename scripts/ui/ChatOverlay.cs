@@ -70,6 +70,9 @@ public partial class ChatOverlay : Control
     private LineEdit inputField;
     private Control plusPanel;
     private Control quickBar;
+    private PanelContainer typingChip; // "对方正在输入…"指示
+    private Tween hintFadeTween;       // 提示气泡自动淡出
+    private Tween hintReturnTween;     // 提示演示完滑回最新消息
 
     // toast
     private PanelContainer toastChip;
@@ -88,6 +91,9 @@ public partial class ChatOverlay : Control
 
     /// <summary>已经用过预设回复的会话（预设条只出现一次）</summary>
     private static readonly HashSet<string> usedQuickReplies = new();
+
+    /// <summary>「往上滑」提示已经亮过的次数（全程只提示前 2 次）</summary>
+    private static int hintShownCount;
 
     public override void _Ready()
     {
@@ -204,15 +210,60 @@ public partial class ChatOverlay : Control
         currentContact = contact;
         nameLabel.Text = contact.Name;
         HideMenu();
+        HideTypingChip();
         RebuildChatRows();
         SetPage(chatPage);
         ScrollToBottom();
 
-        // 1.2 秒后武装提示监听（避开入场自动滚动）
+        // 「往上滑」提示 + 落点（顶部/底部）统一交给 ArrangeHintAndScroll 决定
         hintArmed = false;
-        hintChip.Visible = true;
+        hintChip.Visible = false;
         hintChip.Modulate = Colors.White;
+        hintFadeTween?.Kill();
+        hintReturnTween?.Kill();
         GetTree().CreateTimer(1.2).Timeout += () => hintArmed = true;
+        ArrangeHintAndScroll();
+    }
+
+    /// <summary>
+    /// 「往上滑」提示与初始滚动位置（出场条件全面收紧）：
+    /// ①这条聊天记录确实能往上翻（内容超出可视区）才显示，短的占位聊天永远不再出现；
+    /// ②提示出现时先把记录瞬移到顶部——顶部 64px 留白正好托住气泡，永远不压消息文字，
+    ///   也顺便让玩家亲眼看到"上面还有更早的聊天"，2 秒后自动平滑滑回最新消息；
+    /// ③玩家自己一滚动立即淡出；
+    /// ④全程只提示前 2 次（切多少个联系人也不再骚扰）。
+    /// </summary>
+    private void ArrangeHintAndScroll()
+    {
+        string contactId = currentContact.Id;
+        GetTree().CreateTimer(0.15).Timeout += () =>
+        {
+            if (closing || !IsInsideTree() || currentContact?.Id != contactId)
+                return;
+            bool scrollable = scroll.GetVScrollBar().MaxValue > scroll.Size.Y + 1f;
+            if (!scrollable || hintShownCount >= 2 || clearedChats.Contains(contactId))
+            {
+                ScrollToBottom();
+                return;
+            }
+
+            hintShownCount++;
+            scroll.ScrollVertical = 0; // 瞬移到顶部，露出留白区（不压任何消息）
+            hintChip.Visible = true;
+            hintChip.Modulate = Colors.White;
+
+            hintFadeTween?.Kill();
+            hintFadeTween = CreateTween();
+            hintFadeTween.TweenInterval(2.0);
+            hintFadeTween.TweenProperty(hintChip, "modulate:a", 0f, 0.4);
+            hintFadeTween.TweenCallback(Callable.From(() => hintChip.Visible = false));
+
+            hintReturnTween?.Kill();
+            hintReturnTween = CreateTween();
+            hintReturnTween.TweenInterval(2.1);
+            hintReturnTween.TweenProperty(scroll, "scroll_vertical", (int)scroll.GetVScrollBar().MaxValue, 0.8)
+                .SetTrans(Tween.TransitionType.Cubic).SetEase(Tween.EaseType.InOut);
+        };
     }
 
     /// <summary>回到微信主框架</summary>
@@ -345,7 +396,8 @@ public partial class ChatOverlay : Control
         pad.SizeFlagsHorizontal = SizeFlags.ExpandFill;
         pad.AddThemeConstantOverride("margin_left", 26);
         pad.AddThemeConstantOverride("margin_right", 26);
-        pad.AddThemeConstantOverride("margin_top", 20);
+        // 顶部留白加大：给"往上滑"提示气泡腾位置，让它浮在空白里、永远不压住消息文字
+        pad.AddThemeConstantOverride("margin_top", 64);
         pad.AddThemeConstantOverride("margin_bottom", 28);
         scroll.AddChild(pad);
 
@@ -500,6 +552,28 @@ public partial class ChatOverlay : Control
         quickBar.GrowVertical = GrowDirection.Begin;
         quickBar.Visible = false;
         chatPage.AddChild(quickBar);
+
+        // ---- "对方正在输入…"指示（默认隐藏，浮在输入栏上方靠左）----
+        typingChip = new PanelContainer { MouseFilter = MouseFilterEnum.Ignore };
+        var typingStyle = new StyleBoxFlat { BgColor = new Color(1, 1, 1, 0.95f) };
+        typingStyle.SetCornerRadiusAll(16);
+        typingStyle.ContentMarginLeft = 18;
+        typingStyle.ContentMarginRight = 18;
+        typingStyle.ContentMarginTop = 10;
+        typingStyle.ContentMarginBottom = 10;
+        typingChip.AddThemeStyleboxOverride("panel", typingStyle);
+        typingChip.AnchorTop = 1;
+        typingChip.AnchorBottom = 1;
+        typingChip.OffsetLeft = 26;
+        typingChip.OffsetTop = -106 - 50;
+        typingChip.OffsetBottom = -106;
+        typingChip.GrowVertical = GrowDirection.Begin;
+        typingChip.Visible = false;
+        chatPage.AddChild(typingChip);
+        var typingLabel = new Label { Text = "对方正在输入…", MouseFilter = MouseFilterEnum.Ignore };
+        typingLabel.AddThemeFontSizeOverride("font_size", 22);
+        typingLabel.AddThemeColorOverride("font_color", new Color(0.45f, 0.45f, 0.5f));
+        typingChip.AddChild(typingLabel);
 
         // ---- "往上滑"提示 ----
         hintChip = new PanelContainer { MouseFilter = MouseFilterEnum.Ignore };
@@ -866,6 +940,73 @@ public partial class ChatOverlay : Control
         inputField.Text = "";
         HidePlusPanel();
         AppendMessage(new ChatMessageData { Sender = "me", Text = text });
+        SchedulePersonaReply(currentContact.Id, text);
+    }
+
+    // ==================== 人设回复引擎 ====================
+
+    /// <summary>"对方正在输入…"指示</summary>
+    private void ShowTypingChip(string contactId)
+    {
+        if (currentContact?.Id == contactId && !closing && quickBar is { Visible: false })
+            typingChip.Visible = true;
+    }
+
+    private void HideTypingChip()
+    {
+        if (typingChip != null)
+            typingChip.Visible = false;
+    }
+
+    /// <summary>
+    /// 人设回复引擎入口：把玩家消息交给 ReplyEngine 按关键词归类挑话，
+    /// 按人设延迟回复（金艮秒回、导师隔半天），回复前亮出"对方正在输入…"。
+    /// 手机就算已经放下，回复也会先落到会话数据里，下次打开照还在。
+    /// 回复不影响好感/勇气——数值仍由剧情选择控制，防止刷分。
+    /// </summary>
+    private void SchedulePersonaReply(string contactId, string text)
+    {
+        if (!ReplyEngine.HasProfile(contactId))
+            return;
+        var decision = ReplyEngine.OnPlayerMessage(contactId, text);
+        if (decision == null)
+            return;
+
+        float delay = Mathf.Max(0.6f, decision.Delay);
+
+        // 回复前先亮"对方正在输入…"；回复慢的人设只在最后 3 秒亮，更像真的在打字
+        float typingAt = delay > 4.5f ? delay - 3.0f : 0.2f;
+        GetTree().CreateTimer(typingAt).Timeout += () =>
+        {
+            if (GodotObject.IsInstanceValid(this))
+                ShowTypingChip(contactId);
+        };
+
+        GetTree().CreateTimer(delay).Timeout += () =>
+        {
+            var msg = new ChatMessageData { Sender = "other", Text = decision.Line };
+            StoreIncoming(contactId, msg); // 数据先落库（static），手机关了也不丢
+
+            if (!GodotObject.IsInstanceValid(this))
+                return;
+            HideTypingChip();
+            if (currentContact != null && currentContact.Id == contactId && !closing)
+            {
+                rows.AddChild(MakeMessageRow(msg));
+                ScrollToBottom();
+            }
+        };
+    }
+
+    /// <summary>往会话记录里补一条消息（只动 static 数据；UI 由调用方按需刷新）</summary>
+    private static void StoreIncoming(string contactId, ChatMessageData msg)
+    {
+        if (!extraMessages.TryGetValue(contactId, out var list))
+        {
+            list = new List<ChatMessageData>();
+            extraMessages[contactId] = list;
+        }
+        list.Add(msg);
     }
 
     /// <summary>往当前会话追加一条消息（本局内重开手机也还在）</summary>
@@ -967,9 +1108,12 @@ public partial class ChatOverlay : Control
         {
             GetTree().CreateTimer(0.9).Timeout += () =>
             {
-                if (!IsInsideTree() || closing)
+                var msg = new ChatMessageData { Sender = "other", Text = q.Reply };
+                StoreIncoming(currentContact.Id, msg); // 就算中途放下手机，回复也不丢
+                if (!IsInsideTree() || closing || currentContact == null)
                     return;
-                AppendMessage(new ChatMessageData { Sender = "other", Text = q.Reply });
+                rows.AddChild(MakeMessageRow(msg));
+                ScrollToBottom();
             };
         }
     }

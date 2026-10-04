@@ -38,6 +38,9 @@ public partial class MomentsPage : Control
 
     private readonly List<PostUi> postUis = new();
 
+    /// <summary>已经回过的评论回复（动态id+文案），避免同一句回复复读机</summary>
+    private static readonly HashSet<string> usedCommentLines = new();
+
     // ==================== 搭建 ====================
 
     public void Build(MomentsData moments)
@@ -323,6 +326,7 @@ public partial class MomentsPage : Control
                 Text = $"[color=#576B95]{EscapeBbcode(c.Author)}[/color]：{EscapeBbcode(c.Text)}",
             };
             line.AddThemeFontSizeOverride("normal_font_size", 24);
+            line.AddThemeColorOverride("default_color", TextDark); // RichTextLabel 默认白字，浅灰底上看不清
             line.SizeFlagsHorizontal = SizeFlags.ExpandFill;
             box.AddChild(line);
         }
@@ -331,12 +335,50 @@ public partial class MomentsPage : Control
     /// <summary>点赞切换</summary>
     private void ToggleLike(PostUi ui)
     {
-        if (ui.Post.Likes.Contains("我"))
-            ui.Post.Likes.Remove("我");
-        else
+        bool liking = !ui.Post.Likes.Contains("我");
+        if (liking)
             ui.Post.Likes.Add("我");
-        ui.LikeBtn.Text = ui.Post.Likes.Contains("我") ? "取消赞" : "赞";
+        else
+            ui.Post.Likes.Remove("我");
+        ui.LikeBtn.Text = liking ? "取消赞" : "赞";
         RebuildSocial(ui);
+        if (liking)
+            SpawnHearts(ui.LikeBtn); // 只有点赞有特效，取消赞安安静静
+    }
+
+    /// <summary>
+    /// 点赞爱心特效：从"赞"按钮迸出 4~5 颗小爱心，四散上浮、随机大小角度、淡出（约 0.7 秒）。
+    /// </summary>
+    private void SpawnHearts(Control anchor)
+    {
+        // 锚点全局位置 → 本页局部位置（手机可能被整体缩放，坐标要除掉缩放系数）
+        Vector2 globalCenter = anchor.GetGlobalRect().GetCenter();
+        Vector2 origin = GetGlobalRect().Position;
+        float s = GetGlobalTransform().Scale.X;
+        if (s < 0.0001f) s = 1f;
+        Vector2 start = (globalCenter - origin) / s;
+
+        var colors = new[] { new Color("#ff5b7a"), new Color("#ff8a9e"), new Color("#ff4d6d") };
+        int count = 4 + (int)(GD.Randi() % 2);
+        for (int i = 0; i < count; i++)
+        {
+            var heart = new Label { Text = "♥", MouseFilter = MouseFilterEnum.Ignore, ZIndex = 10 };
+            heart.AddThemeFontSizeOverride("font_size", (int)GD.RandRange(26, 42));
+            heart.AddThemeColorOverride("font_color", colors[GD.Randi() % colors.Length]);
+            heart.AddThemeColorOverride("font_outline_color", Colors.White);
+            heart.AddThemeConstantOverride("outline_size", 4);
+            heart.Position = start;
+            AddChild(heart);
+
+            var tween = heart.CreateTween();
+            tween.SetParallel(true);
+            var drift = new Vector2((float)GD.RandRange(-95, 95), (float)GD.RandRange(-150, -70));
+            tween.TweenProperty(heart, "position", start + drift, 0.7)
+                .SetTrans(Tween.TransitionType.Quad).SetEase(Tween.EaseType.Out);
+            tween.TweenProperty(heart, "rotation_degrees", (float)GD.RandRange(-28, 28), 0.7);
+            tween.TweenProperty(heart, "modulate:a", 0f, 0.45).SetDelay(0.25);
+            tween.Chain().TweenCallback(Callable.From(heart.QueueFree));
+        }
     }
 
     /// <summary>评论输入行</summary>
@@ -411,11 +453,69 @@ public partial class MomentsPage : Control
             ui.Input.Text = "";
             ui.InputRow.Visible = false;
             RebuildSocial(ui);
+            ScheduleCommentReply(ui, t);
         }
         send.Pressed += Submit;
         ui.Input.TextSubmitted += _ => Submit();
 
         return row;
+    }
+
+    // ==================== 评论延迟回复（混合模式） ====================
+
+    /// <summary>
+    /// 玩家评论后，动态作者"过了好一会儿"才回：
+    /// 15~40 秒随机延迟。手机开着且停在朋友圈 → 回复浮出来；已经放下手机/翻走了 →
+    /// 回复先落到数据里（朋友圈数据是全局缓存的），下次打开自然已经躺在评论列表里。
+    /// 回复内容按"这条动态 + 你的评论关键词"从 data/moments.json 的 commentReplies 里挑。
+    /// </summary>
+    private void ScheduleCommentReply(PostUi ui, string comment)
+    {
+        var post = ui.Post;
+        double delay = GD.RandRange(15.0, 40.0);
+        GetTree().CreateTimer(delay).Timeout += () =>
+        {
+            string line = PickCommentReply(post, comment);
+            if (line == null)
+                return;
+            post.Comments.Add(new MomentComment { Author = post.Author, Text = line });
+
+            // 手机还开着且正停在朋友圈 → 立刻刷新出来；否则数据已落库，下次打开自然在
+            if (GodotObject.IsInstanceValid(this) && Visible && postUis.Contains(ui))
+                RebuildSocial(ui);
+        };
+    }
+
+    /// <summary>按评论关键词挑回复：先看 commentReplies 规则，都不中走兜底池；同一条回复不重复使用</summary>
+    private static string PickCommentReply(MomentPost post, string comment)
+    {
+        if (post.CommentReplies != null)
+        {
+            for (int i = 0; i < post.CommentReplies.Count; i++)
+            {
+                var rule = post.CommentReplies[i];
+                if (rule?.Lines is not { Count: > 0 })
+                    continue;
+                bool hit = rule.Keywords != null && rule.Keywords.Exists(k =>
+                    !string.IsNullOrEmpty(k) && comment.Contains(k, System.StringComparison.OrdinalIgnoreCase));
+                if (hit)
+                    return PickUnusedLine($"{post.Id}/rule{i}", rule.Lines) ?? PickUnusedLine($"{post.Id}/fallback", post.CommentFallback);
+            }
+        }
+        return PickUnusedLine($"{post.Id}/fallback", post.CommentFallback);
+    }
+
+    /// <summary>池子里抽一条没用过的（全用过就重置）；池子为空返回 null</summary>
+    private static string PickUnusedLine(string key, List<string> pool)
+    {
+        if (pool is not { Count: > 0 })
+            return null;
+        var fresh = pool.FindAll(l => !usedCommentLines.Contains(key + "/" + l));
+        if (fresh.Count == 0)
+            fresh = pool;
+        string line = fresh[(int)(GD.Randi() % fresh.Count)];
+        usedCommentLines.Add(key + "/" + line);
+        return line;
     }
 
     // ==================== 小工具 ====================

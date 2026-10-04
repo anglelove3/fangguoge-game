@@ -104,6 +104,22 @@ public class MomentPost
     public List<string> Images { get; set; } = new();
     public List<string> Likes { get; set; } = new();
     public List<MomentComment> Comments { get; set; } = new();
+
+    /// <summary>
+    /// 玩家评论后的延迟回复规则：按评论里的关键词挑最贴的一组回复（混合模式触发，
+    /// 手机开着 15~40 秒后浮出，否则挂到下次打开朋友圈）。
+    /// </summary>
+    public List<CommentReplyRule> CommentReplies { get; set; } = new();
+
+    /// <summary>评论没命中任何关键词时的兜底回复池</summary>
+    public List<string> CommentFallback { get; set; } = new();
+}
+
+/// <summary>朋友圈评论回复规则：评论命中 keywords 之一 → 从 lines 里抽一条回</summary>
+public class CommentReplyRule
+{
+    public List<string> Keywords { get; set; } = new();
+    public List<string> Lines { get; set; } = new();
 }
 
 /// <summary>朋友圈评论</summary>
