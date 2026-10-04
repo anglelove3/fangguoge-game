@@ -6,10 +6,22 @@
       "avatar": "res://assets/art/chat/her_avatar_v1.png",
       "sessionTime": "晚上 9:45",
       "messages": [
-        { "sender": "other", "text": "今天老师点你名，我帮你答了到" },
-        { "sender": "me", "text": "救命恩人，明天请你喝奶茶" },
-        { "sender": "other", "text": "记下了，不许赖账" },
-        { "sender": "me", "text": "不赖不赖" }
+        {
+          "sender": "other",
+          "text": "今天老师点你名，我帮你答了到"
+        },
+        {
+          "sender": "me",
+          "text": "救命恩人，明天请你喝奶茶"
+        },
+        {
+          "sender": "other",
+          "text": "记下了，不许赖账"
+        },
+        {
+          "sender": "me",
+          "text": "不赖不赖"
+        }
       ]
     },
     {
@@ -17,43 +29,92 @@
       "name": "金艮",
       "sessionTime": "晚上 9:12",
       "messages": [
-        { "sender": "other", "text": "人呢？外卖到了" },
-        { "sender": "me", "text": "在回宿舍的路上了，给我留一口！" },
-        { "sender": "other", "text": "晚了，你的那份黄焖鸡我已经替你尝过了" },
-        { "sender": "me", "text": "金艮，明天再跟你算账" }
-      ]
+        {
+          "sender": "other",
+          "text": "人呢？外卖到了"
+        },
+        {
+          "sender": "me",
+          "text": "在回宿舍的路上了，给我留一口！"
+        },
+        {
+          "sender": "other",
+          "text": "晚了，你的那份黄焖鸡我已经替你尝过了"
+        },
+        {
+          "sender": "me",
+          "text": "金艮，明天再跟你算账"
+        }
+      ],
+      "avatar": "res://assets/art/chat/avatar_jingen.png"
     },
     {
       "id": "junjie",
       "name": "俊杰（师弟）",
       "sessionTime": "昨天",
       "messages": [
-        { "sender": "other", "text": "师兄，上周那个仪器预约表还在柜子里吗" },
-        { "sender": "me", "text": "在第二个抽屉，蓝色文件夹里" },
-        { "sender": "other", "text": "找到了谢谢师兄！下次请你喝奶茶" }
-      ]
+        {
+          "sender": "other",
+          "text": "师兄，上周那个仪器预约表还在柜子里吗"
+        },
+        {
+          "sender": "me",
+          "text": "在第二个抽屉，蓝色文件夹里"
+        },
+        {
+          "sender": "other",
+          "text": "找到了谢谢师兄！下次请你喝奶茶"
+        }
+      ],
+      "avatar": "res://assets/art/chat/avatar_junjie.png"
     },
     {
       "id": "sanjin",
       "name": "三金师兄",
       "sessionTime": "昨天",
       "messages": [
-        { "sender": "other", "text": "你上次那组数据跑完了吗" },
-        { "sender": "me", "text": "跑完了，还是不收敛，想哭" },
-        { "sender": "other", "text": "明天组会带过来一起看看" },
-        { "sender": "me", "text": "好，谢谢三金师兄" }
-      ]
+        {
+          "sender": "other",
+          "text": "你上次那组数据跑完了吗"
+        },
+        {
+          "sender": "me",
+          "text": "跑完了，还是不收敛，想哭"
+        },
+        {
+          "sender": "other",
+          "text": "明天组会带过来一起看看"
+        },
+        {
+          "sender": "me",
+          "text": "好，谢谢三金师兄"
+        }
+      ],
+      "avatar": "res://assets/art/chat/avatar_sanjin.png"
     },
     {
       "id": "daoshi",
       "name": "研究生导师",
       "sessionTime": "周一",
       "messages": [
-        { "sender": "other", "text": "这周五上午九点组会，不要迟到" },
-        { "sender": "me", "text": "好的老师" },
-        { "sender": "other", "text": "带上你的进度 PPT" },
-        { "sender": "me", "text": "……收到" }
-      ]
+        {
+          "sender": "other",
+          "text": "这周五上午九点组会，不要迟到"
+        },
+        {
+          "sender": "me",
+          "text": "好的老师"
+        },
+        {
+          "sender": "other",
+          "text": "带上你的进度 PPT"
+        },
+        {
+          "sender": "me",
+          "text": "……收到"
+        }
+      ],
+      "avatar": "res://assets/art/chat/avatar_daoshi.png"
     },
     {
       "id": "baobao",
@@ -67,71 +128,144 @@
       "name": "诚哥",
       "sessionTime": "周日",
       "messages": [
-        { "sender": "other", "text": "周六打球吗？缺一个" },
-        { "sender": "me", "text": "算我一个" },
-        { "sender": "other", "text": "行，老地方三点" }
-      ]
+        {
+          "sender": "other",
+          "text": "周六打球吗？缺一个"
+        },
+        {
+          "sender": "me",
+          "text": "算我一个"
+        },
+        {
+          "sender": "other",
+          "text": "行，老地方三点"
+        }
+      ],
+      "avatar": "res://assets/art/chat/avatar_chengge.png"
     },
     {
       "id": "xiaomi",
       "name": "小米师妹",
       "sessionTime": "周六",
       "messages": [
-        { "sender": "other", "text": "师兄师兄，上次你说的那个软件怎么装来着" },
-        { "sender": "me", "text": "我发你个教程，照着做很快" },
-        { "sender": "other", "text": "谢谢师兄！！" }
-      ]
+        {
+          "sender": "other",
+          "text": "师兄师兄，上次你说的那个软件怎么装来着"
+        },
+        {
+          "sender": "me",
+          "text": "我发你个教程，照着做很快"
+        },
+        {
+          "sender": "other",
+          "text": "谢谢师兄！！"
+        }
+      ],
+      "avatar": "res://assets/art/chat/avatar_xiaomi.png"
     },
     {
       "id": "faxiao",
       "name": "老家发小",
       "sessionTime": "上周",
       "messages": [
-        { "sender": "other", "text": "老校门口的店拆了，你知道不" },
-        { "sender": "me", "text": "啊？我们以前翻墙出去吃的那家？" },
-        { "sender": "other", "text": "对啊，可惜了" }
-      ]
+        {
+          "sender": "other",
+          "text": "老校门口的店拆了，你知道不"
+        },
+        {
+          "sender": "me",
+          "text": "啊？我们以前翻墙出去吃的那家？"
+        },
+        {
+          "sender": "other",
+          "text": "对啊，可惜了"
+        }
+      ],
+      "avatar": "res://assets/art/chat/avatar_faxiao.png"
     },
     {
       "id": "ba",
       "name": "爸",
       "sessionTime": "上周",
       "messages": [
-        { "sender": "other", "text": "钱够不够花" },
-        { "sender": "me", "text": "够，这个月补助发了" },
-        { "sender": "other", "text": "嗯。念书别太累" }
-      ]
+        {
+          "sender": "other",
+          "text": "钱够不够花"
+        },
+        {
+          "sender": "me",
+          "text": "够，这个月补助发了"
+        },
+        {
+          "sender": "other",
+          "text": "嗯。念书别太累"
+        }
+      ],
+      "avatar": "res://assets/art/chat/avatar_ba.png"
     },
     {
       "id": "ma",
       "name": "妈",
       "sessionTime": "上周",
       "messages": [
-        { "sender": "other", "text": "降温了，记得加衣服" },
-        { "sender": "other", "text": "吃饭了没，别老不吃早饭" },
-        { "sender": "me", "text": "吃了吃了，棉衣都穿上了" },
-        { "sender": "other", "text": "那就好" }
-      ]
+        {
+          "sender": "other",
+          "text": "降温了，记得加衣服"
+        },
+        {
+          "sender": "other",
+          "text": "吃饭了没，别老不吃早饭"
+        },
+        {
+          "sender": "me",
+          "text": "吃了吃了，棉衣都穿上了"
+        },
+        {
+          "sender": "other",
+          "text": "那就好"
+        }
+      ],
+      "avatar": "res://assets/art/chat/avatar_ma.png"
     },
     {
       "id": "shenge",
       "name": "申哥（老家发小）",
       "sessionTime": "上个月",
       "messages": [
-        { "sender": "other", "text": "过年什么时候回来" },
-        { "sender": "me", "text": "大概腊月二十左右吧" },
-        { "sender": "other", "text": "行，到时候我去接你" }
-      ]
+        {
+          "sender": "other",
+          "text": "过年什么时候回来"
+        },
+        {
+          "sender": "me",
+          "text": "大概腊月二十左右吧"
+        },
+        {
+          "sender": "other",
+          "text": "行，到时候我去接你"
+        }
+      ],
+      "avatar": "res://assets/art/chat/avatar_shenge.png"
     },
     {
       "id": "yebingyu",
       "name": "叶冰玉（高中同学）",
       "sessionTime": "上个月",
       "messages": [
-        { "sender": "other", "text": "同学聚会定在假期第三天，你能来吗" },
-        { "sender": "me", "text": "我尽量，最近实验室有点忙" },
-        { "sender": "other", "text": "好，给你留位置" }
-      ]
+        {
+          "sender": "other",
+          "text": "同学聚会定在假期第三天，你能来吗"
+        },
+        {
+          "sender": "me",
+          "text": "我尽量，最近实验室有点忙"
+        },
+        {
+          "sender": "other",
+          "text": "好，给你留位置"
+        }
+      ],
+      "avatar": "res://assets/art/chat/avatar_yebingyu.png"
     }
   ]
 }
