@@ -329,9 +329,10 @@ public partial class MainMenu : Control
             0 => "res://scenes/chapters/prologue/prologue.tscn",
             1 => "res://scenes/chapters/ch01/ch01.tscn",
             2 => "res://scenes/chapters/ch02/ch02.tscn",
+            3 => "res://scenes/chapters/ch03/ch03.tscn",
+            4 => "res://scenes/chapters/ch04/ch04.tscn",
             99 => "res://scenes/ui/demo_end/demo_end.tscn", // 试玩结束页
             // 后续章节在这里添加：
-            // 3 => "res://scenes/chapters/ch03/xxx/ch03.tscn",
             _ => "res://scenes/chapters/prologue/prologue.tscn"
         };
     }

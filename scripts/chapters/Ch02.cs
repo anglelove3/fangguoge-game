@@ -286,7 +286,7 @@ public partial class Ch02 : ChapterBase
             DialogueManager.Instance.PlaySequence(ChapterId, "outro", () =>
             {
                 GameManager.Instance.SaveGame();
-                GameManager.Instance.ChangeSceneWithTransition("res://scenes/ui/demo_end/demo_end.tscn");
+                GameManager.Instance.ChangeSceneWithTransition("res://scenes/chapters/ch03/ch03.tscn", 3);
             });
         });
     }

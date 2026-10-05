@@ -82,6 +82,12 @@ public partial class ChatOverlay : Control
     private Tween toastTween;
 
     private ContactData currentContact;
+    private ChatScriptData currentChatData; // 当前会话的 JSON 剧本（只读 / 幽灵打字等标记都在这）
+    private Tween ghostTween;               // 幽灵打字动画（第四章"手滑"）
+
+    /// <summary>当前会话是否只读（联系人级 ReadOnly 或剧本级 readOnly 任一成立）</summary>
+    private bool ActiveReadOnly => (currentContact?.ReadOnly ?? false) || (currentChatData?.ReadOnly ?? false);
+
     private bool closing;    // 正在收起（防止重复触发）
     private bool suppressing; // 正在抑制背景对话输入
     private bool hintArmed;  // "滑一滑"提示是否已武装（入场滚动不算）
@@ -213,8 +219,12 @@ public partial class ChatOverlay : Control
     private void ShowChat(ContactData contact)
     {
         currentContact = contact;
+        currentChatData = !string.IsNullOrEmpty(contact.ChatFile) ? LoadChatData(contact.ChatFile) : null;
+        ghostTween?.Kill();
         nameLabel.Text = contact.Members > 0 ? $"{contact.Name}（{contact.Members}）" : contact.Name;
         ApplyReadOnlyMode(contact);
+        if (ActiveReadOnly)
+            inputField.Text = ""; // 只读会话不允许残留草稿（幽灵打字从空白开始）
         HideMenu();
         HideTypingChip();
         RebuildChatRows();
@@ -229,6 +239,7 @@ public partial class ChatOverlay : Control
         hintReturnTween?.Kill();
         GetTree().CreateTimer(1.2).Timeout += () => hintArmed = true;
         ArrangeHintAndScroll();
+        MaybePlayGhostTyping();
     }
 
     /// <summary>
@@ -295,17 +306,8 @@ public partial class ChatOverlay : Control
             return;
         }
 
-        ChatScriptData chatData = null;
-        List<ChatMessageData> messages;
-        if (!string.IsNullOrEmpty(currentContact.ChatFile))
-        {
-            chatData = LoadChatData(currentContact.ChatFile);
-            messages = chatData.Messages;
-        }
-        else
-        {
-            messages = currentContact.Messages;
-        }
+        var chatData = currentChatData; // ShowChat 时已按当前会话加载好
+        List<ChatMessageData> messages = chatData != null ? chatData.Messages : currentContact.Messages;
 
         foreach (var msg in messages)
             rows.AddChild(MakeMessageRow(msg));
@@ -494,6 +496,13 @@ public partial class ChatOverlay : Control
         inputField.AddThemeColorOverride("caret_color", TextColor);
         inputField.AddThemeColorOverride("selection_color", new Color(0.585f, 0.925f, 0.41f, 0.35f));
         inputField.TextSubmitted += _ => SendFromInput();
+        // 只读会话里点输入框：不弹键盘，只轻轻提醒一句（第四章"手滑"用）
+        inputField.GuiInput += ev =>
+        {
+            if (ActiveReadOnly && ev is InputEventMouseButton mb && mb.Pressed
+                && !string.IsNullOrEmpty(currentChatData?.ReadOnlyToast))
+                ShowToast(currentChatData.ReadOnlyToast);
+        };
         footerRow.AddChild(inputField);
 
         // 发送按钮
@@ -857,6 +866,63 @@ public partial class ChatOverlay : Control
         scroll.ScrollVertical = (int)scroll.GetVScrollBar().MaxValue;
     }
 
+    // ==================== 幽灵打字（第四章"手滑"） ====================
+
+    /// <summary>已经表演过幽灵打字的会话（每个会话只演一次）</summary>
+    private static readonly HashSet<string> ghostPlayedChats = new();
+
+    /// <summary>
+    /// 幽灵打字：输入框自己一个字一个字打出「最近还好吗」，
+    /// 停一会儿，再一个字一个字删掉——像玩家的手自己动了。
+    /// 只在带 ghostTyping 数据的会话里演，且每个会话只演一次。
+    /// </summary>
+    private void MaybePlayGhostTyping()
+    {
+        var g = currentChatData?.GhostTyping;
+        if (g == null || string.IsNullOrEmpty(g.Text) || ghostPlayedChats.Contains(currentContact.Id))
+            return;
+        ghostPlayedChats.Add(currentContact.Id);
+
+        string cid = currentContact.Id;
+        string full = g.Text;
+        ghostTween?.Kill();
+        var tw = CreateTween();
+        ghostTween = tw;
+
+        tw.TweenInterval(g.StartDelay); // 先让玩家自己安静看一会儿聊天记录
+        string shown = "";
+        foreach (char ch in full)
+        {
+            shown += ch;
+            string snapshot = shown;
+            tw.TweenCallback(Callable.From(() =>
+            {
+                if (currentContact?.Id == cid && IsInsideTree())
+                    inputField.Text = snapshot;
+            }));
+            tw.TweenInterval(g.TypeSpeed);
+        }
+        tw.TweenInterval(g.Hold);
+        for (int len = full.Length - 1; len >= 0; len--)
+        {
+            string snapshot = full.Substring(0, len);
+            tw.TweenCallback(Callable.From(() =>
+            {
+                if (currentContact?.Id == cid && IsInsideTree())
+                    inputField.Text = snapshot;
+            }));
+            tw.TweenInterval(g.DeleteSpeed);
+        }
+        if (!string.IsNullOrEmpty(g.AfterToast))
+        {
+            tw.TweenCallback(Callable.From(() =>
+            {
+                if (currentContact?.Id == cid && IsInsideTree())
+                    ShowToast(g.AfterToast);
+            }));
+        }
+    }
+
     /// <summary>
     /// 手机框内底部横条：home 指示条 + "放下手机"按钮。
     /// 收起入口放进手机框里，手机外面的世界完全不可交互（第六轮反馈）。
@@ -951,7 +1017,7 @@ public partial class ChatOverlay : Control
 
     private void TogglePlusPanel()
     {
-        if (currentContact != null && currentContact.ReadOnly)
+        if (ActiveReadOnly)
         {
             ShowToast("只读会话，发不了这些～");
             return;
@@ -966,26 +1032,38 @@ public partial class ChatOverlay : Control
     }
 
     /// <summary>
-    /// 只读会话（第九轮）：实验群围观模式 / 文件传输助手——输入框禁言，
-    /// 发送和＋面板改成 toast，聊天记录保持纯观赏。
+    /// 只读会话（第九轮 / 第十轮扩展）：实验群围观、文件传输助手、第四章的旧聊天——
+    /// 输入框禁言，发送和＋面板改成 toast，聊天记录保持纯观赏。
+    /// 第十轮起剧本级 readOnly 时，占位文字和点按 toast 都可以从 JSON 取。
     /// </summary>
     private void ApplyReadOnlyMode(ContactData contact)
     {
-        bool readOnly = contact.ReadOnly;
+        bool readOnly = ActiveReadOnly;
         inputField.Editable = !readOnly;
-        inputField.PlaceholderText = readOnly
-            ? (contact.Kind == "group" ? "群聊围观中，不参与发言" : "只读消息，无法回复")
-            : "发消息……";
+        if (!readOnly)
+        {
+            inputField.PlaceholderText = "发消息……";
+            return;
+        }
+        if (contact.Kind == "group")
+            inputField.PlaceholderText = "群聊围观中，不参与发言";
+        else if (!string.IsNullOrEmpty(currentChatData?.ReadOnlyHint))
+            inputField.PlaceholderText = currentChatData.ReadOnlyHint;
+        else
+            inputField.PlaceholderText = "只读消息，无法回复";
     }
 
     /// <summary>输入框/发送按钮：把文字作为我的气泡发出去（自由输入不影响数值）</summary>
     private void SendFromInput()
     {
-        if (currentContact != null && currentContact.ReadOnly)
+        if (ActiveReadOnly)
         {
-            ShowToast(currentContact.Kind == "group"
-                ? "群里导师随时盯着，谁也不敢接话～"
-                : "这里只能看，不能发言～");
+            if (currentContact.Kind == "group")
+                ShowToast("群里导师随时盯着，谁也不敢接话～");
+            else if (!string.IsNullOrEmpty(currentChatData?.ReadOnlyToast))
+                ShowToast(currentChatData.ReadOnlyToast);
+            else
+                ShowToast("这里只能看，不能发言～");
             return;
         }
 
@@ -1469,10 +1547,35 @@ public class ChatScriptData
     /// <summary>预设回复候选（浮在输入栏上方；选哪条加不同数值 → 影响结局）</summary>
     public List<QuickReplyData> QuickReplies { get; set; }
 
+    // ---------- 第四章：旧聊天的"只读 + 幽灵打字" ----------
+
+    /// <summary>剧本级只读：输入框禁言（与联系人级 ReadOnly 任一成立即生效）</summary>
+    public bool ReadOnly { get; set; }
+
+    /// <summary>只读时输入框里的占位文字（留空 = 用默认的"只读消息，无法回复"）</summary>
+    public string ReadOnlyHint { get; set; } = "";
+
+    /// <summary>只读时点输入框弹的 toast（留空 = 不弹）</summary>
+    public string ReadOnlyToast { get; set; } = "";
+
+    /// <summary>幽灵打字：输入框自己打字又删掉（留空 = 不演）</summary>
+    public GhostTypingData GhostTyping { get; set; }
+
     public void EnsureInitialized()
     {
         Messages ??= new();
     }
+}
+
+/// <summary>幽灵打字剧本：打出 text → 停 hold 秒 → 一个字一个字删掉 → 弹 afterToast</summary>
+public class GhostTypingData
+{
+    public string Text { get; set; } = "";
+    public float StartDelay { get; set; } = 1.8f;
+    public float TypeSpeed { get; set; } = 0.16f;
+    public float Hold { get; set; } = 1.2f;
+    public float DeleteSpeed { get; set; } = 0.07f;
+    public string AfterToast { get; set; } = "";
 }
 
 /// <summary>一条预设回复：文案 + 好感/勇气增量 + 她的回应</summary>
