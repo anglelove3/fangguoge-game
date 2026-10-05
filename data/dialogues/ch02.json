@@ -119,9 +119,9 @@
       "prompt": "她的消息还停在屏幕上。你要怎么回？",
       "promptSpeaker": "我",
       "options": [
-        { "text": "好啊！到时候我请你吃饭", "affection": 4, "courage": 3 },
-        { "text": "看你时间，我都可以", "affection": 2, "courage": 0 },
-        { "text": "下个月还早，到时候再说吧", "affection": 0, "courage": -3 }
+        { "text": "好啊！到时候我请你吃饭", "affection": 8, "courage": -3 },
+        { "text": "看你时间，我都可以", "affection": 4, "courage": 3 },
+        { "text": "下个月还早，到时候再说吧", "affection": -2, "courage": 7 }
       ]
     },
     "say_more": {

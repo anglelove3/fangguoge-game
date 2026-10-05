@@ -1,0 +1,34 @@
+{
+  "cards": [
+    {
+      "id": "ticket",
+      "image": "res://assets/art/cards/card_ticket.png",
+      "titleKey": "ch03.card_ticket", "subKey": "ch03.card_ticket_sub",
+      "x": 150, "y": 240, "tilt": -0.032
+    },
+    {
+      "id": "notes",
+      "image": "res://assets/art/cards/card_notes.png",
+      "titleKey": "ch03.card_notes", "subKey": "ch03.card_notes_sub",
+      "x": 110, "y": 490, "tilt": 0.026
+    },
+    {
+      "id": "scarf",
+      "image": "res://assets/art/cards/card_scarf.png",
+      "titleKey": "ch03.card_scarf", "subKey": "ch03.card_scarf_sub",
+      "x": 1430, "y": 250, "tilt": -0.024
+    }
+  ],
+
+  "compensations": [
+    { "id": "apology", "titleKey": "ch03.chip_apology", "subKey": "ch03.chip_apology_sub", "x": 1420, "y": 500 },
+    { "id": "grades",  "titleKey": "ch03.chip_grades",  "subKey": "ch03.chip_grades_sub",  "x": 1420, "y": 592 },
+    { "id": "nights",  "titleKey": "ch03.chip_nights",  "subKey": "ch03.chip_nights_sub",  "x": 1420, "y": 684 }
+  ],
+
+  "cardSize": { "w": 360, "h": 240 },
+  "chipSize": { "w": 340, "h": 80 },
+
+  "tiltAfterCards": [-7, -14, -20],
+  "tiltAfterChips": [-26, -32, -38]
+}

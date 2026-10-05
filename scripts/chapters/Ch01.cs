@@ -126,8 +126,8 @@ public partial class Ch01 : ChapterBase
     {
         int n = foundItems.Count;
         hintLabel.Text = n >= 2
-            ? "（场景里的东西都看过了）"
-            : $"热闹的川菜馆……好像有什么在等着你（{n}/2）";
+            ? DataStore.Text("hint.ch01_done")
+            : DataStore.Text("hint.ch01", n, 2);
     }
 
     private void OnHotspotPressed(string itemId, string buttonPath)

@@ -74,9 +74,9 @@
       "promptSpeaker": "室友",
       "promptPortrait": "roommate_laugh",
       "options": [
-        { "text": "耳机哥", "affection": 3, "courage": 0 },
-        { "text": "都行哥", "affection": 2, "courage": -2 },
-        { "text": "放过哥", "affection": 5, "courage": 2 }
+        { "text": "耳机哥", "affection": 5, "courage": 2 },
+        { "text": "都行哥", "affection": 7, "courage": -4 },
+        { "text": "放过哥", "affection": -2, "courage": 8 }
       ]
     }
   }

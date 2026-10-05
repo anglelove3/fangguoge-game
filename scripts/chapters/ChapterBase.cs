@@ -60,6 +60,8 @@ public partial class ChapterBase : Control
         if (backButton != null)
         {
             backButton.Pressed += OnBackPressed;
+            // 注册成"对话期间也能点"的白名单（试玩反馈 B2：对话中点返回没反应）
+            DialogueManager.RegisterPriorityControl(backButton);
         }
 
         // 更新章节编号
@@ -84,10 +86,26 @@ public partial class ChapterBase : Control
         // 基类什么都不做，留给子类实现
     }
 
+    /// <summary>离开场景树（切章/回主菜单）时，把白名单里的返回按钮摘掉，避免留下野指针</summary>
+    public override void _ExitTree()
+    {
+        if (backButton != null)
+            DialogueManager.UnregisterPriorityControl(backButton);
+    }
+
     /// <summary>
     /// 返回按钮被按下时调用
+    ///
+    /// 【第十一轮改动】原来点一下就当场切回主菜单，试玩反馈里被吐槽"手滑一次进度演出全丢"。
+    /// 现在先弹一个确认框（ConfirmHost），玩家真的想走才走。
     /// </summary>
     protected virtual void OnBackPressed()
+    {
+        ConfirmHost.Ask("confirm.back_title", "confirm.back_body", DoLeaveChapter);
+    }
+
+    /// <summary>确认离开之后真正做的事：停对话 → 存档 → 回主菜单</summary>
+    private void DoLeaveChapter()
     {
         // 停掉可能正在播的对话，再存档返回
         DialogueManager.Instance?.Stop();
@@ -122,11 +140,11 @@ public partial class ChapterBase : Control
     }
 
     /// <summary>
-    /// 找到隐藏物品
+    /// 找到隐藏物品（itemId 对应 data/hidden_items.json；同一个 id 只记一次）
     /// </summary>
-    protected void FindHiddenItem()
+    protected void FindHiddenItem(string itemId = "")
     {
-        GameManager.Instance.FoundHiddenItem();
+        GameManager.Instance.FoundHiddenItem(itemId);
     }
 
     /// <summary>

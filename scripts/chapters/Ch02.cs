@@ -116,8 +116,8 @@ public partial class Ch02 : ChapterBase
     {
         int n = foundItems.Count;
         hintLabel.Text = n >= 2
-            ? "（宿舍里该看的都看过了）"
-            : $"晚上十点的宿舍……好像有什么在等着你（{n}/2）";
+            ? DataStore.Text("hint.ch02_done")
+            : DataStore.Text("hint.ch02", n, 2);
     }
 
     private void OnHotspotPressed(string itemId, string buttonPath)
@@ -198,7 +198,7 @@ public partial class Ch02 : ChapterBase
         {
             lighterTaken = true;
             btn.Disabled = true;
-            dm.PlaySequence(ChapterId, "explore_lighter", FindHiddenItem);
+            dm.PlaySequence(ChapterId, "explore_lighter", () => FindHiddenItem("lighter"));
         }
     }
 

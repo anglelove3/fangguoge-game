@@ -16,9 +16,11 @@ config/features=PackedStringArray("4.7", "C#", "GL Compatibility")
 
 [autoload]
 
+GameSettings="*res://scripts/autoload/GameSettings.cs"
 GameManager="*res://scripts/autoload/GameManager.cs"
 TransitionManager="*res://scripts/autoload/TransitionManager.cs"
 DialogueManager="*res://scripts/autoload/DialogueManager.cs"
+ConfirmHost="*res://scripts/autoload/ConfirmHost.cs"
 AudioManager="*res://scripts/autoload/AudioManager.cs"
 DebugPanel="*res://scripts/autoload/DebugPanel.cs"
 

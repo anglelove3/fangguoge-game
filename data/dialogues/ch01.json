@@ -65,9 +65,9 @@
       "promptSpeaker": "服务员",
       "promptPortrait": "roommate_laugh",
       "options": [
-        { "text": "要一份辣子鸡吧，最近馋这个。", "affection": 0, "courage": 5 },
-        { "text": "我都可以，你们看着点。", "affection": 0, "courage": 0 },
-        { "text": "……随便。", "affection": 0, "courage": -3 }
+        { "text": "要一份辣子鸡吧，最近馋这个。", "affection": 0, "courage": 8 },
+        { "text": "我都可以，你们看着点。", "affection": 7, "courage": -4 },
+        { "text": "……随便。", "affection": 4, "courage": 2 }
       ]
     }
   }

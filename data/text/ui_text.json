@@ -1,0 +1,68 @@
+{
+  "ui.back": "返回菜单",
+  "ui.continue_hint": "点击继续 ▾",
+  "ui.auto_badge": "▶ 自动播放中（Tab 关闭）",
+
+  "confirm.back_title": "要离开这一章吗？",
+  "confirm.back_body": "进度会保存。不过本章的演出要从头再看一遍。",
+  "confirm.back_yes": "返回主菜单",
+  "confirm.back_no": "继续留在本章",
+
+  "confirm.newgame_title": "要开始新的故事吗？",
+  "confirm.newgame_body": "现有的进度会先备份成一份旧存档，然后从头开始。",
+  "confirm.newgame_yes": "重新开始",
+  "confirm.newgame_no": "先不",
+
+  "toast.affection": "好感度",
+  "toast.courage": "勇气值",
+
+  "ending.1": "晴天（完美结局）",
+  "ending.2": "南风（温暖结局）",
+  "ending.3": "寄居蟹（遗憾结局）",
+  "ending.4": "开始懂了（隐藏结局）",
+  "ending.0": "未知",
+
+  "hint.prologue": "深夜的实验室……好像有什么在等着你（{0}/{1}）",
+  "hint.prologue_done": "（场景里的东西都看过了）",
+  "hint.ch01": "热闹的川菜馆……好像有什么在等着你（{0}/{1}）",
+  "hint.ch01_done": "（场景里的东西都看过了）",
+  "hint.ch02": "晚上十点的宿舍……好像有什么在等着你（{0}/{1}）",
+  "hint.ch02_done": "（宿舍里该看的都看过了）",
+  "hint.ch03_cards": "点开三张记忆卡片，把它们放上天平（{0}/{1}）",
+  "hint.ch03_full": "（左边已经放满了……可天平还没给出答案）",
+  "hint.ch03_try": "试着让它平衡——把还能给的，也加上去（{0}/{1}）",
+  "hint.ch03_tried": "（每加一样，它反而歪得更厉害……）",
+  "hint.ch04": "凌晨的宿舍。只有手机屏幕还亮着（{0}/{1}）",
+  "hint.ch04_done": "（聊天记录翻到底了……这一夜还很长）",
+
+  "ch03.card_ticket": "铁盒里的车票",
+  "ch03.card_ticket_sub": "一千公里，来来回回",
+  "ch03.card_notes": "高三的错题本",
+  "ch03.card_notes_sub": "你抄的，她划的重点",
+  "ch03.card_scarf": "织到一半的围巾",
+  "ch03.card_scarf_sub": "赶在她的生日之前……",
+
+  "ch03.chip_apology": "一句道歉",
+  "ch03.chip_apology_sub": "你在心里练了一路",
+  "ch03.chip_grades": "这学期的成绩",
+  "ch03.chip_grades_sub": "专业第一，她没看过",
+  "ch03.chip_nights": "熬夜的几个夜晚",
+  "ch03.chip_nights_sub": "她说「早点睡」",
+
+  "settings.title": "设置",
+  "settings.fullscreen": "全屏显示",
+  "settings.music": "音乐音量",
+  "settings.sfx": "音效音量",
+  "settings.text_speed": "文字速度",
+  "settings.auto_speed": "自动播放速度",
+  "settings.speed_slow": "慢",
+  "settings.speed_fast": "快",
+  "settings.back": "返回主菜单",
+  "settings.tip": "提示：对话中按住 Ctrl 可快进，按 Tab 切换自动播放。",
+
+  "demo_end.title": "感谢试玩！",
+  "demo_end.review_title": "这一路，你是这样走过来的——",
+  "demo_end.review_missing": "（这一处，你还没玩到）",
+  "demo_end.hint": "完整的十五个章节正在路上，敬请期待。",
+  "demo_end.back": "返回主菜单"
+}

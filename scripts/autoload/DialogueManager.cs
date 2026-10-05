@@ -71,6 +71,20 @@ public partial class DialogueManager : CanvasLayer
         statToast?.ShowDeltas(affectionDelta, courageDelta);
     }
 
+    /// <summary>
+    /// 取某组选项里第 index 个的文字（结束页"选择回顾"要用，也方便调试）。
+    /// 找不到就返回空字符串，调用方自己决定怎么兜底。
+    /// </summary>
+    public string GetChoiceOptionText(string chapterId, string groupId, int index)
+    {
+        var data = LoadChapterData(chapterId);
+        if (data == null || !data.Choices.TryGetValue(groupId, out var group))
+            return "";
+        if (group.Options == null || index < 0 || index >= group.Options.Count)
+            return "";
+        return group.Options[index].Text;
+    }
+
     // 当前播放的语句队列
     private Queue<DialogueLine> lineQueue = new();
     private Action onSequenceFinished;
@@ -80,6 +94,105 @@ public partial class DialogueManager : CanvasLayer
 
     /// <summary>是否有对话/选择正在进行（章节脚本用它防止重复触发）</summary>
     public bool IsBusy => state != State.Idle;
+
+    // ==================== 第十一轮：快进 / 自动播放 / 优先点击 ====================
+
+    /// <summary>
+    /// "对话进行中也要能点"的控件白名单（各章节的返回按钮会注册进来）。
+    /// 背景：_Input 比 GUI 更早收到事件，原来对话期间所有点击都被"推进对白"吃掉，
+    /// 玩家点右上角的返回按钮怎么点都没反应（第十轮试玩反馈 B2）。
+    /// </summary>
+    private static readonly List<Control> priorityControls = new();
+
+    /// <summary>把某个控件加入白名单（章节基类自动调用，不用手写）</summary>
+    public static void RegisterPriorityControl(Control control)
+    {
+        if (control != null && !priorityControls.Contains(control))
+            priorityControls.Add(control);
+    }
+
+    /// <summary>把某个控件移出白名单（场景销毁时自动调用）</summary>
+    public static void UnregisterPriorityControl(Control control)
+    {
+        priorityControls.Remove(control);
+    }
+
+    /// <summary>这个点是不是落在白名单控件上？是的话返回那个控件</summary>
+    private static Control FindPriorityControl(Vector2 globalPos)
+    {
+        for (int i = priorityControls.Count - 1; i >= 0; i--)
+        {
+            var c = priorityControls[i];
+            if (!GodotObject.IsInstanceValid(c) || !c.IsVisibleInTree())
+            {
+                priorityControls.RemoveAt(i); // 场景已切走，顺手清掉
+                continue;
+            }
+            // 外扩 8px：手指点得稍微偏一点也算数
+            if (c.GetGlobalRect().Grow(8).HasPoint(globalPos))
+                return c;
+        }
+        return null;
+    }
+
+    /// <summary>自动播放开关（Tab 切换）</summary>
+    public bool AutoPlay { get; private set; }
+
+    /// <summary>按住 Ctrl = 快进（字瞬间出全，句与句之间几乎不停）</summary>
+    private const double FastForwardDwell = 0.18;
+
+    // 自动播放 / 快进的停留计时器
+    private double holdTimer;
+
+    public void ToggleAutoPlay()
+    {
+        AutoPlay = !AutoPlay;
+        holdTimer = 0;
+        dialogueBox?.SetAutoBadgeVisible(AutoPlay);
+        AudioManager.Instance?.PlaySfx(AudioManager.SfxClick, -16f);
+        GD.Print($"[对话] 自动播放：{(AutoPlay ? "开" : "关")}");
+    }
+
+    /// <summary>
+    /// 每帧驱动：① 按住 Ctrl 快进；② 开了自动播放就按语速自动往下走。
+    /// 手机/确认弹窗打开时（uiSuppressed）一律不插手，免得和模态界面抢输入。
+    /// </summary>
+    public override void _Process(double delta)
+    {
+        if (uiSuppressed)
+            return;
+
+        // 还在逐字显示：按住 Ctrl 就把这一句全部显示出来
+        if (state == State.Typing && Input.IsKeyPressed(Key.Ctrl))
+        {
+            dialogueBox.CompleteTyping();
+            return;
+        }
+
+        if (state != State.WaitingAdvance)
+        {
+            holdTimer = 0;
+            return;
+        }
+
+        bool fastForward = Input.IsKeyPressed(Key.Ctrl);
+        if (!fastForward && !AutoPlay)
+        {
+            holdTimer = 0;
+            return;
+        }
+
+        holdTimer += delta;
+        double dwell = fastForward
+            ? FastForwardDwell
+            : GameSettings.Instance?.AutoAdvanceDelay(lastText?.Length ?? 0) ?? 2.0;
+
+        if (holdTimer >= dwell)
+        {
+            holdTimer = 0;
+            ShowNextLine();
+        }
+    }
 
     public override void _Ready()
     {
@@ -229,14 +342,51 @@ public partial class DialogueManager : CanvasLayer
     /// _Input 比 UI 按钮更早收到事件；
     /// SetInputAsHandled() 表示"这个事件我处理了，别再传给按钮"，
     /// 这样对话时点击不会误触场景里的热点。
+    ///
+    /// 【第十一轮】两条新规矩：
+    ///   1) Tab 随时可以切换自动播放（打字机太磨人的玩家福音）；
+    ///   2) 白名单控件（返回按钮）所在的点击不"吃"，直接触发它 ——
+    ///      这样对话播到一半也能点返回，不会再出现"怎么点都没反应"。
     /// </summary>
     public override void _Input(InputEvent @event)
     {
         if (uiSuppressed) // 手机等全屏模态界面打开时，输入全部交给它们
             return;
 
-        if (state != State.Typing && state != State.WaitingAdvance)
+        // ---- Tab：切换自动播放（任何对话状态下都可以）----
+        if (@event is InputEventKey tabKey
+            && tabKey.Pressed && !tabKey.Echo && tabKey.Keycode == Key.Tab)
+        {
+            GetViewport().SetInputAsHandled();
+            ToggleAutoPlay();
             return;
+        }
+
+        if (state == State.Idle)
+            return;
+
+        // ---- 白名单控件优先：点到了就直接"按下"它，不当成推进对白 ----
+        if (@event is InputEventMouseButton pm && pm.Pressed
+            && pm.ButtonIndex == MouseButton.Left)
+        {
+            var priority = FindPriorityControl(pm.Position);
+            if (priority != null)
+            {
+                GetViewport().SetInputAsHandled();
+                // 相当于玩家真的用鼠标按了一下这个按钮
+                priority.EmitSignal(BaseButton.SignalName.Pressed);
+                return;
+            }
+        }
+
+        // 选择阶段：点击归选项按钮自己处理，这里只管"点空白处别误触热点"
+        if (state == State.WaitingChoice)
+        {
+            if (@event is InputEventMouseButton blank && blank.Pressed
+                && blank.ButtonIndex == MouseButton.Left)
+                GetViewport().SetInputAsHandled();
+            return;
+        }
 
         bool advance = false;
 

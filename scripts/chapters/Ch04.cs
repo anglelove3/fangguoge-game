@@ -37,6 +37,10 @@ public partial class Ch04 : ChapterBase
     {
         GD.Print("第四章：手滑 —— 凌晨一点半，手滑点开了旧聊天");
 
+        // 第十一轮 B4：这一章是深夜，换第三首吉姆诺佩蒂（更慢、更空）
+        // 第十一轮 B4：这一章是深夜，换第三首吉姆诺佩蒂（更慢、更空）
+        AudioManager.Instance?.PlayBgm(AudioManager.BgmGym3, -15f, 1.5f);
+
         background = GetNode<TextureRect>("Background");
         hotspotsRoot = GetNode<Control>("Hotspots");
         hintLabel = GetNode<Label>("HintLabel");
@@ -107,8 +111,8 @@ public partial class Ch04 : ChapterBase
             return;
         }
         hintLabel.Text = phoneSeenOnce
-            ? "（聊天记录翻到底了……这一夜还很长）"
-            : "凌晨的宿舍。只有手机屏幕还亮着（0/1）";
+            ? DataStore.Text("hint.ch04_done")
+            : DataStore.Text("hint.ch04", phoneSeenOnce ? 1 : 0, 1);
     }
 
     // ==================== 手机：打开旧聊天 ====================
@@ -196,7 +200,7 @@ public partial class Ch04 : ChapterBase
         earphoneTaken = true;
         HotspotGlow.Sparkle(btn);
         btn.Disabled = true;
-        dm.PlaySequence(ChapterId, "explore_earphone", FindHiddenItem);
+        dm.PlaySequence(ChapterId, "explore_earphone", () => FindHiddenItem("earphone"));
     }
 
     // ==================== 深夜选择 → 天亮收尾 ====================
@@ -216,6 +220,8 @@ public partial class Ch04 : ChapterBase
         hintLabel.Visible = false;
 
         var dayLab = GD.Load<Texture2D>("res://assets/art/backgrounds/day_lab_v1.png");
+        // 天亮了：深夜那首退场，回到主题曲（跟着画面一起淡过来）
+        AudioManager.Instance?.PlayBgm(AudioManager.BgmGym1, -14f, 2.2f);
         var tw = CreateTween();
         tw.TweenProperty(background, "modulate:a", 0f, 0.8);
         tw.TweenCallback(Callable.From(() => background.Texture = dayLab));

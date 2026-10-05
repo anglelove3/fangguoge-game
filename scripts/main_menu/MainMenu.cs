@@ -25,6 +25,9 @@ public partial class MainMenu : Control
 
     public override void _Ready()
     {
+        // 回到标题画面：把音乐换回主题曲（第三章/第四章各有专属 BGM，不切就会一直响着）
+        AudioManager.Instance?.PlayBgm(AudioManager.BgmGym1, -14f, 1.4f);
+
         // 获取按钮节点
         var startButton = GetNode<Button>("VBoxContainer/StartButton");
         var settingsButton = GetNode<Button>("VBoxContainer/SettingsButton");
@@ -274,12 +277,29 @@ public partial class MainMenu : Control
     // ==================== 按钮功能 ====================
 
     /// <summary>
-    /// 点击"开始游戏"→ 重置数据，进入序章
+    /// 点击"开始游戏"→ 备份旧存档 + 重置数据，进入序章
+    ///
+    /// 【第十一轮改动（试玩反馈 A1）】
+    /// 原来一点"开始游戏"就当场 ResetGame()，上一局进度连个招呼都不打就没了。
+    /// 现在：有存档 → 先弹二次确认，同意后把旧档备份成 savegame_prev.json 再清零。
     /// </summary>
     private void OnStartGamePressed()
     {
+        if (GameManager.Instance.HasSaveFile())
+        {
+            ConfirmHost.Ask("confirm.newgame_title", "confirm.newgame_body",
+                StartNewGame, okKey: "confirm.newgame_yes", cancelKey: "confirm.newgame_no");
+            return;
+        }
+
+        StartNewGame();
+    }
+
+    /// <summary>真正开始新的一局（确认框点"重新开始"之后走这里）</summary>
+    private void StartNewGame()
+    {
         GD.Print("→ 开始新游戏");
-        GameManager.Instance.ResetGame();
+        GameManager.Instance.BeginNewGame();
         GameManager.Instance.ChangeSceneWithTransition(
             "res://scenes/chapters/prologue/prologue.tscn",
             chapterIndex: 0
@@ -288,16 +308,27 @@ public partial class MainMenu : Control
 
     /// <summary>
     /// 点击"继续游戏"→ 读取存档，进入对应章节
+    ///
+    /// 【第十一轮改动（试玩反馈 C2）】
+    /// 存档里的章节号可能是 99（已经通关到结束页），直接跳过去只会看到"感谢试玩"，
+    /// 相当于这一局再也续不上。现在把 99 翻译成"重玩第四章"，至少还有东西可玩。
     /// </summary>
     private void OnContinueGamePressed()
     {
         GD.Print("→ 继续游戏");
         bool loaded = GameManager.Instance.LoadGame();
-        if (loaded)
+        if (!loaded)
+            return;
+
+        int chapter = GameManager.Instance.CurrentChapter;
+        if (chapter >= 99)
         {
-            string scenePath = GetChapterScenePath(GameManager.Instance.CurrentChapter);
-            GameManager.Instance.ChangeSceneWithTransition(scenePath);
+            GD.Print("[继续游戏] 上次已经玩到结束页，改为从第四章继续");
+            chapter = 4;
+            GameManager.Instance.CurrentChapter = chapter;
         }
+
+        GameManager.Instance.ChangeSceneWithTransition(GetChapterScenePath(chapter));
     }
 
     /// <summary>

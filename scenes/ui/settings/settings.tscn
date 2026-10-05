@@ -1,30 +1,6 @@
-[gd_scene format=3]
+[gd_scene load_steps=2 format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/Settings.cs" id="1_settings"]
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_normal"]
-bg_color = Color(0.83137256, 0.64705884, 0.45490196, 1)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
-corner_detail = 12
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hover"]
-bg_color = Color(0.9098039, 0.76862746, 0.6039216, 1)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
-corner_detail = 12
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_pressed"]
-bg_color = Color(0.72156864, 0.5372549, 0.30588236, 1)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
-corner_detail = 12
 
 [node name="Settings" type="Control"]
 layout_mode = 3
@@ -34,51 +10,3 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_settings")
-
-[node name="Background" type="ColorRect" parent="."]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-color = Color(0.1, 0.08, 0.12, 1)
-
-[node name="CenterContainer" type="CenterContainer" parent="."]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="VBox" type="VBoxContainer" parent="CenterContainer"]
-layout_mode = 2
-theme_override_constants/separation = 36
-
-[node name="TitleLabel" type="Label" parent="CenterContainer/VBox"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 48
-text = "设置"
-horizontal_alignment = 1
-
-[node name="FullscreenCheck" type="CheckButton" parent="CenterContainer/VBox"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 26
-text = "全屏显示"
-
-[node name="HintLabel" type="Label" parent="CenterContainer/VBox"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 16
-theme_override_colors/font_color = Color(1, 1, 1, 0.45)
-text = "（更多设置项将在后续版本添加）"
-horizontal_alignment = 1
-
-[node name="BackButton" type="Button" parent="CenterContainer/VBox"]
-custom_minimum_size = Vector2(320, 56)
-layout_mode = 2
-theme_override_font_sizes/font_size = 24
-theme_override_styles/normal = SubResource("StyleBoxFlat_normal")
-theme_override_styles/hover = SubResource("StyleBoxFlat_hover")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_pressed")
-text = "返回主菜单"

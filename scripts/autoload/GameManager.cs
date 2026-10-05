@@ -18,21 +18,46 @@ public partial class GameManager : Node
     public static GameManager Instance { get; private set; }
 
     // ========== 游戏属性 ==========
-    public int Affection { get; private set; } = 0;   // 好感度（0-100）
-    public int Courage { get; private set; } = 0;     // 勇气值（0-100）
+    //
+    // 【第十一轮：为什么起点从 0 改成 50】
+    // 原来好感度/勇气值从 0 开始往上加，结果两个问题：
+    //   1) 选"减勇气 -3"这种选项时，数值早就在 0 了，扣了等于没扣，玩家感觉不到代价；
+    //   2) 三个选项里总有一个"哪头都不亏"的标准答案（试玩反馈 A4）。
+    // 现在从 50（一个普通人的中点）出发，每个选择都有得有失，档位判定（50/70）也立刻有意义。
+    public const int StatStart = 50;
+
+    public int Affection { get; private set; } = StatStart;   // 好感度（0-100）
+    public int Courage { get; private set; } = StatStart;     // 勇气值（0-100）
 
     // 当前章节编号（0=序章，1-15=各章）
     public int CurrentChapter { get; set; } = 0;
 
-    // 隐藏物品收集
+    // 隐藏物品收集（清单在 data/hidden_items.json，总数由清单决定）
     public int HiddenItemsFound { get; private set; } = 0;
-    public const int TotalHiddenItems = 10;
+
+    /// <summary>本 DEMO 隐藏物品总数（读自 data/hidden_items.json）</summary>
+    public static int TotalHiddenItems => DataStore.HiddenItemTotal;
+
+    // 已经拿到手的隐藏物品 id（防止同一个东西被重复点数）
+    private readonly System.Collections.Generic.HashSet<string> hiddenItemIds = new();
 
     // 玩家做过的选择记录（用于回看和结局判定）
     private System.Collections.Generic.Dictionary<string, int> choiceHistory = new();
 
+    /// <summary>做过的选择条数（调试面板显示用）</summary>
+    public int ChoiceCount => choiceHistory.Count;
+
+    /// <summary>只读的选择记录（结束页"选择回顾"用）</summary>
+    public System.Collections.Generic.IReadOnlyDictionary<string, int> ChoiceHistory => choiceHistory;
+
+    // 存档格式版本：2 = 好感/勇气从 50 起点的版本
+    private const int SaveVersion = 2;
+
     // 存档文件路径
     private const string SavePath = "user://savegame.json";
+
+    // 开始新游戏前，旧存档会被备份到这里（试玩反馈 A1：不能一键抹掉进度）
+    private const string PrevSavePath = "user://savegame_prev.json";
 
     // ========== Godot 生命周期 ==========
 
@@ -111,12 +136,19 @@ public partial class GameManager : Node
     }
 
     /// <summary>
-    /// 找到一个隐藏物品
+    /// 找到一个隐藏物品（按 id 记账：同一个东西重复点不会重复计数）
     /// </summary>
-    public void FoundHiddenItem()
+    /// <param name="itemId">物品 id，对应 data/hidden_items.json 里的 items[].id</param>
+    public void FoundHiddenItem(string itemId = "")
     {
+        if (!string.IsNullOrEmpty(itemId) && !hiddenItemIds.Add(itemId))
+        {
+            GD.Print($"[隐藏物品] {itemId} 已经拿过了，不重复计数");
+            return;
+        }
+
         HiddenItemsFound = Mathf.Min(HiddenItemsFound + 1, TotalHiddenItems);
-        GD.Print($"[隐藏物品] {HiddenItemsFound}/{TotalHiddenItems}");
+        GD.Print($"[隐藏物品] {HiddenItemsFound}/{TotalHiddenItems}：{DataStore.HiddenItemName(itemId)}");
     }
 
     /// <summary>
@@ -142,10 +174,12 @@ public partial class GameManager : Node
         // 创建一个存档数据对象
         var saveData = new SaveData
         {
+            version = SaveVersion,
             affection = Affection,
             courage = Courage,
             currentChapter = CurrentChapter,
             hiddenItemsFound = HiddenItemsFound,
+            hiddenItemIds = new System.Collections.Generic.List<string>(hiddenItemIds),
             choiceHistory = choiceHistory
         };
 
@@ -197,6 +231,11 @@ public partial class GameManager : Node
         {
             // 把 JSON 字符串还原成 SaveData 对象
             var saveData = JsonSerializer.Deserialize<SaveData>(json);
+            if (saveData == null)
+            {
+                GD.PrintErr("[读档] 存档内容是空的，按无存档处理");
+                return false;
+            }
 
             // 把读到的数据恢复到当前状态
             Affection = saveData.affection;
@@ -204,6 +243,19 @@ public partial class GameManager : Node
             CurrentChapter = saveData.currentChapter;
             HiddenItemsFound = saveData.hiddenItemsFound;
             choiceHistory = saveData.choiceHistory ?? new();
+            hiddenItemIds.Clear();
+            foreach (var id in saveData.hiddenItemIds ?? new())
+                hiddenItemIds.Add(id);
+
+            // 旧存档（第一版：好感/勇气从 0 起步）自动迁移到"50 起点"的新口径，
+            // 否则老玩家的数值会莫名其妙偏低一档。
+            if (saveData.version < SaveVersion)
+            {
+                Affection = Mathf.Clamp(Affection + StatStart, 0, 100);
+                Courage = Mathf.Clamp(Courage + StatStart, 0, 100);
+                GD.Print($"[读档] 检测到 v{saveData.version} 旧存档，数值已平移到 {StatStart} 起点口径");
+                SaveGame(); // 顺手把升级后的存档写回去
+            }
 
             GD.Print("[读档] 存档加载成功！");
             GD.Print($"  章节: {CurrentChapter}, 好感度: {Affection}, 勇气值: {Courage}");
@@ -222,6 +274,44 @@ public partial class GameManager : Node
     public bool HasSaveFile()
     {
         return FileAccess.FileExists(SavePath);
+    }
+
+    /// <summary>
+    /// 开始新游戏：先把旧存档备份成 savegame_prev.json，再清零。
+    /// （试玩反馈 A1：原来点一下"开始游戏"，进度就当场没了，连个招呼都不打）
+    /// </summary>
+    public void BeginNewGame()
+    {
+        if (HasSaveFile())
+        {
+            BackupSave();
+        }
+
+        ResetGame();
+        SaveGame();
+    }
+
+    /// <summary>把当前存档原样复制一份到 savegame_prev.json（复制失败不影响开始新游戏）</summary>
+    private void BackupSave()
+    {
+        using var src = FileAccess.Open(SavePath, FileAccess.ModeFlags.Read);
+        if (src == null)
+        {
+            GD.PrintErr("[存档] 备份失败：读不到旧存档");
+            return;
+        }
+
+        string json = src.GetAsText();
+
+        using var dst = FileAccess.Open(PrevSavePath, FileAccess.ModeFlags.Write);
+        if (dst == null)
+        {
+            GD.PrintErr($"[存档] 备份失败：{FileAccess.GetOpenError()}");
+            return;
+        }
+
+        dst.StoreString(json);
+        GD.Print("[存档] 旧存档已备份到 savegame_prev.json");
     }
 
     /// <summary>
@@ -265,10 +355,11 @@ public partial class GameManager : Node
     /// </summary>
     public void ResetGame()
     {
-        Affection = 0;
-        Courage = 0;
+        Affection = StatStart;
+        Courage = StatStart;
         CurrentChapter = 0;
         HiddenItemsFound = 0;
+        hiddenItemIds.Clear();
         choiceHistory.Clear();
         GD.Print("[重置] 游戏状态已重置");
     }
@@ -284,10 +375,13 @@ public partial class GameManager : Node
 /// </summary>
 public class SaveData
 {
+    // 存档结构版本号：老存档缺这个字段时读出来是 0，正好用来触发迁移
+    public int version { get; set; }
     public int affection { get; set; }
     public int courage { get; set; }
     public int currentChapter { get; set; }
     public int hiddenItemsFound { get; set; }
+    public System.Collections.Generic.List<string> hiddenItemIds { get; set; }
     public System.Collections.Generic.Dictionary<string, int> choiceHistory { get; set; }
 }
 

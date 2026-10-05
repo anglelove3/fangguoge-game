@@ -85,6 +85,13 @@ public partial class ChatOverlay : Control
     private ChatScriptData currentChatData; // 当前会话的 JSON 剧本（只读 / 幽灵打字等标记都在这）
     private Tween ghostTween;               // 幽灵打字动画（第四章"手滑"）
 
+    // ---------- 幽灵打字的"可见性"（第十一轮 B3） ----------
+    // 输入框平时的样式（幽灵态结束后要还原成它）
+    private StyleBoxFlat inputNormalStyle;
+    private Tween ghostPulseTween;          // 输入框的呼吸光
+    // 幽灵字：偏冷的蓝灰，和"你自己打的字"一眼能分开
+    private static readonly Color GhostFont = new(0.44f, 0.50f, 0.70f);
+
     /// <summary>当前会话是否只读（联系人级 ReadOnly 或剧本级 readOnly 任一成立）</summary>
     private bool ActiveReadOnly => (currentContact?.ReadOnly ?? false) || (currentChatData?.ReadOnly ?? false);
 
@@ -478,17 +485,17 @@ public partial class ChatOverlay : Control
             ContextMenuEnabled = false,
             ShortcutKeysEnabled = true,
         };
-        var inputStyle = new StyleBoxFlat { BgColor = new Color(0.96f, 0.96f, 0.97f) };
-        inputStyle.SetCornerRadiusAll(10);
-        inputStyle.SetBorderWidthAll(1);
-        inputStyle.BorderColor = new Color(0.85f, 0.85f, 0.87f, 0.5f);
-        inputStyle.ContentMarginLeft = 20;
-        inputStyle.ContentMarginRight = 20;
-        inputStyle.ContentMarginTop = 12;
-        inputStyle.ContentMarginBottom = 12;
-        inputField.AddThemeStyleboxOverride("normal", inputStyle);
-        inputField.AddThemeStyleboxOverride("focus", inputStyle);
-        inputField.AddThemeStyleboxOverride("read_only", inputStyle);
+        inputNormalStyle = new StyleBoxFlat { BgColor = new Color(0.96f, 0.96f, 0.97f) };
+        inputNormalStyle.SetCornerRadiusAll(10);
+        inputNormalStyle.SetBorderWidthAll(1);
+        inputNormalStyle.BorderColor = new Color(0.85f, 0.85f, 0.87f, 0.5f);
+        inputNormalStyle.ContentMarginLeft = 20;
+        inputNormalStyle.ContentMarginRight = 20;
+        inputNormalStyle.ContentMarginTop = 12;
+        inputNormalStyle.ContentMarginBottom = 12;
+        inputField.AddThemeStyleboxOverride("normal", inputNormalStyle);
+        inputField.AddThemeStyleboxOverride("focus", inputNormalStyle);
+        inputField.AddThemeStyleboxOverride("read_only", inputNormalStyle);
         inputField.AddThemeFontSizeOverride("font_size", 26);
         inputField.AddThemeFontSizeOverride("font_placeholder_size", 26);
         inputField.AddThemeColorOverride("font_color", TextColor);
@@ -875,6 +882,10 @@ public partial class ChatOverlay : Control
     /// 幽灵打字：输入框自己一个字一个字打出「最近还好吗」，
     /// 停一会儿，再一个字一个字删掉——像玩家的手自己动了。
     /// 只在带 ghostTyping 数据的会话里演，且每个会话只演一次。
+    ///
+    /// 【第十一轮 B3】以前只是往输入框里塞字，玩家很容易看不见。
+    /// 现在加了三样东西：①冷蓝的"不是我的字"配色 + 输入框发亮，
+    /// ②整条输入栏一下一下地呼吸，③每敲一个字都有一记很轻的键盘声。
     /// </summary>
     private void MaybePlayGhostTyping()
     {
@@ -890,6 +901,16 @@ public partial class ChatOverlay : Control
         ghostTween = tw;
 
         tw.TweenInterval(g.StartDelay); // 先让玩家自己安静看一会儿聊天记录
+        // 开场先把视线拉到输入框：滚到底 + 输入栏亮起来
+        tw.TweenCallback(Callable.From(() =>
+        {
+            if (currentContact?.Id != cid || !IsInsideTree())
+                return;
+            ScrollToBottom();
+            EnterGhostMode();
+        }));
+        tw.TweenInterval(0.45);
+
         string shown = "";
         foreach (char ch in full)
         {
@@ -898,7 +919,11 @@ public partial class ChatOverlay : Control
             tw.TweenCallback(Callable.From(() =>
             {
                 if (currentContact?.Id == cid && IsInsideTree())
+                {
                     inputField.Text = snapshot;
+                    // 每落一个字，一声很轻的键盘（第十一轮 B3）
+                    AudioManager.Instance?.PlaySfx(AudioManager.SfxKeyboard, -16f, 0.14f);
+                }
             }));
             tw.TweenInterval(g.TypeSpeed);
         }
@@ -909,10 +934,15 @@ public partial class ChatOverlay : Control
             tw.TweenCallback(Callable.From(() =>
             {
                 if (currentContact?.Id == cid && IsInsideTree())
+                {
                     inputField.Text = snapshot;
+                    // 删字：同一把键盘，更轻一点，像犹豫着往回退格
+                    AudioManager.Instance?.PlaySfx(AudioManager.SfxKeyboard, -22f, 0.20f);
+                }
             }));
             tw.TweenInterval(g.DeleteSpeed);
         }
+        tw.TweenCallback(Callable.From(ExitGhostMode));
         if (!string.IsNullOrEmpty(g.AfterToast))
         {
             tw.TweenCallback(Callable.From(() =>
@@ -921,6 +951,53 @@ public partial class ChatOverlay : Control
                     ShowToast(g.AfterToast);
             }));
         }
+    }
+
+    /// <summary>进入"幽灵态"：输入框换成冷蓝配色 + 整条输入栏轻轻呼吸</summary>
+    private void EnterGhostMode()
+    {
+        if (inputField == null || inputNormalStyle == null)
+            return;
+
+        var ghost = new StyleBoxFlat { BgColor = new Color(0.90f, 0.92f, 0.97f) };
+        ghost.SetCornerRadiusAll(10);
+        ghost.SetBorderWidthAll(2);
+        ghost.BorderColor = new Color(0.52f, 0.60f, 0.86f, 0.85f);
+        ghost.ContentMarginLeft = 20;
+        ghost.ContentMarginRight = 20;
+        ghost.ContentMarginTop = 12;
+        ghost.ContentMarginBottom = 12;
+
+        inputField.AddThemeStyleboxOverride("normal", ghost);
+        inputField.AddThemeStyleboxOverride("focus", ghost);
+        inputField.AddThemeStyleboxOverride("read_only", ghost);
+        inputField.AddThemeColorOverride("font_color", GhostFont);
+        inputField.AddThemeColorOverride("caret_color", GhostFont);
+
+        // 呼吸：输入栏自己一明一暗地"活着"（两段淡入淡出接起来无限循环）
+        ghostPulseTween?.Kill();
+        ghostPulseTween = CreateTween();
+        ghostPulseTween.SetLoops(-1);
+        ghostPulseTween.TweenProperty(inputField, "modulate:a", 0.80f, 0.45f)
+            .SetTrans(Tween.TransitionType.Sine);
+        ghostPulseTween.TweenProperty(inputField, "modulate:a", 1.0f, 0.45f)
+            .SetTrans(Tween.TransitionType.Sine);
+    }
+
+    /// <summary>退出"幽灵态"：把输入框的样子全部交还给玩家</summary>
+    private void ExitGhostMode()
+    {
+        if (inputField == null || inputNormalStyle == null)
+            return;
+
+        ghostPulseTween?.Kill();
+        ghostPulseTween = null;
+        inputField.Modulate = Colors.White;
+        inputField.AddThemeStyleboxOverride("normal", inputNormalStyle);
+        inputField.AddThemeStyleboxOverride("focus", inputNormalStyle);
+        inputField.AddThemeStyleboxOverride("read_only", inputNormalStyle);
+        inputField.AddThemeColorOverride("font_color", TextColor);
+        inputField.AddThemeColorOverride("caret_color", TextColor);
     }
 
     /// <summary>

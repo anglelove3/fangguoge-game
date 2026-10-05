@@ -70,9 +70,9 @@
       "prompt": "凌晨一点半。你盯着天花板——",
       "promptSpeaker": "我",
       "options": [
-        { "text": "出去走走", "affection": 0, "courage": 4 },
-        { "text": "继续看手机", "affection": 0, "courage": -3 },
-        { "text": "给老朋友打个电话", "affection": 0, "courage": 2 }
+        { "text": "出去走走", "affection": 1, "courage": 7 },
+        { "text": "继续看手机", "affection": 7, "courage": -4 },
+        { "text": "给老朋友打个电话", "affection": 4, "courage": 4 }
       ]
     }
   }

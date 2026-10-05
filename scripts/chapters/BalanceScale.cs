@@ -28,6 +28,10 @@ public partial class BalanceScale : Node2D
     private static readonly Color ChipPaper = new(0.96f, 0.91f, 0.81f);
     private static readonly Color ChipPaper2 = new(0.90f, 0.84f, 0.72f);
     private static readonly Color ChipEdge = new(0.72f, 0.62f, 0.47f);
+    // "补偿物"的纸：冷灰蓝，和暖白的回忆一眼能分开
+    private static readonly Color CompensationPaper = new(0.86f, 0.87f, 0.90f);
+    private static readonly Color CompensationPaper2 = new(0.79f, 0.81f, 0.86f);
+    private static readonly Color CompensationEdge = new(0.55f, 0.58f, 0.66f);
     private static readonly Color OrbWarm = new(1.0f, 0.55f, 0.5f);
 
     private float targetAngle;   // 目标倾角（度；正 = 右端下沉）
@@ -35,20 +39,32 @@ public partial class BalanceScale : Node2D
     private float timeAcc;
     private const float IdleAmp = 1.0f; // 待机轻摇幅度（度）
 
-    /// <summary>左托盘上的记忆纸片数量</summary>
+    /// <summary>左托盘上的记忆纸片数量（三张卡片）</summary>
     public int MemoryChips { get; private set; }
+
+    /// <summary>左托盘上的"补偿物"数量（道歉 / 成绩 / 熬夜——越加越歪，天平的失败互动）</summary>
+    public int CompensationChips { get; private set; }
 
     /// <summary>右托盘的小光点是否可见</summary>
     public bool OrbVisible { get; set; } = true;
 
-    private static readonly float[] ChipTilt = { -0.06f, 0.05f, -0.08f, 0.09f, -0.03f, 0.07f, -0.1f, 0.04f };
-    private static readonly float[] ChipJitter = { -6f, 7f, -3f, 9f, 0f, -8f, 4f, -2f };
+    private static readonly float[] ChipTilt = { -0.06f, 0.05f, -0.08f, 0.09f, -0.03f, 0.07f, -0.1f, 0.04f, 0.06f, -0.05f };
+    private static readonly float[] ChipJitter = { -6f, 7f, -3f, 9f, 0f, -8f, 4f, -2f, 6f, -9f };
 
-    /// <summary>设置目标倾角（度；正 = 右端下沉）</summary>
-    public void SetTilt(float degrees) => targetAngle = degrees;
+    /// <summary>设置目标倾角（度；正 = 右端下沉）。角度一变，木头就"吱呀"一声。</summary>
+    public void SetTilt(float degrees)
+    {
+        if (Mathf.IsEqualApprox(degrees, targetAngle))
+            return;
+        targetAngle = degrees;
+        AudioManager.Instance?.PlaySfx(AudioManager.SfxScaleCreak, -16f, 0.08f);
+    }
 
     /// <summary>往左托盘加一张记忆纸片</summary>
     public void AddMemoryChip() => MemoryChips++;
+
+    /// <summary>往左托盘加一样"补偿物"（第十一轮 C7：想让它平衡，却越加越歪）</summary>
+    public void AddCompensationChip() => CompensationChips++;
 
     // ---------- 坐标换算 ----------
 
@@ -99,14 +115,20 @@ public partial class BalanceScale : Node2D
         DrawPanWithStrings(leftEnd, leftPan);
         DrawPanWithStrings(rightEnd, rightPan);
 
-        // 3) 左盘的记忆纸片堆（每张轻微歪斜，像随手码上去的）
-        for (int i = 0; i < MemoryChips && i < ChipTilt.Length; i++)
+        // 3) 左盘的纸片堆：先是三张回忆（暖白纸），再是"补偿物"（冷灰纸）
+        //    每一张都比上一张歪得更厉害，像随手码上去、越码越不稳
+        int total = MemoryChips + CompensationChips;
+        for (int i = 0; i < total && i < ChipTilt.Length; i++)
         {
+            bool isCompensation = i >= MemoryChips;
             float cx = leftPan.X + ChipJitter[i] + i * 2f;
             float cy = leftPan.Y - 12f - i * 15f;
             DrawSetTransform(new Vector2(cx, cy), ChipTilt[i], Vector2.One);
-            DrawRect(new Rect2(-62, -7, 124, 14), (i % 2 == 0) ? ChipPaper : ChipPaper2);
-            DrawRect(new Rect2(-62, -7, 124, 14), ChipEdge, false, 2f);
+            Color face = isCompensation
+                ? (i % 2 == 0 ? CompensationPaper : CompensationPaper2)
+                : (i % 2 == 0 ? ChipPaper : ChipPaper2);
+            DrawRect(new Rect2(-62, -7, 124, 14), face);
+            DrawRect(new Rect2(-62, -7, 124, 14), isCompensation ? CompensationEdge : ChipEdge, false, 2f);
             DrawSetTransform(Vector2.Zero, 0, Vector2.One);
         }
 

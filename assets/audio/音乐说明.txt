@@ -3,6 +3,16 @@ gymnopedie_no1.ogg
 来源：https://commons.wikimedia.org/wiki/File:Erik_Satie_-_gymnopedies_-_la_1_ere._lent_et_douloureux.ogg
 许可证：公有领域（Public Domain）
 
+gymnopedie_no2.ogg / gymnopedie_no3.ogg（第十一轮新增：第三章 / 第四章）
+曲目：Erik Satie — Gymnopédie No. 2 / No. 3（演奏：Kevin MacLeod）
+专辑：Classical Sampler（2011）
+来源：https://incompetech.com/music/royalty-free/index.html?isearch=Satie
+许可证：Creative Commons Attribution 3.0（CC BY 3.0）
+要求署名——正式credits页必须写上：
+  "Gymnopédies No.2 & No.3 by Kevin MacLeod (incompetech.com),
+   licensed under Creative Commons Attribution 3.0"
+（No.1 用的公有领域录音，不需要署名；换掉这两首时记得同步删除本段）
+
 说明：这是 DEMO 阶段的占位背景音乐。之后想换音乐，
 替换 assets/audio/bgm/ 里的文件，并同步修改
 scripts/autoload/AudioManager.cs 里的 DefaultBgmPath 即可。

@@ -27,6 +27,7 @@ public partial class DialogueBox : Control
     private Label nameLabel;
     private RichTextLabel textLabel;
     private Label continueHint;
+    private Label autoBadge;   // "自动播放中"小角标（第十一轮）
     private Control panel;
 
     // 立绘（圆形头像）
@@ -57,10 +58,21 @@ public partial class DialogueBox : Control
         nameLabel = GetNode<Label>("Panel/VBox/NameLabel");
         textLabel = GetNode<RichTextLabel>("Panel/VBox/TextLabel");
         continueHint = GetNode<Label>("Panel/VBox/ContinueHint");
+        autoBadge = GetNode<Label>("AutoBadge");
         portraitRoot = GetNode<Control>("PortraitRoot");
         portraitRect = GetNode<TextureRect>("PortraitRoot/Portrait");
 
+        // 文案搬到 data/text/ui_text.json，想改字不用回这里（试玩反馈 C6）
+        continueHint.Text = DataStore.Text("ui.continue_hint");
+        autoBadge.Text = DataStore.Text("ui.auto_badge");
+
         Hide(); // 默认隐藏，需要时再显示
+    }
+
+    /// <summary>显示/隐藏"自动播放中"角标（Tab 切换时由 DialogueManager 调用）</summary>
+    public void SetAutoBadgeVisible(bool visible)
+    {
+        autoBadge.Visible = visible;
     }
 
     /// <summary>
@@ -200,9 +212,12 @@ public partial class DialogueBox : Control
 
         if (typing)
         {
-            // 逐帧增加显示字数
+            // 逐帧增加显示字数（速度来自设置页，玩家可快可慢）
+            float cps = GameSettings.Instance != null
+                ? GameSettings.Instance.CharsPerSecond
+                : CharsPerSecond;
             int total = textLabel.GetTotalCharacterCount();
-            charsShown += CharsPerSecond * (float)delta;
+            charsShown += cps * (float)delta;
 
             if (charsShown >= total)
             {

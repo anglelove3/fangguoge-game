@@ -145,8 +145,8 @@ public partial class Prologue : ChapterBase
     {
         int n = foundItems.Count;
         hintLabel.Text = n >= 3
-            ? "（场景里的东西都看过了）"
-            : $"深夜的实验室……好像有什么在等着你（{n}/3）";
+            ? DataStore.Text("hint.prologue_done")
+            : DataStore.Text("hint.prologue", n, 3);
     }
 
     /// <summary>
