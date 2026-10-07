@@ -14,6 +14,7 @@ using System.Text.Json;
 ///     fallback 兜底闲聊池（消息没命中任何话题时用）
 ///     nudge    玩家连发 3 条还没等到回复时的催促彩蛋
 ///     grudge   被玩家"损"够 2 次后的记仇反呛彩蛋
+///     warm/cold 回复温度前导词池（暖：她刚说完话你就回 / 冷：隔了很久你才回）
 ///
 /// 玩家消息 → 按关键词命中数归入一个话题 → 从对应回复池抽一条（同一池子抽过的先不重复，
 /// 抽完一轮才重置）。回复只图热闹，不加好感/勇气——数值仍由剧情选择控制，防止刷分。
@@ -35,6 +36,8 @@ public static class ReplyEngine
         public List<string> Fallback { get; set; } = new();
         public List<string> Nudge { get; set; } = new();
         public List<string> Grudge { get; set; } = new();
+        public List<string> Warm { get; set; } = new(); // 暖前导词池（她刚说完话你就回）
+        public List<string> Cold { get; set; } = new(); // 冷前导词池（隔了很久你才回）
     }
 
     private class ReplyData
@@ -52,6 +55,52 @@ public static class ReplyEngine
         public string Line;
         public ReplyKind Kind;
         public float Delay;
+
+        /// <summary>回复温度的前导词（暖/冷才有；空 = 直接进主回复）</summary>
+        public string PreLine = "";
+
+        /// <summary>前导词延迟（相对玩家消息的秒数；PreLine 为空时无意义）</summary>
+        public float PreDelay;
+    }
+
+    // ==================== 回复温度（第十二轮：回复快慢有温度） ====================
+    // 温度 =「她上次说话 → 你现在回她」的新鲜度，只在"新一轮对话的第一句"上演：
+    //   暖：她刚说过话（≤30 秒；含"有未读时点开会话"这一刻）→ 她应得快、先应一声
+    //   冷：她上一条已过去 ≥75 秒，你才想起回 → 她慢半拍、先冷淡一句
+    // "新一轮的第一句" = 距我上次发言 ≥40 秒（连续对聊中不重复演温度，防刷戏）。
+    // 温度只改"回法"（前导词 + 回复延迟），绝不动好感/勇气——数值仍由剧情选择控制，防刷分。
+
+    private const double WarmGap = 30.0;  // 她说完 30 秒内回她 = 暖
+    private const double ColdGap = 75.0;  // 她说完 75 秒后才回 = 冷
+    private const double NewSessionGap = 40.0; // 距我上次发言多久算"新的一轮"
+
+    /// <summary>她（联系人）最近一次说话的时刻（秒，单调时钟）</summary>
+    private static readonly Dictionary<string, double> lastMsgAt = new();
+
+    /// <summary>我最近一次发言的时刻（秒，单调时钟）</summary>
+    private static readonly Dictionary<string, double> lastPlayerAt = new();
+
+    private static double Now => Time.GetTicksMsec() / 1000.0;
+
+    /// <summary>她发来一条消息 → 记录对话热度（ChatOverlay.StoreIncoming 统一调用）</summary>
+    public static void NoteContactMessage(string contactId)
+    {
+        if (!string.IsNullOrEmpty(contactId))
+            lastMsgAt[contactId] = Now;
+    }
+
+    /// <summary>玩家打开会话：有未读说明她刚说的话"正被看到"，气儿还是热的</summary>
+    public static void NoteChatOpened(string contactId, bool hadUnread)
+    {
+        if (hadUnread && !string.IsNullOrEmpty(contactId))
+            lastMsgAt[contactId] = Now;
+    }
+
+    /// <summary>我发了一条消息（自由输入走引擎时自动记；脚本预设回复由聊天界面代记）</summary>
+    public static void NotePlayerMessage(string contactId)
+    {
+        if (!string.IsNullOrEmpty(contactId))
+            lastPlayerAt[contactId] = Now;
     }
 
     private static ReplyData data;
@@ -168,11 +217,40 @@ public static class ReplyEngine
         if (line == null)
             return null;
 
+        float delay = PickDelay(d, profile);
+        string preLine = "";
+        float preDelay = 0f;
+
+        // 回复温度：只挂在普通回复上（催促/记仇是独立彩蛋，不掺温度）
+        double now = Now;
+        bool newSession = !lastPlayerAt.TryGetValue(contactId, out double prev) || now - prev >= NewSessionGap;
+        lastPlayerAt[contactId] = now;
+        if (kind == ReplyKind.Normal && newSession && lastMsgAt.TryGetValue(contactId, out double lastMsg))
+        {
+            double gap = now - lastMsg;
+            if (gap <= WarmGap && profile.Warm is { Count: > 0 })
+            {
+                preLine = PickLine(contactId, "warm", profile.Warm);
+                preDelay = 0.8f;
+                delay = Mathf.Clamp(delay * 0.45f, 0.8f, 3.0f);
+            }
+            else if (gap >= ColdGap && profile.Cold is { Count: > 0 })
+            {
+                preLine = PickLine(contactId, "cold", profile.Cold);
+                preDelay = 1.8f;
+                delay = Mathf.Clamp(delay * 1.6f, 4.5f, 10f);
+            }
+        }
+        if (preLine != "")
+            delay = Mathf.Max(delay, preDelay + 1.2f); // 主回复永远排在前导词后面
+
         return new Decision
         {
             Line = line,
             Kind = kind,
-            Delay = PickDelay(d, profile),
+            Delay = delay,
+            PreLine = preLine,
+            PreDelay = preDelay,
         };
     }
 

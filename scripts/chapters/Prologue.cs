@@ -60,6 +60,9 @@ public partial class Prologue : ChapterBase
         glows["earphones"] = HotspotGlow.Attach(earphonesBtn);
         glows["window"] = HotspotGlow.Attach(windowBtn);
 
+        // "点万物有回应"：墙角、桌面、桌肚……没任务的小地方（data/flavor/prologue.json）
+        AddChild(FlavorSpots.Create(hotspotsRoot, "prologue"));
+
         // 标题卡：点任意位置开始
         var startOverlay = GetNode<Button>("TitleCard/StartOverlay");
         startOverlay.Pressed += BeginIntro;
@@ -139,6 +142,9 @@ public partial class Prologue : ChapterBase
         hintLabel.Visible = true;
         lastActivityMsec = Time.GetTicksMsec();
         UpdateHint();
+
+        // "手机活起来"：探索的时候，手机自己震一下（她深夜发来一句）
+        LiveEvents.Fire(this, "prologue", "prologue_baobao_night");
     }
 
     private void UpdateHint()

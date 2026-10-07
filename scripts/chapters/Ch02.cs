@@ -56,6 +56,12 @@ public partial class Ch02 : ChapterBase
         glows["phone"] = HotspotGlow.Attach(phoneBtn);
         glows["window"] = HotspotGlow.Attach(windowBtn);
 
+        // "点万物有回应"：柜门上的照片、便利贴、货架上的泡面（data/flavor/ch02.json）
+        AddChild(FlavorSpots.Create(hotspotsRoot, "ch02"));
+
+        // "手机活起来"：手机热点右上角挂小红点（有未读消息时自己亮起来）
+        LiveEvents.AttachPhoneDot(phoneBtn);
+
         UiSounds.WireAll(this);
 
         hotspotsRoot.Visible = false;
@@ -230,7 +236,12 @@ public partial class Ch02 : ChapterBase
             chatOpen = false;
             lastActivityMsec = Time.GetTicksMsec();
             if (firstTime)
-                DialogueManager.Instance.PlaySequence(ChapterId, "explore_phone_after", OnExploreFinished);
+                DialogueManager.Instance.PlaySequence(ChapterId, "explore_phone_after", () =>
+                {
+                    // "手机活起来"：翻完聊天记录之后，她那边又睡前发来一句
+                    LiveEvents.Fire(this, ChapterId, "ch02_baobao_later");
+                    OnExploreFinished();
+                });
         };
         overlay.Open("ch02_phone");
     }

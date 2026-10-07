@@ -1,0 +1,40 @@
+{
+  "events": [
+    {
+      "id": "prologue_baobao_night",
+      "chapter": "prologue",
+      "contact": "baobao",
+      "text": "睡了吗？我这边风好大。",
+      "delay": 7.0
+    },
+    {
+      "id": "ch01_ma_money",
+      "chapter": "ch01",
+      "contact": "ma",
+      "text": "钱够花吗？别老舍不得吃。",
+      "delay": 6.0
+    },
+    {
+      "id": "ch02_baobao_later",
+      "chapter": "ch02",
+      "contact": "baobao",
+      "text": "我先睡啦，你也早点休息。",
+      "delay": 14.0
+    },
+    {
+      "id": "ch03_faxiao_drink",
+      "chapter": "ch03",
+      "contact": "faxiao",
+      "text": "啥时候回来？我请你喝一顿，老地方。",
+      "delay": 10.0
+    },
+    {
+      "id": "ch04_sanjin_lab",
+      "chapter": "ch04",
+      "contact": "lilab",
+      "sender": "三金师兄",
+      "text": "凌晨还在线的，离心机两点到四点的空档，先到先得。",
+      "delay": 8.0
+    }
+  ]
+}

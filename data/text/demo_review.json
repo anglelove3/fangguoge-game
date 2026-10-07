@@ -7,10 +7,22 @@
       "label": "室友给你起了个外号，你应下的是"
     },
     {
+      "choice": "prologue_heart_hum",
+      "chapter": "prologue",
+      "where": "序章《那首歌》",
+      "label": "循环到副歌的那一下，你"
+    },
+    {
       "choice": "ch01_order_food",
       "chapter": "ch01",
       "where": "第一章《寄居蟹》",
       "label": "川菜馆点菜，你最后点的是"
+    },
+    {
+      "choice": "ch01_heart_menu",
+      "chapter": "ch01",
+      "where": "第一章《寄居蟹》",
+      "label": "菜单翻回来的时候，你"
     },
     {
       "choice": "ch02_reply",
@@ -25,16 +37,34 @@
       "label": "临别之前，你说出口的是"
     },
     {
+      "choice": "ch02_heart_window",
+      "chapter": "ch02",
+      "where": "第二章《一千公里》",
+      "label": "窗外一千公里，你"
+    },
+    {
       "choice": "ch03_breakup",
       "chapter": "ch03",
       "where": "第三章《天平》",
       "label": "天平给不出答案，你说的是"
     },
     {
+      "choice": "ch03_heart_scale",
+      "chapter": "ch03",
+      "where": "第三章《天平》",
+      "label": "天平还歪着，你下意识"
+    },
+    {
       "choice": "ch04_night",
       "chapter": "ch04",
       "where": "第四章《手滑》",
       "label": "凌晨一点半，你选择了"
+    },
+    {
+      "choice": "ch04_heart_words",
+      "chapter": "ch04",
+      "where": "第四章《手滑》",
+      "label": "手机暗下去之后，你"
     }
   ]
 }

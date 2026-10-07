@@ -19,7 +19,7 @@ public static class WeChatData
     public const string BaobaoAvatarPath = "res://assets/art/chat/avatar_patrick_v1.png";
 
     private static ContactsData contactsCache;
-    private static MomentsData momentsCache;
+    private static MomentsData momentsRaw;
 
     public static ContactsData LoadContacts()
     {
@@ -28,11 +28,23 @@ public static class WeChatData
         return contactsCache;
     }
 
+    /// <summary>
+    /// 朋友圈动态：原始表只读一次，每次按当前章节过滤后再交付。
+    /// （afterChapter 没到的动态先不出现——朋友圈也随时间往前走。）
+    /// 注意：只换列表容器，动态对象还是同一批引用，点赞/评论的改动照样保留。
+    /// </summary>
     public static MomentsData LoadMoments()
     {
-        if (momentsCache != null) return momentsCache;
-        momentsCache = Load<MomentsData>("res://data/moments.json") ?? new MomentsData();
-        return momentsCache;
+        momentsRaw ??= Load<MomentsData>("res://data/moments.json") ?? new MomentsData();
+
+        int chapter = GameManager.Instance?.CurrentChapter ?? 0;
+        var visible = new MomentsData { Cover = momentsRaw.Cover, Posts = new List<MomentPost>() };
+        foreach (var p in momentsRaw.Posts)
+        {
+            if (p.AfterChapter <= chapter)
+                visible.Posts.Add(p);
+        }
+        return visible;
     }
 
     private static SystemWechatData systemCache;
@@ -163,6 +175,12 @@ public class MomentPost
 
     /// <summary>评论没命中任何关键词时的兜底回复池</summary>
     public List<string> CommentFallback { get; set; } = new();
+
+    /// <summary>
+    /// 这条动态从第几章开始出现（0 = 一开始就在；3 = 玩家进到第三章才刷出来）。
+    /// 用来让朋友圈跟着剧情走：人还是那些人，时间线却在动。
+    /// </summary>
+    public int AfterChapter { get; set; }
 }
 
 /// <summary>朋友圈评论回复规则：评论命中 keywords 之一 → 从 lines 里抽一条回</summary>

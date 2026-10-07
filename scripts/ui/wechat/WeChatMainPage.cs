@@ -199,7 +199,15 @@ public partial class WeChatMainPage : Control
         row.AddChild(hboxWrap);
         hboxWrap.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect); // Button 不是容器，子节点要手动铺满
 
-        hbox.AddChild(WrapBadge(MakeListAvatar(c, 96), c.Badge, 96));
+        // 头像角标 = 静态角标（如群里 @你）优先；没有静态角标就用"手机活起来"的未读数
+        string badge = c.Badge;
+        if (string.IsNullOrEmpty(badge))
+        {
+            int unread = LiveEvents.UnreadFor(c.Id);
+            if (unread > 0)
+                badge = unread.ToString();
+        }
+        hbox.AddChild(WrapBadge(MakeListAvatar(c, 96), badge, 96));
 
         var mid = new VBoxContainer { MouseFilter = MouseFilterEnum.Ignore };
         mid.SizeFlagsHorizontal = SizeFlags.ExpandFill;
@@ -404,6 +412,10 @@ public partial class WeChatMainPage : Control
     /// <summary>会话列表预览文字（显式 previewText 优先；同桌走聊天文件，其他人走内嵌消息）</summary>
     private static string PreviewOf(ContactData c)
     {
+        // 本局内新到的消息压过静态预览：动态事件/人设回复一落库，列表预览就是它
+        string fresh = ChatOverlay.LastMessagePreview(c.Id);
+        if (!string.IsNullOrEmpty(fresh))
+            return fresh;
         if (!string.IsNullOrEmpty(c.PreviewText))
             return c.PreviewText;
         if (!string.IsNullOrEmpty(c.ChatFile))

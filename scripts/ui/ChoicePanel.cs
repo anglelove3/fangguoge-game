@@ -96,6 +96,22 @@ public partial class ChoicePanel : Control
         Show();
     }
 
+    /// <summary>
+    /// 这个点时是不是落在某个"还在显示"的选项按钮上？（对话管理器用它决定要不要放行点击）
+    /// 判定沿用 DialogueManager.FindPriorityControl 的同一套坐标习惯：外扩 8px、更宽容。
+    /// </summary>
+    public bool HasButtonAt(Vector2 globalPos)
+    {
+        foreach (var btn in buttons)
+        {
+            if (!GodotObject.IsInstanceValid(btn) || !btn.IsVisibleInTree())
+                continue;
+            if (btn.GetGlobalRect().Grow(8).HasPoint(globalPos))
+                return true;
+        }
+        return false;
+    }
+
     private void OnOptionPressed(int index)
     {
         // 确定音：比普通点击更"扎实"，给玩家"这一下算数"的感觉
@@ -113,7 +129,9 @@ public partial class ChoicePanel : Control
     {
         if (!GodotObject.IsInstanceValid(btn))
             return;
-        btn.GetMeta("juice_tw", default).As<Tween>()?.Kill();
+        // 读 meta 前必须先问一句"有没有"：GetMeta 在键不存在时会打 ERROR+堆栈（第十二轮修掉的日志脏点）
+        if (btn.HasMeta("juice_tw"))
+            btn.GetMeta("juice_tw").As<Tween>()?.Kill();
         btn.PivotOffset = btn.Size / 2f; // 以中心为轴，看起来是"原地抬起"
         var tween = btn.CreateTween();
         tween.TweenProperty(btn, "scale", Vector2.One * scale, dur)
@@ -121,8 +139,8 @@ public partial class ChoicePanel : Control
         btn.SetMeta("juice_tw", tween);
     }
 
-    /// <summary>选项字体：楷体 + 字间距 6（和主菜单按钮同一款感觉），只创建一次</summary>
-    private static Font GetChoiceFont()
+    /// <summary>选项字体：楷体 + 字间距 6（和主菜单按钮同一款感觉），只创建一次。心声小纸片也复用它。</summary>
+    internal static Font GetChoiceFont()
     {
         if (choiceFont == null)
         {
@@ -135,9 +153,9 @@ public partial class ChoicePanel : Control
     }
 
     /// <summary>
-    /// 创建"奶油纸片"样式：暖色底 + 浅色描边 + 柔和投影
+    /// 创建"奶油纸片"样式：暖色底 + 浅色描边 + 柔和投影（心声小纸片也复用它）
     /// </summary>
-    private static StyleBoxFlat MakeStyle(Color bg, int shadowSize, Vector2 shadowOffset)
+    internal static StyleBoxFlat MakeStyle(Color bg, int shadowSize, Vector2 shadowOffset)
     {
         var style = new StyleBoxFlat
         {

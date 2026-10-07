@@ -44,6 +44,9 @@ public partial class GameManager : Node
     // 玩家做过的选择记录（用于回看和结局判定）
     private System.Collections.Generic.Dictionary<string, int> choiceHistory = new();
 
+    // 已经触发过的"手机活起来"动态事件 id（第十二轮；存档保留，重玩同一章不会重复收到）
+    private readonly System.Collections.Generic.List<string> liveEvents = new();
+
     /// <summary>做过的选择条数（调试面板显示用）</summary>
     public int ChoiceCount => choiceHistory.Count;
 
@@ -162,6 +165,24 @@ public partial class GameManager : Node
         GD.Print($"[选择记录] {choiceId} = 选项{optionIndex}");
     }
 
+    // ========== 手机动态事件（第十二轮） ==========
+
+    /// <summary>这个动态事件是不是已经触发过？（重玩章节不重复收到）</summary>
+    public bool HasLiveEvent(string eventId) => !string.IsNullOrEmpty(eventId) && liveEvents.Contains(eventId);
+
+    /// <summary>已触发过的动态事件 id 清单（只读；手机打开时用来"补投递"）</summary>
+    public System.Collections.Generic.IReadOnlyList<string> TriggeredLiveEvents => liveEvents;
+
+    /// <summary>记下一条已经送达的动态事件（会进存档）</summary>
+    public void RecordLiveEvent(string eventId)
+    {
+        if (!string.IsNullOrEmpty(eventId) && !liveEvents.Contains(eventId))
+        {
+            liveEvents.Add(eventId);
+            GD.Print($"[动态事件] 已记录：{eventId}");
+        }
+    }
+
     // ========== 存档系统 ==========
 
     /// <summary>
@@ -180,7 +201,8 @@ public partial class GameManager : Node
             currentChapter = CurrentChapter,
             hiddenItemsFound = HiddenItemsFound,
             hiddenItemIds = new System.Collections.Generic.List<string>(hiddenItemIds),
-            choiceHistory = choiceHistory
+            choiceHistory = choiceHistory,
+            liveEvents = new System.Collections.Generic.List<string>(liveEvents)
         };
 
         // 设置 JSON 格式化为可读格式（方便调试）
@@ -246,6 +268,12 @@ public partial class GameManager : Node
             hiddenItemIds.Clear();
             foreach (var id in saveData.hiddenItemIds ?? new())
                 hiddenItemIds.Add(id);
+
+            // 动态事件清单（老存档没有这个字段 → 读出 null，按空处理即可，不用升版本）
+            liveEvents.Clear();
+            foreach (var id in saveData.liveEvents ?? new())
+                if (!string.IsNullOrEmpty(id))
+                    liveEvents.Add(id);
 
             // 旧存档（第一版：好感/勇气从 0 起步）自动迁移到"50 起点"的新口径，
             // 否则老玩家的数值会莫名其妙偏低一档。
@@ -361,6 +389,7 @@ public partial class GameManager : Node
         HiddenItemsFound = 0;
         hiddenItemIds.Clear();
         choiceHistory.Clear();
+        liveEvents.Clear();
         GD.Print("[重置] 游戏状态已重置");
     }
 }
@@ -383,6 +412,9 @@ public class SaveData
     public int hiddenItemsFound { get; set; }
     public System.Collections.Generic.List<string> hiddenItemIds { get; set; }
     public System.Collections.Generic.Dictionary<string, int> choiceHistory { get; set; }
+
+    // 已送达的手机动态事件 id 清单（第十二轮；老存档里没有这个字段 → null → 按空处理）
+    public System.Collections.Generic.List<string> liveEvents { get; set; }
 }
 
 /// <summary>

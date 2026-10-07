@@ -54,6 +54,12 @@ public partial class Ch04 : ChapterBase
 
         glows["phone"] = HotspotGlow.Attach(phoneBtn);
 
+        // "点万物有回应"：窗外的灯、柜门上的照片、那两桶泡面（data/flavor/ch04.json）
+        AddChild(FlavorSpots.Create(hotspotsRoot, "ch04"));
+
+        // "手机活起来"：手机热点右上角挂小红点（有未读消息时自己亮起来）
+        LiveEvents.AttachPhoneDot(phoneBtn);
+
         UiSounds.WireAll(this);
 
         hotspotsRoot.Visible = false;
@@ -101,6 +107,9 @@ public partial class Ch04 : ChapterBase
         hintLabel.Visible = true;
         lastActivityMsec = Time.GetTicksMsec();
         UpdateHint();
+
+        // "手机活起来"：凌晨的宿舍里，li-lab 群有人还在报仪器空档
+        LiveEvents.Fire(this, "ch04", "ch04_sanjin_lab");
     }
 
     private void UpdateHint()

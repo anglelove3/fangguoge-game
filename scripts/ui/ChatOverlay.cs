@@ -142,6 +142,10 @@ public partial class ChatOverlay : Control
     {
         var contacts = WeChatData.LoadContacts();
 
+        // 补投递放在搭界面前面：存档里之前震过的动态消息，这会儿一并落进各会话，
+        // 会话列表的红点/角标一次就画对（不用等玩家点进某个聊天才补）。
+        LiveEvents.EnsureDelivered();
+
         BuildChatPage();
         BuildMainPage(contacts);
         BuildMomentsPage();
@@ -225,6 +229,12 @@ public partial class ChatOverlay : Control
     /// <summary>打开某位联系人 / 群聊 / 只读会话</summary>
     private void ShowChat(ContactData contact)
     {
+        // 未读处理放最前面：先看有没有未读（决定"对话正热"），再清红点
+        bool hadUnread = LiveEvents.UnreadFor(contact.Id) > 0;
+        LiveEvents.ClearUnread(contact.Id);
+        if (hadUnread)
+            ReplyEngine.NoteChatOpened(contact.Id, true); // 有未读时点开 = 她刚说的话正被看到（回复温度用）
+
         currentContact = contact;
         currentChatData = !string.IsNullOrEmpty(contact.ChatFile) ? LoadChatData(contact.ChatFile) : null;
         ghostTween?.Kill();
@@ -1186,6 +1196,25 @@ public partial class ChatOverlay : Control
         if (decision == null)
             return;
 
+        // 回复温度的前导词（暖：她随即应一声 / 冷：她慢半拍才搭理）：
+        // 比主回复先落一条，语气和主回复怎么接都由人设说了算。
+        if (!string.IsNullOrEmpty(decision.PreLine))
+        {
+            float preDelay = Mathf.Max(0.15f, decision.PreDelay);
+            GetTree().CreateTimer(preDelay).Timeout += () =>
+            {
+                var pre = new ChatMessageData { Sender = "other", Text = decision.PreLine };
+                StoreIncoming(contactId, pre);
+                if (!GodotObject.IsInstanceValid(this))
+                    return;
+                if (currentContact != null && currentContact.Id == contactId && !closing)
+                {
+                    rows.AddChild(MakeMessageRow(pre));
+                    ScrollToBottom();
+                }
+            };
+        }
+
         float delay = Mathf.Max(0.6f, decision.Delay);
 
         // 回复前先亮"对方正在输入…"；回复慢的人设只在最后 3 秒亮，更像真的在打字
@@ -1212,15 +1241,42 @@ public partial class ChatOverlay : Control
         };
     }
 
-    /// <summary>往会话记录里补一条消息（只动 static 数据；UI 由调用方按需刷新）</summary>
-    private static void StoreIncoming(string contactId, ChatMessageData msg)
+    /// <summary>
+    /// 往会话记录里补一条消息（只动 static 数据；UI 由调用方按需刷新）。
+    /// 返回"是否真的落库"——带 LiveEventId 的消息天然去重（补投递不会重复落库/重复计数）。
+    /// </summary>
+    internal static bool StoreIncoming(string contactId, ChatMessageData msg)
     {
         if (!extraMessages.TryGetValue(contactId, out var list))
         {
             list = new List<ChatMessageData>();
             extraMessages[contactId] = list;
         }
+        if (!string.IsNullOrEmpty(msg.LiveEventId))
+        {
+            foreach (var m in list)
+            {
+                if (m.LiveEventId == msg.LiveEventId)
+                    return false; // 这条动态事件早就投过了
+            }
+        }
         list.Add(msg);
+        ReplyEngine.NoteContactMessage(contactId); // 记下"她最近一次说话"（回复温度用）
+        return true;
+    }
+
+    /// <summary>某会话在本局内新到的最新一条文字消息预览（"我：xxx"/"xxx"；没有则返回空，会话列表用）</summary>
+    internal static string LastMessagePreview(string contactId)
+    {
+        if (string.IsNullOrEmpty(contactId) || !extraMessages.TryGetValue(contactId, out var list))
+            return "";
+        for (int i = list.Count - 1; i >= 0; i--)
+        {
+            var m = list[i];
+            if (m.Type == "text" && !string.IsNullOrEmpty(m.Text))
+                return m.Sender == "me" ? "我：" + m.Text : m.Text;
+        }
+        return "";
     }
 
     /// <summary>往当前会话追加一条消息（本局内重开手机也还在）</summary>
@@ -1310,6 +1366,9 @@ public partial class ChatOverlay : Control
         usedQuickReplies.Add(currentContact.Id);
         HideQuickBar();
         HidePlusPanel();
+
+        // 脚本回复也算"我发的消息"：连聊不重复演回复温度（新一轮判定用）
+        ReplyEngine.NotePlayerMessage(currentContact.Id);
 
         AppendMessage(new ChatMessageData { Sender = "me", Text = q.Text });
 
@@ -1674,6 +1733,9 @@ public class ChatMessageData
 
     /// <summary>群聊里的发言人昵称（非空 = 气泡上方显示昵称 + 用该联系人的头像）</summary>
     public string SenderName { get; set; } = "";
+
+    /// <summary>来自哪条"手机活起来"动态事件（非空 = 补投递时用它去重，同一条只落一次）</summary>
+    public string LiveEventId { get; set; } = "";
 }
 
 /// <summary>

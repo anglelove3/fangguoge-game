@@ -2,6 +2,107 @@
   "cover": "res://assets/art/chat/photo_riverside_v1.png",
   "posts": [
     {
+      "id": "m6",
+      "author": "宝宝（前女友）",
+      "avatar": "res://assets/art/chat/avatar_patrick_v1.png",
+      "time": "刚刚",
+      "afterChapter": 3,
+      "text": "又走到江边了。这边的风还是那么大，吹得人睁不开眼。",
+      "images": [
+        "res://assets/art/chat/photo_riverside_v1.png"
+      ],
+      "likes": [
+        "叶冰玉（高中同学）"
+      ],
+      "comments": [],
+      "commentReplies": [
+        {
+          "keywords": [
+            "想你",
+            "想起",
+            "念"
+          ],
+          "lines": [
+            "……别这样。",
+            "我们都走到这儿了。"
+          ]
+        },
+        {
+          "keywords": [
+            "对不起",
+            "抱歉",
+            "怪我"
+          ],
+          "lines": [
+            "谁都没有错。真的。",
+            "别说这个了。"
+          ]
+        },
+        {
+          "keywords": [
+            "回来",
+            "见面",
+            "去看你"
+          ],
+          "lines": [
+            "好好的吧。",
+            "以后……有机会再说。"
+          ]
+        }
+      ],
+      "commentFallback": [
+        "嗯。",
+        "……",
+        "你也照顾好自己。"
+      ]
+    },
+    {
+      "id": "m7",
+      "author": "妈",
+      "avatar": "res://assets/art/chat/avatar_ma.png",
+      "time": "1 小时前",
+      "afterChapter": 4,
+      "text": "跟娃说好了，腊月二十回来。腌菜备上，就等他进门。",
+      "images": [],
+      "likes": [
+        "爸"
+      ],
+      "comments": [
+        {
+          "author": "爸",
+          "text": "多腌点辣白菜"
+        }
+      ],
+      "commentReplies": [
+        {
+          "keywords": [
+            "想吃",
+            "馋",
+            "香"
+          ],
+          "lines": [
+            "回来天天给你做",
+            "想吃就回来，妈的手艺没退步"
+          ]
+        },
+        {
+          "keywords": [
+            "回家",
+            "放假",
+            "票"
+          ],
+          "lines": [
+            "票早点买，别抢太晚",
+            "买好票说一声，让你爸去接"
+          ]
+        }
+      ],
+      "commentFallback": [
+        "在外边按时吃饭",
+        "家里都好，不用惦记"
+      ]
+    },
+    {
       "id": "m1",
       "author": "同桌",
       "avatar": "res://assets/art/chat/her_avatar_v1.png",

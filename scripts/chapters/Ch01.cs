@@ -40,6 +40,9 @@ public partial class Ch01 : ChapterBase
         glows["menu"] = HotspotGlow.Attach(menuBtn);
         glows["group"] = HotspotGlow.Attach(groupBtn);
 
+        // "点万物有回应"：墙上的菜牌、门口的红灯笼、手边的茶碗（data/flavor/ch01.json）
+        AddChild(FlavorSpots.Create(hotspotsRoot, "ch01"));
+
         // 全场景按钮音效
         UiSounds.WireAll(this);
 
@@ -120,6 +123,9 @@ public partial class Ch01 : ChapterBase
         hintLabel.Visible = true;
         lastActivityMsec = Time.GetTicksMsec();
         UpdateHint();
+
+        // "手机活起来"：锅还没开，妈先发来一句"钱够花吗"
+        LiveEvents.Fire(this, "ch01", "ch01_ma_money");
     }
 
     private void UpdateHint()

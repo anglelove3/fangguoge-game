@@ -78,7 +78,7 @@ text = "这一路，你是这样走过来的——"
 horizontal_alignment = 1
 
 [node name="ReviewScroll" type="ScrollContainer" parent="Center/VBox"]
-custom_minimum_size = Vector2(1120, 400)
+custom_minimum_size = Vector2(1120, 420)
 layout_mode = 2
 size_flags_horizontal = 4
 horizontal_scroll_mode = 0

@@ -65,6 +65,9 @@ public partial class Ch03 : ChapterBase
         rightPanBtn.Pressed += OnRightPanPressed;
         rightPanGlow = HotspotGlow.Attach(rightPanBtn);
 
+        // "点万物有回应"：头顶的雾、地上的光、左边的暗处（data/flavor/ch03.json）
+        AddChild(FlavorSpots.Create(hotspotsRoot, "ch03"));
+
         foreach (var def in layout.Cards)
             cardButtons[def.Id] = BuildCard(def);
 
@@ -548,6 +551,9 @@ public partial class Ch03 : ChapterBase
 
     private void OnBreakupChosen(int index)
     {
+        // "手机活起来"：分手的话说出口，老家的发小正好发来"啥时候回来"
+        LiveEvents.Fire(this, ChapterId, "ch03_faxiao_drink");
+
         DialogueManager.Instance.PlaySequence(ChapterId, $"say_{index}", () =>
         {
             DialogueManager.Instance.PlaySequence(ChapterId, "outro", () =>
