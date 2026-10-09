@@ -65,6 +65,30 @@
       "chapter": "ch04",
       "where": "第四章《手滑》",
       "label": "手机暗下去之后，你"
+    },
+    {
+      "choice": "ch05_comfort",
+      "chapter": "ch05",
+      "where": "第五章《碧蓝蓝天》",
+      "label": "群里喊你聚会，你回的是"
+    },
+    {
+      "choice": "ch05_heart_rain",
+      "chapter": "ch05",
+      "where": "第五章《碧蓝蓝天》",
+      "label": "兰亭窗外落着雨，你"
+    },
+    {
+      "choice": "ch06_reply",
+      "chapter": "ch06",
+      "where": "第六章《放过自己》",
+      "label": "金艮问「以前算不算」，你说"
+    },
+    {
+      "choice": "ch06_heart_toast",
+      "chapter": "ch06",
+      "where": "第六章《放过自己》",
+      "label": "杯子举在半空，你"
     }
   ]
 }

@@ -97,6 +97,22 @@
       "avatar": "res://assets/art/chat/avatar_sanjin.png"
     },
     {
+      "id": "chifan",
+      "name": "今天吃什么研讨组",
+      "kind": "group",
+      "members": 4,
+      "chatFile": "ch05_group",
+      "afterChapter": 5,
+      "sessionTime": "晚上 5:24",
+      "previewText": "金艮: 人都快到了，就差你了",
+      "groupAvatars": [
+        "res://assets/art/chat/avatar_jingen.png",
+        "res://assets/art/chat/avatar_junjie.png",
+        "res://assets/art/chat/avatar_sanjin.png",
+        "res://assets/art/chat/avatar_spongebob_v1.png"
+      ]
+    },
+    {
       "id": "daoshi",
       "name": "研究生导师",
       "sessionTime": "周一",

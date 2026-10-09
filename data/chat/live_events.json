@@ -35,6 +35,20 @@
       "sender": "三金师兄",
       "text": "凌晨还在线的，离心机两点到四点的空档，先到先得。",
       "delay": 8.0
+    },
+    {
+      "id": "ch05_ba_ask",
+      "chapter": "ch05",
+      "contact": "ba",
+      "text": "没啥事，就是问问你最近忙不忙。",
+      "delay": 10.0
+    },
+    {
+      "id": "ch06_ma_cold",
+      "chapter": "ch06",
+      "contact": "ma",
+      "text": "天凉了，记得加衣服。别老熬夜。",
+      "delay": 12.0
     }
   ]
 }

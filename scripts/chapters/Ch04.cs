@@ -240,7 +240,8 @@ public partial class Ch04 : ChapterBase
         {
             DialogueManager.Instance.PlaySequence(ChapterId, "outro", () =>
             {
-                GoToNextChapter("res://scenes/ui/demo_end/demo_end.tscn", 99);
+                // r13：第四章之后不再是"试玩结束"，接上正式剧情 第五章《碧蓝蓝天》
+                GoToNextChapter("res://scenes/chapters/ch05/ch05.tscn", 5);
             });
         }));
     }

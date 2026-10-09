@@ -5,6 +5,50 @@
 
 ---
 
+## 2026-10-09 · 第十三轮：第五章《碧蓝蓝天》+ 第六章《放过自己》（剧情接续 + 新美术 / 音效 + 餐厅重画）
+
+> 本轮范围（已确认）：推进到第五、六章；序章电脑对白加入论文名；
+> 餐厅背景重画后的热区校准；两章美术（新背景 / 金艮立绘 / 新音效）按建议制作。
+
+### 1. 第五章《碧蓝蓝天》（`scripts/chapters/Ch05.cs` + `scenes/chapters/ch05/` + `data/dialogues/ch05.json` + `data/chat/ch05_group.json`）
+
+- 剧情：被朋友捞出来的那个傍晚——「今天吃什么研讨组」群聊震动 → 心声纸片 → 三选一 → 跨校区骑行 → 兰亭雨水：菜单 / 朋友近况 / 听雨三个互动点 → 回宿舍收尾 → 转场第六章
+- 新背景 `campus_dusk_v1`（黄昏校区）、`lanting_rain_v1`（兰亭雨水）；雨声 `sfx_rain.wav` 循环，到店 -20dB 淡入 / 离场 -60dB 淡出
+- 动态事件 `ch05_ba_ask`；闲笔两处（`data/flavor/ch05_lab.json` / `ch05_lanting.json`）
+- 联动：兰亭雨水 = 第一章点菜那家（第一章选了「辣子鸡」的玩家，菜单旁白是另一版）
+
+### 2. 第六章《放过自己》（`scripts/chapters/Ch06.cs` + `scenes/chapters/ch06/` + `data/dialogues/ch06.json`）
+
+- 剧情：深夜小摊，金艮递酒 → 按住倒酒 ×4 杯（新互动 `scripts/chapters/DrinkPour.cs`）→ 三选一 → 心声纸片 → 碰杯演出 → 尾声
+- 新背景 `night_stall_v1`；金艮立绘两张（`jingen_laugh` / `jingen_smile`）
+- 新音效 `sfx_pour.wav`（倒酒——按住时持续酒线声，整体偏高 1.12 倍）、`sfx_clink.wav`（碰杯）；动态事件 `ch06_ma_cold`
+
+### 3. 序章：电脑对白加入论文名（`data/dialogues/prologue.json`）
+
+- 改了十七遍的论文终于有名字：《电石渣-铜渣协同还原熔炼制备铜铁基合金》（扉页加粗黑字 + 两句内心独白）
+
+### 4. 餐厅重画 + 热区校准（`assets/art/backgrounds/restaurant_v2.png` + `scenes/chapters/ch01/ch01.tscn`）
+
+- 构图对准「三个人围着一桌菜碰杯」；两个热点按新画重标定：MenuBtn 0.185/0.77/0.47/0.995、GroupBtn 0.2/0.12/0.9/0.7
+
+### 5. 接线与系统
+
+- 第四章尾声不再进"试玩结束"，接上第五章（`Ch04.cs`）
+- 主菜单「继续游戏」：通关档兜底落点从第四章后移到第六章，跳转表加入第五、六章（`MainMenu.cs`）
+- 结束页章节清单更新（序章 + 第一~六章；`demo_end.tscn` / `demo_review.json`）；联系人支持 `afterChapter` 按章节过滤，「今天吃什么研讨组」第五章起出现（`WeChatData.cs` / `contacts.json`）
+- `ChatOverlay.Open("")` 打开微信主页
+
+### 6. 顺手修的坑
+
+- `PlaySfx` 新增基准音高参数 `pitchBase` + 最终音高 `Clamp(0.05, 4)` 兜底：原来把抖动量当绝对值传，随机到 ≤0 时引擎刷 `p_pitch_scale <= 0.0`（第六章倒酒抓到）
+- 酒杯多边形顶点方向修正：自交"蝴蝶结"会让三角化失败、每帧刷 ERROR
+
+### 验证
+
+- 实机自动化回归（P0 交互一律原生点击）：第四章尾声 → 第五 → 第六章全线跑通；通关档「继续游戏」兜底第六章；餐厅重画后两热点 + 心声纸片 + 点菜三选一逐项原生点击验证；各轮 0 ERROR / 0 `p_pitch` 告警；截图逐张审计通过
+
+---
+
 ## 2026-10-07 · 第十二轮：试玩反馈全量整改（3 处必修 bug + 4 个互动玩法）
 
 > 本轮范围（已确认）：先把第十轮试玩里发现的 3 个 bug 全部修掉，

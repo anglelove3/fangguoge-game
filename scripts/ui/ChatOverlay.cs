@@ -156,7 +156,11 @@ public partial class ChatOverlay : Control
         UiSounds.WireAll(this);
 
         // 找到 chatId 对应的联系人（按 ChatFile 或 id 匹配）
-        var contact = contacts.Contacts.Find(c => c.ChatFile == chatId || c.Id == chatId)
+        // chatId 传空字符串 = 打开微信主页（会话列表）；不然直接进某个会话
+        ContactData contact = null;
+        if (!string.IsNullOrEmpty(chatId))
+        {
+            contact = contacts.Contacts.Find(c => c.ChatFile == chatId || c.Id == chatId)
                       ?? new ContactData
                       {
                           Id = chatId,
@@ -164,6 +168,7 @@ public partial class ChatOverlay : Control
                           Avatar = WeChatData.BaobaoAvatarPath,
                           ChatFile = chatId,
                       };
+        }
 
         // 手机比窗口还大时整体等比缩小，保证整台手机（含底部横条）永远完整可见
         var vp = GetViewportRect().Size;
@@ -174,7 +179,10 @@ public partial class ChatOverlay : Control
             phonePanel.Scale = new Vector2(s, s);
         }
 
-        ShowChat(contact);
+        if (contact != null)
+            ShowChat(contact);
+        else
+            ShowMain();
 
         // 手机打开期间：背景对话/热点全部锁死，点击只属于手机
         suppressing = true;

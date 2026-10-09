@@ -18,14 +18,27 @@ public static class WeChatData
     /// <summary>宝宝（前女友）的微信头像（情侣头像的另一半：她是派大星）</summary>
     public const string BaobaoAvatarPath = "res://assets/art/chat/avatar_patrick_v1.png";
 
-    private static ContactsData contactsCache;
+    private static ContactsData contactsRaw;
     private static MomentsData momentsRaw;
 
+    /// <summary>
+    /// 联系人列表：原始表只读一次，每次按当前章节过滤后再交付。
+    /// （afterChapter 没到的联系人先不出现——比如「今天吃什么研讨组」，
+    ///   玩家进到第五章，这群朋友才会出现在会话列表里。）
+    /// 注意：只换列表容器，联系人对象还是同一批引用，红点/新消息照样共用。
+    /// </summary>
     public static ContactsData LoadContacts()
     {
-        if (contactsCache != null) return contactsCache;
-        contactsCache = Load<ContactsData>("res://data/contacts.json") ?? new ContactsData();
-        return contactsCache;
+        contactsRaw ??= Load<ContactsData>("res://data/contacts.json") ?? new ContactsData();
+
+        int chapter = GameManager.Instance?.CurrentChapter ?? 0;
+        var visible = new ContactsData { Contacts = new List<ContactData>() };
+        foreach (var c in contactsRaw.Contacts)
+        {
+            if (c.AfterChapter <= chapter)
+                visible.Contacts.Add(c);
+        }
+        return visible;
     }
 
     /// <summary>
@@ -128,6 +141,12 @@ public class ContactData
 
     /// <summary>群头像拼格：取前 4 位成员的头像路径画 2×2 九宫格</summary>
     public List<string> GroupAvatars { get; set; } = new();
+
+    /// <summary>
+    /// 这位联系人从第几章开始出现（0 = 一开始就在；5 = 玩家进到第五章才认识这群朋友）。
+    /// 用来让联系人列表跟着剧情走——人不是凭空冒出来的。
+    /// </summary>
+    public int AfterChapter { get; set; }
 
     /// <summary>点开的页面："subscriptions" = 订阅号文章列表，"steps" = 微信运动排行；留空 = 聊天页</summary>
     public string OpenPage { get; set; } = "";

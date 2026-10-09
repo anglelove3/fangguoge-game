@@ -1,8 +1,8 @@
-[gd_scene load_steps=12 format=3 uid="uid://ch01scene001"]
+[gd_scene load_steps=11 format=3 uid="uid://ch06scene001"]
 
-[ext_resource type="Script" path="res://scripts/chapters/Ch01.cs" id="1_ch01"]
-[ext_resource type="Texture2D" path="res://assets/art/backgrounds/day_lab_v1.png" id="2_day"]
-[ext_resource type="Texture2D" path="res://assets/art/backgrounds/restaurant_v2.png" id="3_rest"]
+[ext_resource type="Script" path="res://scripts/chapters/Ch06.cs" id="1_ch06"]
+[ext_resource type="Texture2D" path="res://assets/art/backgrounds/night_stall_v1.png" id="2_stall"]
+[ext_resource type="Script" path="res://scripts/chapters/DrinkPour.cs" id="3_drink"]
 
 [sub_resource type="StyleBoxFlat" id="SB_hot_normal"]
 bg_color = Color(0, 0, 0, 0)
@@ -44,38 +44,26 @@ corner_radius_bottom_right = 12
 corner_radius_bottom_left = 12
 corner_detail = 12
 
-[node name="Ch01" type="Control"]
+[node name="Ch06" type="Control"]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-script = ExtResource("1_ch01")
-ChapterTitle = "第一章：寄居蟹"
-ChapterSubtitle = "热闹是他们的，壳是自己的"
-ChapterIndex = 1
+script = ExtResource("1_ch06")
+ChapterTitle = "第六章：放过自己"
+ChapterSubtitle = "酒过三巡，才敢说的话"
+ChapterIndex = 6
 
-[node name="DayLabBg" type="TextureRect" parent="."]
+[node name="Background" type="TextureRect" parent="."]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-texture = ExtResource("2_day")
-expand_mode = 1
-stretch_mode = 6
-
-[node name="RestaurantBg" type="TextureRect" parent="."]
-visible = false
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-texture = ExtResource("3_rest")
+texture = ExtResource("2_stall")
 expand_mode = 1
 stretch_mode = 6
 
@@ -86,7 +74,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.02, 0.02, 0.08, 0.25)
+color = Color(0.02, 0.02, 0.1, 0.22)
 
 [node name="HintLabel" type="Label" parent="."]
 layout_mode = 1
@@ -102,7 +90,7 @@ theme_override_colors/font_color = Color(1, 0.95, 0.85, 1)
 theme_override_colors/font_outline_color = Color(0.05, 0.05, 0.1, 0.9)
 theme_override_constants/outline_size = 6
 theme_override_font_sizes/font_size = 24
-text = "热闹的川菜馆……好像有什么在等着你（0/2）"
+text = "酒瓶就在手边——给两个人的杯子满上（0/4）"
 horizontal_alignment = 1
 
 [node name="Hotspots" type="Control" parent="."]
@@ -114,13 +102,13 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
-[node name="MenuBtn" type="Button" parent="Hotspots"]
+[node name="PhoneBtn" type="Button" parent="Hotspots"]
 layout_mode = 1
 anchors_preset = -1
-anchor_left = 0.185
-anchor_top = 0.77
-anchor_right = 0.47
-anchor_bottom = 0.995
+anchor_left = 0.3
+anchor_top = 0.78
+anchor_right = 0.4
+anchor_bottom = 0.92
 grow_horizontal = 2
 grow_vertical = 2
 mouse_default_cursor_shape = 2
@@ -129,13 +117,13 @@ theme_override_styles/hover = SubResource("SB_hot_hover")
 theme_override_styles/pressed = SubResource("SB_hot_pressed")
 theme_override_styles/disabled = SubResource("SB_hot_disabled")
 
-[node name="GroupBtn" type="Button" parent="Hotspots"]
+[node name="PourBtn" type="Button" parent="Hotspots"]
 layout_mode = 1
 anchors_preset = -1
-anchor_left = 0.2
-anchor_top = 0.12
-anchor_right = 0.9
-anchor_bottom = 0.7
+anchor_left = 0.06
+anchor_top = 0.4
+anchor_right = 0.28
+anchor_bottom = 0.97
 grow_horizontal = 2
 grow_vertical = 2
 mouse_default_cursor_shape = 2
@@ -143,6 +131,10 @@ theme_override_styles/normal = SubResource("SB_hot_normal")
 theme_override_styles/hover = SubResource("SB_hot_hover")
 theme_override_styles/pressed = SubResource("SB_hot_pressed")
 theme_override_styles/disabled = SubResource("SB_hot_disabled")
+
+[node name="Drink" type="Node2D" parent="."]
+position = Vector2(370, 875)
+script = ExtResource("3_drink")
 
 [node name="ChapterTitle" type="Label" parent="."]
 layout_mode = 1
@@ -161,7 +153,7 @@ theme_override_colors/font_color = Color(1, 0.97, 0.92, 1)
 theme_override_colors/font_outline_color = Color(0.05, 0.05, 0.1, 0.9)
 theme_override_constants/outline_size = 8
 theme_override_font_sizes/font_size = 76
-text = "第一章：寄居蟹"
+text = "第六章：放过自己"
 horizontal_alignment = 1
 
 [node name="ChapterSubtitle" type="Label" parent="."]
@@ -177,9 +169,9 @@ offset_right = 520.0
 offset_bottom = 120.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_colors/font_color = Color(0.3, 0.32, 0.4, 1)
+theme_override_colors/font_color = Color(0.35, 0.37, 0.45, 1)
 theme_override_font_sizes/font_size = 24
-text = "热闹是他们的，壳是自己的"
+text = "酒过三巡，才敢说的话"
 horizontal_alignment = 1
 
 [node name="BackButton" type="Button" parent="."]

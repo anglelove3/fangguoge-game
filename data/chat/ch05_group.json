@@ -1,0 +1,14 @@
+{
+  "title": "今天吃什么研讨组",
+  "messages": [
+    { "type": "divider", "text": "今天 下午 5:02" },
+    { "sender": "other", "senderName": "金艮", "text": "就是说，组会都散俩钟头了，人呢？" },
+    { "sender": "other", "senderName": "俊杰（师弟）", "text": "我下午路过实验室，师兄在工位上坐着，一坐仨小时没挪窝" },
+    { "sender": "other", "senderName": "三金师兄", "text": "别在群里喊。@我 晚上有安排吗" },
+    { "sender": "other", "senderName": "金艮", "text": "兰亭雨水！六点！就——是——说——位置我占好了" },
+    { "sender": "other", "senderName": "俊杰（师弟）", "text": "师兄来吧来吧，那家的辣子鸡你夸过不止一次" },
+    { "type": "divider", "text": "今天 下午 5:24" },
+    { "sender": "other", "senderName": "金艮", "text": "人都快到了，就差你了。迟到的人自罚三杯茶" },
+    { "sender": "other", "senderName": "三金师兄", "text": "不催你。来了就行。" }
+  ]
+}

@@ -44,6 +44,8 @@ public partial class AudioManager : Node
     public const string SfxMetalTap = "res://assets/audio/sfx/sfx_metal_tap.ogg";   // 金属轻碰（碰托盘）
     public const string SfxKeyboard = "res://assets/audio/sfx/sfx_keyboard.ogg";    // 幽灵打字的键盘声
     public const string SfxConfirmSoft = "res://assets/audio/sfx/sfx_confirm_soft.ogg"; // 轻一点的确认（放补偿物）
+    public const string SfxPour = "res://assets/audio/sfx/sfx_pour.wav";            // 倒酒（第六章）
+    public const string SfxClink = "res://assets/audio/sfx/sfx_clink.wav";          // 碰杯（第六章）
 
     // 背景音乐（萨蒂《吉姆诺佩蒂》三部曲：公有领域 / CC BY 3.0 录音，详见 音乐说明.txt）
     public const string BgmGym1 = "res://assets/audio/bgm/gymnopedie_no1.ogg"; // 序章 / 菜单 / 天亮
@@ -168,7 +170,8 @@ public partial class AudioManager : Node
     /// <param name="path">音效文件路径（用 SfxClick 这些常量）</param>
     /// <param name="volumeDb">音量（还会再叠加设置页的音效音量）</param>
     /// <param name="pitchJitter">音高随机波动范围，比如 0.06 表示 ±6%（打字机音效错落有致的关键）</param>
-    public void PlaySfx(string path, float volumeDb = -10f, float pitchJitter = 0f)
+    /// <param name="pitchBase">基准音高（默认 1.0；倒酒的酒线声想整体偏高就传 1.12 这种）</param>
+    public void PlaySfx(string path, float volumeDb = -10f, float pitchJitter = 0f, float pitchBase = 1f)
     {
         if (sfxPool.Count == 0)
             return;
@@ -186,9 +189,11 @@ public partial class AudioManager : Node
 
         player.Stream = stream;
         player.VolumeDb = volumeDb + SfxVolDb;
-        player.PitchScale = pitchJitter > 0f
-            ? (float)GD.RandRange(1.0 - pitchJitter, 1.0 + pitchJitter)
-            : 1.0f;
+        float pitch = pitchBase;
+        if (pitchJitter > 0f)
+            pitch = (float)GD.RandRange(pitchBase - pitchJitter, pitchBase + pitchJitter);
+        // 兜底：pitch_scale 必须 > 0，越界会让引擎每帧刷 ERROR（r13 run3 抓到过）
+        player.PitchScale = Mathf.Clamp(pitch, 0.05f, 4f);
         player.Play();
     }
 }
