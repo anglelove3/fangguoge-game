@@ -5,13 +5,13 @@ using Godot;
 ///
 /// 流程：周六傍晚的宿舍（群里在攒局「今天的局」）
 ///      → 收起手机出门 → 罗曼蒂克（台球房：第一次见到江洁）
-///      → 上场打两杆（心声微选择 + 台球桌演出：白球送杆、彩球拐弯进袋）
+///      → 上台真打一局台球（第十五轮：BilliardGame.cs 物理小游戏，三杆定胜负）
 ///      → 皖江宴包厢（选座位：挨着她坐 or 靠门坐）
 ///      → 开席（师妹桌子底下递话的心声微选择）→ 三选一：第一段话说什么
 ///      → 散场的尾声（三点水三个字落地）→ 试玩结束页
 ///
 /// 【本章演出核心】
-///   - 台球桌是"活"的：BilliardShot.cs 纯代码画的球，白球能滑出去、彩球能拐弯进袋。
+///   - 台球桌是"真"的：第十五轮换成了能瞄准、能拉杆、能进袋的一局物理台球。
 ///   - 两个场所的换场都是背景交叉淡入淡出 + 麻将声淡入淡出。
 ///   - 选座位不是选项框，是直接点包厢里那两张空椅子。
 ///   - 手机全程能开：打台球的时候，叶冰玉的婚礼请帖会悄悄到。
@@ -41,7 +41,6 @@ public partial class Ch07 : ChapterBase
     private Control seatNearGlow;
     private Control seatFarGlow;
 
-    private BilliardShot shot;
     private AudioStreamPlayer mahjongPlayer;
 
     private enum Phase { Dorm, Rmt, Wjy }
@@ -51,8 +50,8 @@ public partial class Ch07 : ChapterBase
     private bool chatSeenBefore;  // 群聊打开过（之后的打开走微信主页）
     private bool chatOpen;        // 手机界面是否开着
     private bool rmtStarted;      // 已经出门去罗曼蒂克
-    private bool tableStarted;    // 台球演出已经开始
-    private bool cueDone;         // 第一杆打完了
+    private bool tableStarted;    // 台球局已经开始
+    private bool cueDone;         // 台球局打完了
     private bool seated;          // 座位已经选过
     private bool finished;        // 尾声播放中
 
@@ -87,6 +86,12 @@ public partial class Ch07 : ChapterBase
         seatNearGlow = HotspotGlow.Attach(seatNearBtn);
         seatFarGlow = HotspotGlow.Attach(seatFarBtn);
 
+        // 第十五轮：热点按"美术图坐标"登记（手机 = 宿舍美术实测位置）
+        ArtAnchor.Track(phoneBtn, new Rect2(1616f, 880f, 168f, 88f));
+        ArtAnchor.TrackFraction(tableBtn, new Rect2(0.22f, 0.6f, 0.56f, 0.33f));
+        ArtAnchor.TrackFraction(seatNearBtn, new Rect2(0.66f, 0.44f, 0.16f, 0.28f));
+        ArtAnchor.TrackFraction(seatFarBtn, new Rect2(0.15f, 0.43f, 0.18f, 0.29f));
+
         // "点万物有回应"：三个场景各一套，跟着阶段开关
         flavorDorm = MakeFlavorLayer("ch07_dorm");
         flavorRmt = MakeFlavorLayer("ch07_rmt");
@@ -107,9 +112,6 @@ public partial class Ch07 : ChapterBase
         mahjongPlayer.Stream = mahjongStream;
         AddChild(mahjongPlayer);
 
-        // 台球桌演出（纯代码绘制）
-        shot = GetNode<BilliardShot>("Shot");
-
         UiSounds.WireAll(this);
 
         // 开场：只有宿舍阶段能看
@@ -120,9 +122,6 @@ public partial class Ch07 : ChapterBase
         seatFarBtn.Visible = false;
         flavorRmt.Visible = false;
         flavorWjy.Visible = false;
-        // 台球演出层只在球房阶段露头：它自绘的白球本来要"焊"在球房背景那颗静止白球上，
-        // 出现在宿舍/包厢里就会变成一个浮在画上的小白点（r14 回归截图抓到）
-        shot.Visible = false;
 
         var tween = CreateTween();
         tween.SetParallel(true);
@@ -301,7 +300,7 @@ public partial class Ch07 : ChapterBase
             chatOpen = false;
             lastActivityMsec = Time.GetTicksMsec();
         };
-        overlay.Open(""); // 空字符串 = 微信主页
+        overlay.Open(""); // 空字符串 = 掏手机：先落在锁屏（叶冰玉那条消息在通知卡上挂着）
     }
 
     // ==================== 宿舍 → 罗曼蒂克 ====================
@@ -327,8 +326,6 @@ public partial class Ch07 : ChapterBase
         seatNearBtn.Visible = false;
         seatFarBtn.Visible = false;
         hintLabel.Visible = true;
-        // 进了球房，放出台球演出层：自绘的白球正好"焊"在背景那颗静止白球上
-        shot.Visible = true;
         lastActivityMsec = Time.GetTicksMsec();
         UpdateHint();
     }
@@ -348,39 +345,26 @@ public partial class Ch07 : ChapterBase
         dm.PlaySequence(ChapterId, "table_intro", OnTableIntroDone);
     }
 
-    /// <summary>台词说完（心声微选择也在里面选完了）——轮到真打一杆</summary>
+    /// <summary>台词说完（心声微选择也在里面选完了）——上台真打一局</summary>
     private void OnTableIntroDone()
     {
         if (!GodotObject.IsInstanceValid(this))
             return;
-        shot.Strike(() =>
-        {
-            if (!GodotObject.IsInstanceValid(this))
-                return;
-            DialogueManager.Instance.PlaySequence(ChapterId, "shot", OnMyShotDone);
-        });
-    }
 
-    private void OnMyShotDone()
-    {
-        DialogueManager.Instance.PlaySequence(ChapterId, "shot2a", () =>
+        var game = new BilliardGame { Name = "BilliardGame" };
+        AddChild(game);
+        game.Closed += () =>
         {
             if (!GodotObject.IsInstanceValid(this))
                 return;
-            shot.Pocket(() =>
+            cueDone = true;
+            UpdateHint();
+            DialogueManager.Instance.PlaySequence(ChapterId, "table_done", () =>
             {
-                if (!GodotObject.IsInstanceValid(this))
-                    return;
-                DialogueManager.Instance.PlaySequence(ChapterId, "shot2b", OnHerShotDone);
+                DialogueManager.Instance.PlaySequence(ChapterId, "leave", StartWjy);
             });
-        });
-    }
-
-    private void OnHerShotDone()
-    {
-        cueDone = true;
-        UpdateHint();
-        DialogueManager.Instance.PlaySequence(ChapterId, "leave", StartWjy);
+        };
+        game.Open();
     }
 
     // ==================== 罗曼蒂克 → 皖江宴 ====================
@@ -392,8 +376,6 @@ public partial class Ch07 : ChapterBase
         hintLabel.Visible = false;
         CrossfadeTo(bgWjy, 1.2f);
         FadeMahjong(-60f, 1.6f); // 出了球房，麻将声就留在门里了
-        // 离开球房：收回台球演出层（不然自绘的白球会漂在包厢画面上）
-        shot.Visible = false;
         DialogueManager.Instance.PlaySequence(ChapterId, "arrive_wjy", EnterWjy);
     }
 

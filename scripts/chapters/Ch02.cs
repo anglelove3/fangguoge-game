@@ -56,6 +56,13 @@ public partial class Ch02 : ChapterBase
         glows["phone"] = HotspotGlow.Attach(phoneBtn);
         glows["window"] = HotspotGlow.Attach(windowBtn);
 
+        // 第十五轮：热点改按"美术图坐标"登记——背景是 cover 缩放，
+        // 窗口不成 16:9 时美术整体会偏移，热点跟着走才不会"点手机点不到"
+        ArtAnchor.Track(phoneBtn, new Rect2(1616f, 880f, 168f, 88f)); // 桌上的手机（美术实测位置）
+        ArtAnchor.TrackFraction(windowBtn, new Rect2(0f, 0.02f, 0.22f, 0.64f));
+        ArtAnchor.TrackFraction(ashtrayBtn, new Rect2(0.565f, 0.7f, 0.14f, 0.13f));
+        ArtAnchor.TrackFraction(lighterBtn, new Rect2(0.09f, 0.67f, 0.12f, 0.11f));
+
         // "点万物有回应"：柜门上的照片、便利贴、货架上的泡面（data/flavor/ch02.json）
         AddChild(FlavorSpots.Create(hotspotsRoot, "ch02"));
 

@@ -34,6 +34,8 @@ public partial class WeChatMainPage : Control
     private const float TabBarHeight = 100f;
 
     private Label titleLabel;
+    private VBoxContainer sessionBox; // 会话列表的行容器（返回列表时整体重建用）
+    private Control momentsDot;       // 朋友圈红点引用（看过就消）
     private readonly Control[] pages = new Control[4];
     private readonly TabIcon[] tabIcons = new TabIcon[4];
     private readonly Label[] tabLabels = new Label[4];
@@ -179,10 +181,28 @@ public partial class WeChatMainPage : Control
         var box = new VBoxContainer { MouseFilter = MouseFilterEnum.Ignore };
         box.AddThemeConstantOverride("separation", 0);
         pad.AddChild(box);
+        sessionBox = box;
 
         foreach (var c in contacts.Contacts)
             box.AddChild(MakeSessionRow(c));
         return scroll;
+    }
+
+    /// <summary>
+    /// 重建会话列表（第十五轮）：从聊天页退回列表时调用，
+    /// 让未读角标/预览文字按最新状态显示——不然看完消息角标还挂在那儿。
+    /// </summary>
+    public void RefreshSessions(ContactsData contacts)
+    {
+        if (sessionBox == null || contacts == null)
+            return;
+        foreach (var child in sessionBox.GetChildren())
+            child.QueueFree();
+        foreach (var c in contacts.Contacts)
+            sessionBox.AddChild(MakeSessionRow(c));
+        // 朋友圈红点也顺手校一次（从"发现"进朋友圈再退回来时消掉）
+        if (momentsDot != null && GodotObject.IsInstanceValid(momentsDot))
+            momentsDot.Visible = GameManager.Instance?.HasSeenPage("moments") != true;
     }
 
     /// <summary>会话列表的一行：头像（含角标）+ 名字 + 预览 + 时间</summary>
@@ -200,7 +220,11 @@ public partial class WeChatMainPage : Control
         hboxWrap.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect); // Button 不是容器，子节点要手动铺满
 
         // 头像角标 = 静态角标（如群里 @你）优先；没有静态角标就用"手机活起来"的未读数
+        // 第十五轮：静态角标带 openPage 的（订阅号/微信运动），进去看过一次就消，不再显示
         string badge = c.Badge;
+        if (!string.IsNullOrEmpty(badge) && !string.IsNullOrEmpty(c.OpenPage)
+            && GameManager.Instance?.HasSeenPage(c.OpenPage) == true)
+            badge = "";
         if (string.IsNullOrEmpty(badge))
         {
             int unread = LiveEvents.UnreadFor(c.Id);
@@ -304,8 +328,10 @@ public partial class WeChatMainPage : Control
         box.AddThemeConstantOverride("separation", 16);
         box.AddThemeConstantOverride("margin_top", 16);
 
-        box.AddChild(MakeDiscoverRow(new Color(0.35f, 0.45f, 0.75f), "朋友圈", true,
-            () => MomentsOpened?.Invoke()));
+        // 朋友圈红点：进过一次就消（RefrestSessions 时按 seen 状态再校一次）
+        box.AddChild(MakeDiscoverRow(new Color(0.35f, 0.45f, 0.75f), "朋友圈",
+            GameManager.Instance?.HasSeenPage("moments") != true,
+            () => MomentsOpened?.Invoke(), out momentsDot));
         box.AddChild(MakeDiscoverRow(new Color(0.85f, 0.45f, 0.25f), "视频号", false,
             () => ToastRequested?.Invoke("视频号目前只是摆设～")));
         box.AddChild(MakeDiscoverRow(new Color(0.30f, 0.65f, 0.45f), "游戏", false,
@@ -363,7 +389,12 @@ public partial class WeChatMainPage : Control
 
     /// <summary>发现/我 页的白色条目行</summary>
     private Control MakeDiscoverRow(Color iconColor, string name, bool redDot, Action onClick)
+        => MakeDiscoverRow(iconColor, name, redDot, onClick, out _);
+
+    /// <summary>发现/我 页的白色条目行（dotRef 输出红点控件引用，供"看过就消"更新用）</summary>
+    private Control MakeDiscoverRow(Color iconColor, string name, bool redDot, Action onClick, out Control dotRef)
     {
+        dotRef = null;
         var row = new Button { MouseFilter = MouseFilterEnum.Stop };
         row.CustomMinimumSize = new Vector2(0, 108);
         row.AddThemeStyleboxOverride("normal", new StyleBoxFlat { BgColor = Colors.White });
@@ -390,6 +421,7 @@ public partial class WeChatMainPage : Control
             var dot = new RedDot { CustomMinimumSize = new Vector2(16, 16) };
             dot.SizeFlagsVertical = SizeFlags.ShrinkCenter;
             hbox.AddChild(dot);
+            dotRef = dot;
         }
 
         var expander = new Control

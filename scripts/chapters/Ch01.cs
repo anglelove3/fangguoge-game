@@ -40,6 +40,10 @@ public partial class Ch01 : ChapterBase
         glows["menu"] = HotspotGlow.Attach(menuBtn);
         glows["group"] = HotspotGlow.Attach(groupBtn);
 
+        // 第十五轮：热点按"美术图坐标"登记（窗口不成 16:9 时背景会偏移，热点跟着走）
+        ArtAnchor.TrackFraction(menuBtn, new Rect2(0.185f, 0.77f, 0.285f, 0.225f));
+        ArtAnchor.TrackFraction(groupBtn, new Rect2(0.2f, 0.12f, 0.7f, 0.58f));
+
         // "点万物有回应"：墙上的菜牌、门口的红灯笼、手边的茶碗（data/flavor/ch01.json）
         AddChild(FlavorSpots.Create(hotspotsRoot, "ch01"));
 

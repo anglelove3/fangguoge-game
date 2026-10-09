@@ -98,6 +98,33 @@ public static class DataStore
         return item?.Name ?? id;
     }
 
+    /// <summary>是不是隐藏物品（背包里给它加一枚小标签）</summary>
+    public static bool IsHiddenItem(string id) =>
+        Hidden.Items?.Exists(i => i.Id == id) ?? false;
+
+    // ========== 背包图鉴（第十五轮） ==========
+
+    private static InventoryFile inventoryData;
+
+    private static InventoryFile Inventory =>
+        inventoryData ??= LoadJson<InventoryFile>("res://data/inventory.json") ?? new InventoryFile();
+
+    /// <summary>背包图鉴全表（背包界面按这个顺序摆格子）</summary>
+    public static List<InventoryItemEntry> InventoryRegistry => Inventory.Items;
+
+    /// <summary>背包物品的图鉴定义（名字键、描述键、图标、动作）</summary>
+    public static InventoryItemEntry ItemDef(string id) =>
+        Inventory.Items?.Find(i => i.Id == id);
+
+    /// <summary>某件东西在背包里的显示名（隐藏物品没写名字键，退回 hidden_items.json 里的名字）</summary>
+    public static string ItemName(string id)
+    {
+        var def = ItemDef(id);
+        if (def != null && !string.IsNullOrEmpty(def.NameKey))
+            return Text(def.NameKey);
+        return HiddenItemName(id);
+    }
+
     // ========== 结束页"选择回顾" ==========
 
     private static ReviewFile review;
@@ -159,6 +186,22 @@ public class HiddenItemEntry
     public string Id { get; set; } = "";
     public string Name { get; set; } = "";
     public int Chapter { get; set; }
+}
+
+/// <summary>背包物品图鉴文件（对应 data/inventory.json）</summary>
+public class InventoryFile
+{
+    public List<InventoryItemEntry> Items { get; set; } = new();
+}
+
+/// <summary>图鉴里的一件物品：id + 文案键 + 图标 + 详情页动作</summary>
+public class InventoryItemEntry
+{
+    public string Id { get; set; } = "";
+    public string NameKey { get; set; } = ""; // ui_text 里的名字键（隐藏物品留空 → 用 hidden_items 的名字）
+    public string DescKey { get; set; } = ""; // 描述键（可留空）
+    public string Icon { get; set; } = "";    // 图标路径
+    public string Action { get; set; } = "";  // 详情页动作：目前只有 "phone"（打开手机）
 }
 
 /// <summary>结束页"选择回顾"要列出的节点（对应 data/text/demo_review.json）</summary>

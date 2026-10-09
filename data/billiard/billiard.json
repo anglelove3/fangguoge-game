@@ -1,0 +1,78 @@
+{
+  "title": "罗曼蒂克 · 台球桌",
+  "hud": {
+    "scoreMe": "我",
+    "scoreHer": "江洁",
+    "yourTurn": "你的回合",
+    "herTurn": "江洁的回合",
+    "shotN": "第 {0} 杆",
+    "power": "力度",
+    "spin": "杆法",
+    "spinCenter": "定杆",
+    "spinHigh": "高杆",
+    "spinLow": "低杆",
+    "spinLeft": "左塞",
+    "spinRight": "右塞",
+    "aimHint": "按住屏幕往后拉——拉得越远，劲越大；松手出杆",
+    "sheThinks": "她在看线……",
+    "clickContinue": "点一下继续"
+  },
+  "comments": {
+    "start": [
+      { "speaker": "江洁", "text": "别急。先趴下来，找你的线。", "hold": 2.2 },
+      { "speaker": "我", "text": "（三杆。先看看桌上哪颗球最好下。）", "hold": 2.2 }
+    ],
+    "yourTurn": [
+      { "speaker": "江洁", "text": "轮到你了。", "hold": 1.5 },
+      { "speaker": "俊杰（师弟）", "text": "师兄，稳住！", "hold": 1.5 }
+    ],
+    "herTurn": [
+      { "speaker": "江洁", "text": "换我了。", "hold": 1.5 },
+      { "speaker": "金艮", "text": "看她这一杆。", "hold": 1.5 }
+    ],
+    "playerPocket": [
+      { "speaker": "俊杰（师弟）", "text": "好球啊师兄！", "hold": 2.4 },
+      { "speaker": "江洁", "text": "嗯，线走得正。", "hold": 2.4 },
+      { "speaker": "金艮", "text": "有点东西。", "hold": 2.4 }
+    ],
+    "playerMiss": [
+      { "speaker": "俊杰（师弟）", "text": "哎——就差一口袋！", "hold": 2.4 },
+      { "speaker": "江洁", "text": "差一点。手别收那么快。", "hold": 2.4 },
+      { "speaker": "金艮", "text": "可惜了。", "hold": 2.4 }
+    ],
+    "playerScratch": [
+      { "speaker": "俊杰（师弟）", "text": "嘿嘿，白球进袋——犯规了。", "hold": 2.8 },
+      { "speaker": "江洁", "text": "白球摆回去。重来。", "hold": 2.8 },
+      { "speaker": "小米师妹", "text": "啊——白球！师兄你使那么大劲干嘛！", "hold": 2.8 }
+    ],
+    "herPocket": [
+      { "speaker": "俊杰（师弟）", "text": "漂亮！洁姐这杆跟量过尺子似的。", "hold": 2.4 },
+      { "speaker": "小米师妹", "text": "哇——这球太绝了！", "hold": 2.4 },
+      { "speaker": "金艮", "text": "稳。", "hold": 2.4 }
+    ],
+    "herMiss": [
+      { "speaker": "俊杰（师弟）", "text": "诶？洁姐也有失手的时候？", "hold": 2.6 },
+      { "speaker": "小米师妹", "text": "嘿嘿，江洁姐打偏啦——", "hold": 2.6 },
+      { "speaker": "金艮", "text": "少见。", "hold": 2.6 }
+    ],
+    "herScratch": [
+      { "speaker": "小米师妹", "text": "白球！江洁姐的白球进袋啦！", "hold": 2.8 },
+      { "speaker": "江洁", "text": "……手滑。白球摆回去。", "hold": 2.8 }
+    ],
+    "win": [
+      { "speaker": "江洁", "text": "手法还行。……下次，我可不让了。", "hold": 3.4 },
+      { "speaker": "俊杰（师弟）", "text": "赢啦！师兄这一局能吹一年！", "hold": 3.4 },
+      { "speaker": "小米师妹", "text": "赢啦赢啦！奶茶奶茶！", "hold": 3.4 }
+    ],
+    "lose": [
+      { "speaker": "江洁", "text": "手还行。就是急了点。", "hold": 3.4 },
+      { "speaker": "俊杰（师弟）", "text": "师兄别灰心，她杆位太稳了。", "hold": 3.4 },
+      { "speaker": "小米师妹", "text": "没事没事——吃饭吃饭，吃饭最大！", "hold": 3.4 }
+    ],
+    "tie": [
+      { "speaker": "江洁", "text": "平了。留点余地，挺好的。", "hold": 3.4 },
+      { "speaker": "俊杰（师弟）", "text": "平局？那这顿谁请客？", "hold": 3.4 },
+      { "speaker": "小米师妹", "text": "都别争了，反正都要吃饭！", "hold": 3.4 }
+    ]
+  }
+}

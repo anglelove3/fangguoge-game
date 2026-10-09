@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bym7p2mbhdvg4"
-path="res://.godot/imported/avatar_patrick_v1.png-f7f124f6c97ecc8519cfc8483dbce451.ctex"
+uid="uid://ddcvqa4bsgkvo"
+path="res://.godot/imported/icon_earphone.png-f65ac2abbb6f4bbed1cef22f6c0cfd61.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/art/chat/avatar_patrick_v1.png"
-dest_files=["res://.godot/imported/avatar_patrick_v1.png-f7f124f6c97ecc8519cfc8483dbce451.ctex"]
+source_file="res://assets/art/items/icon_earphone.png"
+dest_files=["res://.godot/imported/icon_earphone.png-f65ac2abbb6f4bbed1cef22f6c0cfd61.ctex"]
 
 [params]
 

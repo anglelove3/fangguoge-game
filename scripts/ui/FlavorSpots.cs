@@ -80,11 +80,8 @@ public partial class FlavorSpots : Control
                 Flat = true,
                 FocusMode = FocusModeEnum.None,
             };
-            // 比例 → 锚点（跟随窗口缩放，和主线热点同一套做法）
-            btn.AnchorLeft = def.X;
-            btn.AnchorTop = def.Y;
-            btn.AnchorRight = def.X + def.W;
-            btn.AnchorBottom = def.Y + def.H;
+            // 比例（1920×1080 设计稿）→ 美术图坐标：背景 cover 缩放时小地方也贴在原处
+            ArtAnchor.TrackFraction(btn, new Rect2(def.X, def.Y, def.W, def.H));
             btn.AddThemeStyleboxOverride("normal", new StyleBoxEmpty());
             btn.AddThemeStyleboxOverride("hover", new StyleBoxEmpty());
             btn.AddThemeStyleboxOverride("pressed", new StyleBoxEmpty());

@@ -107,6 +107,12 @@
       "chapter": "ch07",
       "where": "第七章《三点水》",
       "label": "轮到你开口时，你说的第一段话是"
+    },
+    {
+      "choice": "ch07_billiard",
+      "chapter": "ch07",
+      "where": "第七章《三点水》",
+      "label": "跟江洁的那局台球，最后"
     }
   ]
 }

@@ -65,6 +65,9 @@ public partial class Ch03 : ChapterBase
         rightPanBtn.Pressed += OnRightPanPressed;
         rightPanGlow = HotspotGlow.Attach(rightPanBtn);
 
+        // 第十五轮：热点按"美术图坐标"登记
+        ArtAnchor.TrackFraction(rightPanBtn, new Rect2(0.599f, 0.37f, 0.13f, 0.186f));
+
         // "点万物有回应"：头顶的雾、地上的光、左边的暗处（data/flavor/ch03.json）
         AddChild(FlavorSpots.Create(hotspotsRoot, "ch03"));
 
@@ -382,6 +385,8 @@ public partial class Ch03 : ChapterBase
         };
         title.AddThemeFontSizeOverride("font_size", 22);
         title.AddThemeColorOverride("font_color", new Color(0.28f, 0.26f, 0.3f));
+        // 第十五轮：和选项按钮/心声纸片同一款字（楷体 + 字间距），不再是默认样子
+        title.AddThemeFontOverride("font", ChoicePanel.GetChoiceFont());
         box.AddChild(title);
 
         var sub = new Label
@@ -392,9 +397,13 @@ public partial class Ch03 : ChapterBase
         };
         sub.AddThemeFontSizeOverride("font_size", 15);
         sub.AddThemeColorOverride("font_color", new Color(0.45f, 0.44f, 0.5f));
+        sub.AddThemeFontOverride("font", ChoicePanel.GetChoiceFont());
         box.AddChild(sub);
 
         btn.AddChild(box);
+        // 第十五轮：Button 不是容器，子节点不会自动铺满——不补这一句，
+        // Center 对齐全落空，文字挤在左上角且每行缩进不一致
+        box.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
         btn.MouseEntered += () => TweenCardScale(btn, 1.05f, 0.14f);
         btn.MouseExited += () => TweenCardScale(btn, 1.0f, 0.16f);
         btn.Pressed += () => OnChipPressed(def);
@@ -445,7 +454,11 @@ public partial class Ch03 : ChapterBase
         tw.Chain().TweenCallback(Callable.From(() =>
         {
             btn.QueueFree();
-            if (isCard) cardButtons.Remove(id);
+            if (isCard)
+            {
+                cardButtons.Remove(id);
+                GameManager.Instance.AddItem(id); // 第十五轮：放上天平的记忆卡片，收一份进背包
+            }
             else chipButtons.Remove(id);
 
             if (isCard) scale.AddMemoryChip();

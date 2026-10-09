@@ -6,7 +6,7 @@
     { "sender": "me", "type": "text", "text": "嗯，到了就好，注意安全" },
     { "type": "divider", "text": "3月2日" },
     { "sender": "her", "type": "image", "image": "res://assets/art/chat/photo_milktea_v1.png" },
-    { "sender": "her", "type": "text", "text": "学校门口新开的奶茶店，我排了四十分钟队！" },
+    { "sender": "her", "type": "text", "text": "公司附近新开的奶茶店，我排了四十分钟队！" },
     { "sender": "me", "type": "text", "text": "看起来不错" },
     { "type": "divider", "text": "3月9日" },
     { "sender": "her", "type": "image", "image": "res://assets/art/chat/photo_office_v1.png" },

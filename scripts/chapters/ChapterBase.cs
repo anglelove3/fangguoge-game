@@ -32,6 +32,7 @@ public partial class ChapterBase : Control
     protected Label titleLabel;    // 标题文字
     protected Label subtitleLabel; // 副标题
     protected Button backButton;   // 返回菜单按钮
+    protected Button bagButton;    // 背包按钮（第十五轮：左上角常驻）
 
     // ========== Godot 生命周期 ==========
 
@@ -64,6 +65,9 @@ public partial class ChapterBase : Control
             DialogueManager.RegisterPriorityControl(backButton);
         }
 
+        // 左上角的背包按钮（第十五轮：手机/捡到的东西随时能翻出来看）
+        BuildBagButton();
+
         // 更新章节编号
         GameManager.Instance.CurrentChapter = ChapterIndex;
 
@@ -91,6 +95,67 @@ public partial class ChapterBase : Control
     {
         if (backButton != null)
             DialogueManager.UnregisterPriorityControl(backButton);
+        if (bagButton != null)
+            DialogueManager.UnregisterPriorityControl(bagButton);
+    }
+
+    // ========== 背包（第十五轮） ==========
+
+    /// <summary>
+    /// 左上角搭一个"背包"按钮：样式和右上角的返回按钮是一家（琥珀色圆角）。
+    /// 注册进"对话期间也能点"的白名单 —— 手机是随时可看的物品，
+    /// 对话播到一半也应该能翻背包（试玩反馈：手机要随时能拿出来）。
+    /// 按钮右上角挂一个小红点：背包里有没看过的新东西时自己亮起来。
+    /// </summary>
+    private void BuildBagButton()
+    {
+        bagButton = new Button
+        {
+            Name = "BagButton", // 纯代码 new 默认叫 "@Button@N"，显式命名方便调试与自动化测试
+            Text = DataStore.Text("bag.button"),
+            FocusMode = FocusModeEnum.None,
+            MouseDefaultCursorShape = CursorShape.PointingHand,
+        };
+        bagButton.AnchorLeft = 0f; bagButton.AnchorRight = 0f;
+        bagButton.AnchorTop = 0f; bagButton.AnchorBottom = 0f;
+        bagButton.OffsetLeft = 24; bagButton.OffsetTop = 24;
+        bagButton.OffsetRight = 132; bagButton.OffsetBottom = 68;
+        bagButton.AddThemeFontSizeOverride("font_size", 18);
+        bagButton.AddThemeStyleboxOverride("normal", HudButtonStyle(new Color(0.831f, 0.647f, 0.455f)));
+        bagButton.AddThemeStyleboxOverride("hover", HudButtonStyle(new Color(0.910f, 0.769f, 0.604f)));
+        bagButton.AddThemeStyleboxOverride("pressed", HudButtonStyle(new Color(0.722f, 0.537f, 0.306f)));
+        AddChild(bagButton);
+
+        bagButton.Pressed += OpenBag;
+        DialogueManager.RegisterPriorityControl(bagButton);
+        UiSounds.Wire(bagButton);
+
+        var dot = new ChapterHudDot();
+        dot.Name = "BagNewDot";
+        bagButton.AddChild(dot);
+    }
+
+    private static StyleBoxFlat HudButtonStyle(Color bg)
+    {
+        return new StyleBoxFlat
+        {
+            BgColor = bg,
+            CornerRadiusTopLeft = 12,
+            CornerRadiusTopRight = 12,
+            CornerRadiusBottomLeft = 12,
+            CornerRadiusBottomRight = 12,
+        };
+    }
+
+    /// <summary>翻开背包（全屏面板；打开期间背景对话/热点被锁死，和手机一个待遇）</summary>
+    protected void OpenBag()
+    {
+        if (DialogueManager.Instance?.IsUiSuppressed == true)
+            return; // 手机/背包已经开着一个了
+
+        var bag = new Backpack();
+        AddChild(bag);
+        bag.Open();
     }
 
     /// <summary>

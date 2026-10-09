@@ -6,8 +6,11 @@ using System.Collections.Generic;
 /// 第六章《放过自己》——酒桌小演出（纯代码绘制）
 ///
 /// 【摆在哪】
-/// 场景里是一个 Node2D，原点在"你的"玻璃杯杯底中心（挂在烧烤摊左下角的台面上）。
-/// 左边 (-190, 0) 立着啤酒瓶；右后方 (+240, -80) 是金艮的小杯子（0.8 倍大）。
+/// 场景里是一个 Node2D，原点在"你的"玻璃杯杯底中心（由 ArtAnchor 钉在烧烤摊桌面上，
+/// 窗口比例再怪，杯子也站在桌上）。左边 (-190, 0) 立着啤酒瓶；
+/// 右后方 (+240, -80) 是金艮的小杯子（0.8 倍大）。
+///
+/// 【画风】第十五轮：改成水彩+墨线（哑光颜色、细墨线勾边、杯身更修长），和夜摊背景同一味。
 ///
 /// 【倒酒】
 /// PourNext()：瓶子朝杯子倾 0.4s → 酒线落下、杯里的酒涨 1/4（0.8s）→ 瓶子回正 0.4s。
@@ -24,11 +27,11 @@ using System.Collections.Generic;
 public partial class DrinkPour : Node2D
 {
     // ==================== 杯子几何（杯底中心为原点） ====================
-    private const float GlassBaseW = 44f;      // 杯内底部半宽
-    private const float GlassTopW = 53f;       // 杯口内壁半宽
+    private const float GlassBaseW = 38f;      // 杯内底部半宽
+    private const float GlassTopW = 46f;       // 杯口内壁半宽
     private const float GlassBottomY = -8f;    // 杯内底部
-    private const float GlassRimY = -150f;     // 杯口（内壁）
-    private const float GlassOuterW = 58f;     // 杯壁外沿半宽
+    private const float GlassRimY = -168f;     // 杯口（内壁）
+    private const float GlassOuterW = 50f;     // 杯壁外沿半宽
 
     // ==================== 酒瓶几何 ====================
     private const float BottleDx = -190f;      // 酒瓶立在这个 x（杯底中心为 0）
@@ -271,7 +274,7 @@ public partial class DrinkPour : Node2D
             new Vector2(GlassTopW, GlassRimY),
             new Vector2(-GlassTopW, GlassRimY),
         };
-        DrawColoredPolygon(interior, new Color(0.85f, 0.9f, 1f, mine ? 0.14f : 0.10f));
+        DrawColoredPolygon(interior, new Color(0.87f, 0.9f, 0.95f, mine ? 0.13f : 0.09f));
 
         // 酒面
         float surfY = GsurfaceY(level);
@@ -285,7 +288,7 @@ public partial class DrinkPour : Node2D
                 new Vector2(hw, surfY),
                 new Vector2(-hw, surfY),
             };
-            DrawColoredPolygon(beer, new Color(0.84f, 0.55f, 0.16f, 0.9f));
+            DrawColoredPolygon(beer, new Color(0.72f, 0.47f, 0.17f, 0.84f));
 
             // 酒里的小气泡：慢慢往上冒，到酒面就没了
             for (int i = 0; i < 5; i++)
@@ -296,13 +299,13 @@ public partial class DrinkPour : Node2D
                     break;
                 float by = surfY - ((time * 14f + seed * 29f) % span);
                 float bx = Mathf.Sin(seed * 9.1f) * (hw - 9f) * 0.8f;
-                DrawCircle(new Vector2(bx, by), 1.6f + (i % 3) * 0.5f, new Color(1f, 0.92f, 0.75f, 0.35f));
+                DrawCircle(new Vector2(bx, by), 1.6f + (i % 3) * 0.5f, new Color(1f, 0.94f, 0.78f, 0.3f));
             }
 
             // 泡沫：酒面上一起一伏的一层
             float wob = settleT > 0f ? Mathf.Sin(settleT * 26f) * 2.2f * (settleT / SettleDur) : 0f;
-            DrawEllipseLocal(new Vector2(0f, surfY + wob), hw + 1f, 6.5f, new Color(0.99f, 0.95f, 0.86f, 0.95f));
-            DrawEllipseLocal(new Vector2(0f, surfY + wob + 3f), hw - 6f, 3.5f, new Color(1f, 0.99f, 0.94f, 0.7f));
+            DrawEllipseLocal(new Vector2(0f, surfY + wob), hw + 1f, 6.5f, new Color(0.97f, 0.92f, 0.8f, 0.92f));
+            DrawEllipseLocal(new Vector2(0f, surfY + wob + 3f), hw - 6f, 3.5f, new Color(0.99f, 0.96f, 0.88f, 0.66f));
         }
 
         // 杯壁高光（左边一道、右边一道淡的）
@@ -314,35 +317,35 @@ public partial class DrinkPour : Node2D
             new Vector2(-GlassOuterW + 11f, -18f),
             new Vector2(-GlassTopW + 3f, GlassRimY + 12f),
             new Vector2(-GlassTopW - 3f, GlassRimY + 12f),
-        }, new Color(1f, 1f, 1f, 0.15f));
+        }, new Color(1f, 1f, 1f, 0.12f));
         DrawColoredPolygon(new[]
         {
             new Vector2(GlassOuterW - 10f, -30f),
             new Vector2(GlassOuterW - 5f, -30f),
             new Vector2(GlassTopW - 2f, GlassRimY + 30f),
             new Vector2(GlassTopW - 7f, GlassRimY + 30f),
-        }, new Color(1f, 1f, 1f, 0.10f));
+        }, new Color(1f, 1f, 1f, 0.08f));
 
         // 杯底（椭圆座，让杯子"坐"在桌上）
-        DrawEllipseLocal(new Vector2(0f, -2f), GlassOuterW - 2f, 9f, new Color(0.75f, 0.8f, 0.87f, 0.16f));
+        DrawEllipseLocal(new Vector2(0f, -2f), GlassOuterW - 2f, 9f, new Color(0.72f, 0.76f, 0.82f, 0.14f));
 
-        // 外轮廓（酒桌上背景杂，轮廓要挺一点，杯子才"立得住"）
+        // 外轮廓：一根细墨线（水彩画里的勾边，比纯白线"压得住"）
         DrawPolyline(new[]
         {
             new Vector2(-GlassOuterW, -6f),
             new Vector2(-GlassTopW - 5f, GlassRimY),
             new Vector2(GlassTopW + 5f, GlassRimY),
             new Vector2(GlassOuterW, -6f),
-        }, new Color(0.92f, 0.95f, 0.99f, 0.8f), 3.5f);
+        }, new Color(0.3f, 0.26f, 0.23f, 0.5f), 3.0f);
 
         // 杯口（扁扁的一圈）
-        DrawEllipseLocal(new Vector2(0f, GlassRimY), GlassTopW + 5f, 8f, new Color(0.9f, 0.94f, 0.98f, 0.65f), filled: false, width: 3.5f);
+        DrawEllipseLocal(new Vector2(0f, GlassRimY), GlassTopW + 5f, 8f, new Color(0.33f, 0.29f, 0.25f, 0.42f), filled: false, width: 2.6f);
     }
 
     /// <summary>酒瓶在自己的坐标系里画（原点 = 瓶底中心，瓶口朝 -y）</summary>
     private void DrawBottleLocal()
     {
-        var glass = new Color(0.13f, 0.25f, 0.18f, 0.97f);
+        var glass = new Color(0.19f, 0.29f, 0.24f, 0.88f);
 
         // 瓶身
         DrawColoredPolygon(new[]
@@ -354,6 +357,20 @@ public partial class DrinkPour : Node2D
             new Vector2(-12f, -352f),
             new Vector2(-32f, -306f),
         }, glass);
+
+        // 整只瓶子的墨线勾边（一笔描下来，水彩的边）
+        DrawPolyline(new[]
+        {
+            new Vector2(-32f, 0f),
+            new Vector2(-32f, -306f),
+            new Vector2(-12f, -352f),
+            new Vector2(-12f, -400f),
+            new Vector2(12f, -400f),
+            new Vector2(12f, -352f),
+            new Vector2(32f, -306f),
+            new Vector2(32f, 0f),
+            new Vector2(-32f, 0f),
+        }, new Color(0.17f, 0.15f, 0.13f, 0.4f), 2.5f);
 
         // 瓶颈 + 瓶口
         DrawColoredPolygon(new[]
@@ -369,8 +386,8 @@ public partial class DrinkPour : Node2D
             new Vector2(15f, -407f),
             new Vector2(15f, -396f),
             new Vector2(-15f, -396f),
-        }, new Color(0.2f, 0.36f, 0.27f, 0.97f));
-        DrawEllipseLocal(new Vector2(0f, -407f), 12f, 3.6f, new Color(0.05f, 0.08f, 0.06f, 0.9f));
+        }, new Color(0.24f, 0.34f, 0.27f, 0.9f));
+        DrawEllipseLocal(new Vector2(0f, -407f), 12f, 3.6f, new Color(0.08f, 0.1f, 0.08f, 0.85f));
 
         // 高光
         DrawColoredPolygon(new[]
@@ -379,7 +396,7 @@ public partial class DrinkPour : Node2D
             new Vector2(-17f, -24f),
             new Vector2(-17f, -290f),
             new Vector2(-24f, -290f),
-        }, new Color(1f, 1f, 1f, 0.15f));
+        }, new Color(1f, 1f, 1f, 0.12f));
 
         // 酒标（淡黄纸 + 一条红）
         DrawColoredPolygon(new[]
@@ -388,14 +405,23 @@ public partial class DrinkPour : Node2D
             new Vector2(33f, -262f),
             new Vector2(33f, -158f),
             new Vector2(-33f, -158f),
-        }, new Color(0.93f, 0.87f, 0.7f, 0.96f));
+        }, new Color(0.91f, 0.86f, 0.72f, 0.9f));
+        // 酒标的墨线小边
+        DrawPolyline(new[]
+        {
+            new Vector2(-33f, -262f),
+            new Vector2(33f, -262f),
+            new Vector2(33f, -158f),
+            new Vector2(-33f, -158f),
+            new Vector2(-33f, -262f),
+        }, new Color(0.4f, 0.34f, 0.24f, 0.3f), 2f);
         DrawColoredPolygon(new[]
         {
             new Vector2(-33f, -208f),
             new Vector2(33f, -208f),
             new Vector2(33f, -186f),
             new Vector2(-33f, -186f),
-        }, new Color(0.72f, 0.27f, 0.2f, 0.95f));
+        }, new Color(0.66f, 0.32f, 0.25f, 0.85f));
     }
 
     /// <summary>酒线：从瓶口到酒面的一条细流（带一点弧度）</summary>
@@ -412,8 +438,8 @@ public partial class DrinkPour : Node2D
             pts[i] = (1 - t) * (1 - t) * mouth + 2 * (1 - t) * t * ctrl + t * t * land;
         }
 
-        DrawPolyline(pts, new Color(0.95f, 0.72f, 0.32f, 0.5f), 6f);
-        DrawPolyline(pts, new Color(1f, 0.95f, 0.8f, 0.85f), 2.6f);
+        DrawPolyline(pts, new Color(0.9f, 0.7f, 0.36f, 0.38f), 5f);
+        DrawPolyline(pts, new Color(1f, 0.96f, 0.84f, 0.7f), 2.2f);
     }
 
     /// <summary>画一个扁椭圆（中心 + 半径，直接落在当前坐标系里）</summary>

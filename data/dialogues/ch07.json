@@ -38,21 +38,9 @@
       { "speaker": "江洁", "text": "紧张啊？要不，先摆个架势我瞧瞧？", "portrait": "jie_laugh" },
       { "heartChoice": "cue" }
     ],
-    "shot": [
-      { "speaker": "", "text": "杆头轻轻一送。" },
-      { "speaker": "", "text": "白球撞出去，脆响。一颗花色球贴着库边转了半圈，滑进底袋。" },
-      { "speaker": "俊杰（师弟）", "text": "好球啊师兄！" },
-      { "speaker": "我", "text": "（手感还在。心里那点潮乎乎的紧张，散了。）" }
-    ],
-    "shot2a": [
-      { "speaker": "江洁", "text": "手还行。不过下一杆——轮到我防你了。", "portrait": "jie_smile" },
-      { "speaker": "俊杰（师弟）", "text": "完了完了，江洁认真了。" },
-      { "speaker": "金艮", "text": "就是说，师兄你这局要遭。" },
-      { "speaker": "", "text": "她起杆。白球贴着库边走位，稳稳咬住位置，没留一点线。" }
-    ],
-    "shot2b": [
-      { "speaker": "", "text": "「啪嗒」——一记轻响，彩球滑进角袋，再落下去，闷闷地撞在底槽里。" },
-      { "speaker": "小米师妹", "text": "哇——这球太绝了！不行不行，我饿了，退台退台，吃饭去！", "portrait": "xiaomi_laugh" },
+    "table_done": [
+      { "speaker": "小米师妹", "text": "哇——这球打得！不行不行，我饿了，退台退台，吃饭去！", "portrait": "xiaomi_laugh" },
+      { "speaker": "俊杰（师弟）", "text": "师兄可以啊。走走走，输了的人晚上端茶倒水。" },
       { "speaker": "我", "text": "（她收杆的动作很利落。球杆往肩上一靠，回头催大家：走了。）" }
     ],
     "leave": [
@@ -152,6 +140,16 @@
         { "text": "讲实验室里的事——离心机、报表、凌晨的走廊", "affection": 6, "courage": 2 },
         { "text": "顺着台球讲——两块钱一局，输的人写作业", "affection": 3, "courage": 7 },
         { "text": "先不讲自己——接住她的话，问「你呢」", "affection": 5, "courage": 4 }
+      ]
+    },
+    "billiard": {
+      "prompt": "（球都停稳了。这一局，最后是——）",
+      "promptSpeaker": "我",
+      "promptPortrait": "",
+      "options": [
+        { "text": "赢了——手感还在，赢了她半局" },
+        { "text": "输了——她是真的稳，输得不冤" },
+        { "text": "打平——谁也没占着便宜" }
       ]
     }
   },

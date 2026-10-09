@@ -50,15 +50,21 @@ public partial class Ch06 : ChapterBase
         pourGlow = HotspotGlow.Attach(pourBtn);
         HotspotGlow.Attach(phoneBtn);
 
+        // 第十五轮：热点按"美术图坐标"登记——窗口不成 16:9 时背景会整体偏移，热点跟着走
+        ArtAnchor.Track(pourBtn, new Rect2(205f, 675f, 260f, 275f));  // 酒瓶 + 两只杯子那一带
+        ArtAnchor.Track(phoneBtn, new Rect2(485f, 812f, 152f, 100f)); // 桌上的手机（已贴进夜摊图）
+
         // "点万物有回应"：灯串、烤炉的白烟、一把空着的红塑料凳
         AddChild(FlavorSpots.Create(hotspotsRoot, ChapterId));
 
         // "手机活起来"：手机热点右上角挂未读小红点
         LiveEvents.AttachPhoneDot(phoneBtn);
 
-        // 烤炉上空的火星子（挂在烤炉中上方的位置）
-        var embers = new EmberDust { Position = new Vector2(775f, 690f) };
+        // 烤炉上空的火星子（挂在烤炉中上方的位置）——也跟着美术图钉住
+        var embers = new EmberDust();
         AddChild(embers);
+        ArtAnchor.Track2D(drink, new Vector2(335f, 858f), 0.42f); // 杯底中心钉在夜摊桌面上
+        ArtAnchor.Track2D(embers, new Vector2(723f, 652f));
 
         UiSounds.WireAll(this);
 
@@ -214,6 +220,6 @@ public partial class Ch06 : ChapterBase
             chatOpen = false;
             lastActivityMsec = Time.GetTicksMsec();
         };
-        overlay.Open(""); // 空字符串 = 打开微信主页（会话列表，好让妈那条消息的红点被看见）
+        overlay.Open(""); // 空字符串 = 掏手机：先落在锁屏，未读通知卡上能看见妈那条消息，点它进微信
     }
 }

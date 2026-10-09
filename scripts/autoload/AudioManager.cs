@@ -58,6 +58,12 @@ public partial class AudioManager : Node
     /// <summary>当前 BGM 的"基础音量"（不含设置页偏移），设置页改音量时要用它重算</summary>
     private float bgmBaseDb = -14f;
 
+    /// <summary>
+    /// BGM 让位偏移（第十五轮）：手机里的音乐 App 放歌时压到 -60dB（听不见），
+    /// 暂停 / 收起手机再调回 0——不用记住章节 BGM 是哪首，还的时候自然还原。
+    /// </summary>
+    private float bgmDuckDb;
+
     // 默认背景音乐
     private const string DefaultBgmPath = BgmGym1;
 
@@ -105,7 +111,7 @@ public partial class AudioManager : Node
         if (bgmActive?.Stream == stream && bgmActive?.Playing == true)
         {
             bgmBaseDb = volumeDb;
-            bgmActive.VolumeDb = volumeDb + MusicVolDb;
+            bgmActive.VolumeDb = volumeDb + MusicVolDb + bgmDuckDb;
             return;
         }
 
@@ -115,7 +121,7 @@ public partial class AudioManager : Node
         else if (stream is AudioStreamMP3 mp3)
             mp3.Loop = true;
 
-        float targetDb = volumeDb + MusicVolDb;
+        float targetDb = volumeDb + MusicVolDb + bgmDuckDb;
         bgmBaseDb = volumeDb;
 
         // 不淡入淡出：直接换
@@ -164,7 +170,19 @@ public partial class AudioManager : Node
     public void RefreshVolumes()
     {
         if (bgmActive != null && bgmActive.Playing)
-            bgmActive.VolumeDb = bgmBaseDb + MusicVolDb;
+            bgmActive.VolumeDb = bgmBaseDb + MusicVolDb + bgmDuckDb;
+    }
+
+    /// <summary>
+    /// BGM 让位（第十五轮·手机音乐 App 用）：传 -60 就压到听不见，传 0 就还原。
+    /// 用"偏移"而不是停播，是为了不动章节正在放的那首——还的时候什么都不用重新指定。
+    /// </summary>
+    public void SetBgmDuck(float dbOffset)
+    {
+        if (Mathf.IsEqualApprox(bgmDuckDb, dbOffset))
+            return;
+        bgmDuckDb = dbOffset;
+        RefreshVolumes();
     }
 
     /// <summary>

@@ -54,6 +54,11 @@ public partial class Ch04 : ChapterBase
 
         glows["phone"] = HotspotGlow.Attach(phoneBtn);
 
+        // 第十五轮：热点按"美术图坐标"登记（手机 = 美术实测位置），窗口不成 16:9 也不漂
+        ArtAnchor.Track(phoneBtn, new Rect2(1616f, 880f, 168f, 88f));
+        ArtAnchor.TrackFraction(ashtrayBtn, new Rect2(0.565f, 0.7f, 0.14f, 0.13f));
+        ArtAnchor.TrackFraction(earphoneBtn, new Rect2(0.615f, 0.595f, 0.085f, 0.095f));
+
         // "点万物有回应"：窗外的灯、柜门上的照片、那两桶泡面（data/flavor/ch04.json）
         AddChild(FlavorSpots.Create(hotspotsRoot, "ch04"));
 

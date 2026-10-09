@@ -1,0 +1,82 @@
+{
+  "apps": [
+    { "id": "wechat", "name": "微信",    "glyph": "微", "color": "#12C253", "kind": "real" },
+    { "id": "music",  "name": "网易云音乐", "glyph": "♪", "color": "#E03333", "kind": "real" },
+    { "id": "album",  "name": "相册",    "glyph": "相", "color": "#F2A65A", "kind": "real" },
+    { "id": "mail",   "name": "QQ邮箱",  "glyph": "邮", "color": "#2E7CD6", "kind": "real" },
+    { "id": "ai",     "name": "DeepSeek", "glyph": "深", "color": "#3D5BE0", "kind": "real" },
+
+    { "id": "douyin", "name": "抖音",    "glyph": "抖", "color": "#1C1C1E", "kind": "demo",
+      "lines": ["一只猫在滑板上打了个滑。你看了三遍。", "下一条：有人把煮泡面煮出了花。", "再下一条：考研人的凌晨四点。"] },
+    { "id": "baidu",  "name": "百度",    "glyph": "度", "color": "#2C63D9", "kind": "demo",
+      "lines": ["热搜：今日降温提醒 / 图书馆新规 / 论文查重怎么过", "你搜了「怎么跟导师开口请假」，又关掉了。"] },
+    { "id": "alipay", "name": "支付宝",  "glyph": "支", "color": "#1677FF", "kind": "demo",
+      "lines": ["余额：¥ 372.50", "这个月的花呗还没有还。"] },
+    { "id": "meituan", "name": "美团",   "glyph": "美", "color": "#FFC300", "kind": "demo", "darkGlyph": true,
+      "lines": ["附近：兰州拉面 ¥18 · 黄焖鸡米饭 ¥22 · 麻辣烫 ¥26", "看了看余额，再看了一会儿。"] },
+    { "id": "xhs",    "name": "小红书",  "glyph": "书", "color": "#F5333F", "kind": "demo",
+      "lines": ["「研究生自救指南」 3.2 万赞", "收藏夹：英语真题 / 宿舍快手菜 / 一个人也要好好吃饭"] },
+    { "id": "qq",     "name": "QQ",      "glyph": "Q", "color": "#12B7F5", "kind": "demo",
+      "lines": ["3 个群未读 · 2 条好友申请", "班级群里正在讨论毕业十年的聚会。"] },
+    { "id": "taobao", "name": "淘宝",    "glyph": "淘", "color": "#FF5A00", "kind": "demo",
+      "lines": ["猜你喜欢：机械键盘 / 英语真题 / 保温杯", "购物车里躺着 6 件东西，最早那件是去年冬天加的。"] }
+  ],
+
+  "music": {
+    "songs": [
+      { "title": "吉诺佩迪 第一号", "artist": "Erik Satie",
+        "file": "res://assets/audio/bgm/gymnopedie_no1.ogg",
+        "cover": "res://assets/art/backgrounds/night_lab_v1.png" },
+      { "title": "吉诺佩迪 第二号", "artist": "Erik Satie",
+        "file": "res://assets/audio/bgm/gymnopedie_no2.ogg",
+        "cover": "res://assets/art/backgrounds/lanting_rain_v1.png" },
+      { "title": "吉诺佩迪 第三号", "artist": "Erik Satie",
+        "file": "res://assets/audio/bgm/gymnopedie_no3.ogg",
+        "cover": "res://assets/art/backgrounds/dorm_night_v2.png" },
+      { "title": "卡带里的 demo", "artist": "不知道是谁",
+        "file": "", "cover": "", "locked": true,
+        "hint": "这盘带子受了潮，放不出来。" }
+    ]
+  },
+
+  "album": [
+    { "photo": "res://assets/art/backgrounds/restaurant_v1.png",   "caption": "开学第一顿川菜，辣得直吸气。" },
+    { "photo": "res://assets/art/backgrounds/campus_dusk_v1.png",  "caption": "下课铃一响，操场就被跑步的人接管了。" },
+    { "photo": "res://assets/art/backgrounds/night_lab_v1.png",    "caption": "第一次值夜班的实验室。灯到后半夜才熄。" },
+    { "photo": "res://assets/art/chat/photo_cat_v1.png",           "caption": "楼下那只猫，今天也让摸了。" },
+    { "photo": "res://assets/art/backgrounds/dorm_night_v1.png",   "caption": "熄灯之后的宿舍，话比白天多。" },
+    { "photo": "res://assets/art/chat/photo_milktea_v1.png",       "caption": "她爱喝的奶茶，全糖，去冰。" },
+    { "photo": "res://assets/art/backgrounds/lanting_rain_v1.png", "caption": "兰亭的雨。雨点敲在棚子上，像谁在打字。" },
+    { "photo": "res://assets/art/chat/photo_riverside_v1.png",     "caption": "江边的风，大得能把话吹散。" },
+    { "photo": "res://assets/art/backgrounds/night_stall_v1.png",  "caption": "路边摊的灯，一盏一盏地亮。" }
+  ],
+
+  "mail": [
+    { "from": "导师", "subject": "开题报告初稿", "time": "本周一 08:12", "unread": true,
+      "body": ["报告我看了。", "第三章的假设站不住，回去重新想。", "周五之前给我新的版本。别熬夜，白天效率高。"] },
+    { "from": "教务办", "subject": "培养方案确认提醒", "time": "周日 19:30", "unread": true,
+      "body": ["请在本周五前登录系统确认本学期培养方案。", "必修课未确认的同学，将影响下学期选课。"] },
+    { "from": "校园卡服务中心", "subject": "余额提醒", "time": "上周五 11:02", "unread": false,
+      "body": ["您的校园卡余额为 ¥23.60。", "食堂高峰期充值窗口排队较长，建议线上充值。"] },
+    { "from": "阿良", "subject": "这周末回来不", "time": "上周四 22:47", "unread": false,
+      "body": ["老地方，还是那家。", "你上次说忙，这次别又说忙。", "——回信就行，别装没看见。"] },
+    { "from": "网易云音乐", "subject": "你的歌单有新歌了", "time": "上周三 09:15", "unread": false,
+      "body": ["你收藏的「深夜钢琴」歌单更新了 3 首。", "愿今晚的你，也有一首单曲循环。"] }
+  ],
+
+  "ai": {
+    "greeting": "你好，我是 DeepSeek。今天想问点什么？",
+    "questions": [
+      { "q": "怎么跟前女友复合？",
+        "a": "先把「当初为什么分开」想清楚。如果那个原因还在，复合只是换一个时间点，再疼一次。如果原因不在了，也不用急着说复合——先把自己过好，答案会自己浮上来。" },
+      { "q": "实验数据跑不出来，很崩溃",
+        "a": "先检查三件事：对照组、样本量、仪器今天的心情（也就是校准）。都不是问题的话，去睡一觉再看——这不是安慰，是经验。" },
+      { "q": "室友每天熬夜，吵得我睡不着",
+        "a": "先谈规则，再谈情绪。「十二点后戴耳机」是可以谈的；「你能不能理解我」通常会谈崩。把具体的请求说出来，比重话有用。" },
+      { "q": "我好像喜欢上一个不可能的人",
+        "a": "喜欢不是错，也不用急着把它掐掉。你可以在心里给它留一个位置，然后继续往前走——大部分人，都是这么过来的。" },
+      { "q": "深夜 emo 了怎么办？",
+        "a": "关掉朋友圈，喝口热水，去睡。明天下午三点的你，比现在的你更适合处理这件事。" }
+    ]
+  }
+}

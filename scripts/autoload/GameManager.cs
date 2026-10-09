@@ -47,6 +47,15 @@ public partial class GameManager : Node
     // 已经触发过的"手机活起来"动态事件 id（第十二轮；存档保留，重玩同一章不会重复收到）
     private readonly System.Collections.Generic.List<string> liveEvents = new();
 
+    // 已经"进去看过"的系统页面（第十五轮：订阅号/微信运动这类写死角标，看过就消，存档保留）
+    private readonly System.Collections.Generic.HashSet<string> seenPages = new();
+
+    // 背包里的物品 id（第十五轮：手机 + 剧情物品 + 隐藏物品；存档保留）
+    private readonly System.Collections.Generic.HashSet<string> inventory = new();
+
+    // 背包里"已经看过"的物品 id（第十五轮：背包按钮上的小红点用；打开一次背包就全算看过）
+    private readonly System.Collections.Generic.HashSet<string> bagSeen = new();
+
     /// <summary>做过的选择条数（调试面板显示用）</summary>
     public int ChoiceCount => choiceHistory.Count;
 
@@ -151,6 +160,9 @@ public partial class GameManager : Node
         }
 
         HiddenItemsFound = Mathf.Min(HiddenItemsFound + 1, TotalHiddenItems);
+        // 第十五轮：隐藏物品同时进背包展示（拾取弹窗、物品详情都在背包里看）
+        if (!string.IsNullOrEmpty(itemId))
+            AddItem(itemId);
         GD.Print($"[隐藏物品] {HiddenItemsFound}/{TotalHiddenItems}：{DataStore.HiddenItemName(itemId)}");
     }
 
@@ -183,6 +195,61 @@ public partial class GameManager : Node
         }
     }
 
+    // ========== 系统页面"看过"标记（第十五轮） ==========
+
+    /// <summary>这个系统页面（订阅号/微信运动…）是不是已经进去看过？（写死角标消掉用）</summary>
+    public bool HasSeenPage(string pageId) => !string.IsNullOrEmpty(pageId) && seenPages.Contains(pageId);
+
+    /// <summary>记下"这个系统页面看过了"（会进存档）</summary>
+    public void MarkPageSeen(string pageId)
+    {
+        if (!string.IsNullOrEmpty(pageId) && seenPages.Add(pageId))
+            GD.Print($"[系统页面] 已看过：{pageId}");
+    }
+
+    // ========== 背包（第十五轮） ==========
+
+    /// <summary>背包里有没有这件物品</summary>
+    public bool HasItem(string itemId) => !string.IsNullOrEmpty(itemId) && inventory.Contains(itemId);
+
+    /// <summary>往背包里放一件物品（重复放无效；会进存档）</summary>
+    public void AddItem(string itemId)
+    {
+        if (!string.IsNullOrEmpty(itemId) && inventory.Add(itemId))
+        {
+            SaveGame(); // 拿到东西就落档，别等切场景
+            GD.Print($"[背包] 获得物品：{itemId}");
+        }
+    }
+
+    /// <summary>背包里的全部物品 id（只读）</summary>
+    public System.Collections.Generic.IReadOnlyCollection<string> InventoryItems => inventory;
+
+    /// <summary>背包里有没有"还没看过"的新东西（背包按钮上的小红点用）</summary>
+    public bool HasNewBagItems
+    {
+        get
+        {
+            foreach (var id in inventory)
+                if (!bagSeen.Contains(id))
+                    return true;
+            return false;
+        }
+    }
+
+    /// <summary>这件东西在背包里被看过没有（背包格子上的"新"标记用）</summary>
+    public bool HasBagSeen(string itemId) => bagSeen.Contains(itemId);
+
+    /// <summary>玩家打开过背包 → 现有物品都算"看过"了（会进存档）</summary>
+    public void MarkBagSeen()
+    {
+        bool changed = false;
+        foreach (var id in inventory)
+            changed |= bagSeen.Add(id);
+        if (changed)
+            SaveGame();
+    }
+
     // ========== 存档系统 ==========
 
     /// <summary>
@@ -202,7 +269,10 @@ public partial class GameManager : Node
             hiddenItemsFound = HiddenItemsFound,
             hiddenItemIds = new System.Collections.Generic.List<string>(hiddenItemIds),
             choiceHistory = choiceHistory,
-            liveEvents = new System.Collections.Generic.List<string>(liveEvents)
+            liveEvents = new System.Collections.Generic.List<string>(liveEvents),
+            seenPages = new System.Collections.Generic.List<string>(seenPages),
+            inventory = new System.Collections.Generic.List<string>(inventory),
+            bagSeen = new System.Collections.Generic.List<string>(bagSeen)
         };
 
         // 设置 JSON 格式化为可读格式（方便调试）
@@ -274,6 +344,29 @@ public partial class GameManager : Node
             foreach (var id in saveData.liveEvents ?? new())
                 if (!string.IsNullOrEmpty(id))
                     liveEvents.Add(id);
+
+            // 系统页面"看过"标记 + 背包（第十五轮；老存档同样按空处理）
+            seenPages.Clear();
+            foreach (var id in saveData.seenPages ?? new())
+                if (!string.IsNullOrEmpty(id))
+                    seenPages.Add(id);
+            inventory.Clear();
+            foreach (var id in saveData.inventory ?? new())
+                if (!string.IsNullOrEmpty(id))
+                    inventory.Add(id);
+            // 隐藏物品老档里记在 hiddenItemIds，背包一并收编，别让老玩家"拿到了但背包里没有"
+            foreach (var id in hiddenItemIds)
+                inventory.Add(id);
+
+            // 背包"看过"标记（第十五轮；老存档没有这个字段 → 按空处理）
+            bagSeen.Clear();
+            foreach (var id in saveData.bagSeen ?? new())
+                if (!string.IsNullOrEmpty(id))
+                    bagSeen.Add(id);
+
+            // 手机永远在身上：老存档里没有"手机"这件物品，读档时补进去，
+            // 玩家会看到背包红点亮起 —— 正好借小红点告诉他"现在有个背包了"
+            inventory.Add("phone");
 
             // 旧存档（第一版：好感/勇气从 0 起步）自动迁移到"50 起点"的新口径，
             // 否则老玩家的数值会莫名其妙偏低一档。
@@ -390,6 +483,10 @@ public partial class GameManager : Node
         hiddenItemIds.Clear();
         choiceHistory.Clear();
         liveEvents.Clear();
+        seenPages.Clear();
+        inventory.Clear();
+        inventory.Add("phone"); // 手机永远在身上（第十五轮：随时能翻出来看）
+        bagSeen.Clear();        // 全新的背包 → 红点亮着，提示玩家"翻开看看"
         GD.Print("[重置] 游戏状态已重置");
     }
 }
@@ -415,6 +512,15 @@ public class SaveData
 
     // 已送达的手机动态事件 id 清单（第十二轮；老存档里没有这个字段 → null → 按空处理）
     public System.Collections.Generic.List<string> liveEvents { get; set; }
+
+    // 已"进去看过"的系统页面 id（第十五轮；老存档里没有这个字段）
+    public System.Collections.Generic.List<string> seenPages { get; set; }
+
+    // 背包物品 id 清单（第十五轮；老存档里没有这个字段）
+    public System.Collections.Generic.List<string> inventory { get; set; }
+
+    // 背包里"已经看过"的物品 id（第十五轮；老存档里没有这个字段 → 全算没看过，红点点亮）
+    public System.Collections.Generic.List<string> bagSeen { get; set; }
 }
 
 /// <summary>

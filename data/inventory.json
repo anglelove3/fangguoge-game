@@ -1,0 +1,53 @@
+{
+  "items": [
+    {
+      "id": "phone",
+      "nameKey": "bag.item_phone",
+      "descKey": "bag.item_phone_desc",
+      "icon": "res://assets/art/items/icon_phone.png",
+      "action": "phone"
+    },
+    {
+      "id": "ticket",
+      "nameKey": "ch03.card_ticket",
+      "descKey": "ch03.card_ticket_sub",
+      "icon": "res://assets/art/cards/card_ticket.png"
+    },
+    {
+      "id": "notes",
+      "nameKey": "ch03.card_notes",
+      "descKey": "ch03.card_notes_sub",
+      "icon": "res://assets/art/cards/card_notes.png"
+    },
+    {
+      "id": "scarf",
+      "nameKey": "ch03.card_scarf",
+      "descKey": "ch03.card_scarf_sub",
+      "icon": "res://assets/art/cards/card_scarf.png"
+    },
+    {
+      "id": "invite",
+      "nameKey": "bag.item_invite",
+      "descKey": "bag.item_invite_desc",
+      "icon": "res://assets/art/items/icon_invite.png"
+    },
+    {
+      "id": "lighter",
+      "nameKey": "",
+      "descKey": "bag.item_lighter_desc",
+      "icon": "res://assets/art/items/icon_lighter.png"
+    },
+    {
+      "id": "light_orb",
+      "nameKey": "",
+      "descKey": "bag.item_orb_desc",
+      "icon": "res://assets/art/items/icon_orb.png"
+    },
+    {
+      "id": "earphone",
+      "nameKey": "",
+      "descKey": "bag.item_earphone_desc",
+      "icon": "res://assets/art/items/icon_earphone.png"
+    }
+  ]
+}

@@ -33,6 +33,7 @@ public static class LiveEvents
         public string Text { get; set; } = "";
         public float Delay { get; set; } = 5f;     // 触发后几秒送达
         public string Toast { get; set; } = "";    // 右上角提示（留空 = 默认文案）
+        public string Item { get; set; } = "";     // 送达时顺带进背包的物品 id（留空 = 不给东西）
     }
 
     private class LiveEventsFile
@@ -92,7 +93,10 @@ public static class LiveEvents
         {
             var def = GetData().Events.Find(e => e.Id == id);
             if (def != null)
+            {
                 PushMessage(def);
+                GrantItemIfAny(def); // 老存档：消息补投递时，挂着的物品（请帖）也一并补进背包
+            }
         }
     }
 
@@ -102,6 +106,18 @@ public static class LiveEvents
 
     /// <summary>有没有任何未读（手机热点小红点用）</summary>
     public static bool HasAnyUnread => unread.Count > 0;
+
+    /// <summary>全部未读条数合计（锁屏通知卡 / 桌面微信角标用）</summary>
+    public static int TotalUnread
+    {
+        get
+        {
+            int total = 0;
+            foreach (var kv in unread)
+                total += kv.Value;
+            return total;
+        }
+    }
 
     /// <summary>玩家点开了某位联系人的聊天 → 未读清零</summary>
     public static void ClearUnread(string contactId)
@@ -129,8 +145,16 @@ public static class LiveEvents
     {
         GameManager.Instance?.RecordLiveEvent(def.Id);
         PushMessage(def);
+        GrantItemIfAny(def);
         PlayPhoneBuzz(host);
         ShowToast(host, def);
+    }
+
+    /// <summary>这条动态事件挂着物品（比如请帖）就放进背包；没送到的（补投递路径）也在这里补上</summary>
+    private static void GrantItemIfAny(EventDef def)
+    {
+        if (!string.IsNullOrEmpty(def.Item))
+            GameManager.Instance?.AddItem(def.Item);
     }
 
     /// <summary>把消息落进会话（幂等：同一条 LiveEventId 只落一次）+ 记未读</summary>

@@ -80,6 +80,12 @@ public partial class Ch05 : ChapterBase
         glows["friends"] = HotspotGlow.Attach(friendsBtn);
         glows["rain"] = HotspotGlow.Attach(rainBtn);
 
+        // 第十五轮：热点按"美术图坐标"登记——窗口不成 16:9 时背景会偏移，热点跟着走
+        ArtAnchor.Track(phoneBtn, new Rect2(975f, 790f, 170f, 100f)); // 桌上的手机（等贴进 day_lab 图里）
+        ArtAnchor.TrackFraction(menuBtn, new Rect2(0.11f, 0.8f, 0.33f, 0.195f));
+        ArtAnchor.TrackFraction(friendsBtn, new Rect2(0.53f, 0.42f, 0.27f, 0.38f));
+        ArtAnchor.TrackFraction(rainBtn, new Rect2(0.03f, 0.1f, 0.39f, 0.48f));
+
         // "点万物有回应"：实验室的和兰亭的各一套，跟着阶段开关
         flavorLab = new Control { MouseFilter = Control.MouseFilterEnum.Ignore };
         flavorLab.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);

@@ -1,9 +1,16 @@
 {
   "contacts": [
     {
+      "id": "baobao",
+      "name": "宝宝（前女友）",
+      "avatar": "res://assets/art/chat/her_avatar_v1.png",
+      "chatFile": "ch02_phone",
+      "sessionTime": "今天 22:07"
+    },
+    {
       "id": "deskmate",
       "name": "同桌",
-      "avatar": "res://assets/art/chat/her_avatar_v1.png",
+      "avatar": "res://assets/art/chat/avatar_deskmate_v1.png",
       "sessionTime": "晚上 9:45",
       "messages": [
         {
@@ -160,20 +167,13 @@
       "readOnly": true,
       "chatFile": "lilab_group",
       "sessionTime": "上午 8:02",
-      "previewText": "[3条] 研究生导师: @全体成员 今天组会提前到九点",
+      "previewText": "[4条] 研究生导师: @全体成员 今天组会提前到九点。",
       "groupAvatars": [
         "res://assets/art/chat/avatar_daoshi.png",
         "res://assets/art/chat/avatar_sanjin.png",
         "res://assets/art/chat/avatar_junjie.png",
         "res://assets/art/chat/avatar_xiaomi.png"
       ]
-    },
-    {
-      "id": "baobao",
-      "name": "宝宝（前女友）",
-      "avatar": "res://assets/art/chat/avatar_patrick_v1.png",
-      "chatFile": "ch02_phone",
-      "sessionTime": "今天 22:07"
     },
     {
       "id": "chengge",

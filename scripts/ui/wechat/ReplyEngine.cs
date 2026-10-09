@@ -15,6 +15,8 @@ using System.Text.Json;
 ///     nudge    玩家连发 3 条还没等到回复时的催促彩蛋
 ///     grudge   被玩家"损"够 2 次后的记仇反呛彩蛋
 ///     warm/cold 回复温度前导词池（暖：她刚说完话你就回 / 冷：隔了很久你才回）
+///     phases   分章节的语气变体（第十五轮）：如宝宝"在一起 / 分手后"两套话，
+///              用 minChapter / maxChapter 圈定生效章节，没写的组沿用基础人设
 ///
 /// 玩家消息 → 按关键词命中数归入一个话题 → 从对应回复池抽一条（同一池子抽过的先不重复，
 /// 抽完一轮才重置）。回复只图热闹，不加好感/勇气——数值仍由剧情选择控制，防止刷分。
@@ -38,6 +40,26 @@ public static class ReplyEngine
         public List<string> Grudge { get; set; } = new();
         public List<string> Warm { get; set; } = new(); // 暖前导词池（她刚说完话你就回）
         public List<string> Cold { get; set; } = new(); // 冷前导词池（隔了很久你才回）
+
+        /// <summary>第十五轮：分章节的语气变体（比如宝宝：在一起时 / 分手后 两套话，最靠前命中的生效）</summary>
+        public List<ProfilePhase> Phases { get; set; } = new();
+    }
+
+    /// <summary>
+    /// 人设的"分阶段"变体：按当前章节切换语气池（只覆盖自己写了的那几组，没写的沿用基础人设）。
+    /// 例：maxChapter=2 → 前三章（含序章/一二章）用这套；minChapter=3 → 第三章起用另一套。
+    /// </summary>
+    private class ProfilePhase
+    {
+        public int MinChapter { get; set; }
+        public int MaxChapter { get; set; }
+        public List<double> Delay { get; set; }
+        public Dictionary<string, List<string>> Topics { get; set; }
+        public List<string> Fallback { get; set; }
+        public List<string> Nudge { get; set; }
+        public List<string> Grudge { get; set; }
+        public List<string> Warm { get; set; }
+        public List<string> Cold { get; set; }
     }
 
     private class ReplyData
@@ -85,8 +107,13 @@ public static class ReplyEngine
     /// <summary>她发来一条消息 → 记录对话热度（ChatOverlay.StoreIncoming 统一调用）</summary>
     public static void NoteContactMessage(string contactId)
     {
-        if (!string.IsNullOrEmpty(contactId))
-            lastMsgAt[contactId] = Now;
+        if (string.IsNullOrEmpty(contactId))
+            return;
+        lastMsgAt[contactId] = Now;
+        // 第十五轮修复：她一开口，"等不到回复的连发数"就清零——
+        // 催促彩蛋只该出现在"连发好几条而她一句都没回"的时候，
+        // 之前这里没清，导致她明明中间回过、玩家再随便发一句也会被催。
+        sentSinceReply[contactId] = 0;
     }
 
     /// <summary>玩家打开会话：有未读说明她刚说的话"正被看到"，气儿还是热的</summary>
@@ -144,12 +171,42 @@ public static class ReplyEngine
         return d?.Contacts.ContainsKey(contactId) == true;
     }
 
+    /// <summary>
+    /// 按当前章节解析人设的"分阶段"变体：最靠前命中的阶段整体替换语气池，
+    /// 阶段里没写的组沿用基础人设。没配 phases 或都没命中时用基础人设。
+    /// </summary>
+    private static ContactProfile ResolvePhase(ContactProfile p)
+    {
+        if (p.Phases is not { Count: > 0 })
+            return p;
+        int chapter = GameManager.Instance?.CurrentChapter ?? 0;
+        foreach (var phase in p.Phases)
+        {
+            if (phase.MinChapter > 0 && chapter < phase.MinChapter)
+                continue;
+            if (phase.MaxChapter > 0 && chapter > phase.MaxChapter)
+                continue;
+            return new ContactProfile
+            {
+                Delay = phase.Delay is { Count: > 0 } ? phase.Delay : p.Delay,
+                Topics = phase.Topics is { Count: > 0 } ? phase.Topics : p.Topics,
+                Fallback = phase.Fallback is { Count: > 0 } ? phase.Fallback : p.Fallback,
+                Nudge = phase.Nudge is { Count: > 0 } ? phase.Nudge : p.Nudge,
+                Grudge = phase.Grudge is { Count: > 0 } ? phase.Grudge : p.Grudge,
+                Warm = phase.Warm is { Count: > 0 } ? phase.Warm : p.Warm,
+                Cold = phase.Cold is { Count: > 0 } ? phase.Cold : p.Cold,
+            };
+        }
+        return p;
+    }
+
     /// <summary>玩家给某联系人发了一条消息 → 返回回复决定（没配人设返回 null）</summary>
     public static Decision OnPlayerMessage(string contactId, string message)
     {
         var d = GetData();
-        if (d == null || !d.Contacts.TryGetValue(contactId, out var profile))
+        if (d == null || !d.Contacts.TryGetValue(contactId, out var baseProfile))
             return null;
+        var profile = ResolvePhase(baseProfile);
 
         // 1. 连发催促：等不到回复又连发 3 条以上，先催一句
         sentSinceReply.TryGetValue(contactId, out int burst);

@@ -11,16 +11,21 @@ using System.Text.Json;
 ///   - 聊天 / 联系人 / 朋友圈内容全在 data/*.json 里，改文案不碰代码
 ///   - 可以真的"往上滑"，玩家能一条一条翻旧消息（剧情里的动作）
 ///
-/// 【结构】手机里有三个"页面"，靠返回键/标签切换：
+/// 【结构】手机里有一整套"页面"，靠返回键/标签/主屏切换：
 ///   ChatOverlay（本场景 = 手机外壳：黑幕 + 手机壳 + 收起按钮）
 ///   └─ PhonePanel
+///      ├─ lockPage    锁屏（第十五轮：壁纸/时间/未读通知卡，上滑解锁）
+///      ├─ desktopPage 桌面（第十五轮：12 个 App 图标 + 微信未读角标）
+///      ├─ App 页      网易云音乐 / 相册 / QQ邮箱 / DeepSeek + 演示页（第十五轮）
 ///      ├─ chatPage    聊天页（顶栏返回/名字/··· + 消息流 + 底部输入栏）
 ///      ├─ mainPage    微信主框架（底部四标签：微信/通讯录/发现/我）
 ///      ├─ momentsPage 朋友圈（封面 + 动态 + 点赞 + 评论）
 ///      └─ toast       居中小提示
 ///
-/// 导航规则（和真微信一致）：
-///   聊天页 ‹  → 主框架；发现页朋友圈 → 朋友圈；朋友圈 ‹ → 主框架"发现"
+/// 导航规则（和真手机一致）：
+///   锁屏 上滑/点一下 → 桌面；点通知卡 → 微信主框架；
+///   桌面点图标 → 对应 App；App 返回键 / 底部"主屏" → 桌面；
+///   聊天页 ‹ → 主框架；发现页朋友圈 → 朋友圈；朋友圈 ‹ → 主框架"发现"
 ///   聊天页 ··· → 微信式下拉菜单（发起通话 / 清空聊天记录 / 收起手机）
 ///
 /// 用法：
@@ -62,6 +67,16 @@ public partial class ChatOverlay : Control
     private SubscriptionsPage subscriptionsPage; // 订阅号消息（第九轮）
     private StepsRankingPage stepsPage;          // 微信运动排行（第九轮）
 
+    // 第十五轮：手机桌面端
+    private LockScreen lockPage;        // 锁屏
+    private PhoneDesktop desktopPage;   // 桌面（App 图标板）
+    private MusicAppPage musicPage;     // 网易云音乐
+    private AlbumAppPage albumPage;     // 相册
+    private MailAppPage mailPage;       // QQ邮箱
+    private AiChatPage aiPage;          // DeepSeek
+    private DemoAppPage demoPage;       // 抖音等七个演示 App 共用的页
+    private Button homeChip;            // 底部横条左侧的"主屏"小钮
+
     // 聊天页节点
     private ScrollContainer scroll;
     private VBoxContainer rows;
@@ -100,6 +115,9 @@ public partial class ChatOverlay : Control
     private bool hintArmed;  // "滑一滑"提示是否已武装（入场滚动不算）
     private int messageIndex; // 消息序号（用于生成时间戳）
     private bool lastRowWasTimeInfo; // 上一行是分割线/时间戳 → 不再叠时间戳
+
+    /// <summary>会话列表数据（Open 时加载；返回列表时用来重建刷新角标，第十五轮）</summary>
+    private ContactsData contactsData;
 
     /// <summary>本局内追加发送过的消息（联系人 id → 追加列表），重开手机还在</summary>
     private static readonly Dictionary<string, List<ChatMessageData>> extraMessages = new();
@@ -141,6 +159,7 @@ public partial class ChatOverlay : Control
     public void Open(string chatId)
     {
         var contacts = WeChatData.LoadContacts();
+        contactsData = contacts;
 
         // 补投递放在搭界面前面：存档里之前震过的动态消息，这会儿一并落进各会话，
         // 会话列表的红点/角标一次就画对（不用等玩家点进某个聊天才补）。
@@ -150,13 +169,15 @@ public partial class ChatOverlay : Control
         BuildMainPage(contacts);
         BuildMomentsPage();
         BuildSystemPages();
+        BuildPhonePages();
         BuildToast();
 
         // 页面搭好之后再统一接按钮音效
         UiSounds.WireAll(this);
 
         // 找到 chatId 对应的联系人（按 ChatFile 或 id 匹配）
-        // chatId 传空字符串 = 打开微信主页（会话列表）；不然直接进某个会话
+        // chatId 传空字符串 = 打开手机（先落在锁屏；点通知卡或解锁后到微信）
+        // 不然直接进某个会话
         ContactData contact = null;
         if (!string.IsNullOrEmpty(chatId))
         {
@@ -182,7 +203,7 @@ public partial class ChatOverlay : Control
         if (contact != null)
             ShowChat(contact);
         else
-            ShowMain();
+            ShowLockScreen();
 
         // 手机打开期间：背景对话/热点全部锁死，点击只属于手机
         suppressing = true;
@@ -219,8 +240,47 @@ public partial class ChatOverlay : Control
         if (@event.IsActionPressed("ui_cancel")) // Esc / 手柄 B
         {
             GetViewport().SetInputAsHandled();
+
+            // 第十五轮：Esc 从"哪一层"退出，和真手机的返回键一样逐层退
+            if (lockPage != null && lockPage.Visible)
+            {
+                Close(); // 锁屏上按 Esc = 放下手机
+                return;
+            }
+            if (desktopPage != null && desktopPage.Visible)
+            {
+                ShowLockScreen(); // 桌面上按 Esc = 回锁屏
+                return;
+            }
+            if (TryAppGoBack())
+                return; // App 自己收掉了内部的层级（相册大图 / 邮件详情 / 正在打字）
+            if (IsAppPageVisible())
+            {
+                ShowDesktop(); // 再按一次才回桌面
+                return;
+            }
             Close();
         }
+    }
+
+    /// <summary>当前显示的是不是某个 App 页</summary>
+    private bool IsAppPageVisible() =>
+        (musicPage != null && musicPage.Visible)
+        || (albumPage != null && albumPage.Visible)
+        || (mailPage != null && mailPage.Visible)
+        || (aiPage != null && aiPage.Visible)
+        || (demoPage != null && demoPage.Visible);
+
+    /// <summary>让当前可见的 App 先消化 Esc（内部层级）；true = 已消化</summary>
+    private bool TryAppGoBack()
+    {
+        PhoneAppPage[] apps = { musicPage, albumPage, mailPage, aiPage, demoPage };
+        foreach (var app in apps)
+        {
+            if (app != null && app.Visible)
+                return app.GoBack();
+        }
+        return false;
     }
 
     // ==================== 页面切换 ====================
@@ -232,6 +292,17 @@ public partial class ChatOverlay : Control
         momentsPage.Visible = page == momentsPage;
         if (subscriptionsPage != null) subscriptionsPage.Visible = page == subscriptionsPage;
         if (stepsPage != null) stepsPage.Visible = page == stepsPage;
+        if (lockPage != null) lockPage.Visible = page == lockPage;
+        if (desktopPage != null) desktopPage.Visible = page == desktopPage;
+        if (musicPage != null) musicPage.Visible = page == musicPage;
+        if (albumPage != null) albumPage.Visible = page == albumPage;
+        if (mailPage != null) mailPage.Visible = page == mailPage;
+        if (aiPage != null) aiPage.Visible = page == aiPage;
+        if (demoPage != null) demoPage.Visible = page == demoPage;
+
+        // 锁屏/桌面上没有"回主屏"这回事，其他页面都挂着"主屏"小钮
+        if (homeChip != null)
+            homeChip.Visible = page != lockPage && page != desktopPage;
     }
 
     /// <summary>打开某位联系人 / 群聊 / 只读会话</summary>
@@ -312,7 +383,93 @@ public partial class ChatOverlay : Control
     private void ShowMain()
     {
         HideMenu();
+        // 第十五轮：返回列表时把会话行整体重建——未读角标/预览按最新状态画，
+        // 不然"看完消息退回列表，红点还挂在头像上"。
+        mainPage.RefreshSessions(contactsData);
         SetPage(mainPage);
+    }
+
+    // ==================== 第十五轮：锁屏 / 桌面 / App 路由 ====================
+
+    /// <summary>搭锁屏、桌面和五个 App 页（演示页共用一台，进来按定义整页刷新）</summary>
+    private void BuildPhonePages()
+    {
+        lockPage = new LockScreen();
+        desktopPage = new PhoneDesktop();
+        musicPage = new MusicAppPage();
+        albumPage = new AlbumAppPage();
+        mailPage = new MailAppPage();
+        aiPage = new AiChatPage();
+        demoPage = new DemoAppPage();
+
+        Control[] pages = { lockPage, desktopPage, musicPage, albumPage, mailPage, aiPage, demoPage };
+        foreach (var page in pages)
+        {
+            page.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
+            pageHost.AddChild(page);
+            page.Visible = false;
+        }
+
+        // 锁屏 → 桌面 / 微信；桌面图标 → App
+        lockPage.UnlockRequested += ShowDesktop;
+        lockPage.WeChatRequested += ShowMain;
+        desktopPage.AppLaunched += LaunchApp;
+
+        // App 的返回键回桌面；小提示接进手机统一的 toast
+        PhoneAppPage[] apps = { musicPage, albumPage, mailPage, aiPage, demoPage };
+        foreach (var app in apps)
+        {
+            app.BackRequested += ShowDesktop;
+            app.ToastRequested += ShowToast;
+        }
+    }
+
+    /// <summary>去锁屏（手机"刚拿到手上"的样子；未读通知卡在这里刷）</summary>
+    private void ShowLockScreen()
+    {
+        HideMenu();
+        lockPage.Refresh();
+        SetPage(lockPage);
+    }
+
+    /// <summary>回桌面（App 图标板；微信角标按最新未读数刷）</summary>
+    private void ShowDesktop()
+    {
+        HideMenu();
+        desktopPage.Refresh();
+        SetPage(desktopPage);
+    }
+
+    /// <summary>桌面点某个图标：五个真 App 各自就位，其余进演示页</summary>
+    private void LaunchApp(string id)
+    {
+        var def = PhoneData.App(id);
+        if (def == null)
+            return;
+
+        switch (id)
+        {
+            case "wechat":
+                ShowMain();
+                break;
+            case "music":
+                SetPage(musicPage);
+                break;
+            case "album":
+                SetPage(albumPage);
+                break;
+            case "mail":
+                SetPage(mailPage);
+                break;
+            case "ai":
+                SetPage(aiPage);
+                aiPage.OnShown();
+                break;
+            default:
+                demoPage.Open(def);
+                SetPage(demoPage);
+                break;
+        }
     }
 
     /// <summary>按当前联系人重建消息流</summary>
@@ -384,7 +541,7 @@ public partial class ChatOverlay : Control
 
         nameLabel = new Label
         {
-            Text = "同桌",
+            Text = "", // ShowChat 时按联系人填写（原来写死过一个占位名字）
             HorizontalAlignment = HorizontalAlignment.Center,
             VerticalAlignment = VerticalAlignment.Center,
             MouseFilter = MouseFilterEnum.Ignore,
@@ -772,10 +929,15 @@ public partial class ChatOverlay : Control
         };
         mainPage.PageOpened += key =>
         {
+            GameManager.Instance?.MarkPageSeen(key); // 第十五轮：进过这个页面，列表上的写死角标就消
             if (key == "subscriptions") SetPage(subscriptionsPage);
             else if (key == "steps") SetPage(stepsPage);
         };
-        mainPage.MomentsOpened += () => SetPage(momentsPage);
+        mainPage.MomentsOpened += () =>
+        {
+            GameManager.Instance?.MarkPageSeen("moments"); // 朋友圈红点：看过就消
+            SetPage(momentsPage);
+        };
         mainPage.ToastRequested += ShowToast;
         mainPage.Visible = false;
     }
@@ -1073,15 +1235,37 @@ public partial class ChatOverlay : Control
         closeBtn.AddThemeStyleboxOverride("hover", hover);
         closeBtn.AddThemeStyleboxOverride("pressed", pressed);
         closeBtn.AddThemeStyleboxOverride("focus", new StyleBoxEmpty());
-        closeBtn.AnchorLeft = 0.5f;
-        closeBtn.AnchorRight = 0.5f;
-        closeBtn.OffsetLeft = -90;
-        closeBtn.OffsetRight = 90;
+        // 第十五轮：收起按钮挪到右下角，"主屏"小钮占左下角（中间留 home 指示条）
+        closeBtn.AnchorLeft = 1f;
+        closeBtn.AnchorRight = 1f;
+        closeBtn.OffsetLeft = -180;
+        closeBtn.OffsetRight = -20;
         closeBtn.OffsetTop = 15;
         closeBtn.OffsetBottom = 50;
-        closeBtn.GrowHorizontal = GrowDirection.Both;
+        closeBtn.GrowHorizontal = GrowDirection.Begin;
         closeBtn.Pressed += Close;
         box.AddChild(closeBtn);
+
+        // "主屏"小钮：任何页面一键回桌面（锁屏/桌面上不显示，SetPage 管）
+        homeChip = new Button
+        {
+            Text = DataStore.Text("phone.home"),
+            MouseFilter = MouseFilterEnum.Stop,
+            MouseDefaultCursorShape = CursorShape.PointingHand,
+            Visible = false,
+        };
+        homeChip.AddThemeFontSizeOverride("font_size", 22);
+        homeChip.AddThemeColorOverride("font_color", new Color(0.38f, 0.38f, 0.42f));
+        homeChip.AddThemeStyleboxOverride("normal", new StyleBoxEmpty());
+        homeChip.AddThemeStyleboxOverride("hover", hover);
+        homeChip.AddThemeStyleboxOverride("pressed", pressed);
+        homeChip.AddThemeStyleboxOverride("focus", new StyleBoxEmpty());
+        homeChip.OffsetLeft = 20;
+        homeChip.OffsetRight = 180;
+        homeChip.OffsetTop = 15;
+        homeChip.OffsetBottom = 50;
+        homeChip.Pressed += ShowDesktop;
+        box.AddChild(homeChip);
     }
 
     /// <summary>＋ 面板里的一格（演示版：点了弹提示）</summary>
@@ -1566,7 +1750,12 @@ public partial class ChatOverlay : Control
         margin.AddThemeConstantOverride("margin_bottom", 14);
         margin.AddChild(label);
 
-        var bubble = new PanelContainer { MouseFilter = MouseFilterEnum.Ignore };
+        var bubble = new PanelContainer
+        {
+            MouseFilter = MouseFilterEnum.Ignore,
+            // 第十五轮：高度交还给内容——短消息不再被拉成和头像等高的大方块，顶边与头像对齐
+            SizeFlagsVertical = SizeFlags.ShrinkBegin,
+        };
         var style = new StyleBoxFlat { BgColor = mine ? MyBubbleColor : HerBubbleColor };
 
         // 微信风格不对称圆角：远离头像的三角大圆角(16)，靠近头像的角小圆角(4)
@@ -1598,6 +1787,8 @@ public partial class ChatOverlay : Control
             ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,
             StretchMode = TextureRect.StretchModeEnum.Scale,
             CustomMinimumSize = new Vector2(ImageBubbleWidth, height),
+            // 第十五轮：短图不跟着行高拉伸（Scale 模式被拉会变形），顶部对齐头像
+            SizeFlagsVertical = SizeFlags.ShrinkBegin,
             MouseFilter = MouseFilterEnum.Ignore,
         };
         img.Material = MakeMaskMaterial(ImageBubbleWidth, height, 12);
