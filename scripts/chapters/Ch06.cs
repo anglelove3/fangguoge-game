@@ -6,7 +6,7 @@ using Godot;
 /// 流程：深夜烧烤摊（金艮请你吃串）→ 自己动手倒酒，一杯一层往事（4 杯）
 ///      → 第四杯之后的三选一（怎么接住"你从来没放过自己"这句话）
 ///      → 金艮的回话 → 碰杯前的心声微选择 → 两只杯子碰在一起
-///      → 走回宿舍路上的尾声（那首歌又能听了）→ 试玩结束页
+///      → 走回宿舍路上的尾声（那首歌又能听了）→ 第七章《三点水》
 ///
 /// 【本章演出核心】
 ///   - 酒桌上的戏是真的：点热点倒酒，瓶身倾斜、酒线落进杯里、
@@ -190,7 +190,7 @@ public partial class Ch06 : ChapterBase
             DialogueManager.Instance.PlaySequence(ChapterId, "outro", () =>
             {
                 AudioManager.Instance?.PlayBgm(AudioManager.BgmGym1, -14f, 2.5f);
-                GoToNextChapter("res://scenes/ui/demo_end/demo_end.tscn", 99);
+                GoToNextChapter("res://scenes/chapters/ch07/ch07.tscn", 7);
             });
         });
     }

@@ -311,8 +311,8 @@ public partial class MainMenu : Control
     ///
     /// 【第十一轮改动（试玩反馈 C2）】
     /// 存档里的章节号可能是 99（已经通关到结束页），直接跳过去只会看到"感谢试玩"，
-    /// 相当于这一局再也续不上。现在把 99 翻译成"重玩第六章"，至少还有东西可玩。
-    /// （r13：第四章→第五章→第六章已接成完整链路，重玩落点从第四章后移到第六章）
+    /// 相当于这一局再也续不上。现在把 99 翻译成"重玩第七章"，至少还有东西可玩。
+    /// （r13：第四→第五→第六章接成链路；r14：第七章《三点水》上线，重玩落点后移到第七章）
     /// </summary>
     private void OnContinueGamePressed()
     {
@@ -324,8 +324,8 @@ public partial class MainMenu : Control
         int chapter = GameManager.Instance.CurrentChapter;
         if (chapter >= 99)
         {
-            GD.Print("[继续游戏] 上次已经玩到结束页，改为从第六章继续");
-            chapter = 6;
+            GD.Print("[继续游戏] 上次已经玩到结束页，改为从第七章继续");
+            chapter = 7;
             GameManager.Instance.CurrentChapter = chapter;
         }
 
@@ -365,6 +365,7 @@ public partial class MainMenu : Control
             4 => "res://scenes/chapters/ch04/ch04.tscn",
             5 => "res://scenes/chapters/ch05/ch05.tscn",
             6 => "res://scenes/chapters/ch06/ch06.tscn",
+            7 => "res://scenes/chapters/ch07/ch07.tscn",
             99 => "res://scenes/ui/demo_end/demo_end.tscn", // 试玩结束页
             // 后续章节在这里添加：
             _ => "res://scenes/chapters/prologue/prologue.tscn"

@@ -113,6 +113,22 @@
       ]
     },
     {
+      "id": "jinwanju",
+      "name": "今天的局",
+      "kind": "group",
+      "members": 5,
+      "chatFile": "ch07_plan",
+      "afterChapter": 7,
+      "sessionTime": "今天 下午 5:45",
+      "previewText": "小米师妹: 到点见！[龇牙]",
+      "groupAvatars": [
+        "res://assets/art/chat/avatar_xiaomi.png",
+        "res://assets/art/chat/avatar_junjie.png",
+        "res://assets/art/chat/avatar_jingen.png",
+        "res://assets/art/chat/avatar_sanjin.png"
+      ]
+    },
+    {
       "id": "daoshi",
       "name": "研究生导师",
       "sessionTime": "周一",

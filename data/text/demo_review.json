@@ -89,6 +89,24 @@
       "chapter": "ch06",
       "where": "第六章《放过自己》",
       "label": "杯子举在半空，你"
+    },
+    {
+      "choice": "ch07_seat",
+      "chapter": "ch07",
+      "where": "第七章《三点水》",
+      "label": "包厢里只剩两张空椅子，你坐的是"
+    },
+    {
+      "choice": "ch07_heart_prep",
+      "chapter": "ch07",
+      "where": "第七章《三点水》",
+      "label": "师妹在桌子底下问「准备说点什么」，你回她"
+    },
+    {
+      "choice": "ch07_topic",
+      "chapter": "ch07",
+      "where": "第七章《三点水》",
+      "label": "轮到你开口时，你说的第一段话是"
     }
   ]
 }

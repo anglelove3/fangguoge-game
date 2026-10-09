@@ -1,0 +1,19 @@
+{
+  "title": "今天的局",
+  "messages": [
+    { "type": "divider", "text": "今天 下午 5:12" },
+    { "sender": "other", "senderName": "小米师妹", "text": "师兄们晚上好！今晚分两场，先说好——谁都不许鸽" },
+    { "sender": "other", "senderName": "俊杰（师弟）", "text": "不鸽不鸽，我下午就到，先占台子" },
+    { "sender": "other", "senderName": "金艮", "text": "就是说，台球我可就那水平啊，输了别怪我" },
+    { "sender": "other", "senderName": "三金师兄", "text": "我负责开车，你们放开了玩，酒我少喝" },
+    { "sender": "other", "senderName": "小米师妹", "text": "六点半，罗曼蒂克集合！先打两局" },
+    { "sender": "other", "senderName": "小米师妹", "text": "打完转移皖江宴，包厢我订好了，二楼靠窗" },
+    { "sender": "other", "senderName": "俊杰（师弟）", "text": "对了，今晚还有一位神秘嘉宾" },
+    { "sender": "other", "senderName": "金艮", "text": "就是说，谁啊？透露一下" },
+    { "sender": "other", "senderName": "小米师妹", "text": "保密！[微笑]" },
+    { "type": "divider", "text": "今天 下午 5:45" },
+    { "sender": "other", "senderName": "小米师妹", "text": "@我 师兄，今晚你要是敢聊论文，我就把你桌上的外卖单发群里" },
+    { "sender": "me", "text": "……" },
+    { "sender": "other", "senderName": "小米师妹", "text": "到点见！[龇牙]" }
+  ]
+}

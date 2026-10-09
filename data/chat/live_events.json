@@ -49,6 +49,13 @@
       "contact": "ma",
       "text": "天凉了，记得加衣服。别老熬夜。",
       "delay": 12.0
+    },
+    {
+      "id": "ch07_yebingyu_wedding",
+      "chapter": "ch07",
+      "contact": "yebingyu",
+      "text": "我下个月结婚。请帖给你寄到学校？——到时候可不许说忙。",
+      "delay": 12.0
     }
   ]
 }

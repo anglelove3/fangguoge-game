@@ -152,6 +152,9 @@ public partial class ChapterBase : Control
     /// </summary>
     protected void GoToNextChapter(string nextScenePath, int nextChapterIndex)
     {
+        // 先把章节号写进内存再存档：不然存进去的还是"当前章"，
+        // 通关标记（99）永远落不了盘，主菜单"继续游戏"只能靠兜底猜（r14 回归抓到）
+        GameManager.Instance.CurrentChapter = nextChapterIndex;
         GameManager.Instance.SaveGame();
         GameManager.Instance.ChangeSceneWithTransition(nextScenePath, nextChapterIndex);
     }

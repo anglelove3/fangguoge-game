@@ -1,0 +1,254 @@
+[gd_scene load_steps=13 format=3 uid="uid://ch07scene001"]
+
+[ext_resource type="Script" path="res://scripts/chapters/Ch07.cs" id="1_ch07"]
+[ext_resource type="Texture2D" path="res://assets/art/backgrounds/dorm_night_v2.png" id="2_dorm"]
+[ext_resource type="Texture2D" path="res://assets/art/backgrounds/luomandike_v1.png" id="3_luoman"]
+[ext_resource type="Texture2D" path="res://assets/art/backgrounds/wanjiangyan_v1.png" id="4_wanjiang"]
+[ext_resource type="Script" path="res://scripts/chapters/BilliardShot.cs" id="5_shot"]
+
+[sub_resource type="StyleBoxFlat" id="SB_hot_normal"]
+bg_color = Color(0, 0, 0, 0)
+border_color = Color(0, 0, 0, 0)
+
+[sub_resource type="StyleBoxFlat" id="SB_hot_hover"]
+bg_color = Color(0, 0, 0, 0)
+border_color = Color(0, 0, 0, 0)
+
+[sub_resource type="StyleBoxFlat" id="SB_hot_pressed"]
+bg_color = Color(0, 0, 0, 0)
+border_color = Color(0, 0, 0, 0)
+
+[sub_resource type="StyleBoxFlat" id="SB_hot_disabled"]
+bg_color = Color(0, 0, 0, 0)
+border_color = Color(0, 0, 0, 0)
+
+[sub_resource type="StyleBoxFlat" id="SB_back_normal"]
+bg_color = Color(0.83137256, 0.64705884, 0.45490196, 1)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+corner_detail = 12
+
+[sub_resource type="StyleBoxFlat" id="SB_back_hover"]
+bg_color = Color(0.9098039, 0.76862746, 0.6039216, 1)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+corner_detail = 12
+
+[sub_resource type="StyleBoxFlat" id="SB_back_pressed"]
+bg_color = Color(0.72156864, 0.5372549, 0.30588236, 1)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+corner_detail = 12
+
+[node name="Ch07" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_ch07")
+ChapterTitle = "第七章：三点水"
+ChapterSubtitle = "水和水，总会碰上的"
+ChapterIndex = 7
+
+[node name="Background" type="TextureRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("2_dorm")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="Luoman" type="TextureRect" parent="."]
+modulate = Color(1, 1, 1, 0)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("3_luoman")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="Wanjiang" type="TextureRect" parent="."]
+modulate = Color(1, 1, 1, 0)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("4_wanjiang")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="Vignette" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.02, 0.02, 0.1, 0.22)
+
+[node name="Shot" type="Node2D" parent="."]
+position = Vector2(1172, 688)
+script = ExtResource("5_shot")
+
+[node name="HintLabel" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -340.0
+offset_top = 24.0
+offset_right = 340.0
+offset_bottom = 64.0
+grow_horizontal = 2
+theme_override_colors/font_color = Color(1, 0.95, 0.85, 1)
+theme_override_colors/font_outline_color = Color(0.05, 0.05, 0.1, 0.9)
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 24
+text = "手机在桌上震个不停。今晚的安排都在群里——先看一眼吧"
+horizontal_alignment = 1
+
+[node name="Hotspots" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="PhoneBtn" type="Button" parent="Hotspots"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.88
+anchor_top = 0.81
+anchor_right = 1.0
+anchor_bottom = 0.93
+grow_horizontal = 2
+grow_vertical = 2
+mouse_default_cursor_shape = 2
+theme_override_styles/normal = SubResource("SB_hot_normal")
+theme_override_styles/hover = SubResource("SB_hot_hover")
+theme_override_styles/pressed = SubResource("SB_hot_pressed")
+theme_override_styles/disabled = SubResource("SB_hot_disabled")
+
+[node name="TableBtn" type="Button" parent="Hotspots"]
+visible = false
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.22
+anchor_top = 0.6
+anchor_right = 0.78
+anchor_bottom = 0.93
+grow_horizontal = 2
+grow_vertical = 2
+mouse_default_cursor_shape = 2
+theme_override_styles/normal = SubResource("SB_hot_normal")
+theme_override_styles/hover = SubResource("SB_hot_hover")
+theme_override_styles/pressed = SubResource("SB_hot_pressed")
+theme_override_styles/disabled = SubResource("SB_hot_disabled")
+
+[node name="SeatNearBtn" type="Button" parent="Hotspots"]
+visible = false
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.66
+anchor_top = 0.44
+anchor_right = 0.82
+anchor_bottom = 0.72
+grow_horizontal = 2
+grow_vertical = 2
+mouse_default_cursor_shape = 2
+theme_override_styles/normal = SubResource("SB_hot_normal")
+theme_override_styles/hover = SubResource("SB_hot_hover")
+theme_override_styles/pressed = SubResource("SB_hot_pressed")
+theme_override_styles/disabled = SubResource("SB_hot_disabled")
+
+[node name="SeatFarBtn" type="Button" parent="Hotspots"]
+visible = false
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.15
+anchor_top = 0.43
+anchor_right = 0.33
+anchor_bottom = 0.72
+grow_horizontal = 2
+grow_vertical = 2
+mouse_default_cursor_shape = 2
+theme_override_styles/normal = SubResource("SB_hot_normal")
+theme_override_styles/hover = SubResource("SB_hot_hover")
+theme_override_styles/pressed = SubResource("SB_hot_pressed")
+theme_override_styles/disabled = SubResource("SB_hot_disabled")
+
+[node name="ChapterTitle" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.5
+anchor_top = 0.42
+anchor_right = 0.5
+anchor_bottom = 0.42
+offset_left = -520.0
+offset_top = -130.0
+offset_right = 520.0
+offset_bottom = -40.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(1, 0.97, 0.92, 1)
+theme_override_colors/font_outline_color = Color(0.05, 0.05, 0.1, 0.9)
+theme_override_constants/outline_size = 8
+theme_override_font_sizes/font_size = 76
+text = "第七章：三点水"
+horizontal_alignment = 1
+
+[node name="ChapterSubtitle" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.5
+anchor_top = 0.42
+anchor_right = 0.5
+anchor_bottom = 0.42
+offset_left = -520.0
+offset_top = 70.0
+offset_right = 520.0
+offset_bottom = 120.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.35, 0.37, 0.45, 1)
+theme_override_font_sizes/font_size = 24
+text = "水和水，总会碰上的"
+horizontal_alignment = 1
+
+[node name="BackButton" type="Button" parent="."]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -176.0
+offset_top = -64.0
+offset_right = -24.0
+offset_bottom = -20.0
+grow_horizontal = 0
+grow_vertical = 0
+mouse_default_cursor_shape = 2
+theme_override_font_sizes/font_size = 18
+theme_override_styles/normal = SubResource("SB_back_normal")
+theme_override_styles/hover = SubResource("SB_back_hover")
+theme_override_styles/pressed = SubResource("SB_back_pressed")
+text = "返回菜单"
