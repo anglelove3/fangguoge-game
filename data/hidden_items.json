@@ -2,6 +2,7 @@
   "items": [
     { "id": "lighter", "name": "一只蓝色的打火机", "chapter": 2 },
     { "id": "light_orb", "name": "一颗很新的光点", "chapter": 3 },
-    { "id": "earphone", "name": "只响一边的旧耳机", "chapter": 4 }
+    { "id": "earphone", "name": "只响一边的旧耳机", "chapter": 4 },
+    { "id": "cracker", "name": "一枚没拉的礼花筒", "chapter": 8 }
   ]
 }

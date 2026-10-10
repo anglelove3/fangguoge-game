@@ -311,8 +311,8 @@ public partial class MainMenu : Control
     ///
     /// 【第十一轮改动（试玩反馈 C2）】
     /// 存档里的章节号可能是 99（已经通关到结束页），直接跳过去只会看到"感谢试玩"，
-    /// 相当于这一局再也续不上。现在把 99 翻译成"重玩第七章"，至少还有东西可玩。
-    /// （r13：第四→第五→第六章接成链路；r14：第七章《三点水》上线，重玩落点后移到第七章）
+    /// 相当于这一局再也续不上。现在把 99 翻译成"重玩最后一章"，至少还有东西可玩。
+    /// （r13：第四→第五→第六章接成链路；r14：第七章上线；r17：第八章《还想再见》上线，重玩落点后移到第八章）
     /// </summary>
     private void OnContinueGamePressed()
     {
@@ -324,13 +324,16 @@ public partial class MainMenu : Control
         int chapter = GameManager.Instance.CurrentChapter;
         if (chapter >= 99)
         {
-            GD.Print("[继续游戏] 上次已经玩到结束页，改为从第七章继续");
-            chapter = 7;
+            GD.Print("[继续游戏] 上次已经玩到结束页，改为从第八章继续");
+            chapter = LastChapter;
             GameManager.Instance.CurrentChapter = chapter;
         }
 
         GameManager.Instance.ChangeSceneWithTransition(GetChapterScenePath(chapter));
     }
+
+    /// <summary>目前开发到的最后一章（通关档的"重玩落点"）</summary>
+    private const int LastChapter = 8;
 
     /// <summary>
     /// 点击"设置"→ 打开设置界面
@@ -366,6 +369,7 @@ public partial class MainMenu : Control
             5 => "res://scenes/chapters/ch05/ch05.tscn",
             6 => "res://scenes/chapters/ch06/ch06.tscn",
             7 => "res://scenes/chapters/ch07/ch07.tscn",
+            8 => "res://scenes/chapters/ch08/ch08.tscn",
             99 => "res://scenes/ui/demo_end/demo_end.tscn", // 试玩结束页
             // 后续章节在这里添加：
             _ => "res://scenes/chapters/prologue/prologue.tscn"

@@ -14,7 +14,7 @@ using System;
 /// </summary>
 public partial class StatToast : Control
 {
-    private VBoxContainer toastBox;
+    private PanelContainer toastPanel;
     private Label affectionLabel;
     private Label courageLabel;
     private Tween activeTween;
@@ -26,9 +26,9 @@ public partial class StatToast : Control
 
     public override void _Ready()
     {
-        toastBox = GetNode<VBoxContainer>("ToastBox");
-        affectionLabel = GetNode<Label>("ToastBox/AffectionLabel");
-        courageLabel = GetNode<Label>("ToastBox/CourageLabel");
+        toastPanel = GetNode<PanelContainer>("ToastPanel");
+        affectionLabel = GetNode<Label>("ToastPanel/ToastBox/AffectionLabel");
+        courageLabel = GetNode<Label>("ToastPanel/ToastBox/CourageLabel");
 
         Modulate = new Color(1, 1, 1, 0);
         Visible = false;
@@ -64,8 +64,9 @@ public partial class StatToast : Control
             activeTween.Kill();
 
         // 缩放弹出的轴心点设为中心（每次都用最新尺寸算，窗口拉伸也不怕）
-        toastBox.PivotOffset = toastBox.Size / 2f;
-        toastBox.Scale = new Vector2(0.94f, 0.94f);
+        // 动的是整块底衬，不是里面的文字——不然深色小卡片会跟文字各走各的。
+        toastPanel.PivotOffset = toastPanel.Size / 2f;
+        toastPanel.Scale = new Vector2(0.94f, 0.94f);
 
         Visible = true;
         Modulate = new Color(1, 1, 1, 0);
@@ -78,7 +79,7 @@ public partial class StatToast : Control
             .SetEase(Tween.EaseType.Out);
 
         // 轻微放大弹出感
-        activeTween.TweenProperty(toastBox, "scale", Vector2.One, 0.3f)
+        activeTween.TweenProperty(toastPanel, "scale", Vector2.One, 0.3f)
             .SetEase(Tween.EaseType.Out)
             .SetTrans(Tween.TransitionType.Back);
 

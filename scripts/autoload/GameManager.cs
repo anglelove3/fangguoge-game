@@ -1,5 +1,6 @@
 using Godot;
 using System;
+using System.Linq;
 using System.Text.Json;
 
 /// <summary>
@@ -56,14 +57,23 @@ public partial class GameManager : Node
     // 背包里"已经看过"的物品 id（第十五轮：背包按钮上的小红点用；打开一次背包就全算看过）
     private readonly System.Collections.Generic.HashSet<string> bagSeen = new();
 
+    // 人物关系账（第十七轮：谁加了好友、备注叫什么、关系到哪一步、关键节点发生在哪一章）。
+    // 键 = data/characters.json 里的角色 id（jie / jiegen…），不是显示名——所以改名字不会弄丢进度。
+    private readonly System.Collections.Generic.Dictionary<string, RelationshipState> relationships = new();
+
     /// <summary>做过的选择条数（调试面板显示用）</summary>
     public int ChoiceCount => choiceHistory.Count;
 
     /// <summary>只读的选择记录（结束页"选择回顾"用）</summary>
     public System.Collections.Generic.IReadOnlyDictionary<string, int> ChoiceHistory => choiceHistory;
 
-    // 存档格式版本：2 = 好感/勇气从 50 起点的版本
-    private const int SaveVersion = 2;
+    // 存档格式版本：3 = 在 v2 的基础上加了"人物关系"一层（加好友 / 备注 / 关系阶段 / 关键节点）
+    private const int SaveVersion = 3;
+
+    // 数值口径迁移只发生在"从 v1（0 起点）升到 v2（50 起点）"这一步。
+    // 单独留一个常量，是因为升到 v3 时如果还写 version < SaveVersion，
+    // 老玩家的好感/勇气会被再加一次 50 —— 这个坑必须跟版本升级解绑。
+    private const int StatShiftVersion = 2;
 
     // 存档文件路径
     private const string SavePath = "user://savegame.json";
@@ -174,6 +184,10 @@ public partial class GameManager : Node
     public void RecordChoice(string choiceId, int optionIndex)
     {
         choiceHistory[choiceId] = optionIndex;
+        // 一按就落档：第八章有六幕，玩家在第二幕选完就强退的话，
+        // 结束页的「选择回顾」不该把这一步当成没发生过。
+        // （顺手把同一刻的数值/关系一起带走了——存档是整份写的。）
+        SaveGame();
         GD.Print($"[选择记录] {choiceId} = 选项{optionIndex}");
     }
 
@@ -254,6 +268,187 @@ public partial class GameManager : Node
             SaveGame();
     }
 
+    // ========== 人物关系（第十七轮） ==========
+    //
+    // 角色卡（data/characters.json）管"这个人出厂时是谁"，
+    // 这里管"玩家和他走到了哪一步"：加没加好友、备注叫什么、关系到哪一档、
+    // 身上发生过哪些关键节点。四样都进存档，重开游戏不会忘记。
+    //
+    // 【为什么用角色 id 而不是名字当键】
+    // 名字是给人看的，随时能改（江洁换姓只改文本）；id 是程序内的代号。
+    // 拿 id 当键，改名字就不会把玩家的进度弄丢。
+
+    /// <summary>全部人物关系账（只读；调试面板和未来章节用）</summary>
+    public System.Collections.Generic.IReadOnlyDictionary<string, RelationshipState> Relationships => relationships;
+
+    /// <summary>
+    /// 取一个人的关系账。没有记录时当场建一条空的，关系阶段先用角色卡里的出厂值（stage 字段）。
+    /// 注意这里不写存档——只有玩家真的改变了什么才落盘。
+    /// </summary>
+    public RelationshipState Relationship(string characterId)
+    {
+        if (string.IsNullOrEmpty(characterId))
+            return new RelationshipState();
+
+        if (!relationships.TryGetValue(characterId, out var state))
+        {
+            state = new RelationshipState
+            {
+                stage = DataStore.Character(characterId)?.Stage ?? "",
+            };
+            relationships[characterId] = state;
+        }
+        return state;
+    }
+
+    /// <summary>加过好友没有（没有记录就是没加）</summary>
+    public bool IsFriended(string characterId)
+    {
+        return !string.IsNullOrEmpty(characterId)
+            && relationships.TryGetValue(characterId, out var state)
+            && state.friended;
+    }
+
+    /// <summary>
+    /// 加好友。返回 true 表示"这一次是新加的"——重复加不会重复落档，
+    /// 但带进来的关键节点照样记账（剧情里"她推了名片"这类事只演一次）。
+    /// </summary>
+    public bool AddFriend(string characterId, string eventId = "")
+    {
+        var state = Relationship(characterId);
+        bool isNew = !state.friended;
+        state.friended = true;
+        AddEvent(state, eventId);
+        if (isNew)
+        {
+            SaveGame();
+            GD.Print($"[关系] 加好友：{characterId}");
+        }
+        return isNew;
+    }
+
+    /// <summary>玩家给这个人改的备注名；没改过返回空串（调用方自己回落到联系人本名）</summary>
+    public string RemarkOf(string characterId)
+    {
+        return !string.IsNullOrEmpty(characterId) && relationships.TryGetValue(characterId, out var state)
+            ? state.remark
+            : "";
+    }
+
+    /// <summary>改备注：当场落盘，微信的会话列表 / 通讯录 / 聊天页顶栏立刻跟着变</summary>
+    public void SetRemark(string characterId, string remark, string eventId = "")
+    {
+        if (string.IsNullOrEmpty(characterId) || string.IsNullOrEmpty(remark))
+            return;
+
+        var state = Relationship(characterId);
+        bool remarkChanged = state.remark != remark;
+        bool eventNew = AddEvent(state, eventId);
+        if (!remarkChanged && !eventNew)
+            return; // 备注没变、节点也记过了 → 不重复写盘
+
+        state.remark = remark;
+        SaveGame();
+        GD.Print($"[关系] 备注：{characterId} → {remark}");
+    }
+
+    /// <summary>关系阶段（just_met / friend / dating…）；玩家没推进过时读角色卡的出厂值</summary>
+    public string StageOf(string characterId) => Relationship(characterId).stage;
+
+    /// <summary>推进关系阶段（结局判定、后续章节的"我们算什么"会用到）</summary>
+    public void SetStage(string characterId, string stage)
+    {
+        if (string.IsNullOrEmpty(characterId) || string.IsNullOrEmpty(stage))
+            return;
+
+        var state = Relationship(characterId);
+        if (state.stage == stage)
+            return;
+
+        state.stage = stage;
+        SaveGame();
+        GD.Print($"[关系] 阶段：{characterId} → {stage}");
+    }
+
+    /// <summary>这个人身上是不是已经记过某个关键节点（第八章之后所有章节都靠它去重）</summary>
+    public bool HasRelationshipEvent(string characterId, string eventId)
+    {
+        return !string.IsNullOrEmpty(characterId) && !string.IsNullOrEmpty(eventId)
+            && relationships.TryGetValue(characterId, out var state)
+            && state.keyEvents.Contains(eventId);
+    }
+
+    /// <summary>记一个关键节点（会落盘）</summary>
+    public void RecordRelationshipEvent(string characterId, string eventId)
+    {
+        if (string.IsNullOrEmpty(characterId) || string.IsNullOrEmpty(eventId))
+            return;
+        var state = Relationship(characterId);
+        if (AddEvent(state, eventId))
+            SaveGame();
+    }
+
+    /// <summary>只在内存里加节点，返回"是不是新加的"（上面的公开方法各自决定什么时候写盘）</summary>
+    private static bool AddEvent(RelationshipState state, string eventId)
+    {
+        if (string.IsNullOrEmpty(eventId))
+            return false;
+        return state.keyEvents.Add(eventId);
+    }
+
+    /// <summary>
+    /// 给自动化测试用的一行快照（GDScript 里 `gm.call("DebugSnapshot")` 就能拿到）。
+    /// 【为什么要这个方法】GDScript 直接读 C# 属性时名号不一定对得上，
+    /// 回归脚本每次都得猜；猜错就是"断言恒为 false 的假绿"。
+    /// 一个方法把所有要检查的状态打包成 JSON，测试只解析字符串，不再猜属性名。
+    /// </summary>
+    public string DebugSnapshot()
+    {
+        int friended = 0, remarked = 0;
+        foreach (var state in relationships.Values)
+        {
+            if (state.friended) friended++;
+            if (!string.IsNullOrEmpty(state.remark)) remarked++;
+        }
+
+        var payload = new
+        {
+            affection = Affection,
+            courage = Courage,
+            chapter = CurrentChapter,
+            choices = ChoiceCount,
+            hiddenItems = HiddenItemsFound,
+            friended,
+            remarked,
+            remarks = relationships
+                .Where(pair => !string.IsNullOrEmpty(pair.Value.remark))
+                .ToDictionary(pair => pair.Key, pair => pair.Value.remark),
+            stages = relationships
+                .Where(pair => !string.IsNullOrEmpty(pair.Value.stage))
+                .ToDictionary(pair => pair.Key, pair => pair.Value.stage),
+        };
+        return JsonSerializer.Serialize(payload);
+    }
+
+    /// <summary>
+    /// 把"早就认识的人"补进关系账（第十七轮）。
+    /// 微信列表里本来就在的联系人，本来就是好友——只是以前没有这本账，没记下来。
+    /// 补齐之后 IsFriended 对每个人都是诚实的答案，后面的章节可以直接问"他们加过好友了吗"，
+    /// 不用在代码里记住"除了江洁之外都算认识"这种话。
+    /// 群聊（kind=group）和系统账号（有 icon）不算好友；标了 requiresFriend 的也不补——那是等玩家自己加的。
+    /// </summary>
+    private void SeedRelationships()
+    {
+        foreach (var c in WeChatData.RawContacts.Contacts)
+        {
+            if (string.IsNullOrEmpty(c.Id) || c.RequiresFriend)
+                continue;
+            if (!string.IsNullOrEmpty(c.Kind) || !string.IsNullOrEmpty(c.Icon))
+                continue;
+            Relationship(c.Id).friended = true;
+        }
+    }
+
     // ========== 存档系统 ==========
 
     /// <summary>
@@ -276,7 +471,9 @@ public partial class GameManager : Node
             liveEvents = new System.Collections.Generic.List<string>(liveEvents),
             seenPages = new System.Collections.Generic.List<string>(seenPages),
             inventory = new System.Collections.Generic.List<string>(inventory),
-            bagSeen = new System.Collections.Generic.List<string>(bagSeen)
+            bagSeen = new System.Collections.Generic.List<string>(bagSeen),
+            // 直接把这个字典写出去：RelationshipState 里的字段都是可序列化的简单类型
+            relationships = relationships
         };
 
         // 设置 JSON 格式化为可读格式（方便调试）
@@ -368,19 +565,43 @@ public partial class GameManager : Node
                 if (!string.IsNullOrEmpty(id))
                     bagSeen.Add(id);
 
+            // 人物关系账（第十七轮；v2 及更早的存档没有这个字段 → 按空处理，
+            // 之后谁被剧情改过备注、加过好友，才会重新出现在这本账上）
+            relationships.Clear();
+            foreach (var pair in saveData.relationships ?? new())
+            {
+                if (string.IsNullOrEmpty(pair.Key) || pair.Value == null)
+                    continue;
+                var state = pair.Value;
+                if (string.IsNullOrEmpty(state.stage))
+                    state.stage = DataStore.Character(pair.Key)?.Stage ?? "";
+                if (state.keyEvents == null)
+                    state.keyEvents = new System.Collections.Generic.HashSet<string>();
+                relationships[pair.Key] = state;
+            }
+            SeedRelationships(); // 老档里没记下的"早就认识的人"补齐
+
             // 手机永远在身上：老存档里没有"手机"这件物品，读档时补进去，
             // 玩家会看到背包红点亮起 —— 正好借小红点告诉他"现在有个背包了"
             inventory.Add("phone");
 
-            // 旧存档（第一版：好感/勇气从 0 起步）自动迁移到"50 起点"的新口径，
-            // 否则老玩家的数值会莫名其妙偏低一档。
-            if (saveData.version < SaveVersion)
+            // 数值口径迁移：只有 v1（好感/勇气从 0 起步）需要平移到 50 起点口径。
+            // 【第十七轮的坑，先记下】这里以前写的是 version < SaveVersion，
+            // 版本从 2 升到 3 的那一刻，它会把 v2 老档的好感/勇气再加一次 50 —— 存档直接爆表。
+            // 判据必须绑在"哪一版改的数值"上（StatShiftVersion = 2），不能绑当前版本号。
+            bool shifted = false;
+            if (saveData.version < StatShiftVersion)
             {
                 Affection = Mathf.Clamp(Affection + StatStart, 0, 100);
                 Courage = Mathf.Clamp(Courage + StatStart, 0, 100);
                 GD.Print($"[读档] 检测到 v{saveData.version} 旧存档，数值已平移到 {StatStart} 起点口径");
-                SaveGame(); // 顺手把升级后的存档写回去
+                shifted = true;
             }
+
+            // 存档落后于当前格式 → 顺手写回一次，把新字段（关系账）补上，
+            // 下次读档就不用再走一遍迁移。
+            if (shifted || saveData.version < SaveVersion)
+                SaveGame();
 
             GD.Print("[读档] 存档加载成功！");
             GD.Print($"  章节: {CurrentChapter}, 好感度: {Affection}, 勇气值: {Courage}");
@@ -491,6 +712,8 @@ public partial class GameManager : Node
         inventory.Clear();
         inventory.Add("phone"); // 手机永远在身上（第十五轮：随时能翻出来看）
         bagSeen.Clear();        // 全新的背包 → 红点亮着，提示玩家"翻开看看"
+        relationships.Clear();  // 全新的一局：备注清空、关系阶段回到角色卡出厂值
+        SeedRelationships();    // 微信列表里本来就在的人，一开始就是好友
         GD.Print("[重置] 游戏状态已重置");
     }
 }
@@ -525,6 +748,33 @@ public class SaveData
 
     // 背包里"已经看过"的物品 id（第十五轮；老存档里没有这个字段 → 全算没看过，红点点亮）
     public System.Collections.Generic.List<string> bagSeen { get; set; }
+
+    // 人物关系账（第十七轮；键 = data/characters.json 的角色 id。
+    // v2 及更早的存档没有这个字段 → 读出来是 null → 按"谁都没加好友、谁都没备注"处理）
+    public System.Collections.Generic.Dictionary<string, RelationshipState> relationships { get; set; }
+}
+
+/// <summary>
+/// 一个人和主角之间的关系账（存在存档里，跟着玩家的脚步变）
+///
+/// 【知识点 - 为什么字段名全小写】
+/// 存档 JSON 里的键名要和这个类的属性名一字不差（System.Text.Json 读档时默认区分大小写）。
+/// 上面 SaveData 的老字段都是小写开头，这里跟着同一套写法，
+/// 玩家用记事本打开存档看得懂，手动改也不会改不动。
+/// </summary>
+public class RelationshipState
+{
+    /// <summary>加上好友了吗（第八章江洁靠这条决定她出不出现在会话列表）</summary>
+    public bool friended { get; set; }
+
+    /// <summary>玩家给他/她改的备注名；空串 = 没改过，显示时回落到联系人本名</summary>
+    public string remark { get; set; } = "";
+
+    /// <summary>关系阶段（just_met / friend / close / dating…）；空 = 用角色卡里的出厂值</summary>
+    public string stage { get; set; } = "";
+
+    /// <summary>关键节点：这个人身上发生过的事（ch08_first_chat、ch08_remark…），用来去重和后续章节判定</summary>
+    public System.Collections.Generic.HashSet<string> keyEvents { get; set; } = new();
 }
 
 /// <summary>

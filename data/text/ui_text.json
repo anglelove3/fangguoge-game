@@ -44,6 +44,20 @@
   "hint.ch07_cue": "球杆在等你。去台球桌那边，来一杆",
   "hint.ch07_seat": "师妹留了两张空椅子。挑一张坐下",
   "hint.ch07_done": "（桌上热气腾腾。想说的，慢慢说。）",
+  "hint.ch08_phone": "手机一直在震。「今天的局」47 条新消息——先看看吧",
+  "hint.ch08_sleep1": "群里冷下来了。灯一拉，明天还得去实验室（点床，或者再翻一会儿手机）",
+  "hint.ch08_card": "小米把名片推过来了。微信里多了一个「新的朋友」——通讯录第一行",
+  "hint.ch08_jie": "她的会话在最上面，红点还亮着。点开说两句",
+  "hint.ch08_lab_done": "（该说的都说了。……天黑了，回宿舍）",
+  "hint.ch08_sleep2": "（锁屏。还有三天才是周六——睡吧）",
+  "hint.ch08_wedding": "宴会厅里哪儿都有人喊你。签到簿、婚纱照背景布、喜糖盒，去看一眼（{0}/{1}）",
+  "hint.ch08_toast": "（糖纸捏成一团，礼花筒揣进了兜里。敬酒的人快过来了）",
+  "hint.ch08_leave": "（一桌人还在闹。……散席了，去门口等车吧）",
+  "hint.ch08_sleep3": "（定了。周日下午，老校门口——这一觉睡得有点长）",
+
+  "ch08.remark_0": "江洁",
+  "ch08.remark_1": "三点水",
+  "ch08.remark_2": "洁",
 
   "ch03.card_ticket": "铁盒里的车票",
   "ch03.card_ticket_sub": "一千公里，来来回回",
@@ -74,6 +88,7 @@
   "bag.item_lighter_desc": "金属壳被摩得发亮，不知道在窗台上躺了多久。",
   "bag.item_orb_desc": "像一滴露水，又像一星火。",
   "bag.item_earphone_desc": "白色的线已经发了黄，只剩一边还响。",
+  "bag.item_cracker_desc": "红色的纸筒，拉环还挂着。她说，下次给想见的人拉。",
 
   "phone.home": "主屏",
   "phone.lock_hint": "上滑解锁",
@@ -146,7 +161,6 @@
   "chat.readonly_toast": "这里只能看，不能发言～",
   "chat.empty_input_toast": "先输入一点内容再发送～",
   "chat.quick_title": "怎么回？",
-  "chat.demo_times": "晚上 9:20|晚上 9:25|晚上 9:31|晚上 9:38|晚上 9:45|晚上 10:02|晚上 10:15",
 
   "wx.tab_chats": "微信",
   "wx.icon_glyph": "微",
@@ -167,6 +181,8 @@
   "wx.stickers_toast": "表情收藏目前只是摆设～",
   "wx.image_preview": "[图片]",
   "wx.session_time_default": "昨天",
+  "wx.new_friends": "新的朋友",
+  "wx.new_friends_icon": "新",
 
   "moments.like": "赞",
   "moments.unlike": "取消赞",
@@ -181,6 +197,12 @@
   "sys.steps_rank_title": "今日排行",
   "sys.steps_count": "{0:,} 步",
   "sys.steps_like_toast": "演示版：点赞功能暂未开放～",
+  "sys.new_friends_title": "新的朋友",
+  "sys.new_friends_tip": "添加后就能发消息、改备注",
+  "sys.new_friends_add": "添加到通讯录",
+  "sys.new_friends_added": "已添加",
+  "sys.new_friends_empty": "目前没有新朋友",
+  "sys.new_friends_toast": "「{0}」已经躺在你的通讯录里了",
 
   "phone.fallback_music": "网易云音乐",
   "phone.fallback_album": "相册",

@@ -1,0 +1,29 @@
+{
+  "title": "江洁",
+  "messages": [
+    { "type": "divider", "text": "周二 上午 10:26" },
+    { "type": "divider", "text": "你添加了对方为微信好友，现在可以开始聊天了" },
+    { "sender": "other", "type": "text", "senderName": "江洁", "text": "小米把你名片推给我的时候，我还以为是又是来问作业的。" },
+    { "sender": "other", "type": "text", "senderName": "江洁", "text": "她说你球打得一般，人还行。原话。" }
+  ],
+  "quickReplies": [
+    {
+      "text": "周六你有空吗。",
+      "affection": -1,
+      "courage": 5,
+      "reply": "周六？我看看。——你先说是什么事。"
+    },
+    {
+      "text": "你那边的风大不大。",
+      "affection": 4,
+      "courage": -2,
+      "reply": "大。公司楼下那排树都在摇。你是不是想说想见我。"
+    },
+    {
+      "text": "在吗",
+      "affection": 2,
+      "courage": 2,
+      "reply": "在。就这样？"
+    }
+  ]
+}

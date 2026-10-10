@@ -84,12 +84,22 @@ public partial class DebugPanel : CanvasLayer
         var ending = gm.GetEndingType();
         int total = DataStore.HiddenItemTotal;
 
+        // 关系账速览（第十七轮）：好友数 + 玩家改过的备注条数，
+        // 自动化回归直接读这两个数断言"加好友/改备注有没有真的落进存档"。
+        int friended = 0, remarked = 0;
+        foreach (var pair in gm.Relationships)
+        {
+            if (pair.Value.friended) friended++;
+            if (!string.IsNullOrEmpty(pair.Value.remark)) remarked++;
+        }
+
         debugLabel.Text =
             $"章节: {gm.CurrentChapter}\n" +
             $"好感度: {gm.Affection}/100\n" +
             $"勇气值: {gm.Courage}/100\n" +
             $"隐藏物品: {gm.HiddenItemsFound}/{total}\n" +
             $"结局倾向: {DataStore.Text($"ending.{(int)ending}")}\n" +
-            $"选择记录: {gm.ChoiceCount} 条";
+            $"选择记录: {gm.ChoiceCount} 条\n" +
+            $"好友: {friended} 人 / 备注: {remarked} 条";
     }
 }

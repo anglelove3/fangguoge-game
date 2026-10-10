@@ -35,6 +35,7 @@ public partial class WeChatMainPage : Control
 
     private Label titleLabel;
     private VBoxContainer sessionBox; // 会话列表的行容器（返回列表时整体重建用）
+    private VBoxContainer contactsBox; // 通讯录的行容器（加了新朋友要当场出现）
     private Control momentsDot;       // 朋友圈红点引用（看过就消）
     private readonly Control[] pages = new Control[4];
     private readonly TabIcon[] tabIcons = new TabIcon[4];
@@ -239,7 +240,7 @@ public partial class WeChatMainPage : Control
         mid.AddThemeConstantOverride("separation", 10);
         hbox.AddChild(mid);
 
-        mid.AddChild(MakeLabel(c.Name, 28, TextDark));
+        mid.AddChild(MakeLabel(WeChatData.DisplayName(c), 28, TextDark));
         var preview = MakeLabel(PreviewOf(c), 24, TextGray);
         preview.TextOverrunBehavior = TextServer.OverrunBehavior.TrimEllipsis;
         preview.MaxLinesVisible = 1;
@@ -277,29 +278,62 @@ public partial class WeChatMainPage : Control
         var box = new VBoxContainer { MouseFilter = MouseFilterEnum.Ignore };
         box.AddThemeConstantOverride("separation", 0);
         pad.AddChild(box);
+        contactsBox = box;
+
+        FillContactsList(contacts);
+        return scroll;
+    }
+
+    /// <summary>
+    /// 通讯录的内容（清空重画）：第十八轮起它会变——
+    /// 玩家按下"添加到通讯录"，那位新朋友要当场出现在列表里。
+    /// </summary>
+    private void FillContactsList(ContactsData contacts)
+    {
+        foreach (var child in contactsBox.GetChildren())
+            child.QueueFree();
 
         // 通讯录只列"真人"：群聊和系统账号不算联系人（真微信也这样）
         var people = contacts.Contacts.FindAll(c => string.IsNullOrEmpty(c.Kind) && string.IsNullOrEmpty(c.Icon));
         var groups = contacts.Contacts.FindAll(c => c.Kind == "group");
 
+        // 「新的朋友」入口：真微信也把它放在通讯录最上面；有待添加的才挂红点
+        contactsBox.AddChild(MakeContactsRow(
+            DataStore.Text("wx.new_friends"),
+            new SystemIcon(new Color(0.95f, 0.65f, 0.15f), DataStore.Text("wx.new_friends_icon"), 80)
+            {
+                CustomMinimumSize = new Vector2(80, 80),
+                SizeFlagsVertical = SizeFlags.ShrinkCenter,
+                MouseFilter = MouseFilterEnum.Ignore,
+            },
+            () => PageOpened?.Invoke("newfriends"),
+            redDot: WeChatData.PendingFriends().Count > 0));
+
         var count = MakeLabel(DataStore.Text("wx.contacts_count", people.Count), 24, TextGray);
-        box.AddChild(UiKit.WrapMargin(count, 24, 12, 0, 12));
+        contactsBox.AddChild(UiKit.WrapMargin(count, 24, 12, 0, 12));
 
         // 群聊分区（点群名直接进群聊记录）
         foreach (var g in groups)
-            box.AddChild(MakeContactsRow(g.Name, MakeListAvatar(g, 80), () => ContactSelected?.Invoke(g.Id)));
+            contactsBox.AddChild(MakeContactsRow(WeChatData.DisplayName(g), MakeListAvatar(g, 80), () => ContactSelected?.Invoke(g.Id)));
 
         foreach (var c in people)
         {
             var contact = c;
-            box.AddChild(MakeContactsRow(contact.Name, MakeAvatar(contact, 80),
+            contactsBox.AddChild(MakeContactsRow(WeChatData.DisplayName(contact), MakeAvatar(contact, 80),
                 () => ContactSelected?.Invoke(contact.Id)));
         }
-        return scroll;
     }
 
-    /// <summary>通讯录的一行（头像 + 名字）</summary>
-    private Control MakeContactsRow(string name, Control avatar, Action onClick)
+    /// <summary>重建通讯录（加好友之后调用，新面孔要立刻在列表里）</summary>
+    public void RefreshContacts(ContactsData contacts)
+    {
+        if (contactsBox == null || !GodotObject.IsInstanceValid(contactsBox) || contacts == null)
+            return;
+        FillContactsList(contacts);
+    }
+
+    /// <summary>通讯录的一行（头像 + 名字；redDot = 行尾挂个小红点）</summary>
+    private Control MakeContactsRow(string name, Control avatar, Action onClick, bool redDot = false)
     {
         var row = new Button { MouseFilter = MouseFilterEnum.Stop };
         row.CustomMinimumSize = new Vector2(0, 108);
@@ -316,6 +350,13 @@ public partial class WeChatMainPage : Control
         var label = MakeLabel(name, 28, TextDark);
         label.SizeFlagsVertical = SizeFlags.ShrinkCenter;
         hbox.AddChild(label);
+
+        if (redDot)
+        {
+            var dot = new RedDot { CustomMinimumSize = new Vector2(16, 16) };
+            dot.SizeFlagsVertical = SizeFlags.ShrinkCenter;
+            hbox.AddChild(dot);
+        }
 
         row.Pressed += () => onClick?.Invoke();
         return row;
@@ -450,9 +491,9 @@ public partial class WeChatMainPage : Control
             return fresh;
         if (!string.IsNullOrEmpty(c.PreviewText))
             return c.PreviewText;
-        if (!string.IsNullOrEmpty(c.ChatFile))
+        if (!string.IsNullOrEmpty(c.ActiveChatFile))
         {
-            var chat = ChatOverlay.LoadChatData(c.ChatFile);
+            var chat = ChatOverlay.LoadChatData(c.ActiveChatFile);
             for (int i = chat.Messages.Count - 1; i >= 0; i--)
             {
                 if (chat.Messages[i].Type == "text")
@@ -529,7 +570,8 @@ public partial class WeChatMainPage : Control
             tex.Material = ChatOverlay.MakeMaskMaterial(size, size, 12);
             return tex;
         }
-        var initial = new InitialAvatar(c.Name, size);
+        // 首字色块也跟着备注走：改了备注，头像块上的字就是备注的第一个字
+        var initial = new InitialAvatar(WeChatData.DisplayName(c), size);
         initial.SizeFlagsVertical = SizeFlags.ShrinkBegin;
         return initial;
     }

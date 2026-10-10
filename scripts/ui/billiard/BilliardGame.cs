@@ -836,13 +836,16 @@ public partial class BilliardGame : Control
         ShowNextComment();
     }
 
+    /// <summary>
+    /// 点评条上说话人的昵称颜色。
+    /// 第十七轮起这里不再写死人名：颜色全部来自 data/characters.json 的角色卡，
+    /// 想给谁换颜色改那个 JSON 就行。角色卡里没写到的人用一个柔绿兜底。
+    /// </summary>
+    private static readonly Color SpeakerFallback = new Color(0.72f, 0.92f, 0.74f);
+
     private static Color SpeakerColor(string s)
     {
-        if (s.Contains("江洁")) return new Color(0.98f, 0.62f, 0.70f);
-        if (s.Contains("俊杰")) return new Color(0.60f, 0.78f, 0.98f);
-        if (s.Contains("金艮")) return new Color(0.90f, 0.80f, 0.58f);
-        if (s.Contains("小米")) return new Color(0.98f, 0.78f, 0.52f);
-        return new Color(0.72f, 0.92f, 0.74f);
+        return DataStore.SpeakerColor(s, SpeakerFallback);
     }
 
     // ==================== HUD ====================

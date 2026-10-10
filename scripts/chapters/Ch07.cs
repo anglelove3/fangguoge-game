@@ -8,7 +8,7 @@ using Godot;
 ///      → 上台真打一局台球（第十五轮：BilliardGame.cs 物理小游戏，三杆定胜负）
 ///      → 皖江宴包厢（选座位：挨着她坐 or 靠门坐）
 ///      → 开席（师妹桌子底下递话的心声微选择）→ 三选一：第一段话说什么
-///      → 散场的尾声（三点水三个字落地）→ 试玩结束页
+///      → 散场的尾声（三点水三个字落地）→ 第八章《还想再见》
 ///
 /// 【本章演出核心】
 ///   - 台球桌是"真"的：第十五轮换成了能瞄准、能拉杆、能进袋的一局物理台球。
@@ -449,7 +449,7 @@ public partial class Ch07 : ChapterBase
 
         DialogueManager.Instance.PlaySequence(ChapterId, "outro", () =>
         {
-            GoToNextChapter("res://scenes/ui/demo_end/demo_end.tscn", 99);
+            GoToNextChapter("res://scenes/chapters/ch08/ch08.tscn", 8);
         });
     }
 

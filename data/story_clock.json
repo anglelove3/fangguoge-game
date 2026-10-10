@@ -6,5 +6,15 @@
   "ch04": { "time": "00:40", "month": 10, "day": 18, "weekday": 6 },
   "ch05": { "time": "17:30", "month": 10, "day": 19, "weekday": 0 },
   "ch06": { "time": "21:40", "month": 10, "day": 24, "weekday": 5 },
-  "ch07": { "time": "17:20", "month": 10, "day": 26, "weekday": 0 }
+  "ch07": { "time": "17:20", "month": 10, "day": 26, "weekday": 0 },
+  "ch08": {
+    "time": "20:40", "month": 10, "day": 27, "weekday": 1,
+    "segments": {
+      "lab":           { "time": "11:35", "month": 10, "day": 28, "weekday": 2 },
+      "night2":        { "time": "22:10", "month": 10, "day": 29, "weekday": 3 },
+      "wedding":       { "time": "11:18", "month": 11, "day": 1,  "weekday": 6 },
+      "wedding_night": { "time": "21:05", "month": 11, "day": 1,  "weekday": 6 },
+      "gate":          { "time": "16:40", "month": 11, "day": 2,  "weekday": 0 }
+    }
+  }
 }

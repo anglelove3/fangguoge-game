@@ -49,6 +49,7 @@ public partial class AudioManager : Node
     public const string SfxBallClack = "res://assets/audio/sfx/sfx_ball_clack.wav";     // 台球撞击（第七章）
     public const string SfxPocketDrop = "res://assets/audio/sfx/sfx_pocket_drop.wav";   // 球落袋（第七章）
     public const string SfxMahjongLoop = "res://assets/audio/sfx/sfx_mahjong_loop.wav"; // 麻将声无缝循环（第七章）
+    public const string SfxWeddingCrowdLoop = "res://assets/audio/sfx/sfx_wedding_crowd_loop.wav"; // 婚宴人声鼎沸无缝循环（第八章）
 
     // 背景音乐（萨蒂《吉姆诺佩蒂》三部曲：公有领域 / CC BY 3.0 录音，详见 音乐说明.txt）
     public const string BgmGym1 = "res://assets/audio/bgm/gymnopedie_no1.ogg"; // 序章 / 菜单 / 天亮

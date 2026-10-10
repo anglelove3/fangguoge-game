@@ -71,6 +71,35 @@
       "text": "我下个月结婚。请帖给你寄到学校？——到时候可不许说忙。",
       "delay": 12.0,
       "item": "invite"
+    },
+    {
+      "id": "ch08_li_sanity",
+      "chapter": "ch08",
+      "contact": "lilab",
+      "sender": "三金师兄",
+      "text": "明早组会提前到八点半。谁的样品还没跑完，趁夜里把离心机占了。",
+      "delay": 9.0
+    },
+    {
+      "id": "ch08_yebingyu_seat",
+      "chapter": "ch08",
+      "contact": "yebingyu",
+      "text": "周六给你留在主桌了，挨着我。——不许说忙，忙也不许。",
+      "delay": 11.0
+    },
+    {
+      "id": "ch08_shenge_shop",
+      "chapter": "ch08",
+      "contact": "shenge",
+      "text": "跟你说个事，老校门那家店真拆了，围挡都立上了。上次你还翻墙出去吃过。",
+      "delay": 15.0
+    },
+    {
+      "id": "ch08_jingen_money",
+      "chapter": "ch08",
+      "contact": "jingen",
+      "text": "校园卡还剩二十三块六这件事，我劝你别发朋友圈。二十块转你了，打车回来。",
+      "delay": 10.0
     }
   ]
 }

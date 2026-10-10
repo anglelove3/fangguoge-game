@@ -66,6 +66,7 @@ public partial class ChatOverlay : Control
     private MomentsPage momentsPage;
     private SubscriptionsPage subscriptionsPage; // 订阅号消息（第九轮）
     private StepsRankingPage stepsPage;          // 微信运动排行（第九轮）
+    private NewFriendsPage newFriendsPage;       // 通讯录「新的朋友」（第十八轮：加好友演出）
 
     // 第十五轮：手机桌面端
     private LockScreen lockPage;        // 锁屏
@@ -124,6 +125,12 @@ public partial class ChatOverlay : Control
 
     /// <summary>已经用过预设回复的会话（预设条只出现一次）</summary>
     private static readonly HashSet<string> usedQuickReplies = new();
+
+    /// <summary>
+    /// 本局内被点开过的会话（第十八轮：第八章要知道"他真的去翻她的聊天了吗"）。
+    /// 联系人 id 和会话文件名都记，章节脚本传哪个都能查到。
+    /// </summary>
+    private static readonly HashSet<string> openedChats = new();
 
     /// <summary>「往上滑」提示已经亮过的次数（全程只提示前 2 次）</summary>
     private static int hintShownCount;
@@ -193,7 +200,7 @@ public partial class ChatOverlay : Control
         ContactData contact = null;
         if (!string.IsNullOrEmpty(chatId))
         {
-            contact = contacts.Contacts.Find(c => c.ChatFile == chatId || c.Id == chatId)
+            contact = contacts.Contacts.Find(c => c.ActiveChatFile == chatId || c.Id == chatId)
                       ?? new ContactData
                       {
                           Id = chatId,
@@ -313,6 +320,7 @@ public partial class ChatOverlay : Control
         momentsPage.Visible = page == momentsPage;
         if (subscriptionsPage != null) subscriptionsPage.Visible = page == subscriptionsPage;
         if (stepsPage != null) stepsPage.Visible = page == stepsPage;
+        if (newFriendsPage != null) newFriendsPage.Visible = page == newFriendsPage;
         if (lockPage != null) lockPage.Visible = page == lockPage;
         if (desktopPage != null) desktopPage.Visible = page == desktopPage;
         if (musicPage != null) musicPage.Visible = page == musicPage;
@@ -336,9 +344,18 @@ public partial class ChatOverlay : Control
             ReplyEngine.NoteChatOpened(contact.Id, true); // 有未读时点开 = 她刚说的话正被看到（回复温度用）
 
         currentContact = contact;
-        currentChatData = !string.IsNullOrEmpty(contact.ChatFile) ? LoadChatData(contact.ChatFile) : null;
+        currentChatData = !string.IsNullOrEmpty(contact.ActiveChatFile) ? LoadChatData(contact.ActiveChatFile) : null;
+
+        // 记一笔"这个会话他点开过"（章节脚本的过场闸门；id 和会话名都记）
+        if (!string.IsNullOrEmpty(contact.Id))
+            openedChats.Add(contact.Id);
+        if (!string.IsNullOrEmpty(contact.ActiveChatFile))
+            openedChats.Add(contact.ActiveChatFile);
+
         ghostTween?.Kill();
-        nameLabel.Text = contact.Members > 0 ? $"{contact.Name}（{contact.Members}）" : contact.Name;
+        // 顶栏名字走 WeChatData.DisplayName：玩家改过备注的话，这里显示的就是备注
+        string displayName = WeChatData.DisplayName(contact);
+        nameLabel.Text = contact.Members > 0 ? $"{displayName}（{contact.Members}）" : displayName;
         ApplyReadOnlyMode(contact);
         if (ActiveReadOnly)
             inputField.Text = ""; // 只读会话不允许残留草稿（幽灵打字从空白开始）
@@ -407,6 +424,7 @@ public partial class ChatOverlay : Control
         // 第十五轮：返回列表时把会话行整体重建——未读角标/预览按最新状态画，
         // 不然"看完消息退回列表，红点还挂在头像上"。
         mainPage.RefreshSessions(contactsData);
+        mainPage.RefreshContacts(contactsData); // 通讯录也一样：剧情里刚加上的人要出现在名单里
         SetPage(mainPage);
     }
 
@@ -945,7 +963,10 @@ public partial class ChatOverlay : Control
 
         mainPage.ContactSelected += id =>
         {
-            var c = contacts.Contacts.Find(x => x.Id == id);
+            // 查的是"此刻的名单"（contactsData），不是"打开手机那一刻的名单"：
+            // 第十八轮玩家可以在手机里亲手加好友，新加的人会出现在列表里，
+            // 但旧列表容器里没有他——照着旧容器查就是"点她那一行没反应"。
+            var c = contactsData?.Contacts?.Find(x => x.Id == id);
             if (c != null) ShowChat(c);
         };
         mainPage.PageOpened += key =>
@@ -953,6 +974,11 @@ public partial class ChatOverlay : Control
             GameManager.Instance?.MarkPageSeen(key); // 第十五轮：进过这个页面，列表上的写死角标就消
             if (key == "subscriptions") SetPage(subscriptionsPage);
             else if (key == "steps") SetPage(stepsPage);
+            else if (key == "newfriends")
+            {
+                newFriendsPage?.Refresh(); // 每次进去都按最新存档重画一遍
+                SetPage(newFriendsPage);
+            }
         };
         mainPage.MomentsOpened += () =>
         {
@@ -993,6 +1019,28 @@ public partial class ChatOverlay : Control
         stepsPage.BackPressed += ShowMain;
         stepsPage.ToastRequested += ShowToast;
         stepsPage.Visible = false;
+
+        // 「新的朋友」：谁在等着被添加，全看 contacts.json + 存档里的关系账
+        newFriendsPage = new NewFriendsPage();
+        newFriendsPage.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
+        pageHost.AddChild(newFriendsPage);
+        newFriendsPage.Build();
+        newFriendsPage.BackPressed += ShowMain;
+        newFriendsPage.ToastRequested += ShowToast;
+        newFriendsPage.FriendAdded += OnFriendAdded;
+        newFriendsPage.Visible = false;
+    }
+
+    /// <summary>
+    /// 玩家按下"添加到通讯录"之后：重取一次联系人表（LoadContacts 会把刚加上的人放行），
+    /// 再让会话列表和通讯录都照新名单重画——新朋友当场出现在列表顶端、挂着红点。
+    /// </summary>
+    private void OnFriendAdded(string id)
+    {
+        GD.Print($"[微信] 已添加到通讯录：{id}");
+        contactsData = WeChatData.LoadContacts();
+        mainPage?.RefreshSessions(contactsData);
+        mainPage?.RefreshContacts(contactsData);
     }
 
     private void BuildToast()
@@ -1090,18 +1138,58 @@ public partial class ChatOverlay : Control
     /// </summary>
     private void MaybePlayGhostTyping()
     {
-        var g = currentChatData?.GhostTyping;
-        if (g == null || string.IsNullOrEmpty(g.Text) || ghostPlayedChats.Contains(currentContact.Id))
+        var drafts = GhostDrafts();
+        if (drafts.Count == 0 || ghostPlayedChats.Contains(currentContact.Id))
             return;
         ghostPlayedChats.Add(currentContact.Id);
 
         string cid = currentContact.Id;
-        string full = g.Text;
         ghostTween?.Kill();
         var tw = CreateTween();
         ghostTween = tw;
 
-        tw.TweenInterval(g.StartDelay); // 先让玩家自己安静看一会儿聊天记录
+        for (int i = 0; i < drafts.Count; i++)
+            AppendGhostDraft(tw, drafts[i], cid, first: i == 0);
+    }
+
+    /// <summary>
+    /// 把"打了又删"的剧本收成一张清单：
+    /// 单条 ghostTyping（第四章那份旧聊天）和多条 drafts（第八章的三条草稿）走同一条路。
+    /// </summary>
+    private List<GhostTypingData> GhostDrafts()
+    {
+        var list = new List<GhostTypingData>();
+        var data = currentChatData;
+        if (data == null)
+            return list;
+        if (data.Drafts is { Count: > 0 })
+            list.AddRange(data.Drafts.FindAll(d => d != null && !string.IsNullOrEmpty(d.Text)));
+        else if (data.GhostTyping != null && !string.IsNullOrEmpty(data.GhostTyping.Text))
+            list.Add(data.GhostTyping);
+        return list;
+    }
+
+    /// <summary>往 tween 上接一条"打字 → 停 → 逐字删掉"。first = 这一串里的第一条（要先给玩家留神的时间）</summary>
+    private void AppendGhostTweenTail(Tween tw, GhostTypingData g, string cid)
+    {
+        tw.TweenCallback(Callable.From(ExitGhostMode));
+        if (!string.IsNullOrEmpty(g.AfterToast))
+        {
+            tw.TweenCallback(Callable.From(() =>
+            {
+                if (currentContact?.Id == cid && IsInsideTree())
+                    ShowToast(g.AfterToast);
+            }));
+        }
+    }
+
+    private void AppendGhostDraft(Tween tw, GhostTypingData g, string cid, bool first)
+    {
+        if (first)
+            tw.TweenInterval(g.StartDelay); // 先让玩家自己安静看一会儿聊天记录
+        else
+            tw.TweenInterval(Mathf.Max(0.6f, g.StartDelay * 0.45f)); // 下一条草稿之间不用重新等那么久
+
         // 开场先把视线拉到输入框：滚到底 + 输入栏亮起来
         tw.TweenCallback(Callable.From(() =>
         {
@@ -1112,6 +1200,7 @@ public partial class ChatOverlay : Control
         }));
         tw.TweenInterval(0.45);
 
+        string full = g.Text;
         string shown = "";
         foreach (char ch in full)
         {
@@ -1128,7 +1217,7 @@ public partial class ChatOverlay : Control
             }));
             tw.TweenInterval(g.TypeSpeed);
         }
-        tw.TweenInterval(g.Hold);
+        tw.TweenInterval(g.Hold); // 停多久写在数据里：最后一条草稿可以停得久一点
         for (int len = full.Length - 1; len >= 0; len--)
         {
             string snapshot = full.Substring(0, len);
@@ -1143,15 +1232,7 @@ public partial class ChatOverlay : Control
             }));
             tw.TweenInterval(g.DeleteSpeed);
         }
-        tw.TweenCallback(Callable.From(ExitGhostMode));
-        if (!string.IsNullOrEmpty(g.AfterToast))
-        {
-            tw.TweenCallback(Callable.From(() =>
-            {
-                if (currentContact?.Id == cid && IsInsideTree())
-                    ShowToast(g.AfterToast);
-            }));
-        }
+        AppendGhostTweenTail(tw, g, cid);
     }
 
     /// <summary>进入"幽灵态"：输入框换成冷蓝配色 + 整条输入栏轻轻呼吸</summary>
@@ -1492,6 +1573,17 @@ public partial class ChatOverlay : Control
         return "";
     }
 
+    /// <summary>
+    /// 这个会话在本局里被点开过吗（第十八轮：第八章要判断"他真的去翻她了吗"）。
+    /// 传联系人 id（jie）或会话文件名（ch08_jie）都算，章节脚本不用关心微信内部怎么匹配。
+    /// </summary>
+    public static bool WasChatOpened(string contactOrChatId) =>
+        !string.IsNullOrEmpty(contactOrChatId) && openedChats.Contains(contactOrChatId);
+
+    /// <summary>这个人身上的预设回复用过了吗 —— 也就是"他真的发出去过一句话"（数值已由 ChatOverlay 当场结算）</summary>
+    public static bool WasQuickReplyUsed(string contactId) =>
+        !string.IsNullOrEmpty(contactId) && usedQuickReplies.Contains(contactId);
+
     /// <summary>往当前会话追加一条消息（本局内重开手机也还在）</summary>
     private void AppendMessage(ChatMessageData msg)
     {
@@ -1732,8 +1824,9 @@ public partial class ChatOverlay : Control
     /// <summary>微信风格时间戳（居中灰色小字，如 "晚上 9:32"）</summary>
     private static Control MakeTimestamp()
     {
-        string[] times = DataStore.Text("chat.demo_times").Split('|');
-        string time = times[GD.Randi() % times.Length];
+        // 跟着故事时钟走：锁屏上写着"上午 11:35"，聊天里就不该冒出"晚上 10:15"。
+        // （以前是从 chat.demo_times 里随机抽一个演示时刻，章节一换、时段一换就穿帮。）
+        string time = StoryClock.StampText();
 
         var label = new Label
         {
@@ -1839,7 +1932,7 @@ public partial class ChatOverlay : Control
             return WeChatMainPage.MakeListAvatar(c, size);
         if (c != null && !string.IsNullOrEmpty(c.Avatar) && ResourceLoader.Exists(c.Avatar))
             return MakePhotoAvatar(c.Avatar, size);
-        var avatar = new InitialAvatar(c?.Name ?? "?", size);
+        var avatar = new InitialAvatar(c == null ? "?" : WeChatData.DisplayName(c), size);
         avatar.SizeFlagsVertical = SizeFlags.ShrinkBegin;
         return avatar;
     }
@@ -1916,6 +2009,12 @@ public class ChatScriptData
 
     /// <summary>幽灵打字：输入框自己打字又删掉（留空 = 不演）</summary>
     public GhostTypingData GhostTyping { get; set; }
+
+    /// <summary>
+    /// 多条草稿版幽灵打字（第八章）：打了删、删了再打、再删。
+    /// 非空时优先于 ghostTyping，按数组顺序一条条演下来。
+    /// </summary>
+    public List<GhostTypingData> Drafts { get; set; }
 
     public void EnsureInitialized()
     {

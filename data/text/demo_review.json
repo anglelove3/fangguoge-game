@@ -119,6 +119,42 @@
       "chapter": "ch07",
       "where": "第七章《三点水》",
       "label": "跟江洁的那局台球，最后"
+    },
+    {
+      "choice": "ch08_draft",
+      "chapter": "ch08",
+      "where": "第八章《还想再见》",
+      "label": "群里 @ 了你一次，删了三遍之后发出去的是"
+    },
+    {
+      "choice": "ch08_heart_hello",
+      "chapter": "ch08",
+      "where": "第八章《还想再见》",
+      "label": "她的会话刚出现在最上面，第一句你发的是"
+    },
+    {
+      "choice": "ch08_remark",
+      "chapter": "ch08",
+      "where": "第八章《还想再见》",
+      "label": "她的备注，你改成了"
+    },
+    {
+      "choice": "ch08_toast",
+      "chapter": "ch08",
+      "where": "第八章《还想再见》",
+      "label": "一桌人等着听你的近况，你说的是"
+    },
+    {
+      "choice": "ch08_heart_leave",
+      "chapter": "ch08",
+      "where": "第八章《还想再见》",
+      "label": "散席门口看着别人一家老小上车，你心里想的是"
+    },
+    {
+      "choice": "ch08_where",
+      "chapter": "ch08",
+      "where": "第八章《还想再见》",
+      "label": "第二次见面去哪儿，你定的是"
     }
   ]
 }

@@ -134,6 +134,18 @@ public static class LiveEvents
     }
 
     /// <summary>
+    /// 直接给某位联系人挂 N 条未读（第十八轮：刚加进通讯录的那位，会话顶端就该挂个红点）。
+    /// 和动态事件的区别——这里没有"消息正文"要落库，只是提醒玩家"列表里有新面孔"。
+    /// </summary>
+    public static void GiveUnread(string contactId, int count = 1)
+    {
+        if (string.IsNullOrEmpty(contactId) || count <= 0)
+            return;
+        unread.TryGetValue(contactId, out int n);
+        unread[contactId] = n + count;
+    }
+
+    /// <summary>
     /// 给手机热点挂一个"未读小红点"：它每 0.5 秒自己看一眼有没有未读。
     /// （挂在按钮右上角，手机上没消息时完全不可见。）
     /// </summary>
@@ -230,13 +242,15 @@ public static class LiveEvents
         label.AddThemeColorOverride("font_color", new Color(0.98f, 0.97f, 0.93f));
         chip.AddChild(label);
 
-        // 右上角锚定（HintLabel 在顶部中间、通话提示在中右上，这条消息贴最上面）
+        // 右上角锚定（HintLabel 在顶部中间、通话提示在中右上）
+        // 高度要让开右上角那颗「返回菜单」——它占到 y≈66，以前这条贴顶（y=22）
+        // 正好把它整个盖住，玩家想退出去的时候按钮是看不见的。
         chip.AnchorLeft = 1f;
         chip.AnchorRight = 1f;
         chip.AnchorTop = 0f;
         chip.AnchorBottom = 0f;
         chip.GrowHorizontal = Control.GrowDirection.Begin;
-        chip.OffsetTop = 22f;
+        chip.OffsetTop = 96f;
         chip.OffsetRight = -28f;
         chip.Modulate = new Color(1, 1, 1, 0);
 

@@ -1,0 +1,44 @@
+{
+  "title": "今天的局",
+  "readOnly": true,
+  "readOnlyHint": "（先想清楚要说什么）",
+  "readOnlyToast": "手指停在键盘上，还没想好。",
+  "drafts": [
+    {
+      "text": "就吃了个饭。",
+      "startDelay": 1.6,
+      "typeSpeed": 0.14,
+      "hold": 1.2,
+      "deleteSpeed": 0.07
+    },
+    {
+      "text": "大家都挺好的。",
+      "startDelay": 1.0,
+      "typeSpeed": 0.14,
+      "hold": 1.2,
+      "deleteSpeed": 0.07
+    },
+    {
+      "text": "就是还",
+      "startDelay": 1.0,
+      "typeSpeed": 0.2,
+      "hold": 2.6,
+      "deleteSpeed": 0.07,
+      "afterToast": "打了三遍，删了三遍。"
+    }
+  ],
+  "messages": [
+    { "type": "divider", "text": "周日 晚上 11:32" },
+    { "sender": "other", "senderName": "小米师妹", "text": "@我 师兄，回宿舍了没？" },
+    { "sender": "other", "senderName": "金艮", "text": "就是说，他肯定没回，等着吧。" },
+    { "type": "divider", "text": "周一 上午 9:04" },
+    { "sender": "other", "senderName": "俊杰（师弟）", "text": "师兄今天组会几点？导师说要把上次的图重画" },
+    { "sender": "other", "senderName": "三金师兄", "text": "别问他，他在被窝里改图。" },
+    { "type": "divider", "text": "周一 晚上 8:12" },
+    { "sender": "other", "senderName": "小米师妹", "text": "师兄！今晚怎么一句话都没有，群里都冷清了" },
+    { "sender": "other", "senderName": "金艮", "text": "我说他不敢回。二十块，赌一杯奶茶。" },
+    { "sender": "other", "senderName": "小米师妹", "text": "赌什么赌，师兄你说句话嘛——那天玩得开心吗？" },
+    { "sender": "other", "senderName": "俊杰（师弟）", "text": "就是啊师兄，江洁后来回去了吗，路上黑不黑" },
+    { "sender": "other", "senderName": "小米师妹", "text": "@我 到你了。打字就行，不用长。" }
+  ]
+}

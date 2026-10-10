@@ -29,16 +29,69 @@ public static class WeChatData
     /// </summary>
     public static ContactsData LoadContacts()
     {
-        contactsRaw ??= Load<ContactsData>("res://data/contacts.json") ?? new ContactsData();
-
         int chapter = GameManager.Instance?.CurrentChapter ?? 0;
         var visible = new ContactsData { Contacts = new List<ContactData>() };
-        foreach (var c in contactsRaw.Contacts)
+        foreach (var c in RawContacts.Contacts)
         {
-            if (c.AfterChapter <= chapter)
-                visible.Contacts.Add(c);
+            if (c.AfterChapter > chapter)
+                continue;
+            // requiresFriend：加了好友才出现在列表里（江洁走这条——她不是"到第几章就自动认识了"，
+            // 是玩家亲手按了"添加到通讯录"的）。没加的人连列表都不该有他的名字。
+            // 管理器还没就绪（比如自动化测试直接开聊天页）时按"放行"处理，别把人变没了。
+            if (c.RequiresFriend)
+            {
+                var gm = GameManager.Instance;
+                if (gm != null && !gm.IsFriended(c.Id))
+                    continue;
+            }
+            visible.Contacts.Add(c);
         }
         return visible;
+    }
+
+    /// <summary>
+    /// 联系人原始表（不过滤）——"到底有哪些人"用这个；"这一章该显示哪些人"用 LoadContacts。
+    /// </summary>
+    public static ContactsData RawContacts
+    {
+        get
+        {
+            contactsRaw ??= Load<ContactsData>("res://data/contacts.json") ?? new ContactsData();
+            return contactsRaw;
+        }
+    }
+
+    /// <summary>
+    /// 等着玩家按下"添加到通讯录"的名片：
+    /// requiresFriend = true、afterChapter 已经到了、存档里还没加过的。
+    /// "新的朋友"页列的就是这份，通讯录那行的红点也数它。
+    /// </summary>
+    public static List<ContactData> PendingFriends()
+    {
+        var list = new List<ContactData>();
+        int chapter = GameManager.Instance?.CurrentChapter ?? 0;
+        foreach (var c in RawContacts.Contacts)
+        {
+            if (!c.RequiresFriend || c.AfterChapter > chapter)
+                continue;
+            if (GameManager.Instance?.IsFriended(c.Id) == true)
+                continue;
+            list.Add(c);
+        }
+        return list;
+    }
+
+    /// <summary>
+    /// 这个人显示出来叫什么。
+    /// 玩家改过备注 → 用存档里的备注（第十七轮：备注是真的备注，不是演一下就没）；
+    /// 没改过 → 用 contacts.json 里的本名。会话列表 / 通讯录 / 聊天页顶栏都走这里。
+    /// </summary>
+    public static string DisplayName(ContactData c)
+    {
+        if (c == null)
+            return "";
+        var remark = GameManager.Instance?.RemarkOf(c.Id);
+        return string.IsNullOrEmpty(remark) ? c.Name : remark;
     }
 
     /// <summary>
@@ -110,6 +163,38 @@ public class ContactData
     public string Name { get; set; } = "";
     public string Avatar { get; set; } = "";   // 头像图路径；留空 = 用名字首字生成色块头像
     public string ChatFile { get; set; } = ""; // 非空时聊天内容读 data/chat/{ChatFile}.json（同桌走这条）
+
+    /// <summary>
+    /// 同一份会话往后换剧本：键 = 从第几章起，值 = 那之后读 data/chat/{值}.json。
+    /// {"8":"ch08_group"} 的意思是"到了第八章，这个群聊的是 ch08_group.json"。
+    /// 【为什么要它】群是活的：周六攒的局和周一夜里追问的局不该是同一份记录，
+    /// 可联系人只有一个。往后第九、十章的群聊、和江洁的私聊，都走这条。
+    /// </summary>
+    public Dictionary<string, string> ChatFileFrom { get; set; } = new();
+
+    /// <summary>当前章节该看哪份聊天记录（没配 chatFileFrom 就用 chatFile）</summary>
+    public string ActiveChatFile
+    {
+        get
+        {
+            if (ChatFileFrom is not { Count: > 0 })
+                return ChatFile;
+            int chapter = GameManager.Instance?.CurrentChapter ?? 0;
+            string pick = null;
+            int pickFrom = -1;
+            foreach (var kv in ChatFileFrom)
+            {
+                if (!int.TryParse(kv.Key, out int from) || string.IsNullOrEmpty(kv.Value))
+                    continue;
+                if (from <= chapter && from > pickFrom)
+                {
+                    pick = kv.Value;
+                    pickFrom = from;
+                }
+            }
+            return pick ?? ChatFile;
+        }
+    }
     public string SessionTime { get; set; } = DataStore.Text("wx.session_time_default");
     public List<ChatMessageData> Messages { get; set; } = new();
 
@@ -147,6 +232,24 @@ public class ContactData
     /// 用来让联系人列表跟着剧情走——人不是凭空冒出来的。
     /// </summary>
     public int AfterChapter { get; set; }
+
+    /// <summary>
+    /// true = 这位要玩家亲手加好友才会出现在微信里（第十七轮：关系账第一次派上用场）。
+    /// 和 afterChapter 的区别：afterChapter 是"时间到了自然认识"，这条是"你得按下添加到通讯录"。
+    /// </summary>
+    public bool RequiresFriend { get; set; }
+
+    /// <summary>
+    /// "新的朋友"页里那行来源说明（例："来自群聊「今天的局」" / "小米师妹分享的名片"）。
+    /// 只有 requiresFriend 的人用得到；留空就只显示名字。
+    /// </summary>
+    public string FriendSource { get; set; } = "";
+
+    /// <summary>加好友时顺手记进关系账的事件 id（留空 = 只记"加了好友"这一笔）</summary>
+    public string FriendEvent { get; set; } = "";
+
+    /// <summary>加成功时给 ta 的会话挂几条未读（0 = 不挂红点；第八章江洁 = 1）</summary>
+    public int UnreadOnAdd { get; set; }
 
     /// <summary>点开的页面："subscriptions" = 订阅号文章列表，"steps" = 微信运动排行；留空 = 聊天页</summary>
     public string OpenPage { get; set; } = "";

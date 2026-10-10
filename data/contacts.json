@@ -1,11 +1,23 @@
 {
   "contacts": [
     {
+      "id": "jie",
+      "name": "江洁",
+      "avatar": "res://assets/art/chat/avatar_jie.png",
+      "chatFile": "ch08_jie",
+      "sessionTime": "上午 10:26",
+      "afterChapter": 8,
+      "requiresFriend": true,
+      "friendSource": "群聊「今天的局」里小米师妹推的名片",
+      "friendEvent": "ch08_add_jie",
+      "unreadOnAdd": 1
+    },
+    {
       "id": "baobao",
       "name": "宝宝（前女友）",
       "avatar": "res://assets/art/chat/her_avatar_v1.png",
       "chatFile": "ch02_phone",
-      "sessionTime": "今天 22:07"
+      "sessionTime": "晚上 10:07"
     },
     {
       "id": "deskmate",
@@ -125,8 +137,11 @@
       "kind": "group",
       "members": 5,
       "chatFile": "ch07_plan",
+      "chatFileFrom": {
+        "8": "ch08_group"
+      },
       "afterChapter": 7,
-      "sessionTime": "今天 下午 5:45",
+      "sessionTime": "下午 5:45",
       "previewText": "小米师妹: 到点见！[龇牙]",
       "groupAvatars": [
         "res://assets/art/chat/avatar_xiaomi.png",

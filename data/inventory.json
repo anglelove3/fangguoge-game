@@ -48,6 +48,12 @@
       "nameKey": "",
       "descKey": "bag.item_earphone_desc",
       "icon": "res://assets/art/items/icon_earphone.png"
+    },
+    {
+      "id": "cracker",
+      "nameKey": "",
+      "descKey": "bag.item_cracker_desc",
+      "icon": "res://assets/art/items/icon_cracker.png"
     }
   ]
 }

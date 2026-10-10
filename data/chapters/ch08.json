@@ -1,0 +1,16 @@
+{
+  "_comment": "第八章《还想再见》的接线参数：谁要加好友、群聊叫什么、隐藏物品是哪枚、每一幕震一下的动态事件、备注的三个候选文案键。想改人物、换事件、调备注文案，改这个文件就够了，不用碰 Ch08.cs。",
+
+  "friendContact": "jie",
+  "groupChat": "ch08_group",
+  "crackerItem": "cracker",
+
+  "liveEvents": {
+    "dorm1": "ch08_li_sanity",
+    "lab": "ch08_yebingyu_seat",
+    "wedding": "ch08_shenge_shop",
+    "dorm3": "ch08_jingen_money"
+  },
+
+  "remarkKeys": ["ch08.remark_0", "ch08.remark_1", "ch08.remark_2"]
+}

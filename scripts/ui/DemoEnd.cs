@@ -70,6 +70,11 @@ public partial class DemoEnd : Control
     /// <summary>一行回顾：左边"第几章"，右边"那处选择你答的是……"</summary>
     private Control MakeRow(string where, string question, string answer)
     {
+        // 有的选项本身就是台词（第八章那种「就是……还想再见。」），外面已经带书名号了。
+        // 回顾页还要再套一层，就会印成「「……」」——两头都尖，读着像打错了。
+        if (answer.Length >= 2 && answer.StartsWith("「") && answer.EndsWith("」"))
+            answer = answer.Substring(1, answer.Length - 2);
+
         var row = new HBoxContainer
         {
             CustomMinimumSize = new Vector2(1080, 0),

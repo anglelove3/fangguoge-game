@@ -1,6 +1,7 @@
 using Godot;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.Json;
 
 /// <summary>
@@ -131,6 +132,66 @@ public static class DataStore
 
     public static List<ReviewItem> ReviewItems =>
         (review ??= LoadJson<ReviewFile>("res://data/text/demo_review.json"))?.Items ?? new();
+
+    // ========== 人物设定（角色卡，data/characters.json） ==========
+    //
+    // 第十七轮起，"这个人是谁"只有一份真相：data/characters.json。
+    // 昵称颜色、头像、关系阶段默认值全部从这里读，C# 里不再出现任何人名分支。
+    // 想给江洁换姓、改颜色、加别名，改那个 JSON 就行，不用碰代码。
+
+    private static CharactersFile charactersData;
+
+    private static CharactersFile Characters =>
+        charactersData ??= LoadJson<CharactersFile>("res://data/characters.json") ?? new CharactersFile();
+
+    /// <summary>全表人物（顺序 = 角色卡顺序，主角在前）</summary>
+    public static List<CharacterEntry> Cast => Characters.Cast ?? new();
+
+    /// <summary>按 id 取人物（代码里写 "jie" 取到的就是江洁）</summary>
+    public static CharacterEntry Character(string id) =>
+        Cast.Find(c => c.Id == id);
+
+    /// <summary>
+    /// 按台词里的称呼取人物。称呼可能写成"俊杰"，而角色卡里叫"俊杰（师弟）"，
+    /// 所以先剥掉全角括号里的注释，再双向 Contains 比对；别名（aka）同样参与匹配。
+    /// </summary>
+    public static CharacterEntry CharacterBySpeaker(string speaker)
+    {
+        if (string.IsNullOrEmpty(speaker))
+            return null;
+        foreach (var c in Cast)
+        {
+            if (Matches(c.Name, speaker) || c.Aka?.Any(a => Matches(a, speaker)) == true)
+                return c;
+        }
+        return null;
+    }
+
+    private static bool Matches(string cardName, string speaker)
+    {
+        if (string.IsNullOrEmpty(cardName))
+            return false;
+        var baseName = cardName.Split('（')[0].Trim();
+        if (baseName.Length == 0)
+            return false;
+        return baseName == speaker || speaker.Contains(baseName) || baseName.Contains(speaker);
+    }
+
+    /// <summary>某句台词说话人的昵称颜色（角色卡没这个人时用兜底色，不报错）</summary>
+    public static Color SpeakerColor(string speaker, Color fallback)
+    {
+        var c = CharacterBySpeaker(speaker);
+        if (c == null)
+            return fallback;
+        // "#RRGGBB" 才交给 FromHtml 解析——它不校验格式，写成别的只会静默变黑，所以先自己查。
+        var hex = c.Color;
+        if (string.IsNullOrEmpty(hex) || !hex.StartsWith("#") || hex.Length != 7)
+            return fallback;
+        return Color.FromHtml(hex);
+    }
+
+    /// <summary>某个人物的微信头像路径（没有或空串返回 ""）</summary>
+    public static string CharacterAvatar(string id) => Character(id)?.Avatar ?? "";
 }
 
 // ==================== 数据结构 ====================
@@ -221,4 +282,30 @@ public class ReviewItem
     public string GroupId => Choice != null && Choice.StartsWith(Chapter + "_")
         ? Choice.Substring(Chapter.Length + 1)
         : Choice;
+}
+
+/// <summary>角色卡文件（对应 data/characters.json）</summary>
+public class CharactersFile
+{
+    public List<CharacterEntry> Cast { get; set; } = new();
+}
+
+/// <summary>一个人物的设定：他是谁、长什么样口径、怎么说话、昵称什么颜色</summary>
+public class CharacterEntry
+{
+    public string Id { get; set; } = "";              // 程序内代号（jie / jiegen…），不进玩家视野
+    public string Name { get; set; } = "";            // 显示名
+    public List<string> Aka { get; set; } = new();    // 别名 / 外号，也参与昵称着色匹配
+    public string Line { get; set; } = "";            // 所属圈子（感情线 / 实验室 / 老家…）
+    public string Debut { get; set; } = "";           // 首次出场章节
+    public string Identity { get; set; } = "";        // 身份设定
+    public string Look { get; set; } = "";            // 形象口径（画立绘、挑头像时照这个走）
+    public string Voice { get; set; } = "";           // 说话方式（写台词时的准绳）
+    public string Color { get; set; } = "";           // 昵称颜色 "#RRGGBB"
+    public string Avatar { get; set; } = "";          // 微信头像路径
+    public List<string> Portraits { get; set; } = new(); // 立绘名
+    public string Relationship { get; set; } = "";    // 与主角的关系（写给人看的说明）
+    public string Stage { get; set; } = "";           // 关系阶段出厂值（just_met / ex…），存档里的值覆盖它
+    public List<string> Editable { get; set; } = new();   // 哪些地方还留着改动空间
+    public List<string> EditFiles { get; set; } = new();  // 改这个人要一起动的文件
 }

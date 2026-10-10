@@ -80,6 +80,10 @@ public partial class FlavorSpots : Control
                 Flat = true,
                 FocusMode = FocusModeEnum.None,
             };
+            // 先挂进树里再登记坐标：ArtAnchor 要拿得到 Viewport 才算得出位置。
+            // （老顺序里按钮还是"孤儿节点"，GetViewport() 为空 → 位置尺寸全停在 0×0，
+            //  结果"点万物有回应"变成一个躲在左上角、面积零点的小点，玩家永远点不到。）
+            hotspotsRoot.AddChild(btn);
             // 比例（1920×1080 设计稿）→ 美术图坐标：背景 cover 缩放时小地方也贴在原处
             ArtAnchor.TrackFraction(btn, new Rect2(def.X, def.Y, def.W, def.H));
             btn.AddThemeStyleboxOverride("normal", new StyleBoxEmpty());
@@ -91,7 +95,6 @@ public partial class FlavorSpots : Control
             spot.Glow = HotspotGlow.Attach(btn);
             btn.Pressed += () => host.OnSpotPressed(spot);
 
-            hotspotsRoot.AddChild(btn);
             host.spots.Add(spot);
         }
 
