@@ -78,7 +78,14 @@ public static class LiveEvents
         host.GetTree().CreateTimer(delay).Timeout += () =>
         {
             if (!GodotObject.IsInstanceValid(host))
+            {
+                // 章节已经翻篇（节点没了）：飘字/震感没地方放，但消息本体不能丢——
+                // 落库 + 记存档；下次打开手机，红点和消息都在（补投递天然去重）。
+                GameManager.Instance?.RecordLiveEvent(def.Id);
+                PushMessage(def);
+                GrantItemIfAny(def);
                 return;
+            }
             Deliver(host, def);
         };
     }

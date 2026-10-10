@@ -191,6 +191,7 @@ public partial class GameManager : Node
         if (!string.IsNullOrEmpty(eventId) && !liveEvents.Contains(eventId))
         {
             liveEvents.Add(eventId);
+            SaveGame(); // 送达就落档，强退也不丢红点状态
             GD.Print($"[动态事件] 已记录：{eventId}");
         }
     }
@@ -204,7 +205,10 @@ public partial class GameManager : Node
     public void MarkPageSeen(string pageId)
     {
         if (!string.IsNullOrEmpty(pageId) && seenPages.Add(pageId))
+        {
+            SaveGame(); // 看过就落档，写死角标不会因强退复活
             GD.Print($"[系统页面] 已看过：{pageId}");
+        }
     }
 
     // ========== 背包（第十五轮） ==========

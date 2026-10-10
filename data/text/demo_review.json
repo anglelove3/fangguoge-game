@@ -103,6 +103,12 @@
       "label": "师妹在桌子底下问「准备说点什么」，你回她"
     },
     {
+      "choice": "ch07_heart_cue",
+      "chapter": "ch07",
+      "where": "第七章《三点水》",
+      "label": "手心发潮的那一杆，你选的是"
+    },
+    {
       "choice": "ch07_topic",
       "chapter": "ch07",
       "where": "第七章《三点水》",

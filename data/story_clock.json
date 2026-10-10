@@ -1,0 +1,10 @@
+{
+  "prologue": { "time": "23:55", "month": 10, "day": 17, "weekday": 5 },
+  "ch01": { "time": "18:40", "month": 1, "day": 18, "weekday": 6 },
+  "ch02": { "time": "22:07", "month": 3, "day": 21, "weekday": 5 },
+  "ch03": { "time": "23:30", "month": 3, "day": 21, "weekday": 5 },
+  "ch04": { "time": "00:40", "month": 10, "day": 18, "weekday": 6 },
+  "ch05": { "time": "17:30", "month": 10, "day": 19, "weekday": 0 },
+  "ch06": { "time": "21:40", "month": 10, "day": 24, "weekday": 5 },
+  "ch07": { "time": "17:20", "month": 10, "day": 26, "weekday": 0 }
+}

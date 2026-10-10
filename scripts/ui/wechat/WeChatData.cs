@@ -110,7 +110,7 @@ public class ContactData
     public string Name { get; set; } = "";
     public string Avatar { get; set; } = "";   // 头像图路径；留空 = 用名字首字生成色块头像
     public string ChatFile { get; set; } = ""; // 非空时聊天内容读 data/chat/{ChatFile}.json（同桌走这条）
-    public string SessionTime { get; set; } = "昨天";
+    public string SessionTime { get; set; } = DataStore.Text("wx.session_time_default");
     public List<ChatMessageData> Messages { get; set; } = new();
 
     // ---------- 第九轮：群聊 / 系统账号 ----------
@@ -162,7 +162,7 @@ public class ContactData
                 if (Messages[i].Type != "divider" && Messages[i].Type != "image")
                     return Messages[i].Text;
             }
-            return "[图片]";
+            return DataStore.Text("wx.image_preview");
         }
     }
 }

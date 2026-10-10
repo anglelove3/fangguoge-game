@@ -131,7 +131,7 @@ public partial class MusicAppPage : PhoneAppPage
         AddChild(player);
 
         var (_, box, _) = MakeHeader(NeteaseRed);
-        AddBackAndTitle(box, PhoneData.App("music")?.Name ?? "网易云音乐", Colors.White);
+        AddBackAndTitle(box, PhoneData.App("music")?.Name ?? DataStore.Text("phone.fallback_music"), Colors.White);
 
         BuildNowPlaying();
         BuildSongList();
@@ -537,7 +537,7 @@ public partial class AlbumAppPage : PhoneAppPage
         SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
 
         var (_, box, _) = MakeHeader(HeaderGrey);
-        AddBackAndTitle(box, PhoneData.App("album")?.Name ?? "相册", Colors.White);
+        AddBackAndTitle(box, PhoneData.App("album")?.Name ?? DataStore.Text("phone.fallback_album"), Colors.White);
 
         var pad = new MarginContainer { MouseFilter = MouseFilterEnum.Ignore };
         pad.AnchorRight = 1f;
@@ -732,7 +732,7 @@ public partial class MailAppPage : PhoneAppPage
         SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
 
         var (_, box, _) = MakeHeader(QqBlue);
-        AddBackAndTitle(box, PhoneData.App("mail")?.Name ?? "QQ邮箱", Colors.White);
+        AddBackAndTitle(box, PhoneData.App("mail")?.Name ?? DataStore.Text("phone.fallback_mail"), Colors.White);
 
         // ---- 列表视图 ----
         listView = new Control { MouseFilter = MouseFilterEnum.Ignore };
@@ -1002,6 +1002,13 @@ public partial class AiChatPage : PhoneAppPage
         for (int i = 0; i < qs.Count; i++)
         {
             int idx = i;
+            chipUsed.Add(false); // 与 qs 下标对齐（RefreshChips 按同一下标删"用过的"条）
+            // 伏笔提问：到章节才出现（如「复合」之问 ch03 分手后才显示）
+            if (!StoryClock.Reached(qs[i].After))
+            {
+                chips.Add(null); // 占位：跳过的提问也不能压缩下标，否则会删错条
+                continue;
+            }
             var chip = new Button
             {
                 Text = qs[i].Q,
@@ -1029,7 +1036,6 @@ public partial class AiChatPage : PhoneAppPage
             chip.Pressed += () => Ask(idx);
             rows.AddChild(chip);
             chips.Add(chip);
-            chipUsed.Add(false);
         }
 
         // ---- 假输入栏（点一下弹 toast）----
@@ -1089,7 +1095,7 @@ public partial class AiChatPage : PhoneAppPage
         avatar.AddThemeStyleboxOverride("panel", st);
         var label = new Label
         {
-            Text = "深",
+            Text = DataStore.Text("phone.ai_initial"),
             HorizontalAlignment = HorizontalAlignment.Center,
             VerticalAlignment = VerticalAlignment.Center,
             MouseFilter = MouseFilterEnum.Ignore,
@@ -1259,12 +1265,24 @@ public partial class AiChatPage : PhoneAppPage
 
     private void RefreshChips()
     {
+        bool busy = thinking || revealing;
         for (int i = 0; i < chips.Count; i++)
         {
-            bool busy = thinking || revealing;
+            var chip = chips[i];
+            if (chip == null || !IsInstanceValid(chip))
+                continue;
             bool used = i < chipUsed.Count && chipUsed[i];
-            chips[i].Disabled = busy || used;
-            chips[i].Modulate = used ? new Color(1, 1, 1, 0.55f) : Colors.White;
+            if (used)
+            {
+                // 问过的建议直接收走，不留灰色死条
+                rows.RemoveChild(chip);
+                chip.QueueFree();
+                chips[i] = null;
+                continue;
+            }
+            // 思考/逐字期间只是不接点击，外观保持原样，避免整排变灰
+            chip.Disabled = false;
+            chip.MouseFilter = busy ? MouseFilterEnum.Ignore : MouseFilterEnum.Stop;
         }
     }
 

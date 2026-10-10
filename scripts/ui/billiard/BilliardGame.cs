@@ -246,6 +246,9 @@ public partial class BilliardGame : Control
             return;
         opened = true;
 
+        // 台面遮罩会盖住角落按钮，把背包/返回菜单抬到遮罩之上，免得发灰看不清
+        SetCornerButtonsRaised(true);
+
         suppressing = true;
         DialogueManager.Instance?.SetUiSuppressed(true);
 
@@ -275,6 +278,7 @@ public partial class BilliardGame : Control
                 suppressing = false;
                 DialogueManager.Instance?.SetUiSuppressed(false);
             }
+            SetCornerButtonsRaised(false);
             Closed?.Invoke();
             QueueFree();
         }));
@@ -287,6 +291,21 @@ public partial class BilliardGame : Control
         {
             suppressing = false;
             DialogueManager.Instance?.SetUiSuppressed(false);
+        }
+        SetCornerButtonsRaised(false);
+    }
+
+    /// <summary>把左上背包 / 右上返回菜单抬到台面遮罩之上（或还原）</summary>
+    private void SetCornerButtonsRaised(bool raised)
+    {
+        var parent = GetParent();
+        if (parent == null)
+            return;
+        foreach (var n in new[] { "BagButton", "BackButton" })
+        {
+            var b = parent.GetNodeOrNull<Control>(n);
+            if (b != null)
+                b.ZIndex = raised ? 100 : 0;
         }
     }
 

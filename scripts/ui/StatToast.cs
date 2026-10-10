@@ -48,13 +48,13 @@ public partial class StatToast : Control
 
         if (affectionDelta != 0)
         {
-            affectionLabel.Text = $"好感度 {FormatDelta(affectionDelta)}";
+            affectionLabel.Text = $"{DataStore.Text("toast.affection")} {FormatDelta(affectionDelta)}";
             affectionLabel.AddThemeColorOverride("font_color",
                 affectionDelta > 0 ? AffectionColor : NegativeColor);
         }
         if (courageDelta != 0)
         {
-            courageLabel.Text = $"勇气值 {FormatDelta(courageDelta)}";
+            courageLabel.Text = $"{DataStore.Text("toast.courage")} {FormatDelta(courageDelta)}";
             courageLabel.AddThemeColorOverride("font_color",
                 courageDelta > 0 ? CourageColor : NegativeColor);
         }

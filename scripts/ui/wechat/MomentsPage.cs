@@ -73,7 +73,7 @@ public partial class MomentsPage : Control
 
         var title = new Label
         {
-            Text = "朋友圈",
+            Text = DataStore.Text("wx.moments"),
             HorizontalAlignment = HorizontalAlignment.Center,
             VerticalAlignment = VerticalAlignment.Center,
             MouseFilter = MouseFilterEnum.Ignore,
@@ -151,7 +151,7 @@ public partial class MomentsPage : Control
 
         var myName = new Label
         {
-            Text = "我",
+            Text = DataStore.Text("wx.tab_me"),
             HorizontalAlignment = HorizontalAlignment.Right,
             VerticalAlignment = VerticalAlignment.Center,
             MouseFilter = MouseFilterEnum.Ignore,
@@ -249,11 +249,11 @@ public partial class MomentsPage : Control
         var expander = new Control { SizeFlagsHorizontal = SizeFlags.ExpandFill, MouseFilter = MouseFilterEnum.Ignore };
         meta.AddChild(expander);
 
-        ui.LikeBtn = MakeSmallActionBtn(post.Likes.Contains("我") ? "取消赞" : "赞");
+        ui.LikeBtn = MakeSmallActionBtn(post.Likes.Contains("我") ? DataStore.Text("moments.unlike") : DataStore.Text("moments.like"));
         ui.LikeBtn.Pressed += () => ToggleLike(ui);
         meta.AddChild(ui.LikeBtn);
 
-        var commentBtn = MakeSmallActionBtn("评论");
+        var commentBtn = MakeSmallActionBtn(DataStore.Text("moments.comment"));
         commentBtn.Pressed += () =>
         {
             ui.InputRow.Visible = !ui.InputRow.Visible;
@@ -340,7 +340,7 @@ public partial class MomentsPage : Control
             ui.Post.Likes.Add("我");
         else
             ui.Post.Likes.Remove("我");
-        ui.LikeBtn.Text = liking ? "取消赞" : "赞";
+        ui.LikeBtn.Text = liking ? DataStore.Text("moments.unlike") : DataStore.Text("moments.like");
         RebuildSocial(ui);
         if (liking)
             SpawnHearts(ui.LikeBtn); // 只有点赞有特效，取消赞安安静静
@@ -389,7 +389,7 @@ public partial class MomentsPage : Control
 
         ui.Input = new LineEdit
         {
-            PlaceholderText = "说点什么……",
+            PlaceholderText = DataStore.Text("moments.comment_placeholder"),
             SizeFlagsHorizontal = SizeFlags.ExpandFill,
             CustomMinimumSize = new Vector2(0, 64),
         };
@@ -412,7 +412,7 @@ public partial class MomentsPage : Control
 
         var send = new Button
         {
-            Text = "发送",
+            Text = DataStore.Text("common.send"),
             MouseDefaultCursorShape = CursorShape.PointingHand,
             CustomMinimumSize = new Vector2(96, 64),
         };

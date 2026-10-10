@@ -62,6 +62,7 @@ theme_override_constants/separation = 10
 
 [node name="NameLabel" type="Label" parent="Panel/VBox"]
 layout_mode = 2
+custom_minimum_size = Vector2(0, 34)
 theme_override_colors/font_color = Color(1, 0.85, 0.55, 1)
 theme_override_font_sizes/font_size = 26
 text = ""
@@ -76,6 +77,7 @@ theme_override_font_sizes/normal_font_size = 28
 
 [node name="ContinueHint" type="Label" parent="Panel/VBox"]
 layout_mode = 2
+custom_minimum_size = Vector2(0, 24)
 theme_override_colors/font_color = Color(1, 1, 1, 0.7)
 theme_override_font_sizes/font_size = 16
 text = "点击继续 ▾"

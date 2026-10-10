@@ -57,6 +57,8 @@ public static class PhoneData
     {
         public string Q { get; set; } = "";
         public string A { get; set; } = "";
+        /// <summary>可选：到达该章节后才显示这条提问（如 "ch03"）</summary>
+        public string After { get; set; } = "";
     }
 
     public class AiSection

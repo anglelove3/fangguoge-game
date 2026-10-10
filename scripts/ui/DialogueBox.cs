@@ -41,6 +41,7 @@ public partial class DialogueBox : Control
 
     private float charsShown = 0f;
     private bool typing = false;
+    private bool hintOn = false;   // "点击继续"是否该亮（用透明度切换，避免高度跳变）
 
     // 打字机音效：每显示 N 个字"滴答"一声
     private const int TickEveryChars = 3;
@@ -66,7 +67,29 @@ public partial class DialogueBox : Control
         continueHint.Text = DataStore.Text("ui.continue_hint");
         autoBadge.Text = DataStore.Text("ui.auto_badge");
 
+        // 文本自适应高度：对话框按内容长高矮，单句话不再留一大片空
+        textLabel.FitContent = true;
+
         Hide(); // 默认隐藏，需要时再显示
+    }
+
+    /// <summary>按当前内容收紧/放宽面板高度（底边不动，向上长）</summary>
+    private void FitPanel()
+    {
+        if (panel == null || !IsInstanceValid(panel))
+            return;
+        float h = Mathf.Clamp(panel.GetCombinedMinimumSize().Y, 150f, 460f);
+        panel.OffsetTop = -56f - h;
+        // "自动播放中"角标贴着面板上沿走
+        autoBadge.OffsetTop = panel.OffsetTop - 42f;
+        autoBadge.OffsetBottom = panel.OffsetTop - 8f;
+    }
+
+    private void SetHint(bool on)
+    {
+        hintOn = on;
+        if (!on)
+            continueHint.Modulate = new Color(1, 1, 1, 0);
     }
 
     /// <summary>显示/隐藏"自动播放中"角标（Tab 切换时由 DialogueManager 调用）</summary>
@@ -99,7 +122,8 @@ public partial class DialogueBox : Control
         charsShown = 0f;
         typing = true;
         nextTickChar = TickEveryChars;
-        continueHint.Hide();
+        SetHint(false);
+        CallDeferred(nameof(FitPanel));
 
         if (instant)
         {
@@ -180,7 +204,7 @@ public partial class DialogueBox : Control
 
         typing = false;
         textLabel.VisibleCharacters = -1; // -1 = 全部显示
-        continueHint.Show();
+        SetHint(true);
         EmitSignal(SignalName.TypewriterFinished);
     }
 
@@ -203,7 +227,7 @@ public partial class DialogueBox : Control
     /// </summary>
     public void SetContinueHintVisible(bool visible)
     {
-        continueHint.Visible = visible;
+        SetHint(visible);
     }
 
     public override void _Process(double delta)
@@ -235,7 +259,7 @@ public partial class DialogueBox : Control
                 }
             }
         }
-        else if (continueHint.Visible)
+        else if (hintOn)
         {
             // "点击继续"提示呼吸闪烁
             float alpha = 0.35f + 0.65f * (0.5f + 0.5f * Mathf.Sin((float)Time.GetTicksMsec() * 0.004f));

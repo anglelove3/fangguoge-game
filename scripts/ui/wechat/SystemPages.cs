@@ -25,7 +25,7 @@ public partial class SubscriptionsPage : Control
         MouseFilter = MouseFilterEnum.Stop;
         AddChild(SystemPagesKit.MakePageBg(PageBg));
 
-        var header = SystemPagesKit.BuildHeader("订阅号消息", () => BackPressed?.Invoke());
+        var header = SystemPagesKit.BuildHeader(DataStore.Text("sys.subscriptions_title"), () => BackPressed?.Invoke());
         AddChild(header);
 
         var scroll = new ScrollContainer
@@ -67,10 +67,10 @@ public partial class SubscriptionsPage : Control
         title.AddThemeColorOverride("font_color", TextDark);
         vbox.AddChild(title);
 
-        var meta = SystemPagesKit.MakeLabel($"{a.Source} · {a.Time} · 阅读 {a.Reads}", 22, TextGray);
+        var meta = SystemPagesKit.MakeLabel(DataStore.Text("sys.article_meta", a.Source, a.Time, a.Reads), 22, TextGray);
         vbox.AddChild(meta);
 
-        row.Pressed += () => ToastRequested?.Invoke("演示版：文章正文暂未开放～");
+        row.Pressed += () => ToastRequested?.Invoke(DataStore.Text("sys.article_toast"));
         return row;
     }
 }
@@ -93,7 +93,7 @@ public partial class StepsRankingPage : Control
         MouseFilter = MouseFilterEnum.Stop;
         AddChild(SystemPagesKit.MakePageBg(PageBg));
 
-        var header = SystemPagesKit.BuildHeader("微信运动", () => BackPressed?.Invoke());
+        var header = SystemPagesKit.BuildHeader(DataStore.Text("sys.steps_title"), () => BackPressed?.Invoke());
         AddChild(header);
 
         var scroll = new ScrollContainer
@@ -120,12 +120,12 @@ public partial class StepsRankingPage : Control
         var cardBox = new VBoxContainer { MouseFilter = MouseFilterEnum.Ignore };
         cardBox.AddThemeConstantOverride("separation", 8);
         card.AddChild(cardBox);
-        cardBox.AddChild(SystemPagesKit.MakeLabel($"今日步数 {data.MySteps}", 34, TextDark));
+        cardBox.AddChild(SystemPagesKit.MakeLabel(DataStore.Text("sys.steps_today", data.MySteps), 34, TextDark));
         if (!string.IsNullOrEmpty(data.MyStepsCaption))
             cardBox.AddChild(SystemPagesKit.MakeLabel(data.MyStepsCaption, 22, TextGray));
         box.AddChild(card);
 
-        var listTitle = SystemPagesKit.MakeLabel("今日排行", 24, TextGray);
+        var listTitle = SystemPagesKit.MakeLabel(DataStore.Text("sys.steps_rank_title"), 24, TextGray);
         box.AddChild(UiKit.WrapMargin(listTitle, 28, 20, 0, 8));
 
         int rank = 0;
@@ -173,11 +173,11 @@ public partial class StepsRankingPage : Control
         if (!string.IsNullOrEmpty(s.Remark))
             mid.AddChild(SystemPagesKit.MakeLabel(s.Remark, 22, TextGray));
 
-        var count = SystemPagesKit.MakeLabel($"{s.Count:,} 步", 26, rank == 1 ? new Color(0.92f, 0.45f, 0.15f) : TextGray);
+        var count = SystemPagesKit.MakeLabel(DataStore.Text("sys.steps_count", s.Count), 26, rank == 1 ? new Color(0.92f, 0.45f, 0.15f) : TextGray);
         count.SizeFlagsVertical = SizeFlags.ShrinkCenter;
         hbox.AddChild(count);
 
-        row.Pressed += () => ToastRequested?.Invoke("演示版：点赞功能暂未开放～");
+        row.Pressed += () => ToastRequested?.Invoke(DataStore.Text("sys.steps_like_toast"));
         return row;
     }
 

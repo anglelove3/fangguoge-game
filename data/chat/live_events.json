@@ -24,7 +24,7 @@
     {
       "id": "ch03_faxiao_drink",
       "chapter": "ch03",
-      "contact": "faxiao",
+      "contact": "shenge",
       "text": "啥时候回来？我请你喝一顿，老地方。",
       "delay": 10.0
     },
@@ -35,6 +35,20 @@
       "sender": "三金师兄",
       "text": "凌晨还在线的，离心机两点到四点的空档，先到先得。",
       "delay": 8.0
+    },
+    {
+      "id": "ch04_baobao_sorry",
+      "chapter": "ch04",
+      "contact": "baobao",
+      "text": "对不起。那天到最后，我都没能好好把话说完。",
+      "delay": 16.0
+    },
+    {
+      "id": "ch04_baobao_care",
+      "chapter": "ch04",
+      "contact": "baobao",
+      "text": "照顾好自己。天冷了，记得加衣服。",
+      "delay": 34.0
     },
     {
       "id": "ch05_ba_ask",

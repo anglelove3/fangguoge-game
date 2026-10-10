@@ -115,6 +115,10 @@ public partial class Ch04 : ChapterBase
 
         // "手机活起来"：凌晨的宿舍里，li-lab 群有人还在报仪器空档
         LiveEvents.Fire(this, "ch04", "ch04_sanjin_lab");
+
+        // 分手之后，宝宝那头迟到的两句收尾（对不起 / 照顾好自己）
+        LiveEvents.Fire(this, "ch04", "ch04_baobao_sorry");
+        LiveEvents.Fire(this, "ch04", "ch04_baobao_care");
     }
 
     private void UpdateHint()

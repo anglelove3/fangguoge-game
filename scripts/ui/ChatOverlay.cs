@@ -149,6 +149,18 @@ public partial class ChatOverlay : Control
             suppressing = false;
             DialogueManager.Instance?.SetUiSuppressed(false);
         }
+        RestoreHint();
+    }
+
+    // 手机打开期间暂藏的场景顶部提示（收起手机时还原）
+    private Control hiddenHint;
+    private bool hintWasVisible = true;
+
+    private void RestoreHint()
+    {
+        if (hiddenHint != null && IsInstanceValid(hiddenHint))
+            hiddenHint.Visible = hintWasVisible;
+        hiddenHint = null;
     }
 
     // ==================== 对外 API ====================
@@ -185,7 +197,7 @@ public partial class ChatOverlay : Control
                       ?? new ContactData
                       {
                           Id = chatId,
-                          Name = "宝宝（前女友）",
+                          Name = DataStore.Text("chat.contact_baobao"),
                           Avatar = WeChatData.BaobaoAvatarPath,
                           ChatFile = chatId,
                       };
@@ -209,6 +221,14 @@ public partial class ChatOverlay : Control
         suppressing = true;
         DialogueManager.Instance?.SetUiSuppressed(true);
 
+        // 场景顶部提示藏在手机后面只会变成一条被裁暗的残影，先收起来
+        hiddenHint = GetTree()?.CurrentScene?.GetNodeOrNull<Control>("HintLabel");
+        if (hiddenHint != null)
+        {
+            hintWasVisible = hiddenHint.Visible;
+            hiddenHint.Visible = false;
+        }
+
         // 入场动画：整体淡入 + 手机从下方轻轻滑上来
         Modulate = new Color(1, 1, 1, 0);
         PlayEnterAnimation();
@@ -230,6 +250,7 @@ public partial class ChatOverlay : Control
                 suppressing = false;
                 DialogueManager.Instance?.SetUiSuppressed(false);
             }
+            RestoreHint();
             Closed?.Invoke();
             QueueFree();
         }));
@@ -484,7 +505,7 @@ public partial class ChatOverlay : Control
 
         if (clearedChats.Contains(currentContact.Id))
         {
-            rows.AddChild(MakeDivider("聊天记录已清空"));
+            rows.AddChild(MakeDivider(DataStore.Text("chat.cleared_toast")));
             return;
         }
 
@@ -653,7 +674,7 @@ public partial class ChatOverlay : Control
         // 输入框：真能打字（回车 = 发送）
         inputField = new LineEdit
         {
-            PlaceholderText = "发消息……",
+            PlaceholderText = DataStore.Text("chat.input_placeholder"),
             MouseFilter = MouseFilterEnum.Stop,
             SizeFlagsHorizontal = SizeFlags.ExpandFill,
             CustomMinimumSize = new Vector2(0, 64),
@@ -690,7 +711,7 @@ public partial class ChatOverlay : Control
         // 发送按钮
         var sendBtn = new Button
         {
-            Text = "发送",
+            Text = DataStore.Text("common.send"),
             MouseFilter = MouseFilterEnum.Stop,
             MouseDefaultCursorShape = CursorShape.PointingHand,
             CustomMinimumSize = new Vector2(106, 52),
@@ -730,10 +751,10 @@ public partial class ChatOverlay : Control
         var plusGrid = new HBoxContainer { MouseFilter = MouseFilterEnum.Ignore };
         plusGrid.AddThemeConstantOverride("separation", 26);
         plusPanel.AddChild(UiKit.WrapMargin(plusGrid, 36, 40, 36, 40));
-        AddPlusItem(plusGrid, "相册");
-        AddPlusItem(plusGrid, "拍摄");
-        AddPlusItem(plusGrid, "位置");
-        AddPlusItem(plusGrid, "红包");
+        AddPlusItem(plusGrid, DataStore.Text("chat.plus_album"));
+        AddPlusItem(plusGrid, DataStore.Text("chat.plus_camera"));
+        AddPlusItem(plusGrid, DataStore.Text("chat.plus_location"));
+        AddPlusItem(plusGrid, DataStore.Text("chat.plus_redpack"));
 
         // ---- 预设回复条（默认隐藏，浮在输入栏上方）----
         quickBar = new VBoxContainer { MouseFilter = MouseFilterEnum.Ignore };
@@ -767,7 +788,7 @@ public partial class ChatOverlay : Control
         typingChip.GrowVertical = GrowDirection.Begin;
         typingChip.Visible = false;
         chatPage.AddChild(typingChip);
-        var typingLabel = new Label { Text = "对方正在输入…", MouseFilter = MouseFilterEnum.Ignore };
+        var typingLabel = new Label { Text = DataStore.Text("chat.typing"), MouseFilter = MouseFilterEnum.Ignore };
         typingLabel.AddThemeFontSizeOverride("font_size", 22);
         typingLabel.AddThemeColorOverride("font_color", new Color(0.45f, 0.45f, 0.5f));
         typingChip.AddChild(typingLabel);
@@ -791,7 +812,7 @@ public partial class ChatOverlay : Control
         chatPage.AddChild(hintChip);
         var hintLabel = new Label
         {
-            Text = "往上滑，看看之前的聊天",
+            Text = DataStore.Text("chat.scroll_hint"),
             HorizontalAlignment = HorizontalAlignment.Center,
             VerticalAlignment = VerticalAlignment.Center,
             MouseFilter = MouseFilterEnum.Ignore,
@@ -834,19 +855,19 @@ public partial class ChatOverlay : Control
         menuBox.AddThemeConstantOverride("separation", 0);
         menuPanel.AddChild(UiKit.WrapMargin(menuBox, 0, 6, 0, 6));
 
-        AddMenuItem(menuBox, "发起通话", () =>
+        AddMenuItem(menuBox, DataStore.Text("chat.menu_call"), () =>
         {
             HideMenu();
-            ShowToast("嘟——嘟——\n对方没有接\n（这个小功能还是摆设～）");
+            ShowToast(DataStore.Text("chat.menu_call_toast"));
         });
-        AddMenuItem(menuBox, "清空聊天记录", () =>
+        AddMenuItem(menuBox, DataStore.Text("chat.menu_clear"), () =>
         {
             HideMenu();
             clearedChats.Add(currentContact.Id);
             RebuildChatRows();
-            ShowToast("聊天记录已清空");
+            ShowToast(DataStore.Text("chat.cleared_toast"));
         });
-        AddMenuItem(menuBox, "收起手机", () =>
+        AddMenuItem(menuBox, DataStore.Text("chat.menu_close"), () =>
         {
             HideMenu();
             Close();
@@ -1221,7 +1242,7 @@ public partial class ChatOverlay : Control
 
         var closeBtn = new Button
         {
-            Text = "放下手机",
+            Text = DataStore.Text("chat.put_down"),
             MouseFilter = MouseFilterEnum.Stop,
             MouseDefaultCursorShape = CursorShape.PointingHand,
         };
@@ -1290,7 +1311,7 @@ public partial class ChatOverlay : Control
         btn.AddThemeStyleboxOverride("focus", new StyleBoxEmpty());
         btn.AddThemeFontSizeOverride("font_size", 26);
         btn.AddThemeColorOverride("font_color", new Color(0.32f, 0.32f, 0.36f));
-        btn.Pressed += () => ShowToast($"演示版：「{name}」暂未开放");
+        btn.Pressed += () => ShowToast(DataStore.Text("chat.plus_demo_toast", name));
         grid.AddChild(btn);
     }
 
@@ -1298,7 +1319,7 @@ public partial class ChatOverlay : Control
     {
         if (ActiveReadOnly)
         {
-            ShowToast("只读会话，发不了这些～");
+            ShowToast(DataStore.Text("chat.readonly_plus_toast"));
             return;
         }
         plusPanel.Visible = !plusPanel.Visible;
@@ -1321,15 +1342,15 @@ public partial class ChatOverlay : Control
         inputField.Editable = !readOnly;
         if (!readOnly)
         {
-            inputField.PlaceholderText = "发消息……";
+            inputField.PlaceholderText = DataStore.Text("chat.input_placeholder");
             return;
         }
         if (contact.Kind == "group")
-            inputField.PlaceholderText = "群聊围观中，不参与发言";
+            inputField.PlaceholderText = DataStore.Text("chat.readonly_group_placeholder");
         else if (!string.IsNullOrEmpty(currentChatData?.ReadOnlyHint))
             inputField.PlaceholderText = currentChatData.ReadOnlyHint;
         else
-            inputField.PlaceholderText = "只读消息，无法回复";
+            inputField.PlaceholderText = DataStore.Text("chat.readonly_placeholder");
     }
 
     /// <summary>输入框/发送按钮：把文字作为我的气泡发出去（自由输入不影响数值）</summary>
@@ -1338,18 +1359,18 @@ public partial class ChatOverlay : Control
         if (ActiveReadOnly)
         {
             if (currentContact.Kind == "group")
-                ShowToast("群里导师随时盯着，谁也不敢接话～");
+                ShowToast(DataStore.Text("chat.readonly_group_toast"));
             else if (!string.IsNullOrEmpty(currentChatData?.ReadOnlyToast))
                 ShowToast(currentChatData.ReadOnlyToast);
             else
-                ShowToast("这里只能看，不能发言～");
+                ShowToast(DataStore.Text("chat.readonly_toast"));
             return;
         }
 
         string text = inputField.Text.Trim();
         if (text.Length == 0)
         {
-            ShowToast("先输入一点内容再发送～");
+            ShowToast(DataStore.Text("chat.empty_input_toast"));
             return;
         }
 
@@ -1466,7 +1487,7 @@ public partial class ChatOverlay : Control
         {
             var m = list[i];
             if (m.Type == "text" && !string.IsNullOrEmpty(m.Text))
-                return m.Sender == "me" ? "我：" + m.Text : m.Text;
+                return m.Sender == "me" ? DataStore.Text("chat.me_prefix") + m.Text : m.Text;
         }
         return "";
     }
@@ -1493,7 +1514,7 @@ public partial class ChatOverlay : Control
 
         var title = new Label
         {
-            Text = "怎么回？",
+            Text = DataStore.Text("chat.quick_title"),
             HorizontalAlignment = HorizontalAlignment.Center,
             MouseFilter = MouseFilterEnum.Ignore,
         };
@@ -1711,7 +1732,7 @@ public partial class ChatOverlay : Control
     /// <summary>微信风格时间戳（居中灰色小字，如 "晚上 9:32"）</summary>
     private static Control MakeTimestamp()
     {
-        string[] times = { "晚上 9:20", "晚上 9:25", "晚上 9:31", "晚上 9:38", "晚上 9:45", "晚上 10:02", "晚上 10:15" };
+        string[] times = DataStore.Text("chat.demo_times").Split('|');
         string time = times[GD.Randi() % times.Length];
 
         var label = new Label
@@ -1876,7 +1897,7 @@ public partial class ChatOverlay : Control
 /// <summary>一份聊天记录（对应一个 JSON 文件）</summary>
 public class ChatScriptData
 {
-    public string Title { get; set; } = "聊天";
+    public string Title { get; set; } = "";
     public List<ChatMessageData> Messages { get; set; }
 
     /// <summary>预设回复候选（浮在输入栏上方；选哪条加不同数值 → 影响结局）</summary>

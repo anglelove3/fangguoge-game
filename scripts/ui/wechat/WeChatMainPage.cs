@@ -55,7 +55,7 @@ public partial class WeChatMainPage : Control
 
         titleLabel = new Label
         {
-            Text = "微信",
+            Text = DataStore.Text("wx.tab_chats"),
             HorizontalAlignment = HorizontalAlignment.Center,
             VerticalAlignment = VerticalAlignment.Center,
             MouseFilter = MouseFilterEnum.Ignore,
@@ -71,7 +71,7 @@ public partial class WeChatMainPage : Control
         plusBtn.OffsetTop = 18;
         plusBtn.OffsetRight = -24;
         plusBtn.OffsetBottom = 78;
-        plusBtn.Pressed += () => ToastRequested?.Invoke("这个＋号目前只是摆设～");
+        plusBtn.Pressed += () => ToastRequested?.Invoke(DataStore.Text("wx.plus_toast"));
         header.AddChild(plusBtn);
 
         // ---- 内容区 ----
@@ -114,7 +114,7 @@ public partial class WeChatMainPage : Control
         tabBox.AddThemeConstantOverride("separation", 0);
         tabBar.AddChild(tabBox);
 
-        string[] names = { "微信", "通讯录", "发现", "我" };
+        string[] names = { DataStore.Text("wx.tab_chats"), DataStore.Text("wx.tab_contacts"), DataStore.Text("wx.tab_discover"), DataStore.Text("wx.tab_me") };
         for (int i = 0; i < 4; i++)
         {
             int idx = i;
@@ -155,7 +155,7 @@ public partial class WeChatMainPage : Control
     public void SetTab(int idx)
     {
         currentTab = idx;
-        string[] titles = { "微信", "通讯录", "发现", "我" };
+        string[] titles = { DataStore.Text("wx.tab_chats"), DataStore.Text("wx.tab_contacts"), DataStore.Text("wx.tab_discover"), DataStore.Text("wx.tab_me") };
         titleLabel.Text = titles[idx];
         for (int i = 0; i < 4; i++)
         {
@@ -282,7 +282,7 @@ public partial class WeChatMainPage : Control
         var people = contacts.Contacts.FindAll(c => string.IsNullOrEmpty(c.Kind) && string.IsNullOrEmpty(c.Icon));
         var groups = contacts.Contacts.FindAll(c => c.Kind == "group");
 
-        var count = MakeLabel($"{people.Count} 位联系人", 24, TextGray);
+        var count = MakeLabel(DataStore.Text("wx.contacts_count", people.Count), 24, TextGray);
         box.AddChild(UiKit.WrapMargin(count, 24, 12, 0, 12));
 
         // 群聊分区（点群名直接进群聊记录）
@@ -329,13 +329,13 @@ public partial class WeChatMainPage : Control
         box.AddThemeConstantOverride("margin_top", 16);
 
         // 朋友圈红点：进过一次就消（RefrestSessions 时按 seen 状态再校一次）
-        box.AddChild(MakeDiscoverRow(new Color(0.35f, 0.45f, 0.75f), "朋友圈",
+        box.AddChild(MakeDiscoverRow(new Color(0.35f, 0.45f, 0.75f), DataStore.Text("wx.moments"),
             GameManager.Instance?.HasSeenPage("moments") != true,
             () => MomentsOpened?.Invoke(), out momentsDot));
-        box.AddChild(MakeDiscoverRow(new Color(0.85f, 0.45f, 0.25f), "视频号", false,
-            () => ToastRequested?.Invoke("视频号目前只是摆设～")));
-        box.AddChild(MakeDiscoverRow(new Color(0.30f, 0.65f, 0.45f), "游戏", false,
-            () => ToastRequested?.Invoke("游戏中心目前只是摆设～")));
+        box.AddChild(MakeDiscoverRow(new Color(0.85f, 0.45f, 0.25f), DataStore.Text("wx.channels"), false,
+            () => ToastRequested?.Invoke(DataStore.Text("wx.channels_toast"))));
+        box.AddChild(MakeDiscoverRow(new Color(0.30f, 0.65f, 0.45f), DataStore.Text("wx.games"), false,
+            () => ToastRequested?.Invoke(DataStore.Text("wx.games_toast"))));
         return box;
     }
 
@@ -372,18 +372,18 @@ public partial class WeChatMainPage : Control
         mid.SizeFlagsVertical = SizeFlags.ShrinkCenter;
         mid.AddThemeConstantOverride("separation", 12);
         hbox.AddChild(mid);
-        mid.AddChild(MakeLabel("我", 38, TextDark));
-        mid.AddChild(MakeLabel("微信号：fangguoge_2024", 24, TextGray));
+        mid.AddChild(MakeLabel(DataStore.Text("wx.tab_me"), 38, TextDark));
+        mid.AddChild(MakeLabel(DataStore.Text("wx.me_wechatid"), 24, TextGray));
 
         var arrow = MakeLabel("〉", 32, TextGray);
         arrow.SizeFlagsVertical = SizeFlags.ShrinkCenter;
         hbox.AddChild(arrow);
 
         // 占位条目
-        box.AddChild(MakeDiscoverRow(new Color(0.30f, 0.55f, 0.80f), "服务", false,
-            () => ToastRequested?.Invoke("服务页目前只是摆设～")));
-        box.AddChild(MakeDiscoverRow(new Color(0.85f, 0.65f, 0.25f), "表情收藏", false,
-            () => ToastRequested?.Invoke("表情收藏目前只是摆设～")));
+        box.AddChild(MakeDiscoverRow(new Color(0.30f, 0.55f, 0.80f), DataStore.Text("wx.services"), false,
+            () => ToastRequested?.Invoke(DataStore.Text("wx.services_toast"))));
+        box.AddChild(MakeDiscoverRow(new Color(0.85f, 0.65f, 0.25f), DataStore.Text("wx.stickers"), false,
+            () => ToastRequested?.Invoke(DataStore.Text("wx.stickers_toast"))));
         return box;
     }
 
@@ -456,9 +456,9 @@ public partial class WeChatMainPage : Control
             for (int i = chat.Messages.Count - 1; i >= 0; i--)
             {
                 if (chat.Messages[i].Type == "text")
-                    return chat.Messages[i].Sender == "me" ? "我：" + chat.Messages[i].Text : chat.Messages[i].Text;
+                    return chat.Messages[i].Sender == "me" ? DataStore.Text("chat.me_prefix") + chat.Messages[i].Text : chat.Messages[i].Text;
             }
-            return "[图片]";
+            return DataStore.Text("wx.image_preview");
         }
         return c.Preview;
     }

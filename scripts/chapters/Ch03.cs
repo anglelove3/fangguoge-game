@@ -438,8 +438,15 @@ public partial class Ch03 : ChapterBase
         btn.SetMeta("flying", true);
         AudioManager.Instance?.PlaySfx(AudioManager.SfxCardFly, -14f, 0.06f);
 
+        // 第十六轮修复：数量在"出发瞬间"定格，不能在飞行动画结束的回调里再读实时值。
+        // 连着快速点下一张时，前一张的飞行回调会晚于后一张的点击才执行——实时数量
+        // 已经提前到 3，会让前一张抢跑 ShowCompensations，PlaySequence 直接顶掉
+        // 还在播的 card 序列（结束回调被覆盖）→ 后一张卡片永远飞不走、卡死在屏幕上。
+        int myN = isCard ? doneCards.Count : doneChips.Count;
+        bool isLast = isCard ? myN >= layout.Cards.Count : myN >= layout.Compensations.Count;
+
         // 纸片角：卡片用数据里的 tilt，补偿物按"第几样"越歪越多
-        float tilt = isCard ? TiltForCard(id) : TiltForChip(doneChips.Count);
+        float tilt = isCard ? TiltForCard(id) : TiltForChip(myN);
 
         Vector2 localTarget = cardLayer.GetGlobalTransform().AffineInverse() * scale.LeftPanDropGlobal();
         Vector2 posTarget = localTarget - btn.Size * 0.5f;
@@ -466,18 +473,20 @@ public partial class Ch03 : ChapterBase
 
             AudioManager.Instance?.PlaySfx(AudioManager.SfxItemPlace, -12f, 0.05f);
 
-            int n = isCard ? doneCards.Count : doneChips.Count;
-            scale.SetTilt(isCard ? TiltAfterCards(n) : TiltAfterChips(n));
+            scale.SetTilt(isCard ? TiltAfterCards(myN) : TiltAfterChips(myN));
             lastActivityMsec = Time.GetTicksMsec();
 
-            if (isCard && n >= layout.Cards.Count)
+            if (isLast)
             {
-                GetTree().CreateTimer(0.9).Timeout += ShowCompensations;
-            }
-            else if (!isCard && n >= layout.Compensations.Count)
-            {
-                // 能给的都给完了，还是没平衡 → 先让玩家听见这一句，再揭晓真相
-                GetTree().CreateTimer(0.9).Timeout += PlayChipsFailed;
+                if (isCard)
+                {
+                    GetTree().CreateTimer(0.9).Timeout += ShowCompensations;
+                }
+                else
+                {
+                    // 能给的都给完了，还是没平衡 → 先让玩家听见这一句，再揭晓真相
+                    GetTree().CreateTimer(0.9).Timeout += PlayChipsFailed;
+                }
             }
         }));
     }

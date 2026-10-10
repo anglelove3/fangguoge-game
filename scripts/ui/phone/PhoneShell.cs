@@ -152,7 +152,7 @@ public partial class LockScreen : Control
         cardRow.AddChild(icon);
         var iconChar = new Label
         {
-            Text = "微",
+            Text = DataStore.Text("wx.icon_glyph"),
             HorizontalAlignment = HorizontalAlignment.Center,
             VerticalAlignment = VerticalAlignment.Center,
             MouseFilter = MouseFilterEnum.Ignore,
@@ -169,7 +169,7 @@ public partial class LockScreen : Control
         textBox.AddThemeConstantOverride("separation", 2);
         cardRow.AddChild(textBox);
 
-        var appName = new Label { Text = "微信", MouseFilter = MouseFilterEnum.Ignore };
+        var appName = new Label { Text = DataStore.Text("wx.tab_chats"), MouseFilter = MouseFilterEnum.Ignore };
         appName.AddThemeFontSizeOverride("font_size", 21);
         appName.AddThemeColorOverride("font_color", new Color(0.85f, 0.87f, 0.9f));
         textBox.AddChild(appName);
@@ -211,16 +211,14 @@ public partial class LockScreen : Control
 
     public override void _Process(double delta)
     {
-        // 真实系统时间（每分钟变一次，闲着不折腾）
-        var t = Time.GetTimeDictFromSystem();
-        string clock = $"{t["hour"].AsInt32():D2}:{t["minute"].AsInt32():D2}";
+        // 故事内时间（data/story_clock.json），没有条目才回退系统时间
+        string clock = StoryClock.ClockText();
         if (clock != lastClock)
         {
             lastClock = clock;
             clockLabel.Text = clock;
         }
-        var d = Time.GetDateDictFromSystem();
-        string date = $"{d["month"].AsInt32()}月{d["day"].AsInt32()}日 {WeekCn(d["weekday"].AsInt32())}";
+        string date = StoryClock.DateText();
         if (date != lastDate)
         {
             lastDate = date;
@@ -379,8 +377,7 @@ public partial class PhoneDesktop : Control
 
     public override void _Process(double delta)
     {
-        var t = Time.GetTimeDictFromSystem();
-        string clock = $"{t["hour"].AsInt32():D2}:{t["minute"].AsInt32():D2}";
+        string clock = StoryClock.ClockText();
         if (clock == lastClock)
             return;
         lastClock = clock;

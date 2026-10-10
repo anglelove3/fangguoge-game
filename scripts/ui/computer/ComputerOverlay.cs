@@ -169,7 +169,7 @@ public partial class ComputerOverlay : Control
         brand.Position = new Vector2(BezelSide + 6, ScreenH + (BezelTop + BezelBottom) / 2f - 16);
         monitorRoot.AddChild(brand);
 
-        var ledLabel = new Label { Text = "电源", MouseFilter = MouseFilterEnum.Ignore };
+        var ledLabel = new Label { Text = DataStore.Text("pc.led_label"), MouseFilter = MouseFilterEnum.Ignore };
         ledLabel.AddThemeFontSizeOverride("font_size", 16);
         ledLabel.AddThemeColorOverride("font_color", new Color(0.45f, 0.48f, 0.53f));
         ledLabel.Position = new Vector2(MonitorW - BezelSide - 150, ScreenH + (BezelTop + BezelBottom) / 2f - 14);
@@ -200,7 +200,8 @@ public partial class ComputerOverlay : Control
         leaveBtn.AnchorLeft = 1f; leaveBtn.AnchorRight = 1f;
         leaveBtn.AnchorTop = 1f; leaveBtn.AnchorBottom = 1f;
         leaveBtn.OffsetLeft = -216; leaveBtn.OffsetRight = -44;
-        leaveBtn.OffsetTop = -96; leaveBtn.OffsetBottom = -44;
+        // 上移避开右下角全局「返回菜单」按钮（其占位 y: H-64..H-20）
+        leaveBtn.OffsetTop = -132; leaveBtn.OffsetBottom = -80;
         leaveBtn.AddThemeFontSizeOverride("font_size", 20);
         leaveBtn.AddThemeColorOverride("font_color", new Color(0.92f, 0.93f, 0.95f));
         leaveBtn.AddThemeColorOverride("font_hover_color", Colors.White);
@@ -363,8 +364,7 @@ public partial class ComputerOverlay : Control
 
     private void RefreshClock(bool force = false)
     {
-        var t = Time.GetTimeDictFromSystem();
-        string now = $"{t["hour"].AsInt32():00}:{t["minute"].AsInt32():00}";
+        string now = StoryClock.ClockText();
         if (force || now != lastClock)
         {
             lastClock = now;

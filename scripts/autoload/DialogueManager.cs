@@ -39,6 +39,9 @@ public partial class DialogueManager : CanvasLayer
     /// <summary>当前正在播放的章节 id（心声微选择记录用）</summary>
     private string currentChapterId = "";
 
+    /// <summary>当前章节 id 只读暴露（故事时钟 / 内容 gating 用）</summary>
+    public string CurrentChapterId => currentChapterId;
+
     // 全屏模态界面（比如手机微信）打开时的"输入抑制"：
     // 对话管理器不再抢点击/键盘，对话框也暂时藏起来，
     // 否则玩家点手机屏幕的按钮时，点击会被这里当成"推进对话"吃掉
