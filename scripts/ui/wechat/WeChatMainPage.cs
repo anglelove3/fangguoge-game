@@ -37,15 +37,20 @@ public partial class WeChatMainPage : Control
     private VBoxContainer sessionBox; // 会话列表的行容器（返回列表时整体重建用）
     private VBoxContainer contactsBox; // 通讯录的行容器（加了新朋友要当场出现）
     private Control momentsDot;       // 朋友圈红点引用（看过就消）
+    private ContactsData contactsRef; // 全量联系人（置顶菜单要按最新状态重建列表）
+    private PanelContainer pinMenu;   // 长按弹出的微信式菜单
+    private Button pinMenuRowOwner;   // 弹菜单时按住的那一行（菜单开着期间吞掉它的松开点击）
     private readonly Control[] pages = new Control[4];
     private readonly TabIcon[] tabIcons = new TabIcon[4];
     private readonly Label[] tabLabels = new Label[4];
     private int currentTab;
+    private int pressToken; // 长按计时器的"作废令牌"：松手/换行按下就让上一轮计时作废
 
     // ==================== 搭建 ====================
 
     public void Build(ContactsData contacts)
     {
+        contactsRef = contacts;
         MouseFilter = MouseFilterEnum.Stop;
 
         // ---- 顶栏 ----
@@ -184,9 +189,23 @@ public partial class WeChatMainPage : Control
         pad.AddChild(box);
         sessionBox = box;
 
-        foreach (var c in contacts.Contacts)
+        foreach (var c in OrderForList(contacts))
             box.AddChild(MakeSessionRow(c));
         return scroll;
+    }
+
+    /// <summary>
+    /// 会话列表的显示顺序（第九章《置顶》）：被置顶的排前面，其余按 contacts.json 原序。
+    /// 列表顶部显示的就是第八章玩家起的那个备注名——置顶的是"人"，不是名字。
+    /// </summary>
+    private List<ContactData> OrderForList(ContactsData contacts)
+    {
+        var pinned = new List<ContactData>();
+        var rest = new List<ContactData>();
+        foreach (var c in contacts.Contacts)
+            (GameManager.Instance?.IsPinned(c.Id) == true ? pinned : rest).Add(c);
+        pinned.AddRange(rest);
+        return pinned;
     }
 
     /// <summary>
@@ -197,9 +216,10 @@ public partial class WeChatMainPage : Control
     {
         if (sessionBox == null || contacts == null)
             return;
+        contactsRef = contacts;
         foreach (var child in sessionBox.GetChildren())
             child.QueueFree();
-        foreach (var c in contacts.Contacts)
+        foreach (var c in OrderForList(contacts))
             sessionBox.AddChild(MakeSessionRow(c));
         // 朋友圈红点也顺手校一次（从"发现"进朋友圈再退回来时消掉）
         if (momentsDot != null && GodotObject.IsInstanceValid(momentsDot))
@@ -250,8 +270,175 @@ public partial class WeChatMainPage : Control
         time.SizeFlagsVertical = SizeFlags.ShrinkBegin;
         hbox.AddChild(time);
 
+        // 置顶角标（第九章）：被置顶的会话，时间左边挂一个淡淡的"置顶"
+        if (GameManager.Instance?.IsPinned(c.Id) == true)
+        {
+            var pin = MakeLabel(DataStore.Text("wx.pin_badge"), 20, new Color(0.62f, 0.62f, 0.66f));
+            pin.SizeFlagsVertical = SizeFlags.ShrinkBegin;
+            hbox.AddChild(pin);
+        }
+
         row.Pressed += () => RouteClick(c);
+        WirePinHold(row, c);
         return row;
+    }
+
+    /// <summary>
+    /// 长按 0.55 秒 → 弹微信式会话菜单（第九章《置顶》的主线演出）。
+    /// 菜单弹出的瞬间把行 Disabled 掉——不然手指一松，"松开"会被 Button 当成一次
+    /// Pressed，菜单还没看清就直接点进聊天了。菜单合上再恢复。
+    /// </summary>
+    private void WirePinHold(Button row, ContactData c)
+    {
+        row.ButtonDown += () =>
+        {
+            pressToken++;
+            int token = pressToken;
+            var tree = GetTree();
+            if (tree == null)
+                return;
+            tree.CreateTimer(0.55).Timeout += () =>
+            {
+                if (token != pressToken || !GodotObject.IsInstanceValid(row) || !row.IsVisibleInTree())
+                    return;
+                row.Disabled = true; // 吞掉这次松开，别让它变成"点进聊天"
+                pinMenuRowOwner = row;
+                OpenPinMenu(c, row.GetGlobalRect().Position + new Vector2(row.Size.X - 240f, 24f));
+            };
+        };
+        row.ButtonUp += () => pressToken++; // 提前松手 = 长按作废，照常触发点击
+    }
+
+    /// <summary>微信式会话菜单：置顶/取消置顶是真的，剩下两条是装点门面的</summary>
+    private void OpenPinMenu(ContactData c, Vector2 globalPos)
+    {
+        ClosePinMenu();
+
+        pinMenu = new PanelContainer { MouseFilter = MouseFilterEnum.Stop };
+        var style = new StyleBoxFlat
+        {
+            BgColor = new Color(0.16f, 0.16f, 0.18f, 0.97f),
+            CornerRadiusTopLeft = 12,
+            CornerRadiusTopRight = 12,
+            CornerRadiusBottomLeft = 12,
+            CornerRadiusBottomRight = 12,
+            ContentMarginLeft = 6,
+            ContentMarginRight = 6,
+            ContentMarginTop = 6,
+            ContentMarginBottom = 6,
+        };
+        pinMenu.AddThemeStyleboxOverride("panel", style);
+        pinMenu.ZIndex = 80;
+
+        var box = new VBoxContainer { MouseFilter = MouseFilterEnum.Ignore };
+        box.AddThemeConstantOverride("separation", 2);
+        pinMenu.AddChild(box);
+
+        bool pinned = GameManager.Instance?.IsPinned(c.Id) == true;
+        AddPinMenuItem(box, DataStore.Text(pinned ? "wx.menu_unpin" : "wx.menu_pin"), () =>
+        {
+            GameManager.Instance?.SetPinned(c.Id, !pinned);
+            AudioManager.Instance?.PlaySfx(AudioManager.SfxClick, -14f);
+            RefreshSessions(contactsRef);
+        });
+        AddPinMenuItem(box, DataStore.Text("wx.menu_decoy"), () =>
+            ToastRequested?.Invoke(DataStore.Text("wx.menu_decoy_toast")));
+        AddPinMenuItem(box, DataStore.Text("wx.menu_decoy2"), () =>
+            ToastRequested?.Invoke(DataStore.Text("wx.menu_decoy_toast")));
+
+        AddChild(pinMenu);
+
+        // 摆位：贴着按压点，超出生界就往回收
+        Vector2 local = GetGlobalTransform().AffineInverse() * globalPos;
+        var vp = GetViewportRect().Size;
+        pinMenu.ResetSize();
+        local.X = Mathf.Clamp(local.X, 8f, Mathf.Max(8f, Size.X - pinMenu.Size.X - 8f));
+        local.Y = Mathf.Clamp(local.Y, 8f, Mathf.Max(8f, vp.Y - pinMenu.Size.Y - 8f));
+        pinMenu.Position = local;
+        pinMenu.Modulate = new Color(1, 1, 1, 0);
+        var tw = pinMenu.CreateTween();
+        tw.TweenProperty(pinMenu, "modulate:a", 1f, 0.12);
+
+        // 点菜单外面 = 合上（一层全屏透明垫在菜单底下接这一下）
+        var scrim = new Button
+        {
+            Flat = true,
+            MouseFilter = MouseFilterEnum.Stop,
+            FocusMode = FocusModeEnum.None,
+        };
+        scrim.AddThemeStyleboxOverride("normal", new StyleBoxFlat { BgColor = new Color(0, 0, 0, 0.01f) });
+        scrim.AddThemeStyleboxOverride("hover", new StyleBoxFlat { BgColor = new Color(0, 0, 0, 0.01f) });
+        scrim.AddThemeStyleboxOverride("pressed", new StyleBoxFlat { BgColor = new Color(0, 0, 0, 0.01f) });
+        scrim.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
+        scrim.ZIndex = 79;
+        scrim.Pressed += ClosePinMenu;
+        pinMenu.Name = "PinMenu";
+        AddChild(scrim);
+        scrim.Name = "PinMenuScrim";
+        // scrim 放到菜单下面一层（后加的画在上面，这里手动压一层）
+        MoveChild(scrim, pinMenu.GetIndex());
+    }
+
+    /// <summary>菜单里的一行字</summary>
+    private void AddPinMenuItem(VBoxContainer box, string text, Action onClick)
+    {
+        var btn = new Button
+        {
+            Text = text,
+            Flat = true,
+            FocusMode = FocusModeEnum.None,
+            MouseFilter = MouseFilterEnum.Stop,
+        };
+        btn.AddThemeFontSizeOverride("font_size", 26);
+        btn.AddThemeColorOverride("font_color", new Color(0.95f, 0.95f, 0.96f));
+        btn.AddThemeColorOverride("font_hover_color", Colors.White);
+        btn.AddThemeStyleboxOverride("normal", new StyleBoxFlat
+        {
+            BgColor = new Color(0, 0, 0, 0),
+            ContentMarginLeft = 26,
+            ContentMarginRight = 40,
+            ContentMarginTop = 12,
+            ContentMarginBottom = 12,
+        });
+        btn.AddThemeStyleboxOverride("hover", new StyleBoxFlat
+        {
+            BgColor = new Color(1, 1, 1, 0.08f),
+            ContentMarginLeft = 26,
+            ContentMarginRight = 40,
+            ContentMarginTop = 12,
+            ContentMarginBottom = 12,
+        });
+        btn.AddThemeStyleboxOverride("pressed", new StyleBoxFlat
+        {
+            BgColor = new Color(1, 1, 1, 0.14f),
+            ContentMarginLeft = 26,
+            ContentMarginRight = 40,
+            ContentMarginTop = 12,
+            ContentMarginBottom = 12,
+        });
+        btn.Pressed += () =>
+        {
+            ClosePinMenu();
+            onClick?.Invoke();
+        };
+        box.AddChild(btn);
+    }
+
+    /// <summary>合上会话菜单，并恢复被 Disabled 的那一行</summary>
+    private void ClosePinMenu()
+    {
+        if (pinMenu != null && GodotObject.IsInstanceValid(pinMenu))
+            pinMenu.QueueFree();
+        pinMenu = null;
+
+        // 清掉垫层
+        foreach (var child in GetChildren())
+            if (child is Button b && b.Name == "PinMenuScrim")
+                b.QueueFree();
+
+        if (pinMenuRowOwner != null && GodotObject.IsInstanceValid(pinMenuRowOwner))
+            pinMenuRowOwner.Disabled = false;
+        pinMenuRowOwner = null;
     }
 
     /// <summary>点击分流：纯装饰行 → toast；系统页面入口 → PageOpened；其余 → 打开聊天</summary>

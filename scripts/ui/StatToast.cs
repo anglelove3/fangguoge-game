@@ -9,11 +9,22 @@ using System;
 /// 现在选完立刻在画面上方弹一下"好感度 +5 / 勇气值 -2"，
 /// 停留一秒多再淡出，玩家就知道这个选择算数了。
 ///
+/// 【第十八轮起（拍板点③）】
+/// 默认不再向玩家飘数值——"不对玩家露数值"是本项目的老规矩，
+/// 试玩反馈也说明数字一露出来，玩家就开始反推"哪道题该选哪个"。
+/// 玩家侧的"选择有分量"改由纸片弹动 + 音效承担；
+/// 这个组件只留给调试面板（F11 → 显示 StatToast 开关，默认关）自查数值用。
+///
 /// 动画：淡入（0.18s）→ 停留（1.2s）→ 淡出（0.45s）
 /// 数字为正 = 暖色/水蓝色；为负 = 淡红色（给玩家一点心理冲击）
 /// </summary>
 public partial class StatToast : Control
 {
+    /// <summary>
+    /// 开发者飘字开关（默认关）。调试面板里切换；只有开着的时候 ShowDeltas 才真的弹。
+    /// </summary>
+    public static bool DeveloperToasts = false;
+
     private PanelContainer toastPanel;
     private Label affectionLabel;
     private Label courageLabel;
@@ -39,6 +50,9 @@ public partial class StatToast : Control
     /// </summary>
     public void ShowDeltas(int affectionDelta, int courageDelta)
     {
+        // 玩家侧默认不飘数值（拍板点③）；只有调试面板打开开关才弹
+        if (!DeveloperToasts)
+            return;
         if (affectionDelta == 0 && courageDelta == 0)
             return;
 

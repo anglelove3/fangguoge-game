@@ -34,6 +34,7 @@ public partial class DialogueManager : CanvasLayer
     private DialogueBox dialogueBox;
     private ChoicePanel choicePanel;
     private HeartChips heartChips;
+    private ReadCard readCard;
     private StatToast statToast;
 
     /// <summary>当前正在播放的章节 id（心声微选择记录用）</summary>
@@ -240,6 +241,11 @@ public partial class DialogueManager : CanvasLayer
         heartChips.Name = "HeartChips";
         AddChild(heartChips);
 
+        // 内心解读（第十八轮·第九章）：她的原话 + 三张解读纸片，和选项面板同层（不会同时出现）
+        readCard = new ReadCard();
+        readCard.Name = "ReadCard";
+        AddChild(readCard);
+
         // 实例化数值飘字 UI（加在最后 → 显示在最上层）
         var toastScene = GD.Load<PackedScene>("res://scenes/ui/stat_toast/stat_toast.tscn");
         statToast = toastScene.Instantiate<StatToast>();
@@ -315,6 +321,30 @@ public partial class DialogueManager : CanvasLayer
         dialogueBox.ShowLine(group.PromptSpeaker, group.Prompt, instant: true, portraitId: group.PromptPortrait);
         dialogueBox.SetContinueHintVisible(false); // 选项阶段不需要"点击继续"
 
+        // 内心解读（第九章）：带原话引用的选择走 ReadCard——
+        // 她的原话气泡浮出来，三张"读法"纸片跟在下面。同样是主线选择：记数值、记回顾。
+        if (!string.IsNullOrEmpty(group.Quote))
+        {
+            readCard.ShowCards(group.Quote, group.Options, index =>
+            {
+                var option = group.Options[index];
+
+                // 应用属性变化
+                if (option.Affection != 0) GameManager.Instance.AddAffection(option.Affection);
+                if (option.Courage != 0) GameManager.Instance.AddCourage(option.Courage);
+
+                // 数值飘字（调试面板开着才有；玩家侧默认不飘）
+                statToast?.ShowDeltas(option.Affection, option.Courage);
+
+                // 记录选择（结局判定 + 选择回顾会用到）
+                GameManager.Instance.RecordChoice($"{chapterId}_{choiceGroupId}", index);
+
+                state = State.Idle;
+                onSelected?.Invoke(index);
+            });
+            return;
+        }
+
         choicePanel.ShowChoices(group.Options, index =>
         {
             var option = group.Options[index];
@@ -345,6 +375,7 @@ public partial class DialogueManager : CanvasLayer
         dialogueBox?.HideBox();
         choicePanel?.Hide();
         heartChips?.HideAll();
+        readCard?.HideAll();
         statToast?.HideToast();
     }
 
@@ -487,6 +518,7 @@ public partial class DialogueManager : CanvasLayer
             if (@event is InputEventMouseButton blank && blank.Pressed
                 && blank.ButtonIndex == MouseButton.Left
                 && !choicePanel.HasButtonAt(blank.Position)
+                && !(readCard != null && readCard.HasCardAt(blank.Position))
                 && !(heartChips != null && heartChips.HasChipAt(blank.Position)))
                 GetViewport().SetInputAsHandled();
             return;
@@ -613,6 +645,7 @@ public class ChoiceGroupData
     public string Prompt { get; set; } = "";        // 提示语（显示在对话框里）
     public string PromptSpeaker { get; set; } = ""; // 提示语说话人
     public string PromptPortrait { get; set; } = null; // 提示语立绘（不写 = 保持当前）
+    public string Quote { get; set; } = "";         // 原话引用（第九章「内心解读」；非空 = 走 ReadCard 演出）
     public List<ChoiceOptionData> Options { get; set; } = new();
 }
 
@@ -620,6 +653,7 @@ public class ChoiceGroupData
 public class ChoiceOptionData
 {
     public string Text { get; set; } = "";   // 选项文字
+    public string Sub { get; set; } = "";    // 副行小字（ReadCard 用：这种读法会怎么回）
     public int Affection { get; set; } = 0;  // 好感度变化
     public int Courage { get; set; } = 0;    // 勇气值变化
 }

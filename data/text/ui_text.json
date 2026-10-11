@@ -55,6 +55,26 @@
   "hint.ch08_leave": "（一桌人还在闹。……散席了，去门口等车吧）",
   "hint.ch08_sleep3": "（定了。周日下午，老校门口——这一觉睡得有点长）",
 
+  "hint.ch09_phone": "她的会话停在中间。长按它——微信会问你，要不要置顶",
+  "hint.ch09_pin_done": "（置顶了。一抬头就能看见）（点床，睡过这一晚）",
+  "hint.ch09_lab": "手机扣在桌上一下午了。拿起来看看",
+  "hint.ch09_lab_done": "（该忙的忙完了。她那边，也安顿好了）（门口，回宿舍）",
+  "hint.ch09_night": "「没事。」两个字躺在屏幕上。点开手机，回她",
+  "hint.ch09_night_done": "（夜还长。……睡吧）",
+  "hint.ch09_river": "河堤的黄昏。护栏、水面、桥洞，都看看",
+  "hint.ch09_river_done": "（风从桥洞那边过来。走过去）",
+  "hint.ch09_night3": "把今晚最后一条消息发出去",
+  "hint.ch09_night3_done": "（列表滑到底，一抬头，她还在最上面）",
+
+  "wx.menu_pin": "置顶该聊天",
+  "wx.menu_unpin": "取消置顶",
+  "wx.menu_decoy": "标为未读",
+  "wx.menu_decoy2": "不显示该聊天",
+  "wx.menu_decoy_toast": "演示版：这个先摆着～",
+  "wx.pin_badge": "置顶",
+
+  "bag.item_cracker_desc_used": "已经拉响了——彩带落进了河风里。",
+
   "ch08.remark_0": "江洁",
   "ch08.remark_1": "三点水",
   "ch08.remark_2": "洁",

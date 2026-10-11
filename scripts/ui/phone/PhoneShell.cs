@@ -14,6 +14,19 @@ using System.Collections.Generic;
 ///   - 时间是真实系统时间（你手机几点，它就是几点），日期不带年份；
 ///   - 微信角标和锁屏通知卡都盯着 LiveEvents 的未读表，读完消息自己就消了。
 /// </summary>
+/// <summary>
+/// 手机壁纸的昼夜双版（第十八轮清遗留①）：
+/// 故事时钟 17:00 前用白天壁纸，之后用黄昏壁纸——
+/// 以前只有黄昏一张，时钟报 11:35 配着漫天晚霞，穿帮。
+/// </summary>
+public static class PhoneWallpaper
+{
+    public const string Day = "res://assets/art/backgrounds/wallpaper_day_v1.png";
+    public const string Night = "res://assets/art/backgrounds/campus_dusk_v1.png";
+
+    public static string Current => StoryClock.IsDaytime() ? Day : Night;
+}
+
 public partial class LockScreen : Control
 {
     /// <summary>向上滑动 / 点一下 = 解锁</summary>
@@ -21,13 +34,17 @@ public partial class LockScreen : Control
     /// <summary>点通知卡 = 直接去微信</summary>
     public event Action WeChatRequested;
 
-    private const string WallpaperPath = "res://assets/art/backgrounds/campus_dusk_v1.png";
+    private const float WallpaperDimDay = 0.10f;   // 白天壁纸透亮一点
+    private const float WallpaperDimNight = 0.28f; // 黄昏壁纸压暗一点，字才读得清
 
     private Label clockLabel;
     private Label dateLabel;
     private PanelContainer noticeCard;
     private Label noticeText;
     private Label hintLabel;
+    private TextureRect wallRect;   // 壁纸本体（昼夜切换时换图）
+    private ColorRect wallDim;      // 壁纸上的压暗层（昼夜切换时调浓度）
+    private bool? lastDay;          // 上一次的昼夜状态（null = 还没对过表）
     private bool dragging;
     private float pressY;
     private float pressX;
@@ -44,26 +61,28 @@ public partial class LockScreen : Control
 
     private void Build()
     {
-        // ---- 壁纸 ----
-        if (ResourceLoader.Exists(WallpaperPath))
+        // ---- 壁纸（昼夜双版，_Process 里跟着故事时钟换）----
+        string wallpaper = PhoneWallpaper.Current;
+        lastDay = StoryClock.IsDaytime();
+        if (ResourceLoader.Exists(wallpaper))
         {
-            var wall = new TextureRect
+            wallRect = new TextureRect
             {
-                Texture = GD.Load<Texture2D>(WallpaperPath),
+                Texture = GD.Load<Texture2D>(wallpaper),
                 ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,
                 StretchMode = TextureRect.StretchModeEnum.KeepAspectCovered,
                 MouseFilter = MouseFilterEnum.Ignore,
             };
-            wall.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
-            AddChild(wall);
+            wallRect.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
+            AddChild(wallRect);
         }
-        var dim = new ColorRect
+        wallDim = new ColorRect
         {
-            Color = new Color(0.03f, 0.04f, 0.09f, 0.28f),
+            Color = new Color(0.03f, 0.04f, 0.09f, lastDay == true ? WallpaperDimDay : WallpaperDimNight),
             MouseFilter = MouseFilterEnum.Ignore,
         };
-        dim.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
-        AddChild(dim);
+        wallDim.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
+        AddChild(wallDim);
 
         // ---- 时间 / 日期 ----
         var top = new VBoxContainer { MouseFilter = MouseFilterEnum.Ignore };
@@ -224,6 +243,23 @@ public partial class LockScreen : Control
             lastDate = date;
             dateLabel.Text = date;
         }
+
+        // 壁纸昼夜切换（清遗留①）：故事走到傍晚，锁屏跟着换黄昏
+        bool day = StoryClock.IsDaytime();
+        if (day != lastDay)
+        {
+            lastDay = day;
+            ApplyWallpaper();
+        }
+    }
+
+    private void ApplyWallpaper()
+    {
+        string path = PhoneWallpaper.Current;
+        if (wallRect != null && ResourceLoader.Exists(path))
+            wallRect.Texture = GD.Load<Texture2D>(path);
+        if (wallDim != null)
+            wallDim.Color = new Color(0.03f, 0.04f, 0.09f, lastDay == true ? WallpaperDimDay : WallpaperDimNight);
     }
 
     private static string WeekCn(int weekday) => weekday switch
@@ -283,10 +319,14 @@ public partial class PhoneDesktop : Control
     /// <summary>点了某个 App 图标（参数 = apps.json 里的 id）</summary>
     public event Action<string> AppLaunched;
 
-    private const string WallpaperPath = "res://assets/art/backgrounds/campus_dusk_v1.png";
+    private const float WallpaperDimDay = 0.20f;   // 白天壁纸压暗少一点
+    private const float WallpaperDimNight = 0.42f; // 黄昏壁纸压暗多一点，图标才看得清
 
     private readonly Dictionary<string, AppIcon> icons = new();
     private Label statusClock;
+    private TextureRect wallRect;
+    private ColorRect wallDim;
+    private bool? lastDay;
     private string lastClock = "";
 
     public override void _Ready()
@@ -299,25 +339,27 @@ public partial class PhoneDesktop : Control
 
     private void Build()
     {
-        // ---- 壁纸（压暗一点，图标才看得清）----
-        if (ResourceLoader.Exists(WallpaperPath))
+        // ---- 壁纸（压暗一点，图标才看得清；昼夜双版跟锁屏同步换）----
+        string wallpaper = PhoneWallpaper.Current;
+        lastDay = StoryClock.IsDaytime();
+        if (ResourceLoader.Exists(wallpaper))
         {
-            var wall = new TextureRect
+            wallRect = new TextureRect
             {
-                Texture = GD.Load<Texture2D>(WallpaperPath),
+                Texture = GD.Load<Texture2D>(wallpaper),
                 ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,
                 StretchMode = TextureRect.StretchModeEnum.KeepAspectCovered,
                 MouseFilter = MouseFilterEnum.Ignore,
             };
-            wall.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
-            AddChild(wall);
-            var dim = new ColorRect
+            wallRect.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
+            AddChild(wallRect);
+            wallDim = new ColorRect
             {
-                Color = new Color(0.04f, 0.05f, 0.10f, 0.42f),
+                Color = new Color(0.04f, 0.05f, 0.10f, lastDay == true ? WallpaperDimDay : WallpaperDimNight),
                 MouseFilter = MouseFilterEnum.Ignore,
             };
-            dim.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
-            AddChild(dim);
+            wallDim.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
+            AddChild(wallDim);
         }
 
         // ---- 顶部状态栏（时间 + 信号电量）----
@@ -378,10 +420,23 @@ public partial class PhoneDesktop : Control
     public override void _Process(double delta)
     {
         string clock = StoryClock.ClockText();
-        if (clock == lastClock)
-            return;
-        lastClock = clock;
-        statusClock.Text = clock;
+        if (clock != lastClock)
+        {
+            lastClock = clock;
+            statusClock.Text = clock;
+        }
+
+        // 壁纸昼夜切换（清遗留①）：和锁屏同一套规则
+        bool day = StoryClock.IsDaytime();
+        if (day != lastDay)
+        {
+            lastDay = day;
+            string path = PhoneWallpaper.Current;
+            if (wallRect != null && ResourceLoader.Exists(path))
+                wallRect.Texture = GD.Load<Texture2D>(path);
+            if (wallDim != null)
+                wallDim.Color = new Color(0.04f, 0.05f, 0.10f, day ? WallpaperDimDay : WallpaperDimNight);
+        }
     }
 
     /// <summary>角标刷新：微信挂未读总数（打开桌面前调用）</summary>

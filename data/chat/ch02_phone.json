@@ -20,9 +20,9 @@
     { "sender": "her", "type": "image", "image": "res://assets/art/chat/photo_riverside_v1.png" },
     { "sender": "her", "type": "text", "text": "我们这边夜景也不错哦" },
     { "sender": "me", "type": "text", "text": "嗯，好看" },
-    { "type": "divider", "text": "7天前" },
+    { "type": "divider", "rel": 7 },
     { "sender": "me", "type": "text", "text": "最近有点忙，回头聊。" },
-    { "type": "divider", "text": "今天 22:07" },
+    { "type": "divider", "rel": 0, "time": "22:07" },
     { "sender": "her", "type": "text", "text": "下个月，我去你那边出差，顺路。见一面吗？" }
   ],
   "quickReplies": [

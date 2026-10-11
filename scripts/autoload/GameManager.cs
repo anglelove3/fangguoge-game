@@ -61,6 +61,12 @@ public partial class GameManager : Node
     // 键 = data/characters.json 里的角色 id（jie / jiegen…），不是显示名——所以改名字不会弄丢进度。
     private readonly System.Collections.Generic.Dictionary<string, RelationshipState> relationships = new();
 
+    // 微信里被置顶的联系人 id（第十八轮第九章：长按会话 → 置顶聊天；存档保留）
+    private readonly System.Collections.Generic.HashSet<string> pinnedContacts = new();
+
+    // 已经"用掉"的物品 id（第十八轮第九章：礼花筒拉响之后，背包里的描述要换成用过的说法）
+    private readonly System.Collections.Generic.HashSet<string> usedItems = new();
+
     /// <summary>做过的选择条数（调试面板显示用）</summary>
     public int ChoiceCount => choiceHistory.Count;
 
@@ -191,6 +197,10 @@ public partial class GameManager : Node
         GD.Print($"[选择记录] {choiceId} = 选项{optionIndex}");
     }
 
+    /// <summary>这个选择（或门控钥匙）记录过吗？聊天消息的 gateChoice 渲染过滤用它。</summary>
+    public bool HasChoice(string choiceId) =>
+        !string.IsNullOrEmpty(choiceId) && choiceHistory.ContainsKey(choiceId);
+
     // ========== 手机动态事件（第十二轮） ==========
 
     /// <summary>这个动态事件是不是已经触发过？（重玩章节不重复收到）</summary>
@@ -210,8 +220,42 @@ public partial class GameManager : Node
         }
     }
 
-    // ========== 系统页面"看过"标记（第十五轮） ==========
+    // ========== 微信置顶（第十八轮第九章） ==========
 
+    /// <summary>这个联系人被置顶了吗？（会话列表排序用）</summary>
+    public bool IsPinned(string contactId) =>
+        !string.IsNullOrEmpty(contactId) && pinnedContacts.Contains(contactId);
+
+    /// <summary>置顶 / 取消置顶一个联系人（长按菜单用；一动就落档）</summary>
+    public void SetPinned(string contactId, bool pinned)
+    {
+        if (string.IsNullOrEmpty(contactId))
+            return;
+        bool changed = pinned ? pinnedContacts.Add(contactId) : pinnedContacts.Remove(contactId);
+        if (changed)
+        {
+            SaveGame();
+            GD.Print($"[微信] {(pinned ? "置顶" : "取消置顶")}：{contactId}");
+        }
+    }
+
+    // ========== 物品"已用"标记（第十八轮第九章） ==========
+
+    /// <summary>这件物品用掉了吗？（礼花筒拉响之后，背包描述要换说法）</summary>
+    public bool IsUsedItem(string itemId) =>
+        !string.IsNullOrEmpty(itemId) && usedItems.Contains(itemId);
+
+    /// <summary>记下一件用掉的物品（礼花筒拉响时调用；一动就落档）</summary>
+    public void MarkItemUsed(string itemId)
+    {
+        if (!string.IsNullOrEmpty(itemId) && usedItems.Add(itemId))
+        {
+            SaveGame();
+            GD.Print($"[背包] 物品已用：{itemId}");
+        }
+    }
+
+    // ========== 系统页面"看过"标记（第十五轮） ==========
     /// <summary>这个系统页面（订阅号/微信运动…）是不是已经进去看过？（写死角标消掉用）</summary>
     public bool HasSeenPage(string pageId) => !string.IsNullOrEmpty(pageId) && seenPages.Contains(pageId);
 
@@ -473,7 +517,9 @@ public partial class GameManager : Node
             inventory = new System.Collections.Generic.List<string>(inventory),
             bagSeen = new System.Collections.Generic.List<string>(bagSeen),
             // 直接把这个字典写出去：RelationshipState 里的字段都是可序列化的简单类型
-            relationships = relationships
+            relationships = relationships,
+            pinnedContacts = new System.Collections.Generic.List<string>(pinnedContacts),
+            usedItems = new System.Collections.Generic.List<string>(usedItems)
         };
 
         // 设置 JSON 格式化为可读格式（方便调试）
@@ -580,6 +626,16 @@ public partial class GameManager : Node
                 relationships[pair.Key] = state;
             }
             SeedRelationships(); // 老档里没记下的"早就认识的人"补齐
+
+            // 置顶联系人 + 已用物品（第十八轮；老存档没有这两个字段 → 按空处理，不用升版本）
+            pinnedContacts.Clear();
+            foreach (var id in saveData.pinnedContacts ?? new())
+                if (!string.IsNullOrEmpty(id))
+                    pinnedContacts.Add(id);
+            usedItems.Clear();
+            foreach (var id in saveData.usedItems ?? new())
+                if (!string.IsNullOrEmpty(id))
+                    usedItems.Add(id);
 
             // 手机永远在身上：老存档里没有"手机"这件物品，读档时补进去，
             // 玩家会看到背包红点亮起 —— 正好借小红点告诉他"现在有个背包了"
@@ -714,6 +770,8 @@ public partial class GameManager : Node
         bagSeen.Clear();        // 全新的背包 → 红点亮着，提示玩家"翻开看看"
         relationships.Clear();  // 全新的一局：备注清空、关系阶段回到角色卡出厂值
         SeedRelationships();    // 微信列表里本来就在的人，一开始就是好友
+        pinnedContacts.Clear(); // 全新的一局：谁都没被置顶
+        usedItems.Clear();      // 全新的一局：礼花筒还没拉过
         GD.Print("[重置] 游戏状态已重置");
     }
 }
@@ -752,6 +810,12 @@ public class SaveData
     // 人物关系账（第十七轮；键 = data/characters.json 的角色 id。
     // v2 及更早的存档没有这个字段 → 读出来是 null → 按"谁都没加好友、谁都没备注"处理）
     public System.Collections.Generic.Dictionary<string, RelationshipState> relationships { get; set; }
+
+    // 被置顶的联系人 id 清单（第十八轮；老存档没有这个字段 → 按空处理）
+    public System.Collections.Generic.List<string> pinnedContacts { get; set; }
+
+    // 已经"用掉"的物品 id（第十八轮；老存档没有这个字段 → 按空处理）
+    public System.Collections.Generic.List<string> usedItems { get; set; }
 }
 
 /// <summary>

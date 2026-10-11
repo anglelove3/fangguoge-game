@@ -397,8 +397,18 @@ public partial class Backpack : Control
         if (detailTag.Visible)
             detailTag.Text = DataStore.Text("bag.tag_hidden");
 
-        detailDesc.Text = def != null && !string.IsNullOrEmpty(def.DescKey)
-            ? DataStore.Text(def.DescKey)
+        // 已用物品描述覆盖（第九章）：礼花筒拉响之后，
+        // 背包里它的说法要换成"已经拉响了"——用过了的东西，故事往前走了一格。
+        string descKey = def?.DescKey;
+        if (def != null && !string.IsNullOrEmpty(def.DescKey)
+            && GameManager.Instance?.IsUsedItem(def.Id) == true)
+        {
+            string usedKey = def.DescKey + "_used";
+            if (DataStore.HasText(usedKey))
+                descKey = usedKey;
+        }
+        detailDesc.Text = def != null && !string.IsNullOrEmpty(descKey)
+            ? DataStore.Text(descKey)
             : "";
 
         detailAction.Visible = def != null && def.Action == "phone";

@@ -16,5 +16,14 @@
       "wedding_night": { "time": "21:05", "month": 11, "day": 1,  "weekday": 6 },
       "gate":          { "time": "16:40", "month": 11, "day": 2,  "weekday": 0 }
     }
+  },
+  "ch09": {
+    "time": "22:15", "month": 11, "day": 3, "weekday": 1,
+    "segments": {
+      "lab":       { "time": "15:30", "month": 11, "day": 5, "weekday": 3 },
+      "night2":    { "time": "23:20", "month": 11, "day": 6, "weekday": 4 },
+      "riverside": { "time": "16:50", "month": 11, "day": 8, "weekday": 6 },
+      "night3":    { "time": "21:30", "month": 11, "day": 8, "weekday": 6 }
+    }
   }
 }

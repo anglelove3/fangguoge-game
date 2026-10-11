@@ -139,6 +139,86 @@ public static class StoryClock
         return Order(DialogueManager.Instance?.CurrentChapterId ?? "") >= Order(after);
     }
 
+    /// <summary>
+    /// 相对日期戳（第十八轮清遗留③）：聊天分隔线的「今天 / 昨天 / 周X / M月D日」
+    /// 不再写死在 JSON 里，而是按当前故事时间算——daysBack = 往前数几天（0 = 今天）。
+    /// hhmm 非空（"HH:mm"）时在日期后面补上「上午/下午…h:mm」时段戳，和 StampText 同一套分档。
+    ///
+    /// 无故事条目时回退"今天"（老存档在主菜单之类的地方打开手机，不该报错）。
+    /// 日期回退用 2001 年做基底（非闰年，2 月没有 29 日，跨月不穿帮）。
+    /// </summary>
+    public static string RelativeStampText(int daysBack, string hhmm = null)
+    {
+        if (daysBack < 0)
+            daysBack = 0;
+
+        string dayLabel;
+        int month = 0, day = 0, weekday = -1;
+        var e = Current();
+        if (e != null && e.Month > 0 && e.Day > 0)
+        {
+            month = e.Month;
+            day = e.Day;
+            weekday = e.Weekday;
+        }
+
+        if (daysBack == 0)
+        {
+            dayLabel = "今天";
+        }
+        else if (month > 0)
+        {
+            var shifted = new System.DateTime(2001, month, day).AddDays(-daysBack);
+            if (daysBack <= 6 && weekday >= 0)
+            {
+                int wd = ((weekday - daysBack) % 7 + 7) % 7;
+                dayLabel = WeekCn(wd);
+            }
+            else
+            {
+                dayLabel = $"{shifted.Month}月{shifted.Day}日";
+            }
+        }
+        else
+        {
+            dayLabel = "前几天";
+        }
+
+        if (string.IsNullOrEmpty(hhmm) ||
+            hhmm.Length != 5 || hhmm[2] != ':' ||
+            !int.TryParse(hhmm.Substring(0, 2), out int hour) ||
+            !int.TryParse(hhmm.Substring(3, 2), out int minute))
+            return dayLabel;
+
+        string period = hour switch
+        {
+            < 5 => "凌晨",
+            < 9 => "早上",
+            < 12 => "上午",
+            < 14 => "中午",
+            < 18 => "下午",
+            _ => "晚上",
+        };
+        int h12 = hour % 12;
+        if (h12 == 0)
+            h12 = 12;
+        return $"{dayLabel} {period} {h12}:{minute:D2}";
+    }
+
+    /// <summary>
+    /// 现在是故事里的"白天"吗？（第十八轮清遗留①：手机壁纸昼夜双版用）
+    /// 时钟 17:00 前算白天。无故事条目时看真实系统时间（主菜单开手机也对得上）。
+    /// </summary>
+    public static bool IsDaytime()
+    {
+        var e = Current();
+        string t = e != null && !string.IsNullOrEmpty(e.Time) ? e.Time : ClockText();
+        var parts = t.Split(':');
+        if (parts.Length == 2 && int.TryParse(parts[0], out int hour))
+            return hour < 17;
+        return true; // 解析不了就当白天，黄昏壁纸留给明确的"晚上"
+    }
+
     private static string WeekCn(int weekday) => weekday switch
     {
         0 => "星期日",

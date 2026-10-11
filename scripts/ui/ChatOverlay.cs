@@ -531,7 +531,13 @@ public partial class ChatOverlay : Control
         List<ChatMessageData> messages = chatData != null ? chatData.Messages : currentContact.Messages;
 
         foreach (var msg in messages)
+        {
+            // 幕门控（第九章）：带 gateChoice 的消息要等章节把钥匙记进选择历史才渲染。
+            // 一份聊天剧本演五天，没到那幕的消息不能提前让玩家看见。
+            if (!string.IsNullOrEmpty(msg.GateChoice) && GameManager.Instance?.HasChoice(msg.GateChoice) != true)
+                continue;
             rows.AddChild(MakeMessageRow(msg));
+        }
 
         // 本局内追加发送过的消息（重开手机还在）
         if (extraMessages.TryGetValue(currentContact.Id, out var extra))
@@ -1714,7 +1720,11 @@ public partial class ChatOverlay : Control
         if (msg.Type == "divider")
         {
             lastRowWasTimeInfo = true;
-            return MakeDivider(msg.Text);
+            // 相对日期分隔线（第十八轮清遗留③）：带 rel 的按故事时钟现算
+            // 「今天/昨天/周X/M月D日」，不再把"今天 22:07"写死在 JSON 里到处穿帮。
+            return MakeDivider(msg.Rel.HasValue
+                ? StoryClock.RelativeStampText(msg.Rel.Value, msg.Time)
+                : msg.Text);
         }
 
         // 每 3 条消息插入一个时间戳（模拟微信的时间显示；上一行已是分割线/时间戳就不叠）
@@ -2055,6 +2065,21 @@ public class ChatMessageData
 
     /// <summary>来自哪条"手机活起来"动态事件（非空 = 补投递时用它去重，同一条只落一次）</summary>
     public string LiveEventId { get; set; } = "";
+
+    /// <summary>
+    /// 相对日期分隔线（第十八轮清遗留③）：rel = 往前数几天（0 = 今天），time = "HH:mm" 可选。
+    /// JSON 里写 { "type": "divider", "rel": 7 } 就会按当前故事时间显示"7 天前的周几"。
+    /// </summary>
+    public int? Rel { get; set; }
+
+    /// <summary>相对分隔线的时刻（"HH:mm"）；配合 rel 生成"今天 下午 10:07"这样的完整戳</summary>
+    public string Time { get; set; } = "";
+
+    /// <summary>
+    /// 幕门控钥匙（第九章）：非空时，这条消息要等 GameManager 里记下同名选择/钥匙才会渲染。
+    /// 章节脚本在合适的幕开始时 RecordChoice(钥匙, 0) 解锁。
+    /// </summary>
+    public string GateChoice { get; set; } = "";
 }
 
 /// <summary>

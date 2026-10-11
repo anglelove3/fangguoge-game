@@ -77,7 +77,8 @@
       "portraits": [
         "jie_smile",
         "jie_laugh",
-        "jie_shy"
+        "jie_shy",
+        "jie_surprise"
       ],
       "relationship": "刚认识（第七章聚会）；第八章加好友、第一次私聊、被改备注；第九章《置顶》、第十二章《爱就梭哈》才确定关系",
       "stage": "just_met",
@@ -90,10 +91,12 @@
       ],
       "editFiles": [
         "data/dialogues/ch07.json",
+        "data/dialogues/ch09.json（第九章起）",
         "data/billiard/billiard.json",
         "data/text/demo_review.json",
         "data/contacts.json（第八章起）",
-        "data/chat/ch08_jie.json（第八章起）"
+        "data/chat/ch08_jie.json（第八章起）",
+        "data/chat/ch09_jie.json（第九章起）"
       ]
     },
     {

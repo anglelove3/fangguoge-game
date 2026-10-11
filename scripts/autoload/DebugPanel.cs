@@ -64,11 +64,21 @@ public partial class DebugPanel : CanvasLayer
     /// 没绑动作的按键要走 _UnhandledKeyInput —— 它是"没人处理的按键"的兜底入口。
     public override void _UnhandledKeyInput(InputEvent @event)
     {
-        if (@event is InputEventKey key && key.Pressed && !key.Echo && key.Keycode == Key.F12)
+        if (@event is InputEventKey key && key.Pressed && !key.Echo)
         {
-            panelVisible = !panelVisible;
-            Visible = panelVisible;
-            GD.Print($"[调试面板] {(panelVisible ? "显示" : "隐藏")}");
+            if (key.Keycode == Key.F12)
+            {
+                panelVisible = !panelVisible;
+                Visible = panelVisible;
+                GD.Print($"[调试面板] {(panelVisible ? "显示" : "隐藏")}");
+            }
+            else if (key.Keycode == Key.F11)
+            {
+                // 数值飘字开关（第十八轮拍板点③）：玩家侧默认不飘，
+                // 开发自查数值时按 F11 临时打开。
+                StatToast.DeveloperToasts = !StatToast.DeveloperToasts;
+                GD.Print($"[调试面板] 数值飘字（StatToast）：{(StatToast.DeveloperToasts ? "开" : "关")}");
+            }
         }
     }
 
@@ -100,6 +110,7 @@ public partial class DebugPanel : CanvasLayer
             $"隐藏物品: {gm.HiddenItemsFound}/{total}\n" +
             $"结局倾向: {DataStore.Text($"ending.{(int)ending}")}\n" +
             $"选择记录: {gm.ChoiceCount} 条\n" +
-            $"好友: {friended} 人 / 备注: {remarked} 条";
+            $"好友: {friended} 人 / 备注: {remarked} 条\n" +
+            $"飘字: {(StatToast.DeveloperToasts ? "开(F11)" : "关(F11)")}";
     }
 }

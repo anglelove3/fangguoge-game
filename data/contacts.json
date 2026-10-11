@@ -5,6 +5,9 @@
       "name": "江洁",
       "avatar": "res://assets/art/chat/avatar_jie.png",
       "chatFile": "ch08_jie",
+      "chatFileFrom": {
+        "9": "ch09_jie"
+      },
       "sessionTime": "上午 10:26",
       "afterChapter": 8,
       "requiresFriend": true,
@@ -138,7 +141,8 @@
       "members": 5,
       "chatFile": "ch07_plan",
       "chatFileFrom": {
-        "8": "ch08_group"
+        "8": "ch08_group",
+        "9": "ch09_group"
       },
       "afterChapter": 7,
       "sessionTime": "下午 5:45",

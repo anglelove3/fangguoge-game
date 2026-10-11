@@ -847,7 +847,7 @@ public partial class Ch08 : ChapterBase
 
         DialogueManager.Instance.PlaySequence(ChapterId, "outro", () =>
         {
-            GoToNextChapter("res://scenes/ui/demo_end/demo_end.tscn", 99);
+            GoToNextChapter("res://scenes/chapters/ch09/ch09.tscn", 9);
         });
     }
 

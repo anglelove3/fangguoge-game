@@ -61,6 +61,13 @@ public static class DataStore
         return textTable != null && textTable.TryGetValue(key, out var v) ? v : key;
     }
 
+    /// <summary>文案键存在吗？（第十八轮：背包"已用物品"描述这种"有就用、没有就跳过"的覆盖键）</summary>
+    public static bool HasText(string key)
+    {
+        EnsureText();
+        return textTable != null && textTable.ContainsKey(key);
+    }
+
     /// <summary>带占位符的文案：Text("hint.ch03_cards", 1, 3) → "…（1/3）"</summary>
     public static string Text(string key, params object[] args)
     {

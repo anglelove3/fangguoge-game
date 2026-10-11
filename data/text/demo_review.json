@@ -155,6 +155,42 @@
       "chapter": "ch08",
       "where": "第八章《还想再见》",
       "label": "第二次见面去哪儿，你定的是"
+    },
+    {
+      "choice": "ch09_heart_pin",
+      "chapter": "ch09",
+      "where": "第九章《置顶》",
+      "label": "按下置顶之后，你跟自己解释的是"
+    },
+    {
+      "choice": "ch09_busy",
+      "chapter": "ch09",
+      "where": "第九章《置顶》",
+      "label": "忙了一下午才拿起手机，你回她的是"
+    },
+    {
+      "choice": "ch09_read",
+      "chapter": "ch09",
+      "where": "第九章《置顶》",
+      "label": "深夜那句「没事」，你读出来的是"
+    },
+    {
+      "choice": "ch09_heart_late",
+      "chapter": "ch09",
+      "where": "第九章《置顶》",
+      "label": "她下线之后，你盯着置顶那一栏想的是"
+    },
+    {
+      "choice": "ch09_plan",
+      "chapter": "ch09",
+      "where": "第九章《置顶》",
+      "label": "这次见面你定的安排是"
+    },
+    {
+      "choice": "ch09_heart_popper",
+      "chapter": "ch09",
+      "where": "第九章《置顶》",
+      "label": "礼花筒拉响的那一刻，你心里的是"
     }
   ]
 }
