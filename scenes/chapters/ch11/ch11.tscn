@@ -1,0 +1,204 @@
+[gd_scene load_steps=10 format=3 uid="uid://ch11scene001"]
+
+[ext_resource type="Script" path="res://scripts/chapters/Ch11.cs" id="1_ch11"]
+[ext_resource type="Texture2D" path="res://assets/art/backgrounds/old_street_v1.png" id="2_street"]
+[ext_resource type="Texture2D" path="res://assets/art/backgrounds/winter_bank_v1.png" id="3_bank"]
+[ext_resource type="Texture2D" path="res://assets/art/backgrounds/xiaoguan_night_v1.png" id="4_shop"]
+
+[sub_resource type="StyleBoxFlat" id="SB_hot_normal"]
+bg_color = Color(0, 0, 0, 0)
+border_color = Color(0, 0, 0, 0)
+
+[sub_resource type="StyleBoxFlat" id="SB_hot_hover"]
+bg_color = Color(0, 0, 0, 0)
+border_color = Color(0, 0, 0, 0)
+
+[sub_resource type="StyleBoxFlat" id="SB_hot_pressed"]
+bg_color = Color(0, 0, 0, 0)
+border_color = Color(0, 0, 0, 0)
+
+[sub_resource type="StyleBoxFlat" id="SB_hot_disabled"]
+bg_color = Color(0, 0, 0, 0)
+border_color = Color(0, 0, 0, 0)
+
+[node name="Ch11" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_ch11")
+ChapterTitle = "第十一章：十里长亭"
+ChapterSubtitle = "越接近，越慢"
+ChapterIndex = 11
+
+[node name="Background" type="TextureRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("2_street")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="Bank" type="TextureRect" parent="."]
+modulate = Color(1, 1, 1, 0)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("3_bank")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="Xiaoguan" type="TextureRect" parent="."]
+modulate = Color(1, 1, 1, 0)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("4_shop")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="Vignette" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.02, 0.02, 0.1, 0.2)
+
+[node name="HintLabel" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -380.0
+offset_top = 24.0
+offset_right = 380.0
+offset_bottom = 64.0
+grow_horizontal = 2
+theme_override_colors/font_color = Color(1, 0.95, 0.85, 1)
+theme_override_colors/font_outline_color = Color(0.05, 0.05, 0.1, 1)
+theme_override_constants/outline_size = 10
+theme_override_font_sizes/font_size = 24
+text = "手机在响"
+horizontal_alignment = 1
+
+[node name="Hotspots" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="PhoneBtn" type="Button" parent="Hotspots"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.902
+anchor_top = 0.859
+anchor_right = 0.996
+anchor_bottom = 0.945
+grow_horizontal = 2
+grow_vertical = 2
+mouse_default_cursor_shape = 2
+theme_override_styles/normal = SubResource("SB_hot_normal")
+theme_override_styles/hover = SubResource("SB_hot_hover")
+theme_override_styles/pressed = SubResource("SB_hot_pressed")
+theme_override_styles/disabled = SubResource("SB_hot_disabled")
+
+[node name="GateBtn" type="Button" parent="Hotspots"]
+visible = false
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.05
+anchor_top = 0.35
+anchor_right = 0.16
+anchor_bottom = 0.62
+grow_horizontal = 2
+grow_vertical = 2
+mouse_default_cursor_shape = 2
+theme_override_styles/normal = SubResource("SB_hot_normal")
+theme_override_styles/hover = SubResource("SB_hot_hover")
+theme_override_styles/pressed = SubResource("SB_hot_pressed")
+theme_override_styles/disabled = SubResource("SB_hot_disabled")
+
+[node name="ShopExitBtn" type="Button" parent="Hotspots"]
+visible = false
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.05
+anchor_top = 0.35
+anchor_right = 0.16
+anchor_bottom = 0.62
+grow_horizontal = 2
+grow_vertical = 2
+mouse_default_cursor_shape = 2
+theme_override_styles/normal = SubResource("SB_hot_normal")
+theme_override_styles/hover = SubResource("SB_hot_hover")
+theme_override_styles/pressed = SubResource("SB_hot_pressed")
+theme_override_styles/disabled = SubResource("SB_hot_disabled")
+
+[node name="ChapterTitle" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.5
+anchor_top = 0.42
+anchor_right = 0.5
+anchor_bottom = 0.42
+offset_left = -520.0
+offset_top = -130.0
+offset_right = 520.0
+offset_bottom = -40.0
+grow_horizontal = 2
+theme_override_colors/font_color = Color(1, 0.97, 0.92, 1)
+theme_override_colors/font_outline_color = Color(0.05, 0.05, 0.1, 0.9)
+theme_override_constants/outline_size = 8
+theme_override_font_sizes/font_size = 76
+text = "第十一章：十里长亭"
+horizontal_alignment = 1
+
+[node name="ChapterSubtitle" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.5
+anchor_top = 0.42
+anchor_right = 0.5
+anchor_bottom = 0.42
+offset_left = -520.0
+offset_top = 70.0
+offset_right = 520.0
+offset_bottom = 120.0
+grow_horizontal = 2
+theme_override_colors/font_color = Color(0.35, 0.37, 0.45, 1)
+theme_override_font_sizes/font_size = 24
+text = "越接近，越慢"
+horizontal_alignment = 1
+
+[node name="BackButton" type="Button" parent="."]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_top = 0.0
+anchor_right = 1.0
+anchor_bottom = 0.0
+offset_left = -176.0
+offset_top = 24.0
+offset_right = -24.0
+offset_bottom = 68.0
+grow_horizontal = 0
+grow_vertical = 1
+mouse_default_cursor_shape = 2
+theme_override_font_sizes/font_size = 18
+text = "返回菜单"

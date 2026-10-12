@@ -227,6 +227,24 @@
       "chapter": "ch10",
       "where": "第十章《向南》",
       "label": "雨停了天边烧起来，你想记住的是"
+    },
+    {
+      "choice": "ch11_heart_approach",
+      "chapter": "ch11",
+      "where": "第十一章《十里长亭》",
+      "label": "最后 100 米，你心里想的是"
+    },
+    {
+      "choice": "ch11_firstword",
+      "chapter": "ch11",
+      "where": "第十一章《十里长亭》",
+      "label": "见面第一句话，你说的是"
+    },
+    {
+      "choice": "ch11_heart_nexttime",
+      "chapter": "ch11",
+      "where": "第十一章《十里长亭》",
+      "label": "她说「下次」，你听到的是"
     }
   ]
 }

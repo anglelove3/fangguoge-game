@@ -34,5 +34,13 @@
       "road_rain":    { "time": "15:40", "month": 1, "day": 18, "weekday": 0 },
       "road_dusk":    { "time": "17:50", "month": 1, "day": 18, "weekday": 0 }
     }
+  },
+  "ch11": {
+    "time": "18:20", "month": 1, "day": 18, "weekday": 0,
+    "segments": {
+      "walk":  { "time": "18:40", "month": 1, "day": 18, "weekday": 0 },
+      "meet":  { "time": "18:55", "month": 1, "day": 18, "weekday": 0 },
+      "night": { "time": "20:30", "month": 1, "day": 18, "weekday": 0 }
+    }
   }
 }

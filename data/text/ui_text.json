@@ -69,6 +69,10 @@
   "hint.ch10_pack_done": "（东西齐了。点床——睡前最后一件事）",
   "hint.ch10_shop": "店门口坐坐。手机震了",
   "hint.ch10_shop_done": "（面吃完，电也差不多了。该上路了）（路口，出店）",
+  "hint.ch11_phone": "她的定位发过来了。点开手机看看",
+  "hint.ch11_phone_done": "（顺着定位走。路口，出老街）",
+  "hint.ch11_meet": "前面那盏灯下，有个人影。走过去",
+  "hint.ch11_meet_done": "（该说的话，已经在路上了）",
 
   "wx.menu_pin": "置顶该聊天",
   "wx.menu_unpin": "取消置顶",

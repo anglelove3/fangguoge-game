@@ -1,0 +1,11 @@
+{
+  "_comment": "第十一章《十里长亭》的接线参数：老街/长堤两把幕门、私聊剧本、冬装立绘引用。无三线分层（第十章已演完她的知情状态），开场按第十章 ch10_charge1 的选择做骑/推分流。",
+
+  "jieContact": "jie",
+  "jieChat": "ch11_jie",
+
+  "gates": {
+    "street": "ch11_gate_street",
+    "night": "ch11_gate_night"
+  }
+}
