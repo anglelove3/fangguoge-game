@@ -23,6 +23,8 @@ public partial class HeartChips : Control
     private readonly List<Button> buttons = new();
     private Action<int> callback;
     private Tween fadeTween;
+    private const int ChipFontSize = 26;
+    private const int ChipSeparation = 26;
 
     // 和 ChoicePanel 同款文字三态颜色（同一套视觉语言）
     private static readonly Color TextNormal = new(0.33f, 0.2f, 0.11f);
@@ -58,7 +60,7 @@ public partial class HeartChips : Control
             AnchorTop = 0f,
             AnchorBottom = 1f,
         };
-        box.AddThemeConstantOverride("separation", 26);
+        box.AddThemeConstantOverride("separation", ChipSeparation);
         AddChild(box);
 
         Hide();
@@ -84,7 +86,7 @@ public partial class HeartChips : Control
                 CustomMinimumSize = new Vector2(0, 56),
             };
             btn.AddThemeFontOverride("font", ChoicePanel.GetChoiceFont());
-            btn.AddThemeFontSizeOverride("font_size", 26);
+            btn.AddThemeFontSizeOverride("font_size", ChipFontSize);
             btn.AddThemeColorOverride("font_color", TextNormal);
             btn.AddThemeColorOverride("font_hover_color", TextHover);
             btn.AddThemeColorOverride("font_pressed_color", TextPressed);
@@ -124,7 +126,38 @@ public partial class HeartChips : Control
             tween.TweenProperty(btn, "modulate:a", 1.0f, 0.18f);
         }
 
+        // 长句三连可能撑出屏幕（r19 回归抓到：第三张纸片的闭括号被右缘裁掉，
+        // 居中溢出时左边的开括号也贴边）——按需缩字号，让整行始终收进横带
+        FitChipsIfNeeded();
+
         Show();
+    }
+
+    /// <summary>
+    /// 纸片行总宽超出横带时逐号缩小字体（Button 最小宽随字体走），
+    /// 16 号是可读下限；正常两三张短纸片一上来就放得下，这个循环不跑。
+    /// </summary>
+    private void FitChipsIfNeeded()
+    {
+        if (buttons.Count == 0)
+            return;
+        float avail = Size.X;
+        if (avail <= 0f)
+            avail = GetViewportRect().Size.X;
+        float Needed()
+        {
+            float w = ChipSeparation * (buttons.Count - 1);
+            foreach (var b in buttons)
+                w += b.GetMinimumSize().X;
+            return w;
+        }
+        int font = ChipFontSize;
+        while (font > 16 && Needed() > avail)
+        {
+            font--;
+            foreach (var b in buttons)
+                b.AddThemeFontSizeOverride("font_size", font);
+        }
     }
 
     /// <summary>收起所有小纸片</summary>

@@ -191,6 +191,30 @@
       "chapter": "ch09",
       "where": "第九章《置顶》",
       "label": "礼花筒拉响的那一刻，你心里的是"
+    },
+    {
+      "choice": "ch10_reply",
+      "chapter": "ch10",
+      "where": "第十章《向南》",
+      "label": "她说「你真来啊？傻子。」，你回的是"
+    },
+    {
+      "choice": "ch10_heart_noodles",
+      "chapter": "ch10",
+      "where": "第十章《向南》",
+      "label": "小店老板娘问跑这么远干嘛去，你答的是"
+    },
+    {
+      "choice": "ch10_rain",
+      "chapter": "ch10",
+      "where": "第十章《向南》",
+      "label": "冷雨砸下来还有一百多公里，你选的是"
+    },
+    {
+      "choice": "ch10_heart_final3",
+      "chapter": "ch10",
+      "where": "第十章《向南》",
+      "label": "最后三公里，望得见桥上的人影时，你心里的是"
     }
   ]
 }

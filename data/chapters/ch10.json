@@ -1,0 +1,19 @@
+{
+  "_comment": "第十章《向南》的接线参数：三份聊天剧本（她/群/妈）、充电器物品 id、各幕的聊天幕门。聊天消息走 gateChoice 幕门控（跨一整天累积），不走 LiveEvents——补投递只会追加在列表末尾，跟门控消息混排会在重载后乱序。骑行段的具体参数（里程、充电点、剧情点）在 Ch10.cs 里，属玩法结构不属文案。",
+
+  "jieContact": "jie",
+  "jieChat": "ch10_jie",
+  "groupContact": "jinwanju",
+  "groupChat": "ch10_group",
+  "momContact": "ma",
+  "momChat": "ch10_ma",
+  "chargerItem": "charger",
+
+  "gates": {
+    "dorm1": "ch10_gate_dorm1",
+    "shop": "ch10_gate_shop",
+    "road2": "ch10_gate_road2",
+    "rain": "ch10_gate_rain",
+    "dusk": "ch10_gate_dusk"
+  }
+}

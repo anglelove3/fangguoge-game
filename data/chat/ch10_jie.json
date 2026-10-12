@@ -1,0 +1,51 @@
+{
+  "title": "江洁",
+  "messages": [
+    { "type": "divider", "text": "十二月 里的一天", "gateChoice": "ch10_gate_dorm1" },
+    { "sender": "other", "type": "text", "senderName": "江洁", "text": "跟你说个事，我老家特别小，地图上要放大三次才找得到。叫临澜。", "gateChoice": "ch10_gate_dorm1" },
+    { "sender": "me", "type": "text", "text": "临澜……江西的？", "gateChoice": "ch10_gate_dorm1" },
+    { "sender": "other", "type": "text", "senderName": "江洁", "text": "对，赣西，挨着湖南。你老家哪的来着？", "gateChoice": "ch10_gate_dorm1" },
+    { "sender": "me", "type": "text", "text": "株洲。", "gateChoice": "ch10_gate_dorm1" },
+    { "sender": "other", "type": "text", "senderName": "江洁", "text": "等等，株洲？？那你回家不是要路过我们那儿？？隔壁啊喂！", "gateChoice": "ch10_gate_dorm1" },
+    { "sender": "me", "type": "text", "text": "隔一条省界的隔壁。", "gateChoice": "ch10_gate_dorm1" },
+    { "sender": "other", "type": "text", "senderName": "江洁", "text": "世界真小。……那你过年回家，路上小心。", "gateChoice": "ch10_gate_dorm1" },
+
+    { "type": "divider", "text": "一月十五日 深夜", "gateChoice": "ch10_gate_dorm1" },
+    { "sender": "other", "type": "text", "senderName": "江洁", "text": "到家了。山里信号不好。", "gateChoice": "ch10_gate_dorm1" },
+    { "sender": "me", "type": "text", "text": "信号不好还发这么多。", "gateChoice": "ch10_gate_dorm1" },
+    { "sender": "other", "type": "text", "senderName": "江洁", "text": "省着点流量，就能多说两句。", "gateChoice": "ch10_gate_dorm1" },
+    { "sender": "other", "type": "text", "senderName": "江洁", "text": "导师夺命连环call，初五组会，论文在家也得改。", "gateChoice": "ch10_gate_dorm1" },
+    { "sender": "me", "type": "text", "text": "改累了就歇。山里冷，晚上早点睡。", "gateChoice": "ch10_gate_dorm1" },
+    { "sender": "other", "type": "text", "senderName": "江洁", "text": "哦，知道了，[捂脸]", "gateChoice": "ch10_gate_dorm1" },
+
+    { "type": "divider", "text": "一月十七日 凌晨 5:20", "gateChoice": "ch10_gate_dorm1" },
+    { "sender": "me", "type": "text", "text": "我今天过来。", "gateChoice": "ch10_gate_dorm1" },
+    { "sender": "other", "type": "text", "senderName": "江洁", "text": "？", "gateChoice": "ch10_gate_dorm1" },
+    { "sender": "me", "type": "text", "text": "电动车。导航说十个钟头。", "gateChoice": "ch10_gate_dorm1" },
+    { "sender": "other", "type": "text", "senderName": "江洁", "text": "你真来啊？傻子。", "gateChoice": "ch10_gate_dorm1" },
+    { "sender": "other", "type": "text", "senderName": "江洁", "text": "疯了吧，三百公里", "gateChoice": "ch10_gate_dorm1" },
+
+    { "type": "divider", "text": "一月十七日 中午 12:40", "gateChoice": "ch10_gate_shop" },
+    { "sender": "other", "type": "text", "senderName": "江洁", "text": "骑到哪了", "gateChoice": "ch10_gate_shop" },
+    { "sender": "me", "type": "text", "text": "刚吃过面。店里老板娘问我跑这么远干嘛。", "gateChoice": "ch10_gate_shop" },
+    { "sender": "other", "type": "text", "senderName": "江洁", "text": "你怎么说的", "gateChoice": "ch10_gate_shop" },
+    { "sender": "me", "type": "text", "text": "我说去见一个人。", "gateChoice": "ch10_gate_shop" },
+    { "sender": "other", "type": "text", "senderName": "江洁", "text": "……油嘴滑舌。电还有多少", "gateChoice": "ch10_gate_shop" },
+    { "sender": "me", "type": "text", "text": "够。安排好了，每六十公里停一次。", "gateChoice": "ch10_gate_shop" },
+    { "sender": "other", "type": "text", "senderName": "江洁", "text": "行，你办事我放心。[得意]", "gateChoice": "ch10_gate_shop" },
+
+    { "type": "divider", "text": "一月十七日 下午 3:50", "gateChoice": "ch10_gate_rain" },
+    { "sender": "other", "type": "text", "senderName": "江洁", "text": "看天气预报说你们那边下雨了？！", "gateChoice": "ch10_gate_rain" },
+    { "sender": "other", "type": "text", "senderName": "江洁", "text": "你带雨衣了吗", "gateChoice": "ch10_gate_rain" },
+    { "sender": "me", "type": "text", "text": "带了。你别管，我马上到。", "gateChoice": "ch10_gate_rain" },
+    { "sender": "other", "type": "text", "senderName": "江洁", "text": "……傻子。慢点骑，我等你，反正我也走不了。", "gateChoice": "ch10_gate_rain" },
+    { "sender": "other", "type": "text", "senderName": "江洁", "text": "山里在化冻，路上滑。", "gateChoice": "ch10_gate_rain" },
+
+    { "type": "divider", "text": "一月十七日 傍晚 6:00", "gateChoice": "ch10_gate_dusk" },
+    { "sender": "me", "type": "text", "text": "快到了，还有三公里。", "gateChoice": "ch10_gate_dusk" },
+    { "sender": "other", "type": "text", "senderName": "江洁", "text": "我看到路牌了哈哈哈，我在桥上等你", "gateChoice": "ch10_gate_dusk" },
+    { "sender": "other", "type": "text", "senderName": "江洁", "text": "你骑了一整天，傻不傻", "gateChoice": "ch10_gate_dusk" },
+    { "sender": "me", "type": "text", "text": "傻。但是值。", "gateChoice": "ch10_gate_dusk" },
+    { "sender": "other", "type": "text", "senderName": "江洁", "text": "……快上来。风大。", "gateChoice": "ch10_gate_dusk" }
+  ]
+}

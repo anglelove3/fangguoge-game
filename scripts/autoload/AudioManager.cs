@@ -52,6 +52,7 @@ public partial class AudioManager : Node
     public const string SfxWeddingCrowdLoop = "res://assets/audio/sfx/sfx_wedding_crowd_loop.wav"; // 婚宴人声鼎沸无缝循环（第八章）
     public const string SfxPartyPopper = "res://assets/audio/sfx/sfx_party_popper.wav"; // 礼花筒拉响（第九章）
     public const string SfxRiverWindLoop = "res://assets/audio/sfx/sfx_river_wind_loop.wav"; // 河堤风声无缝循环（第九章）
+    public const string SfxScooterLoop = "res://assets/audio/sfx/sfx_scooter_loop.wav"; // 电动车电机声无缝循环（第十章）
 
     // 背景音乐（萨蒂《吉姆诺佩蒂》三部曲：公有领域 / CC BY 3.0 录音，详见 音乐说明.txt）
     public const string BgmGym1 = "res://assets/audio/bgm/gymnopedie_no1.ogg"; // 序章 / 菜单 / 天亮

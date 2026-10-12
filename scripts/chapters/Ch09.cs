@@ -734,7 +734,8 @@ public partial class Ch09 : ChapterBase
         {
             DialogueManager.Instance.PlaySequence(ChapterId, "outro", () =>
             {
-                GoToNextChapter("res://scenes/ui/demo_end/demo_end.tscn", 99);
+                // 置顶的她还在最上面。下一个寒假的清晨，他跨上电动车——第十章《向南》
+                GoToNextChapter("res://scenes/chapters/ch10_south/ch10.tscn", 10);
             });
         });
     }

@@ -1,0 +1,37 @@
+{
+  "title": "今天的局",
+  "readOnly": true,
+  "readOnlyHint": "（先看看大家在聊什么）",
+  "readOnlyToast": "群里聊得热闹，先回一条简短的。",
+  "messages": [
+    { "type": "divider", "text": "一月十六日 晚上 9:15", "gateChoice": "ch10_gate_dorm1" },
+    { "sender": "other", "senderName": "金艮", "text": "师兄听说你明天要骑电动车去江西？？三百公里？", "gateChoice": "ch10_gate_dorm1" },
+    { "sender": "other", "senderName": "小米师妹", "text": "？？？", "gateChoice": "ch10_gate_dorm1" },
+    { "sender": "other", "senderName": "俊杰（师弟）", "text": "我赌五十块他骑不到一半", "gateChoice": "ch10_gate_dorm1" },
+    { "sender": "other", "senderName": "金艮", "text": "疯了疯了，@我 说句话", "gateChoice": "ch10_gate_dorm1" },
+    { "sender": "me", "type": "text", "text": "到了给你们报平安。", "gateChoice": "ch10_gate_dorm1" },
+    { "sender": "other", "senderName": "金艮", "text": "报平安？？？这话听着就不对劲", "gateChoice": "ch10_gate_dorm1" },
+
+    { "type": "divider", "text": "一月十七日 上午 9:40", "gateChoice": "ch10_gate_shop" },
+    { "sender": "other", "senderName": "金艮", "text": "起来了吗师兄，出发没", "gateChoice": "ch10_gate_shop" },
+    { "sender": "me", "type": "text", "text": "五点半就走了，现在第八十公里。", "gateChoice": "ch10_gate_shop" },
+    { "sender": "other", "senderName": "小米师妹", "text": "师兄加油！[拳头]", "gateChoice": "ch10_gate_shop" },
+    { "sender": "other", "senderName": "俊杰（师弟）", "text": "行，五十块我是要不回来了是吧", "gateChoice": "ch10_gate_shop" },
+    { "sender": "other", "senderName": "三金师兄", "text": "让他骑。这年头敢三〇〇公里骑电动的，不是疯子是狠人。", "gateChoice": "ch10_gate_shop" },
+
+    { "type": "divider", "text": "一月十七日 下午 2:40", "gateChoice": "ch10_gate_road2" },
+    { "sender": "other", "senderName": "金艮", "text": "师兄你到株洲了？不回家看一眼？", "gateChoice": "ch10_gate_road2" },
+    { "sender": "me", "type": "text", "text": "回。明天到。先去办点事。", "gateChoice": "ch10_gate_road2" },
+    { "sender": "other", "senderName": "金艮", "text": "办的事比家还重要？", "gateChoice": "ch10_gate_road2" },
+    { "sender": "me", "type": "text", "text": "嗯。", "gateChoice": "ch10_gate_road2" },
+    { "sender": "other", "senderName": "小米师妹", "text": "哦————", "gateChoice": "ch10_gate_road2" },
+    { "sender": "other", "senderName": "俊杰（师弟）", "text": "懂的都懂", "gateChoice": "ch10_gate_road2" },
+
+    { "type": "divider", "text": "一月十七日 傍晚 6:10", "gateChoice": "ch10_gate_dusk" },
+    { "sender": "other", "senderName": "金艮", "text": "报平安呢？人呢", "gateChoice": "ch10_gate_dusk" },
+    { "sender": "me", "type": "text", "text": "到了。平安。", "gateChoice": "ch10_gate_dusk" },
+    { "sender": "other", "senderName": "小米师妹", "text": "！！！十个小时真骑完了！！", "gateChoice": "ch10_gate_dusk" },
+    { "sender": "other", "senderName": "俊杰（师弟）", "text": "五十块转我了是吧", "gateChoice": "ch10_gate_dusk" },
+    { "sender": "other", "senderName": "金艮", "text": "狠人。回头把这条路线画出来，我裱起来", "gateChoice": "ch10_gate_dusk" }
+  ]
+}

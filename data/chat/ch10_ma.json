@@ -1,0 +1,11 @@
+{
+  "title": "妈",
+  "messages": [
+    { "type": "divider", "text": "一月十七日 下午 2:32", "gateChoice": "ch10_gate_road2" },
+    { "sender": "other", "type": "text", "senderName": "妈", "text": "到哪了", "gateChoice": "ch10_gate_road2" },
+    { "sender": "other", "type": "text", "senderName": "妈", "text": "你申哥说今天有雨，别赶夜路", "gateChoice": "ch10_gate_road2" },
+    { "sender": "me", "type": "text", "text": "明天到。路上慢着呢。", "gateChoice": "ch10_gate_road2" },
+    { "sender": "other", "type": "text", "senderName": "妈", "text": "行，给你留着腊肠。", "gateChoice": "ch10_gate_road2" },
+    { "sender": "other", "type": "text", "senderName": "妈", "text": "到家先吃饭，别的那都是后话。", "gateChoice": "ch10_gate_road2" }
+  ]
+}

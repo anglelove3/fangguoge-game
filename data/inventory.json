@@ -54,6 +54,12 @@
       "nameKey": "",
       "descKey": "bag.item_cracker_desc",
       "icon": "res://assets/art/items/icon_cracker.png"
+    },
+    {
+      "id": "charger",
+      "nameKey": "bag.item_charger",
+      "descKey": "bag.item_charger_desc",
+      "icon": "res://assets/art/items/icon_charger.png"
     }
   ]
 }

@@ -25,5 +25,15 @@
       "riverside": { "time": "16:50", "month": 11, "day": 8, "weekday": 6 },
       "night3":    { "time": "21:30", "month": 11, "day": 8, "weekday": 6 }
     }
+  },
+  "ch10": {
+    "time": "05:40", "month": 1, "day": 17, "weekday": 6,
+    "segments": {
+      "road_am": { "time": "08:10", "month": 1, "day": 17, "weekday": 6 },
+      "shop":    { "time": "12:20", "month": 1, "day": 17, "weekday": 6 },
+      "road_pm": { "time": "14:10", "month": 1, "day": 17, "weekday": 6 },
+      "rain":    { "time": "15:40", "month": 1, "day": 17, "weekday": 6 },
+      "dusk":    { "time": "17:50", "month": 1, "day": 17, "weekday": 6 }
+    }
   }
 }

@@ -66,6 +66,19 @@
   "hint.ch09_night3": "把今晚最后一条消息发出去",
   "hint.ch09_night3_done": "（列表滑到底，一抬头，她还在最上面）",
 
+  "hint.ch10_phone": "她的消息还停在昨夜。点开手机，回她",
+  "hint.ch10_pack": "（回复过了。收拾行李——桌上的充电器也带上）",
+  "hint.ch10_depart": "（行李捆好了。窗外的车充了一夜电——出发）",
+  "hint.ch10_noodle": "面刚端上来，热气糊了半边眼镜。趁热",
+  "hint.ch10_shop_exit": "（电充上了，面也吃完了。下午还有一百四十公里）",
+  "hint.ch10_dusk_sign": "城郊的黄昏。先看看那块路牌",
+  "hint.ch10_dusk_phone": "（还有三公里。先给她报个信）",
+  "hint.ch10_dusk_end": "（她在桥上等。最后三公里——骑完它）",
+
+  "bag.item_charger": "电动车充电器",
+  "bag.item_charger_desc": "方盒子，线绕得整整齐齐。每六十公里停一次，就靠它。",
+  "bag.item_charger_desc_used": "插头还带着小店的灰。二百七十八公里，它功不可没。",
+
   "wx.menu_pin": "置顶该聊天",
   "wx.menu_unpin": "取消置顶",
   "wx.menu_decoy": "标为未读",

@@ -201,13 +201,7 @@ public partial class ChatOverlay : Control
         if (!string.IsNullOrEmpty(chatId))
         {
             contact = contacts.Contacts.Find(c => c.ActiveChatFile == chatId || c.Id == chatId)
-                      ?? new ContactData
-                      {
-                          Id = chatId,
-                          Name = DataStore.Text("chat.contact_baobao"),
-                          Avatar = WeChatData.BaobaoAvatarPath,
-                          ChatFile = chatId,
-                      };
+                      ?? ContactFromChatFile(chatId);
         }
 
         // 手机比窗口还大时整体等比缩小，保证整台手机（含底部横条）永远完整可见
@@ -1968,6 +1962,31 @@ public partial class ChatOverlay : Control
     }
 
     // ==================== 数据加载 ====================
+
+    /// <summary>
+    /// chatId 没匹配到任何联系人时的兜底。以前这里写死了前女友的名字和头像——
+    /// 谁没匹配上谁顶锅（r19 回归跳章触通过一次）。现在从聊天剧本里捞第一条
+    /// 对方消息的 senderName 当显示名，至少不会给陌生会话挂上熟人的脸。
+    /// </summary>
+    private static ContactData ContactFromChatFile(string chatId)
+    {
+        var fallback = new ContactData { Id = chatId, ChatFile = chatId };
+        var chat = LoadChatData(chatId);
+        if (chat != null)
+        {
+            foreach (var m in chat.Messages)
+            {
+                if (m.Sender != "me" && !string.IsNullOrEmpty(m.SenderName))
+                {
+                    fallback.Name = m.SenderName;
+                    break;
+                }
+            }
+        }
+        if (string.IsNullOrEmpty(fallback.Name))
+            fallback.Name = chatId; // 数据坏了才走到这儿：显示 id 方便排障，好过冒充别人
+        return fallback;
+    }
 
     /// <summary>读取 data/chat/{chatId}.json（和对话系统同一套 JSON 流派）</summary>
     public static ChatScriptData LoadChatData(string chatId)
