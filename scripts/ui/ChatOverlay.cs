@@ -201,13 +201,7 @@ public partial class ChatOverlay : Control
         if (!string.IsNullOrEmpty(chatId))
         {
             contact = contacts.Contacts.Find(c => c.ActiveChatFile == chatId || c.Id == chatId)
-                      ?? new ContactData
-                      {
-                          Id = chatId,
-                          Name = DataStore.Text("chat.contact_baobao"),
-                          Avatar = WeChatData.BaobaoAvatarPath,
-                          ChatFile = chatId,
-                      };
+                      ?? ContactFromChatFile(chatId);
         }
 
         // 手机比窗口还大时整体等比缩小，保证整台手机（含底部横条）永远完整可见
@@ -1968,6 +1962,28 @@ public partial class ChatOverlay : Control
     }
 
     // ==================== 数据加载 ====================
+
+    /// <summary>
+    /// 兜底联系人：会话列表里找不到 chatId 时（requiresFriend 没加好友、数据错位等异常路径），
+    /// 从聊天数据里读第一个真实发言人当显示名——绝不冒充成宝宝的名字和头像。
+    /// 读不到名字才显示 chatId 本身（方便排障，好过冒充别人）。
+    /// </summary>
+    private static ContactData ContactFromChatFile(string chatId)
+    {
+        var fallback = new ContactData { Id = chatId, ChatFile = chatId };
+        var chat = LoadChatData(chatId);
+        if (chat != null)
+        {
+            foreach (var m in chat.Messages)
+            {
+                if (m.Sender != "me" && !string.IsNullOrEmpty(m.SenderName))
+                { fallback.Name = m.SenderName; break; }
+            }
+        }
+        if (string.IsNullOrEmpty(fallback.Name))
+            fallback.Name = chatId;
+        return fallback;
+    }
 
     /// <summary>读取 data/chat/{chatId}.json（和对话系统同一套 JSON 流派）</summary>
     public static ChatScriptData LoadChatData(string chatId)
