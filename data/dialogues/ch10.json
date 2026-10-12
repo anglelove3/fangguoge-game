@@ -169,6 +169,9 @@
       { "speaker": "", "text": "四十分钟后才轮上他。赶时间，只充到 80% 就拔了枪。" },
       { "speaker": "我", "text": "（追了一路的电，最后还是没追平。算了——80% 够跑完剩下的。）" }
     ],
+    "burn": [
+      { "heartChoice": "burn" }
+    ],
     "dusk_arrive": [
       { "speaker": "", "text": "十七点。天边烧起来了——云被落日从底下点着，橙红的一大片，铺在国道尽头。" },
       { "speaker": "", "text": "路牌从右侧掠过去：临江 20km。" },
@@ -229,7 +232,7 @@
       "promptSpeaker": "我",
       "promptPortrait": "",
       "options": [
-        { "text": "「别等开学了。明天我去找你。」——直球", "affection": 5, "courage": -2 },
+        { "text": "「别等开学了。明天我去找你。」——直球", "affection": -2, "courage": 5 },
         { "text": "「你们那边有什么好吃的？我查查。」——先套情报，不说破", "affection": 3, "courage": 1 },
         { "text": "「早点睡。」——什么也不说，明天给她个大的", "affection": 2, "courage": 2 }
       ]
