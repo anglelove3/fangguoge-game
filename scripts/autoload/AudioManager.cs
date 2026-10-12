@@ -57,6 +57,7 @@ public partial class AudioManager : Node
     public const string BgmGym1 = "res://assets/audio/bgm/gymnopedie_no1.ogg"; // 序章 / 菜单 / 天亮
     public const string BgmGym2 = "res://assets/audio/bgm/gymnopedie_no2.ogg"; // 第三章《天平》
     public const string BgmGym3 = "res://assets/audio/bgm/gymnopedie_no3.ogg"; // 第四章《手滑》深夜
+    public const string BgmRoad = "res://assets/audio/bgm/bgm_road_v1.mp3";    // 第十章《向南》公路（Carefree, Kevin MacLeod, CC-BY）
 
     /// <summary>当前 BGM 的"基础音量"（不含设置页偏移），设置页改音量时要用它重算</summary>
     private float bgmBaseDb = -14f;

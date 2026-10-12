@@ -191,6 +191,42 @@
       "chapter": "ch09",
       "where": "第九章《置顶》",
       "label": "礼花筒拉响的那一刻，你心里的是"
+    },
+    {
+      "choice": "ch10_why",
+      "chapter": "ch10",
+      "where": "第十章《向南》",
+      "label": "她那句「出门全靠走」，你回的是"
+    },
+    {
+      "choice": "ch10_heart_decide",
+      "chapter": "ch10",
+      "where": "第十章《向南》",
+      "label": "出发前夜关灯之前，你最后一个念头是"
+    },
+    {
+      "choice": "ch10_charge1",
+      "chapter": "ch10",
+      "where": "第十章《向南》",
+      "label": "电量 58% 的上午，你选的是"
+    },
+    {
+      "choice": "ch10_rain",
+      "chapter": "ch10",
+      "where": "第十章《向南》",
+      "label": "雨最大的时候，你做的是"
+    },
+    {
+      "choice": "ch10_heart_noodle",
+      "chapter": "ch10",
+      "where": "第十章《向南》",
+      "label": "那根火腿肠浮起来的时候，你想的是"
+    },
+    {
+      "choice": "ch10_heart_burn",
+      "chapter": "ch10",
+      "where": "第十章《向南》",
+      "label": "雨停了天边烧起来，你想记住的是"
     }
   ]
 }

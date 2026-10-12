@@ -415,6 +415,30 @@
         "data/contacts.json",
         "data/chat/live_events.json"
       ]
+    },
+    {
+      "id": "laoban",
+      "name": "老板",
+      "aka": [],
+      "line": "场景人物",
+      "debut": "ch10",
+      "identity": "国道边的充电店主，五十多岁（第十章《向南》第 3 幕；r19 拍板升级为正式场景人物卡）",
+      "look": "旧棉袄、围裙、手上全是老茧；立绘 laoban_smile.png",
+      "voice": "话少、不追问；关心用行动不用嘴——往泡面里多丢一根火腿肠那种",
+      "color": "#C9B896",
+      "avatar": "",
+      "portraits": [
+        "res://assets/portraits/laoban_smile.png"
+      ],
+      "relationship": "一面之缘的路人（临江方向的国道上）",
+      "stage": "",
+      "editable": [
+        "要不要给他一个名字（默认不给，标签就『老板』两个字）",
+        "后续章节是否再出现（默认不复活）"
+      ],
+      "editFiles": [
+        "data/dialogues/ch10.json"
+      ]
     }
   ],
   "_系统账号": "订阅号消息 / 服务号 / 微信运动 / 文件传输助手 / 微信支付 是道具不是人物，不进角色卡，数据在 data/contacts.json + data/system_wechat.json。"

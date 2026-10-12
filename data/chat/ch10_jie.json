@@ -1,0 +1,94 @@
+{
+  "title": "江洁",
+  "_comment": "第十章《向南》私聊：全程三线分层。钥匙 = ch10_gate_{段落}_{线}（a=告知 / b=套话 / c=保密），由 Ch10 在对应幕开始时按玩家的 why 选择解锁对应一组——同段落三线消息互斥，选哪条线只看得见哪条线。",
+  "messages": [
+    { "type": "divider", "text": "周六 晚上 9:41", "gateChoice": "ch10_gate_eve" },
+    { "sender": "other", "type": "text", "senderName": "江洁", "text": "到家了。这边好冷，出门全靠走。", "gateChoice": "ch10_gate_eve" },
+    { "sender": "other", "type": "text", "senderName": "江洁", "text": "[图片]", "gateChoice": "ch10_gate_eve" },
+
+    { "sender": "me", "type": "text", "text": "别等开学了。明天我去找你。", "gateChoice": "ch10_gate_eve_a" },
+    { "sender": "other", "type": "text", "senderName": "江洁", "text": "？？？", "gateChoice": "ch10_gate_eve_a" },
+    { "sender": "other", "type": "text", "senderName": "江洁", "text": "你疯了？？389 公里！！", "gateChoice": "ch10_gate_eve_a" },
+
+    { "sender": "me", "type": "text", "text": "你们那边有什么好吃的？我查查。", "gateChoice": "ch10_gate_eve_b" },
+    { "sender": "other", "type": "text", "senderName": "江洁", "text": "糖水铺！老字号粉店！还有一家炒螺，晚上去要排队！", "gateChoice": "ch10_gate_eve_b" },
+    { "sender": "me", "type": "text", "text": "先记着。以后有用。", "gateChoice": "ch10_gate_eve_b" },
+
+    { "sender": "me", "type": "text", "text": "早点睡。", "gateChoice": "ch10_gate_eve_c" },
+    { "sender": "other", "type": "text", "senderName": "江洁", "text": "嗯。你也是，别老熬夜。", "gateChoice": "ch10_gate_eve_c" },
+
+    { "type": "divider", "text": "周日 早上 7:05", "gateChoice": "ch10_gate_road1_a" },
+    { "sender": "me", "type": "text", "text": "出发了。", "gateChoice": "ch10_gate_road1_a" },
+    { "sender": "other", "type": "text", "senderName": "江洁", "text": "收到。雨衣穿好，充电别糊弄，随时报位置。", "gateChoice": "ch10_gate_road1_a" },
+    { "sender": "other", "type": "text", "senderName": "江洁", "text": "[太阳]", "gateChoice": "ch10_gate_road1_a" },
+
+    { "type": "divider", "text": "周日 早上 7:05", "gateChoice": "ch10_gate_road1_b" },
+    { "sender": "other", "type": "text", "senderName": "江洁", "text": "大周末的，这么早起干嘛？", "gateChoice": "ch10_gate_road1_b" },
+    { "sender": "me", "type": "text", "text": "出门办点事。顺便记你的糖水铺。", "gateChoice": "ch10_gate_road1_b" },
+    { "sender": "other", "type": "text", "senderName": "江洁", "text": "哦。你这人最近怪怪的。", "gateChoice": "ch10_gate_road1_b" },
+
+    { "type": "divider", "text": "周日 早上 7:05", "gateChoice": "ch10_gate_road1_c" },
+    { "sender": "other", "type": "text", "senderName": "江洁", "text": "早。今天干嘛？", "gateChoice": "ch10_gate_road1_c" },
+    { "sender": "me", "type": "text", "text": "出门一趟。晚上聊。", "gateChoice": "ch10_gate_road1_c" },
+    { "sender": "other", "type": "text", "senderName": "江洁", "text": "行吧。路上冷，多穿。", "gateChoice": "ch10_gate_road1_c" },
+
+    { "type": "divider", "text": "周日 中午 12:32", "gateChoice": "ch10_gate_shop_a" },
+    { "sender": "other", "type": "text", "senderName": "江洁", "text": "充电呢？别糊弄，截图。", "gateChoice": "ch10_gate_shop_a" },
+    { "sender": "me", "type": "text", "text": "[图片]", "gateChoice": "ch10_gate_shop_a" },
+    { "sender": "other", "type": "text", "senderName": "江洁", "text": "行。吃完再走，不用赶。我等你到就行。", "gateChoice": "ch10_gate_shop_a" },
+
+    { "type": "divider", "text": "周日 中午 12:32", "gateChoice": "ch10_gate_shop_b" },
+    { "sender": "other", "type": "text", "senderName": "江洁", "text": "[图片]", "gateChoice": "ch10_gate_shop_b" },
+    { "sender": "other", "type": "text", "senderName": "江洁", "text": "我们这边不下雪，雨倒是下一冬。", "gateChoice": "ch10_gate_shop_b" },
+    { "sender": "other", "type": "text", "senderName": "江洁", "text": "你查的糖水铺我踩点了，确实好吃。", "gateChoice": "ch10_gate_shop_b" },
+
+    { "type": "divider", "text": "周日 中午 12:32", "gateChoice": "ch10_gate_shop_c" },
+    { "sender": "other", "type": "text", "senderName": "江洁", "text": "[图片]", "gateChoice": "ch10_gate_shop_c" },
+    { "sender": "other", "type": "text", "senderName": "江洁", "text": "帮你试了。甜的。挺好。", "gateChoice": "ch10_gate_shop_c" },
+    { "sender": "me", "type": "text", "text": "看着就好吃。", "gateChoice": "ch10_gate_shop_c" },
+
+    { "type": "divider", "text": "周日 下午 3:47", "gateChoice": "ch10_gate_rain_a" },
+    { "sender": "other", "type": "text", "senderName": "江洁", "text": "你还在骑？？雨那么大！！", "gateChoice": "ch10_gate_rain_a" },
+    { "sender": "me", "type": "text", "text": "雨衣。扎紧了。", "gateChoice": "ch10_gate_rain_a" },
+    { "sender": "other", "type": "text", "senderName": "江洁", "text": "……遇到服务区就躲一躲。听见没。", "gateChoice": "ch10_gate_rain_a" },
+
+    { "type": "divider", "text": "周日 下午 3:47", "gateChoice": "ch10_gate_rain_b" },
+    { "sender": "me", "type": "text", "text": "你那边下雨没。", "gateChoice": "ch10_gate_rain_b" },
+    { "sender": "other", "type": "text", "senderName": "江洁", "text": "下了！好大。你呢？", "gateChoice": "ch10_gate_rain_b" },
+    { "sender": "me", "type": "text", "text": "也在下。", "gateChoice": "ch10_gate_rain_b" },
+
+    { "type": "divider", "text": "周日 下午 3:47", "gateChoice": "ch10_gate_rain_c" },
+    { "sender": "me", "type": "text", "text": "你那边下雨没。", "gateChoice": "ch10_gate_rain_c" },
+    { "sender": "other", "type": "text", "senderName": "江洁", "text": "下了！好大。你呢？", "gateChoice": "ch10_gate_rain_c" },
+    { "sender": "me", "type": "text", "text": "也在下。", "gateChoice": "ch10_gate_rain_c" },
+
+    { "type": "divider", "text": "周日 下午 4:35", "gateChoice": "ch10_gate_dusk_a" },
+    { "sender": "other", "type": "text", "senderName": "江洁", "text": "到哪了？", "gateChoice": "ch10_gate_dusk_a" },
+    { "sender": "me", "type": "text", "text": "快了。天放晴了。", "gateChoice": "ch10_gate_dusk_a" },
+
+    { "type": "divider", "text": "周日 下午 4:35", "gateChoice": "ch10_gate_dusk_b" },
+    { "sender": "other", "type": "text", "senderName": "江洁", "text": "雨停了，出了个大太阳。有点像要出事的天。", "gateChoice": "ch10_gate_dusk_b" },
+    { "sender": "me", "type": "text", "text": "嗯。是要出事。", "gateChoice": "ch10_gate_dusk_b" },
+    { "sender": "other", "type": "text", "senderName": "江洁", "text": "？", "gateChoice": "ch10_gate_dusk_b" },
+
+    { "type": "divider", "text": "周日 下午 4:35", "gateChoice": "ch10_gate_dusk_c" },
+    { "sender": "other", "type": "text", "senderName": "江洁", "text": "我们这边雨停了，天烧起来了。", "gateChoice": "ch10_gate_dusk_c" },
+    { "sender": "me", "type": "text", "text": "我这也有。快烧到我那了。", "gateChoice": "ch10_gate_dusk_c" },
+
+    { "type": "divider", "text": "周日 傍晚 5:51", "gateChoice": "ch10_gate_arrive_a" },
+    { "sender": "me", "type": "text", "text": "还有 2 公里。走路就到。", "gateChoice": "ch10_gate_arrive_a" },
+    { "sender": "other", "type": "text", "senderName": "江洁", "text": "站在路口了！！你敢绕路试试！", "gateChoice": "ch10_gate_arrive_a" },
+
+    { "type": "divider", "text": "周日 傍晚 5:51", "gateChoice": "ch10_gate_arrive_b" },
+    { "sender": "me", "type": "text", "text": "我到了。", "gateChoice": "ch10_gate_arrive_b" },
+    { "sender": "other", "type": "text", "senderName": "江洁", "text": "？？?", "gateChoice": "ch10_gate_arrive_b" },
+    { "sender": "other", "type": "text", "senderName": "江洁", "text": "你查个糖水铺怎么查到我们市了？？", "gateChoice": "ch10_gate_arrive_b" },
+    { "sender": "other", "type": "text", "senderName": "江洁", "text": "……你等着，我马上出来！！你在哪！！", "gateChoice": "ch10_gate_arrive_b" },
+
+    { "type": "divider", "text": "周日 傍晚 5:51", "gateChoice": "ch10_gate_arrive_c" },
+    { "sender": "me", "type": "text", "text": "我到了。", "gateChoice": "ch10_gate_arrive_c" },
+    { "sender": "other", "type": "text", "senderName": "江洁", "text": "？？?", "gateChoice": "ch10_gate_arrive_c" },
+    { "sender": "other", "type": "text", "senderName": "江洁", "text": "哪个「到了」？?", "gateChoice": "ch10_gate_arrive_c" },
+    { "sender": "other", "type": "text", "senderName": "江洁", "text": "你别动。我马上下来。", "gateChoice": "ch10_gate_arrive_c" }
+  ]
+}
