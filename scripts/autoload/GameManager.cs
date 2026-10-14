@@ -399,6 +399,35 @@ public partial class GameManager : Node
     /// <summary>关系阶段（just_met / friend / dating…）；玩家没推进过时读角色卡的出厂值</summary>
     public string StageOf(string characterId) => Relationship(characterId).stage;
 
+    /// <summary>
+    /// 删除联系人（第十九轮第六章《放过自己》的 主线演出 + 玩家长按菜单 共用这一把刀）。
+    /// 删了就是删了：会话列表 / 通讯录 / 朋友圈都不再有 ta（微信原话：将同时删除与该联系人的聊天记录）。
+    /// 返回 true 表示"这一刀是新捅的"——已经删过再删不会重复落档。
+    /// </summary>
+    public bool DeleteFriend(string characterId, string eventId = "")
+    {
+        if (string.IsNullOrEmpty(characterId))
+            return false;
+
+        var state = Relationship(characterId);
+        bool changed = !state.deleted;
+        state.deleted = true;
+        state.friended = false; // 删好友顺带把好友关系摘掉（万一以后有"重新加回来"的剧情，账也是对的）
+        AddEvent(state, eventId);
+        if (changed)
+        {
+            SaveGame();
+            GD.Print($"[关系] 删除联系人：{characterId}");
+        }
+        return changed;
+    }
+
+    /// <summary>这位联系人被删掉了吗？（列表过滤 / 朋友圈过滤 / 剧情判定都用它）</summary>
+    public bool IsDeleted(string characterId) =>
+        !string.IsNullOrEmpty(characterId)
+        && relationships.TryGetValue(characterId, out var state)
+        && state.deleted;
+
     /// <summary>推进关系阶段（结局判定、后续章节的"我们算什么"会用到）</summary>
     public void SetStage(string characterId, string stage)
     {
@@ -489,6 +518,8 @@ public partial class GameManager : Node
                 continue;
             if (!string.IsNullOrEmpty(c.Kind) || !string.IsNullOrEmpty(c.Icon))
                 continue;
+            if (IsDeleted(c.Id))
+                continue; // 已经被玩家删掉的人，补账的时候别把好友关系又给补回来（第十九轮）
             Relationship(c.Id).friended = true;
         }
     }
@@ -626,6 +657,15 @@ public partial class GameManager : Node
                 relationships[pair.Key] = state;
             }
             SeedRelationships(); // 老档里没记下的"早就认识的人"补齐
+
+            // 第十九轮补账：删除系统上线之前，已经读到第七章往后的旧档，
+            // 默认"第六章那晚的酒没白喝"——宝宝已经在回宿舍的路上删掉了。
+            // 不补的话，第 9 章《置顶》的列表里她还挂在上面，就是穿帮。
+            if (CurrentChapter >= 7 && !IsDeleted("baobao"))
+            {
+                DeleteFriend("baobao", "legacy_ch06_delete");
+                GD.Print("[读档] 旧档补账：第六章的删除已默认发生（baobao）");
+            }
 
             // 置顶联系人 + 已用物品（第十八轮；老存档没有这两个字段 → 按空处理，不用升版本）
             pinnedContacts.Clear();
@@ -839,6 +879,13 @@ public class RelationshipState
 
     /// <summary>关键节点：这个人身上发生过的事（ch08_first_chat、ch08_remark…），用来去重和后续章节判定</summary>
     public System.Collections.Generic.HashSet<string> keyEvents { get; set; } = new();
+
+    /// <summary>
+    /// 已删除这位联系人（第十九轮第六章：酒过三巡亲手删掉的那一刀）。
+    /// 删了就是删了——会话列表 / 通讯录 / 朋友圈里都不再出现。
+    /// 老存档没有这个字段 → 反序列化后是 false，正好等于"还没删"，不用升存档版本。
+    /// </summary>
+    public bool deleted { get; set; }
 }
 
 /// <summary>

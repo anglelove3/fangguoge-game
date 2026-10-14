@@ -23,12 +23,14 @@ public partial class Ch06 : ChapterBase
     private Button pourBtn;
     private Button phoneBtn;
     private Control pourGlow;
+    private Control phoneGlow;
     private DrinkPour drink;
 
     private int pourCount;      // 已经倒了几杯（0~4）
     private bool pourBusy;      // 倒酒动画播放中
     private bool finished;      // 尾声播放中
     private bool chatOpen;      // 手机界面是否开着
+    private bool deleteWaiting; // 第十九轮：删除引导阶段——四杯下肚，手机在桌上，等玩家做个了断
 
     private ulong lastActivityMsec;
     private const ulong IdleHintDelayMsec = 12000;
@@ -48,7 +50,7 @@ public partial class Ch06 : ChapterBase
         pourBtn.Pressed += OnPourPressed;
         phoneBtn.Pressed += OnPhonePressed;
         pourGlow = HotspotGlow.Attach(pourBtn);
-        HotspotGlow.Attach(phoneBtn);
+        phoneGlow = HotspotGlow.Attach(phoneBtn);
 
         // 第十五轮：热点按"美术图坐标"登记——窗口不成 16:9 时背景会整体偏移，热点跟着走
         ArtAnchor.Track(pourBtn, new Rect2(205f, 675f, 260f, 275f));  // 酒瓶 + 两只杯子那一带
@@ -104,8 +106,16 @@ public partial class Ch06 : ChapterBase
 
         lastActivityMsec = Time.GetTicksMsec();
 
-        if (pourCount < 4 && pourGlow != null)
+        if (deleteWaiting)
+        {
+            // 删除引导阶段发呆：该提醒的是手机，不是酒瓶
+            if (phoneGlow != null)
+                HotspotGlow.Pulse(phoneGlow, 0f);
+        }
+        else if (pourCount < 4 && pourGlow != null)
+        {
             HotspotGlow.Pulse(pourGlow, 0f);
+        }
     }
 
     private void OnIntroFinished()
@@ -141,8 +151,21 @@ public partial class Ch06 : ChapterBase
     private void OnPourPressed()
     {
         var dm = DialogueManager.Instance;
-        if (dm == null || dm.IsBusy || chatOpen || finished || pourBusy || pourCount >= 4)
+        if (dm == null || dm.IsBusy || chatOpen || finished || pourBusy)
             return;
+
+        // 四杯已满 + 删除引导中：点酒瓶 = "先把这口喝完，不急着删"——走跳过分支，不卡玩家
+        if (pourCount >= 4)
+        {
+            if (!deleteWaiting)
+                return;
+
+            deleteWaiting = false;
+            lastActivityMsec = Time.GetTicksMsec();
+            HotspotGlow.Sparkle(pourBtn);
+            dm.PlaySequence(ChapterId, "delete_skip", StartReplyChoice);
+            return;
+        }
 
         pourBusy = true;
         lastActivityMsec = Time.GetTicksMsec();
@@ -166,9 +189,29 @@ public partial class Ch06 : ChapterBase
         });
     }
 
-    /// <summary>四杯酒下肚——轮到那句话了</summary>
+    /// <summary>四杯酒下肚——先掏手机，再轮到那句话（第十九轮：删除引导）</summary>
     private void OnPoursDone()
     {
+        DialogueManager.Instance.PlaySequence(ChapterId, "delete_lead", () =>
+        {
+            if (!GodotObject.IsInstanceValid(this))
+                return;
+            deleteWaiting = true;
+            lastActivityMsec = Time.GetTicksMsec();
+
+            // 引导：提示语换成"做个了断"，手机热点开始呼吸——把选择权完整交给玩家
+            hintLabel.Text = DataStore.Text("hint.ch06_delete");
+            hintLabel.Visible = true;
+            if (phoneGlow != null)
+                HotspotGlow.Pulse(phoneGlow, 0f);
+        });
+    }
+
+    /// <summary>删除引导结束（删了 / 跳过）→ 回到正轨：那句"怎么接住"的三选一</summary>
+    private void StartReplyChoice()
+    {
+        deleteWaiting = false;
+        hintLabel.Visible = false;
         DialogueManager.Instance.ShowChoice(ChapterId, "reply", OnReplyChosen);
     }
 
@@ -195,6 +238,11 @@ public partial class Ch06 : ChapterBase
                 return;
             DialogueManager.Instance.PlaySequence(ChapterId, "outro", () =>
             {
+                // 第十九轮保底（F16）：玩家跳过了删除引导也没关系——剧情上"回去的路上"这一刀照样落。
+                // 第 7 章起列表里不再有宝宝，第 9 章《置顶》时列表才是干净的。
+                // 已经亲手删过的话，DeleteFriend 幂等，不会重复落档。
+                GameManager.Instance?.DeleteFriend("baobao", "ch06_auto_delete");
+
                 AudioManager.Instance?.PlayBgm(AudioManager.BgmGym1, -14f, 2.5f);
                 GoToNextChapter("res://scenes/chapters/ch07/ch07.tscn", 7);
             });
@@ -219,6 +267,30 @@ public partial class Ch06 : ChapterBase
         {
             chatOpen = false;
             lastActivityMsec = Time.GetTicksMsec();
+
+            // 第十九轮：删除引导阶段关掉微信——检查那一刀落了没有
+            if (deleteWaiting)
+            {
+                bool deleted = GameManager.Instance?.IsDeleted("baobao") == true;
+                if (deleted)
+                {
+                    // 亲手删完了。给一段收尾对白，然后回到三选一
+                    DialogueManager.Instance.PlaySequence(ChapterId, "delete_done", StartReplyChoice);
+                }
+                else
+                {
+                    // 还没删。不催第二遍，只让酒桌陪玩家安静一下——手机还可以再点
+                    DialogueManager.Instance.PlaySequence(ChapterId, "delete_notyet", () =>
+                    {
+                        deleteWaiting = true;
+                        lastActivityMsec = Time.GetTicksMsec();
+                        hintLabel.Text = DataStore.Text("hint.ch06_delete");
+                        hintLabel.Visible = true;
+                        if (phoneGlow != null)
+                            HotspotGlow.Pulse(phoneGlow, 0f);
+                    });
+                }
+            }
         };
         overlay.Open(""); // 空字符串 = 掏手机：先落在锁屏，未读通知卡上能看见妈那条消息，点它进微信
     }

@@ -79,6 +79,12 @@
   "wx.menu_decoy": "标为未读",
   "wx.menu_decoy2": "不显示该聊天",
   "wx.menu_decoy_toast": "演示版：这个先摆着～",
+  "wx.menu_delete": "删除联系人",
+  "wx.delete_title": "删除联系人",
+  "wx.delete_body": "将「{0}」删除，同时删除与该联系人的聊天记录？",
+  "wx.delete_ok": "删除",
+  "wx.delete_cancel": "取消",
+  "hint.ch06_delete": "（手机在桌上亮着。有些事，该做个了断了——点手机；或者点酒瓶，先把这口酒喝完。）",
   "wx.pin_badge": "置顶",
 
   "bag.item_cracker_desc_used": "已经拉响了——彩带落进了河风里。",
@@ -166,7 +172,7 @@
 
   "common.send": "发送",
 
-  "chat.contact_baobao": "宝宝（前女友）",
+  "chat.contact_baobao": "宝宝",
   "chat.me_prefix": "我：",
   "chat.input_placeholder": "发消息……",
   "chat.plus_album": "相册",

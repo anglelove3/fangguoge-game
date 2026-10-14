@@ -303,14 +303,17 @@ public partial class WeChatMainPage : Control
                     return;
                 row.Disabled = true; // 吞掉这次松开，别让它变成"点进聊天"
                 pinMenuRowOwner = row;
-                OpenPinMenu(c, row.GetGlobalRect().Position + new Vector2(row.Size.X - 240f, 24f));
+                OpenPinMenu(c, row.GetGlobalRect().Position + new Vector2(row.Size.X - 240f, 24f), row);
             };
         };
         row.ButtonUp += () => pressToken++; // 提前松手 = 长按作废，照常触发点击
     }
 
-    /// <summary>微信式会话菜单：置顶/取消置顶是真的，剩下两条是装点门面的</summary>
-    private void OpenPinMenu(ContactData c, Vector2 globalPos)
+    /// <summary>
+    /// 微信式会话菜单：置顶/取消置顶是真的，删除联系人也是真的（第十九轮），
+    /// 剩下两条是装点门面的。row 传的是弹菜单的那一行（删除确认后做滑出动画用）。
+    /// </summary>
+    private void OpenPinMenu(ContactData c, Vector2 globalPos, Button row = null)
     {
         ClosePinMenu();
 
@@ -345,6 +348,23 @@ public partial class WeChatMainPage : Control
             ToastRequested?.Invoke(DataStore.Text("wx.menu_decoy_toast")));
         AddPinMenuItem(box, DataStore.Text("wx.menu_decoy2"), () =>
             ToastRequested?.Invoke(DataStore.Text("wx.menu_decoy_toast")));
+
+        // 删除联系人（第十九轮）：只对"真人"显示——群聊要删是"删除并退出"，系统账号删不了。
+        // 真微信里这项藏在聊天详情页深处，游戏里放宽到长按菜单——玩家亲手删那一刀才够狠。
+        bool isPerson = string.IsNullOrEmpty(c.Kind) && string.IsNullOrEmpty(c.Icon) && string.IsNullOrEmpty(c.OpenPage);
+        if (isPerson)
+        {
+            AddPinMenuItem(box, DataStore.Text("wx.menu_delete"), () =>
+            {
+                AudioManager.Instance?.PlaySfx(AudioManager.SfxClick, -14f);
+                var name = WeChatData.DisplayName(c);
+                ConfirmHost.Ask("wx.delete_title", DataStore.Text("wx.delete_body", name), () =>
+                {
+                    GameManager.Instance?.DeleteFriend(c.Id, $"player_delete_{c.Id}");
+                    AnimateSessionAway(row, () => RefreshSessions(contactsRef));
+                }, null, "wx.delete_ok", "wx.delete_cancel");
+            });
+        }
 
         AddChild(pinMenu);
 
@@ -439,6 +459,28 @@ public partial class WeChatMainPage : Control
         if (pinMenuRowOwner != null && GodotObject.IsInstanceValid(pinMenuRowOwner))
             pinMenuRowOwner.Disabled = false;
         pinMenuRowOwner = null;
+    }
+
+    /// <summary>
+    /// 删除会话的滑出动画（第十九轮）：整行往右滑出去、透明度跟着掉，收尾交给 onComplete。
+    /// 微信删完会话就是这个感觉——不是"啪一下没了"，是那行字真的从你手里滑走。
+    /// row 可能已经不在树上（极端时序），一律先验有效性，动画放完再重建列表。
+    /// </summary>
+    private void AnimateSessionAway(Control row, Action onComplete)
+    {
+        if (row == null || !GodotObject.IsInstanceValid(row) || !row.IsVisibleInTree())
+        {
+            onComplete?.Invoke();
+            return;
+        }
+
+        row.MouseFilter = MouseFilterEnum.Ignore; // 滑走途中别再接点击
+        var tw = row.CreateTween();
+        tw.SetParallel(true);
+        tw.TweenProperty(row, "position:x", row.Position.X + row.Size.X, 0.28)
+            .SetTrans(Tween.TransitionType.Quad).SetEase(Tween.EaseType.In);
+        tw.TweenProperty(row, "modulate:a", 0f, 0.28);
+        tw.Chain().TweenCallback(Callable.From(() => onComplete?.Invoke()));
     }
 
     /// <summary>点击分流：纯装饰行 → toast；系统页面入口 → PageOpened；其余 → 打开聊天</summary>

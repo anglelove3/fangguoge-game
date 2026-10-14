@@ -31,16 +31,20 @@ public static class WeChatData
     {
         int chapter = GameManager.Instance?.CurrentChapter ?? 0;
         var visible = new ContactsData { Contacts = new List<ContactData>() };
+        var gm = GameManager.Instance;
         foreach (var c in RawContacts.Contacts)
         {
             if (c.AfterChapter > chapter)
+                continue;
+            // 已删除的联系人：微信原话"将同时删除与该联系人的聊天记录"——
+            // 列表里连名字都不该再有（第六章《放过自己》之后，宝宝就是这么消失的）。
+            if (gm != null && gm.IsDeleted(c.Id))
                 continue;
             // requiresFriend：加了好友才出现在列表里（江洁走这条——她不是"到第几章就自动认识了"，
             // 是玩家亲手按了"添加到通讯录"的）。没加的人连列表都不该有他的名字。
             // 管理器还没就绪（比如自动化测试直接开聊天页）时按"放行"处理，别把人变没了。
             if (c.RequiresFriend)
             {
-                var gm = GameManager.Instance;
                 if (gm != null && !gm.IsFriended(c.Id))
                     continue;
             }
@@ -104,11 +108,17 @@ public static class WeChatData
         momentsRaw ??= Load<MomentsData>("res://data/moments.json") ?? new MomentsData();
 
         int chapter = GameManager.Instance?.CurrentChapter ?? 0;
+        var gm = GameManager.Instance;
         var visible = new MomentsData { Cover = momentsRaw.Cover, Posts = new List<MomentPost>() };
         foreach (var p in momentsRaw.Posts)
         {
-            if (p.AfterChapter <= chapter)
-                visible.Posts.Add(p);
+            if (p.AfterChapter > chapter)
+                continue;
+            // 作者被玩家删掉了：朋友圈互相不可见（真微信也这样）。
+            // 按 authorId 判定，别拿昵称比——昵称随时能改，id 才是程序的代号。
+            if (!string.IsNullOrEmpty(p.AuthorId) && gm != null && gm.IsDeleted(p.AuthorId))
+                continue;
+            visible.Posts.Add(p);
         }
         return visible;
     }
@@ -128,6 +138,24 @@ public static class WeChatData
     {
         if (string.IsNullOrEmpty(name)) return null;
         return LoadContacts().Contacts.Find(c => c.Name == name);
+    }
+
+    /// <summary>
+    /// 说话人显示名（第十九轮 F17）：对白字幕 / 群聊昵称统一走这里——
+    /// 玩家给 ta 改过微信备注，字幕上就叫备注；没改过就叫本名。
+    /// 「江洁」和「三点水」从此在任何界面都是同一个人。
+    /// 只认联系人本名（contacts.json 的 name）；旁白、小米师妹等非联系人原样返回。
+    /// </summary>
+    public static string ResolveSpeaker(string speaker)
+    {
+        if (string.IsNullOrEmpty(speaker))
+            return speaker;
+        foreach (var c in RawContacts.Contacts)
+        {
+            if (c.Name == speaker)
+                return DisplayName(c);
+        }
+        return speaker;
     }
 
     private static T Load<T>(string path) where T : class
@@ -282,6 +310,13 @@ public class MomentPost
 {
     public string Id { get; set; } = "";
     public string Author { get; set; } = "";
+
+    /// <summary>
+    /// 作者的联系人 id（可选；第十九轮加）。
+    /// 玩家把这位删了之后，这条动态要跟着从朋友圈消失——真人删好友后就是互相不可见。
+    /// 留空 = 不做删除联动（"我"和系统文案的动态用不到）。
+    /// </summary>
+    public string AuthorId { get; set; } = "";
     public string Avatar { get; set; } = "";
     public string Time { get; set; } = "";
     public string Text { get; set; } = "";

@@ -15,5 +15,22 @@
     { "sender": "other", "senderName": "小米师妹", "text": "@我 师兄，今晚你要是敢聊论文，我就把你桌上的外卖单发群里" },
     { "sender": "me", "text": "……" },
     { "sender": "other", "senderName": "小米师妹", "text": "到点见！[龇牙]" }
+  ],
+  "quickReplies": [
+    {
+      "text": "收到，六点半准时",
+      "reply": "师兄乖 [比心]",
+      "replySender": "小米师妹"
+    },
+    {
+      "text": "神秘嘉宾到底是谁啊",
+      "reply": "保密！到了你就知道了 [得意]",
+      "replySender": "小米师妹"
+    },
+    {
+      "text": "台子帮我占好，我随后到",
+      "reply": "包在我身上，先热两杆",
+      "replySender": "俊杰（师弟）"
+    }
   ]
 }

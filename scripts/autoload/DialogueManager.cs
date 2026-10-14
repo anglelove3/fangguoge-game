@@ -315,10 +315,11 @@ public partial class DialogueManager : CanvasLayer
         state = State.WaitingChoice;
 
         // 提示语直接显示（不做打字机，等玩家看选项）
-        lastSpeaker = group.PromptSpeaker;
+        string promptSpeaker = WeChatData.ResolveSpeaker(group.PromptSpeaker); // 第十九轮（F17）：备注一致
+        lastSpeaker = promptSpeaker;
         lastText = group.Prompt;
         lastPortrait = group.PromptPortrait;
-        dialogueBox.ShowLine(group.PromptSpeaker, group.Prompt, instant: true, portraitId: group.PromptPortrait);
+        dialogueBox.ShowLine(promptSpeaker, group.Prompt, instant: true, portraitId: group.PromptPortrait);
         dialogueBox.SetContinueHintVisible(false); // 选项阶段不需要"点击继续"
 
         // 内心解读（第九章）：带原话引用的选择走 ReadCard——
@@ -408,10 +409,13 @@ public partial class DialogueManager : CanvasLayer
         }
 
         state = State.Typing;
-        lastSpeaker = line.Speaker;
+        // 第十九轮（F17）：说话人标签跟随微信备注——玩家在第 8 章给江洁改了备注
+        // 「三点水」，之后所有章节的字幕上她就都叫「三点水」，不再两个名字两个人。
+        string speakerShown = WeChatData.ResolveSpeaker(line.Speaker);
+        lastSpeaker = speakerShown;
         lastText = line.Text;
         lastPortrait = line.Portrait;
-        dialogueBox.ShowLine(line.Speaker, line.Text, portraitId: line.Portrait);
+        dialogueBox.ShowLine(speakerShown, line.Text, portraitId: line.Portrait);
     }
 
     /// <summary>
@@ -431,6 +435,7 @@ public partial class DialogueManager : CanvasLayer
         state = State.WaitingChoice;
 
         string speaker = string.IsNullOrEmpty(heart.PromptSpeaker) ? "我" : heart.PromptSpeaker;
+        speaker = WeChatData.ResolveSpeaker(speaker); // 第十九轮（F17）：同上，备注一致
         lastSpeaker = speaker;
         lastText = heart.Prompt;
         lastPortrait = null;

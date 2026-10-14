@@ -3,7 +3,8 @@
   "posts": [
     {
       "id": "m6",
-      "author": "宝宝（前女友）",
+      "author": "宝宝",
+      "authorId": "baobao",
       "avatar": "res://assets/art/chat/her_avatar_v1.png",
       "time": "刚刚",
       "afterChapter": 3,

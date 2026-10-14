@@ -1675,25 +1675,82 @@ public partial class ChatOverlay : Control
         // 脚本回复也算"我发的消息"：连聊不重复演回复温度（新一轮判定用）
         ReplyEngine.NotePlayerMessage(currentContact.Id);
 
-        AppendMessage(new ChatMessageData { Sender = "me", Text = q.Text });
-
-        if (q.Affection != 0) GameManager.Instance.AddAffection(q.Affection);
-        if (q.Courage != 0) GameManager.Instance.AddCourage(q.Courage);
-        if (q.Affection != 0 || q.Courage != 0)
-            DialogueManager.Instance?.ShowStatToast(q.Affection, q.Courage);
-
-        if (!string.IsNullOrEmpty(q.Reply))
+        // 第十九轮（F14）：预设回复不再凭空弹出——
+        // 文字先逐字打进输入框，停半拍，再化成气泡飞出去。
+        // 消息是"我打出来的"，不是从天上掉下来的。
+        PlayInputTyping(q.Text, () =>
         {
-            GetTree().CreateTimer(0.9).Timeout += () =>
+            AppendMessage(new ChatMessageData { Sender = "me", Text = q.Text });
+
+            if (q.Affection != 0) GameManager.Instance.AddAffection(q.Affection);
+            if (q.Courage != 0) GameManager.Instance.AddCourage(q.Courage);
+            if (q.Affection != 0 || q.Courage != 0)
+                DialogueManager.Instance?.ShowStatToast(q.Affection, q.Courage);
+
+            if (!string.IsNullOrEmpty(q.Reply))
             {
-                var msg = new ChatMessageData { Sender = "other", Text = q.Reply };
-                StoreIncoming(currentContact.Id, msg); // 就算中途放下手机，回复也不丢
-                if (!IsInsideTree() || closing || currentContact == null)
-                    return;
-                rows.AddChild(MakeMessageRow(msg));
-                ScrollToBottom();
-            };
+                GetTree().CreateTimer(0.9).Timeout += () =>
+                {
+                    var msg = new ChatMessageData
+                    {
+                        Sender = "other",
+                        Text = q.Reply,
+                        SenderName = q.ReplySender, // 群聊：谁接的话，昵称亮出来
+                    };
+                    StoreIncoming(currentContact.Id, msg); // 就算中途放下手机，回复也不丢
+                    if (!IsInsideTree() || closing || currentContact == null)
+                        return;
+                    rows.AddChild(MakeMessageRow(msg));
+                    ScrollToBottom();
+                };
+            }
+        });
+    }
+
+    /// <summary>
+    /// 输入框打字演出（第十九轮 F14）：text 逐字打进输入框（每字一记很轻的键盘声），
+    /// 停半拍，清空输入框，然后回调（气泡飞出去）。
+    /// 和幽灵打字的区别：幽灵是"打了又删"的犹豫（冷蓝），这个是"打了就发"的笃定（普通暖色）。
+    /// 演出期间输入框临时只读，玩家的抢点不会把演出搅乱；结束后恢复原状。
+    /// </summary>
+    private void PlayInputTyping(string text, Action onSent)
+    {
+        if (string.IsNullOrEmpty(text) || inputField == null)
+        {
+            onSent?.Invoke();
+            return;
         }
+
+        string cid = currentContact?.Id ?? "";
+        bool wasEditable = inputField.Editable;
+        inputField.Editable = false;
+        inputField.Text = "";
+
+        var tw = CreateTween();
+        string shown = "";
+        foreach (char ch in text)
+        {
+            shown += ch;
+            string snapshot = shown;
+            tw.TweenCallback(Callable.From(() =>
+            {
+                if (currentContact?.Id != cid || !IsInsideTree())
+                    return;
+                inputField.Text = snapshot;
+                inputField.CaretColumn = snapshot.Length;
+                AudioManager.Instance?.PlaySfx(AudioManager.SfxKeyboard, -18f, 0.14f);
+            }));
+            tw.TweenInterval(0.055);
+        }
+        tw.TweenInterval(0.38); // 按下发送前的最后一眼
+        tw.TweenCallback(Callable.From(() =>
+        {
+            if (currentContact?.Id != cid || !IsInsideTree())
+                return;
+            inputField.Text = "";
+            inputField.Editable = wasEditable;
+            onSent?.Invoke();
+        }));
     }
 
     /// <summary>玩家一滑动 → 提示气泡淡出（只触发一次）</summary>
@@ -1788,10 +1845,10 @@ public partial class ChatOverlay : Control
         return row;
     }
 
-    /// <summary>群聊气泡上方的发言人昵称（微信式蓝灰小字）</summary>
+    /// <summary>群聊气泡上方的发言人昵称（微信式蓝灰小字；跟随微信备注，F17）</summary>
     private static Control MakeSenderName(string name)
     {
-        var label = new Label { Text = name, MouseFilter = MouseFilterEnum.Ignore };
+        var label = new Label { Text = WeChatData.ResolveSpeaker(name), MouseFilter = MouseFilterEnum.Ignore };
         label.AddThemeFontSizeOverride("font_size", 22);
         label.AddThemeColorOverride("font_color", new Color(0.42f, 0.48f, 0.62f));
         var margin = UiKit.WrapMargin(label, 12, 0, 0, 0);
@@ -2066,6 +2123,12 @@ public class QuickReplyData
     public int Affection { get; set; }
     public int Courage { get; set; }
     public string Reply { get; set; } = "";
+
+    /// <summary>
+    /// 回应人的昵称（群聊用）：群里不是一个人在说话，
+    /// 谁接你这句话就写谁——气泡上方的蓝灰小字靠它显示。私聊留空。
+    /// </summary>
+    public string ReplySender { get; set; } = "";
 }
 
 /// <summary>一条聊天消息</summary>

@@ -109,15 +109,17 @@ public partial class MusicAppPage : PhoneAppPage
     private static readonly Color RowGreyColor = new(0.55f, 0.55f, 0.58f);
 
     private AudioStreamPlayer player;
-    private TextureRect npCover;
+    private VinylDisc disc;
     private Label npTitle;
     private Label npArtist;
-    private ProgressBar progress;
+    private HSlider seekBar;
     private Label timeNow;
     private Label timeTotal;
     private PlayPauseGlyph playGlyph;
     private int currentIndex = -1;
     private string lastShownTime = "";
+    private bool seeking;          // 手指按在进度条上时，别让 _Process 抢着改 Value
+    private double lastStreamLen;  // 当前歌总长（秒），seek 换算用
 
     private readonly List<Label> rowIndex = new();
     private readonly List<Label> rowTitles = new();
@@ -138,94 +140,124 @@ public partial class MusicAppPage : PhoneAppPage
         UpdateNowPlaying();
     }
 
+    /// <summary>
+    /// 播放区（第十九轮 F6 按网易云版式重排）：
+    /// 黑胶唱片 → 歌名歌手 → 可拖进度条 + 时间 → 上一曲/播放/下一曲。
+    /// </summary>
     private void BuildNowPlaying()
     {
-        var card = new PanelContainer { MouseFilter = MouseFilterEnum.Ignore };
-        var style = new StyleBoxFlat { BgColor = Colors.White };
-        style.SetCornerRadiusAll(20);
-        style.ShadowColor = new Color(0, 0, 0, 0.10f);
-        style.ShadowSize = 8;
-        style.ShadowOffset = new Vector2(0, 3);
-        card.AddThemeStyleboxOverride("panel", style);
-        card.AnchorRight = 1f;
-        card.OffsetLeft = 24;
-        card.OffsetTop = 112;
-        card.OffsetRight = -24;
-        card.OffsetBottom = 366;
-        card.GrowHorizontal = GrowDirection.Both;
-        AddChild(card);
+        // ---- 黑胶 ----
+        disc = new VinylDisc { MouseFilter = MouseFilterEnum.Ignore };
+        disc.AnchorLeft = 0.5f;
+        disc.AnchorRight = 0.5f;
+        disc.OffsetLeft = -170;
+        disc.OffsetRight = 170;
+        disc.OffsetTop = 118;
+        disc.OffsetBottom = 458;
+        AddChild(disc);
 
-        var col = new VBoxContainer { MouseFilter = MouseFilterEnum.Ignore };
-        col.AddThemeConstantOverride("separation", 14);
-        card.AddChild(UiKit.WrapMargin(col, 22, 20, 22, 16));
-
-        var top = new HBoxContainer { MouseFilter = MouseFilterEnum.Ignore };
-        top.AddThemeConstantOverride("separation", 20);
-        col.AddChild(top);
-
-        npCover = new TextureRect
-        {
-            ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,
-            StretchMode = TextureRect.StretchModeEnum.KeepAspectCovered,
-            CustomMinimumSize = new Vector2(140, 140),
-            SizeFlagsVertical = SizeFlags.ShrinkBegin,
-            MouseFilter = MouseFilterEnum.Ignore,
-        };
-        npCover.Material = ChatOverlay.MakeMaskMaterial(140, 140, 16);
-        top.AddChild(npCover);
-
-        var info = new VBoxContainer
+        // ---- 歌名 / 歌手 ----
+        npTitle = new Label
         {
             MouseFilter = MouseFilterEnum.Ignore,
-            SizeFlagsHorizontal = SizeFlags.ExpandFill,
-            SizeFlagsVertical = SizeFlags.ShrinkCenter,
+            TextOverrunBehavior = TextServer.OverrunBehavior.TrimEllipsis,
+            HorizontalAlignment = HorizontalAlignment.Center,
         };
-        info.AddThemeConstantOverride("separation", 6);
-        top.AddChild(info);
-
-        var tag = new Label { Text = DataStore.Text("phone.music.now_playing"), MouseFilter = MouseFilterEnum.Ignore };
-        tag.AddThemeFontSizeOverride("font_size", 20);
-        tag.AddThemeColorOverride("font_color", NeteaseRed);
-        info.AddChild(tag);
-
-        npTitle = new Label { MouseFilter = MouseFilterEnum.Ignore, TextOverrunBehavior = TextServer.OverrunBehavior.TrimEllipsis };
-        npTitle.AddThemeFontSizeOverride("font_size", 28);
+        npTitle.AnchorRight = 1f;
+        npTitle.OffsetLeft = 40;
+        npTitle.OffsetRight = -40;
+        npTitle.OffsetTop = 474;
+        npTitle.OffsetBottom = 514;
+        npTitle.AddThemeFontSizeOverride("font_size", 30);
         npTitle.AddThemeColorOverride("font_color", RowTitleColor);
-        info.AddChild(npTitle);
+        AddChild(npTitle);
 
-        npArtist = new Label { MouseFilter = MouseFilterEnum.Ignore, TextOverrunBehavior = TextServer.OverrunBehavior.TrimEllipsis };
+        npArtist = new Label
+        {
+            MouseFilter = MouseFilterEnum.Ignore,
+            TextOverrunBehavior = TextServer.OverrunBehavior.TrimEllipsis,
+            HorizontalAlignment = HorizontalAlignment.Center,
+        };
+        npArtist.AnchorRight = 1f;
+        npArtist.OffsetLeft = 40;
+        npArtist.OffsetRight = -40;
+        npArtist.OffsetTop = 514;
+        npArtist.OffsetBottom = 544;
         npArtist.AddThemeFontSizeOverride("font_size", 22);
         npArtist.AddThemeColorOverride("font_color", RowGreyColor);
-        info.AddChild(npArtist);
+        AddChild(npArtist);
 
-        progress = new ProgressBar
+        // ---- 可拖进度条 ----
+        seekBar = new HSlider
         {
-            ShowPercentage = false,
+            MinValue = 0,
             MaxValue = 1,
-            CustomMinimumSize = new Vector2(0, 10),
-            MouseFilter = MouseFilterEnum.Ignore,
+            Step = 0.01,
+            MouseFilter = MouseFilterEnum.Stop,
         };
-        var bgStyle = new StyleBoxFlat { BgColor = new Color(0, 0, 0, 0.08f) };
-        bgStyle.SetCornerRadiusAll(5);
-        var fillStyle = new StyleBoxFlat { BgColor = NeteaseRed };
-        fillStyle.SetCornerRadiusAll(5);
-        progress.AddThemeStyleboxOverride("background", bgStyle);
-        progress.AddThemeStyleboxOverride("fill", fillStyle);
-        col.AddChild(progress);
+        seekBar.AnchorRight = 1f;
+        seekBar.OffsetLeft = 44;
+        seekBar.OffsetRight = -44;
+        seekBar.OffsetTop = 570;
+        seekBar.OffsetBottom = 606;
+        var sliderBg = new StyleBoxFlat { BgColor = new Color(0, 0, 0, 0.10f) };
+        sliderBg.SetCornerRadiusAll(3);
+        sliderBg.ContentMarginTop = 8;
+        sliderBg.ContentMarginBottom = 8;
+        var sliderFill = new StyleBoxFlat { BgColor = NeteaseRed };
+        sliderFill.SetCornerRadiusAll(3);
+        var grabber = new StyleBoxFlat { BgColor = Colors.White };
+        grabber.SetCornerRadiusAll(11);
+        grabber.SetBorderWidthAll(2);
+        grabber.BorderColor = NeteaseRed;
+        grabber.ContentMarginLeft = 11;
+        grabber.ContentMarginRight = 11;
+        grabber.ContentMarginTop = 11;
+        grabber.ContentMarginBottom = 11;
+        seekBar.AddThemeStyleboxOverride("slider", sliderBg);
+        seekBar.AddThemeStyleboxOverride("grabber_area", sliderFill);
+        seekBar.AddThemeStyleboxOverride("grabber_area_highlight", sliderFill);
+        seekBar.AddThemeIconOverride("grabber", GrabberIcon());
+        seekBar.AddThemeIconOverride("grabber_highlight", GrabberIcon());
+        seekBar.AddThemeConstantOverride("grabber_offset", 0);
+        seekBar.DragStarted += () => seeking = true;
+        seekBar.DragEnded += changed =>
+        {
+            seeking = false;
+            if (changed && player?.Stream != null)
+                player.Seek((float)seekBar.Value);
+        };
+        AddChild(seekBar);
 
-        var times = new HBoxContainer { MouseFilter = MouseFilterEnum.Ignore };
-        col.AddChild(times);
+        // ---- 时间 ----
         timeNow = new Label { Text = "00:00", MouseFilter = MouseFilterEnum.Ignore };
+        timeNow.AnchorLeft = 0f;
+        timeNow.AnchorRight = 0.5f;
+        timeNow.OffsetLeft = 48;
+        timeNow.OffsetTop = 608;
+        timeNow.OffsetBottom = 636;
         timeNow.AddThemeFontSizeOverride("font_size", 20);
         timeNow.AddThemeColorOverride("font_color", RowGreyColor);
-        times.AddChild(timeNow);
-        times.AddChild(new Control { SizeFlagsHorizontal = SizeFlags.ExpandFill, MouseFilter = MouseFilterEnum.Ignore });
-        timeTotal = new Label { Text = "00:00", MouseFilter = MouseFilterEnum.Ignore };
+        AddChild(timeNow);
+        timeTotal = new Label
+        {
+            Text = "00:00",
+            MouseFilter = MouseFilterEnum.Ignore,
+            HorizontalAlignment = HorizontalAlignment.Right,
+        };
+        timeTotal.AnchorLeft = 0.5f;
+        timeTotal.AnchorRight = 1f;
+        timeTotal.OffsetRight = -48;
+        timeTotal.OffsetTop = 608;
+        timeTotal.OffsetBottom = 636;
         timeTotal.AddThemeFontSizeOverride("font_size", 20);
         timeTotal.AddThemeColorOverride("font_color", RowGreyColor);
-        times.AddChild(timeTotal);
+        AddChild(timeTotal);
 
-        // ---- 播放 / 暂停圆钮 ----
+        // ---- 控制排：上一曲 / 播放暂停 / 下一曲 ----
+        MakeSkipButton(forward: false, -170);
+        MakeSkipButton(forward: true, 170);
+
         var playBtn = new Button
         {
             MouseFilter = MouseFilterEnum.Stop,
@@ -245,8 +277,8 @@ public partial class MusicAppPage : PhoneAppPage
         playBtn.AnchorRight = 0.5f;
         playBtn.OffsetLeft = -46;
         playBtn.OffsetRight = 46;
-        playBtn.OffsetTop = 382;
-        playBtn.OffsetBottom = 474;
+        playBtn.OffsetTop = 656;
+        playBtn.OffsetBottom = 748;
         playBtn.GrowHorizontal = GrowDirection.Both;
         playBtn.Pressed += TogglePlay;
         AddChild(playBtn);
@@ -255,15 +287,59 @@ public partial class MusicAppPage : PhoneAppPage
         playBtn.AddChild(playGlyph);
     }
 
+    /// <summary>上一曲 / 下一曲按钮（相对中线偏移 offsetPx）</summary>
+    private void MakeSkipButton(bool forward, float offsetPx)
+    {
+        var btn = new Button
+        {
+            MouseFilter = MouseFilterEnum.Stop,
+            MouseDefaultCursorShape = CursorShape.PointingHand,
+        };
+        var empty = new StyleBoxEmpty();
+        btn.AddThemeStyleboxOverride("normal", empty);
+        btn.AddThemeStyleboxOverride("focus", empty);
+        var hover = new StyleBoxFlat { BgColor = new Color(0, 0, 0, 0.06f) };
+        hover.SetCornerRadiusAll(40);
+        btn.AddThemeStyleboxOverride("hover", hover);
+        var pressedSb = new StyleBoxFlat { BgColor = new Color(0, 0, 0, 0.10f) };
+        pressedSb.SetCornerRadiusAll(40);
+        btn.AddThemeStyleboxOverride("pressed", pressedSb);
+        btn.AnchorLeft = 0.5f;
+        btn.AnchorRight = 0.5f;
+        btn.OffsetLeft = offsetPx - 40;
+        btn.OffsetRight = offsetPx + 40;
+        btn.OffsetTop = 660;
+        btn.OffsetBottom = 744;
+        btn.Pressed += () => SkipSong(forward);
+        AddChild(btn);
+        btn.AddChild(new SkipGlyph { Forward = forward });
+    }
+
+    /// <summary>进度条抓手的小圆点图标（白底红圈）</summary>
+    private static Texture2D GrabberIcon()
+    {
+        var img = Image.CreateEmpty(22, 22, false, Image.Format.Rgba8);
+        var center = new Vector2(11, 11);
+        for (int y = 0; y < 22; y++)
+            for (int x = 0; x < 22; x++)
+            {
+                float d = new Vector2(x + 0.5f, y + 0.5f).DistanceTo(center);
+                img.SetPixel(x, y, d <= 8f ? Colors.White
+                    : d <= 10.5f ? new Color(0.878f, 0.2f, 0.2f)
+                    : Colors.Transparent);
+            }
+        return ImageTexture.CreateFromImage(img);
+    }
+
     private void BuildSongList()
     {
         var title = new Label { Text = DataStore.Text("phone.music.list_title"), MouseFilter = MouseFilterEnum.Ignore };
         title.AddThemeFontSizeOverride("font_size", 24);
         title.AddThemeColorOverride("font_color", new Color(0.35f, 0.35f, 0.38f));
         title.OffsetLeft = 30;
-        title.OffsetTop = 486;
+        title.OffsetTop = 768;
         title.OffsetRight = 300;
-        title.OffsetBottom = 520;
+        title.OffsetBottom = 802;
         AddChild(title);
 
         var songs = PhoneData.Data.Music.Songs;
@@ -290,7 +366,7 @@ public partial class MusicAppPage : PhoneAppPage
             row.AnchorRight = 1f;
             row.OffsetLeft = 24;
             row.OffsetRight = -24;
-            row.OffsetTop = 528 + i * 96;
+            row.OffsetTop = 810 + i * 96;
             row.OffsetBottom = row.OffsetTop + 88;
             row.GrowHorizontal = GrowDirection.Both;
             row.Pressed += () => PlaySong(idx);
@@ -390,11 +466,35 @@ public partial class MusicAppPage : PhoneAppPage
         player.Play();
         currentIndex = index;
         playGlyph.ShowPause = true;
-        timeTotal.Text = FormatTime((float)dup.GetLength());
+        lastStreamLen = dup.GetLength();
+        seekBar.MaxValue = lastStreamLen;
+        seekBar.Value = 0;
+        timeTotal.Text = FormatTime((float)lastStreamLen);
+        timeNow.Text = "00:00";
         lastShownTime = "";
         // 手机里的歌一响，章节 BGM 让位（收起手机 / 暂停时还回去）
         AudioManager.Instance?.SetBgmDuck(-60f);
         UpdateNowPlaying();
+    }
+
+    /// <summary>上一曲 / 下一曲（第十九轮 F6）：跳过锁定的歌，循环列表</summary>
+    private void SkipSong(bool forward)
+    {
+        var songs = PhoneData.Data.Music.Songs;
+        if (songs.Count == 0)
+            return;
+        int dir = forward ? 1 : -1;
+        int idx = currentIndex < 0 ? 0 : currentIndex;
+        // 最多绕一圈：全是锁定歌就原地不动
+        for (int i = 0; i < songs.Count; i++)
+        {
+            idx = (idx + dir + songs.Count) % songs.Count;
+            if (!songs[idx].Locked)
+            {
+                PlaySong(idx);
+                return;
+            }
+        }
     }
 
     private void TogglePlay()
@@ -405,6 +505,7 @@ public partial class MusicAppPage : PhoneAppPage
         {
             player.StreamPaused = true;
             playGlyph.ShowPause = false;
+            if (disc != null) disc.Spinning = false;
             AudioManager.Instance?.SetBgmDuck(0f);
             return;
         }
@@ -412,6 +513,7 @@ public partial class MusicAppPage : PhoneAppPage
         {
             player.StreamPaused = false;
             playGlyph.ShowPause = true;
+            if (disc != null) disc.Spinning = true;
             AudioManager.Instance?.SetBgmDuck(-60f);
             return;
         }
@@ -420,13 +522,15 @@ public partial class MusicAppPage : PhoneAppPage
 
     public override void _Process(double delta)
     {
-        if (player == null || player.Stream == null || !player.Playing)
+        if (player == null || player.Stream == null)
             return;
+        if (seeking)
+            return; // 手指按在进度条上时，别抢着回写位置
         double len = player.Stream.GetLength();
         if (len <= 0.01)
             return;
-        progress.MaxValue = len;
-        progress.Value = player.GetPlaybackPosition();
+        if (!seekBar.Value.Equals(player.GetPlaybackPosition()))
+            seekBar.SetValueNoSignal(player.GetPlaybackPosition());
         string now = FormatTime((float)player.GetPlaybackPosition());
         if (now != lastShownTime)
         {
@@ -456,8 +560,9 @@ public partial class MusicAppPage : PhoneAppPage
         npTitle.Text = string.IsNullOrEmpty(s.Title) ? DataStore.Text("phone.music.nothing") : s.Title;
         npArtist.Text = s.Artist;
         bool hasCover = !string.IsNullOrEmpty(s.Cover) && ResourceLoader.Exists(s.Cover);
-        npCover.Texture = hasCover ? GD.Load<Texture2D>(s.Cover) : null;
-        npCover.Modulate = currentIndex >= 0 ? Colors.White : new Color(1, 1, 1, 0.55f);
+        disc.Cover = hasCover ? GD.Load<Texture2D>(s.Cover) : null;
+        disc.Spinning = player != null && player.Playing && !player.StreamPaused;
+        disc.QueueRedraw();
 
         for (int i = 0; i < rowTitles.Count; i++)
         {
@@ -516,6 +621,91 @@ public partial class PlayPauseGlyph : Control
                 new(w * 0.69f, h * 0.50f),
             }, Colors.White);
         }
+    }
+}
+
+/// <summary>
+/// 黑胶唱片（第十九轮 F6）：网易云播放页那味儿——深色盘面 + 细纹理圈 + 高光弧，
+/// 中心贴方形封面，播放时整个盘慢慢转。纯代码画，不占素材。
+/// </summary>
+public partial class VinylDisc : Control
+{
+    private float angle;
+    private float spinSpeed = 0.9f; // 每秒弧度：一圈约 7 秒，黑胶 33⅓ 转的感觉
+
+    /// <summary>中心贴的封面图（方图；null = 空盘）</summary>
+    public Texture2D Cover { get; set; }
+
+    /// <summary>播放中 = 转；暂停 = 停在原地</summary>
+    public bool Spinning { get; set; }
+
+    public override void _Process(double delta)
+    {
+        if (!Spinning)
+            return;
+        angle = Mathf.PosMod(angle + (float)delta * spinSpeed, Mathf.Tau);
+        QueueRedraw();
+    }
+
+    public override void _Draw()
+    {
+        float r = Mathf.Min(Size.X, Size.Y) / 2f;
+        Vector2 c = Size / 2f;
+
+        // 盘底
+        DrawCircle(c, r, new Color(0.09f, 0.09f, 0.11f));
+        // 细纹理圈（三圈淡淡的同心圆，像唱片纹路）
+        for (int i = 0; i < 3; i++)
+            DrawArc(c, r * (0.70f + i * 0.09f), 0, Mathf.Tau, 72, new Color(1, 1, 1, 0.035f), 2f);
+        // 高光弧（左上那道反光，黑胶的魂）
+        DrawArc(c, r * 0.93f, Mathf.Pi * 0.65f, Mathf.Pi * 1.02f, 48, new Color(1, 1, 1, 0.09f), r * 0.06f);
+
+        // 中心方形封面：随盘旋转（网易云就是方封面贴在唱片中央）
+        if (Cover != null)
+        {
+            float side = r * 0.72f;
+            DrawSetTransform(c, angle, Vector2.One);
+            DrawTextureRect(Cover, new Rect2(-side / 2, -side / 2, side, side), false);
+            DrawSetTransform(Vector2.Zero, 0, Vector2.One);
+        }
+        else
+        {
+            DrawCircle(c, r * 0.36f, new Color(0.16f, 0.16f, 0.18f));
+        }
+
+        // 中孔 + 唱针压的一圈
+        DrawCircle(c, r * 0.045f, new Color(0.93f, 0.93f, 0.95f));
+    }
+}
+
+/// <summary>切歌小图标：Forward=true 画 ⏭（三角+竖条朝右），false 画 ⏮（水平镜像）</summary>
+public partial class SkipGlyph : Control
+{
+    public bool Forward { get; set; } = true;
+
+    public override void _Ready()
+    {
+        MouseFilter = MouseFilterEnum.Ignore;
+        SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
+    }
+
+    public override void _Draw()
+    {
+        float w = Size.X, h = Size.Y;
+        // 内容统一按 ⏭ 画；⏮ 用水平镜像翻出来
+        if (!Forward)
+            DrawSetTransform(new Vector2(w, 0), 0, new Vector2(-1, 1));
+
+        var white = Colors.White;
+        DrawColoredPolygon(new Vector2[]
+        {
+            new(w * 0.22f, h * 0.32f),
+            new(w * 0.22f, h * 0.68f),
+            new(w * 0.54f, h * 0.50f),
+        }, white);
+        DrawRect(new Rect2(w * 0.66f, h * 0.32f, w * 0.09f, h * 0.36f), white);
+
+        DrawSetTransform(Vector2.Zero, 0, Vector2.One);
     }
 }
 

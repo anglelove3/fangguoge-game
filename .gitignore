@@ -49,3 +49,9 @@ vibe_images/
 # 本地回归测试脚本与截图（只在开发机上用，不进仓库）
 test/
 .workbuddy/
+
+# 本机双击试玩启动器（便利脚本，不进仓库）
+试玩.cmd
+
+# playwright-cli 工具临时目录（求职打印链路用）
+.playwright-cli/
