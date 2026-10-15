@@ -85,6 +85,12 @@
   "wx.delete_ok": "删除",
   "wx.delete_cancel": "取消",
   "hint.ch06_delete": "（手机在桌上亮着。有些事，该做个了断了——点手机；或者点酒瓶，先把这口酒喝完。）",
+  "moments.publish_title": "说点什么",
+  "moments.group_hint": "（选一句，发出去）",
+  "moments.camera_toast": "今天好像没什么想说的。",
+  "moments.cancel": "取消",
+  "moments.just_now": "刚刚",
+  "phone.low_battery": "电量不足 {0}%，记得充电",
   "wx.pin_badge": "置顶",
 
   "bag.item_cracker_desc_used": "已经拉响了——彩带落进了河风里。",

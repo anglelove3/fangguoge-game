@@ -183,6 +183,12 @@ public partial class GameManager : Node
     }
 
     /// <summary>
+    /// 这件隐藏物品已经被拿走了吗？（第二十轮 F1：拿走之后，场景里的贴片要跟着消失）
+    /// </summary>
+    public bool HasHiddenItem(string itemId) =>
+        !string.IsNullOrEmpty(itemId) && hiddenItemIds.Contains(itemId);
+
+    /// <summary>
     /// 记录玩家的选择（用于结局判定和回看）
     /// </summary>
     /// <param name="choiceId">选择的唯一标识，如 "ch01_order_food"</param>
@@ -225,6 +231,46 @@ public partial class GameManager : Node
     /// <summary>这个联系人被置顶了吗？（会话列表排序用）</summary>
     public bool IsPinned(string contactId) =>
         !string.IsNullOrEmpty(contactId) && pinnedContacts.Contains(contactId);
+
+    // ========== 手机电量（第二十轮 F4） ==========
+    //
+    // 电量是"故事时间的影子"：每进一章，按剧情走过的时间掉一档；
+    // 剧情里有明确充电机会的章（第五章清早宿舍、第九章开学季、第十章骑行前
+    // 江洁那句"充电别糊弄"）直接回满。
+    // 第八章定 20% —— 分手当夜反复手滑看手机，低电量红色+提示一起上，
+    // 焦虑感是设计好的。
+
+    /// <summary>手机当前电量（0-100；状态栏/锁屏都读它）</summary>
+    public int PhoneBattery { get; private set; } = 100;
+
+    /// <summary>红色低电量阈值（状态栏图标变红）</summary>
+    public const int BatteryLowThreshold = 25;
+
+    /// <summary>每章开始的目标电量；100 = 剧情充电点</summary>
+    private static readonly System.Collections.Generic.Dictionary<int, int> ChapterBattery = new()
+    {
+        { 0, 100 }, { 1, 100 }, { 2, 88 }, { 3, 74 }, { 4, 58 },
+        { 5, 100 }, { 6, 82 }, { 7, 64 }, { 8, 20 },
+        { 9, 100 }, { 10, 100 }, { 11, 82 },
+    };
+
+    /// <summary>
+    /// 章节推进/载入后同步电量（ChapterBase._Ready 统一调用）。
+    /// 目标值和当前一样就不动、不写盘；老存档没有电量字段 → 满电起步，第一次同步后落盘。
+    /// </summary>
+    public void SyncChapterBattery(int chapter)
+    {
+        if (!ChapterBattery.TryGetValue(chapter, out int target))
+            target = 60; // 未来新章忘配表时的保底：别满电也别没电
+        if (PhoneBattery == target)
+            return;
+        PhoneBattery = Mathf.Clamp(target, 0, 100);
+        SaveGame();
+        GD.Print($"[电量] 第 {chapter} 章 → {PhoneBattery}%");
+    }
+
+    /// <summary>低于红色阈值了吗（状态栏电池变红用）</summary>
+    public bool IsBatteryLow => PhoneBattery <= BatteryLowThreshold;
 
     /// <summary>置顶 / 取消置顶一个联系人（长按菜单用；一动就落档）</summary>
     public void SetPinned(string contactId, bool pinned)
@@ -550,7 +596,8 @@ public partial class GameManager : Node
             // 直接把这个字典写出去：RelationshipState 里的字段都是可序列化的简单类型
             relationships = relationships,
             pinnedContacts = new System.Collections.Generic.List<string>(pinnedContacts),
-            usedItems = new System.Collections.Generic.List<string>(usedItems)
+            usedItems = new System.Collections.Generic.List<string>(usedItems),
+            phoneBattery = PhoneBattery
         };
 
         // 设置 JSON 格式化为可读格式（方便调试）
@@ -676,6 +723,9 @@ public partial class GameManager : Node
             foreach (var id in saveData.usedItems ?? new())
                 if (!string.IsNullOrEmpty(id))
                     usedItems.Add(id);
+
+            // 手机电量（第二十轮 F4）：老存档没有这个字段 → 0，紧接着的进章同步会按章节表校正
+            PhoneBattery = Mathf.Clamp(saveData.phoneBattery, 0, 100);
 
             // 手机永远在身上：老存档里没有"手机"这件物品，读档时补进去，
             // 玩家会看到背包红点亮起 —— 正好借小红点告诉他"现在有个背包了"
@@ -810,6 +860,7 @@ public partial class GameManager : Node
         bagSeen.Clear();        // 全新的背包 → 红点亮着，提示玩家"翻开看看"
         relationships.Clear();  // 全新的一局：备注清空、关系阶段回到角色卡出厂值
         SeedRelationships();    // 微信列表里本来就在的人，一开始就是好友
+        PhoneBattery = 100;     // 全新的一局：满电出门（第二十轮 F4）
         pinnedContacts.Clear(); // 全新的一局：谁都没被置顶
         usedItems.Clear();      // 全新的一局：礼花筒还没拉过
         GD.Print("[重置] 游戏状态已重置");
@@ -856,6 +907,9 @@ public class SaveData
 
     // 已经"用掉"的物品 id（第十八轮；老存档没有这个字段 → 按空处理）
     public System.Collections.Generic.List<string> usedItems { get; set; }
+
+    /// <summary>手机电量（第二十轮 F4；老存档没有这个字段 → 读档后 0，第一次进章就按章节表同步）</summary>
+    public int phoneBattery { get; set; }
 }
 
 /// <summary>

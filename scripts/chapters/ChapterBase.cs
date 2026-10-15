@@ -71,6 +71,10 @@ public partial class ChapterBase : Control
         // 更新章节编号
         GameManager.Instance.CurrentChapter = ChapterIndex;
 
+        // 手机电量随章节同步（第二十轮 F4）：故事时间推移 = 掉电；剧情充电点回满。
+        // 放在 SaveGame 之前，电量跟着章节号一起落盘。
+        GameManager.Instance.SyncChapterBattery(ChapterIndex);
+
         // 自动存档（每章开始时保存一次）
         GameManager.Instance.SaveGame();
 

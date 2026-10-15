@@ -109,6 +109,7 @@ public partial class Ch08 : ChapterBase
     private bool toastChosen;      // 第 4 幕：敬酒那段已经答完
     private bool whereChosen;      // 第 5 幕：去哪儿已经定了
     private bool finished;         // 尾声播放中
+    private HiddenPatch crackerPatch; // 喜糖盘旁的礼花筒贴片（第二十轮 F1：拉响后消失）
 
     private ulong lastActivityMsec;
     private const ulong IdleHintDelayMsec = 12000;
@@ -174,6 +175,16 @@ public partial class Ch08 : ChapterBase
         ArtAnchor.TrackFraction(candyBtn, new Rect2(0.485f, 0.775f, 0.09f, 0.09f));    // 喜糖盘
         ArtAnchor.TrackFraction(toastBtn, new Rect2(0.30f, 0.80f, 0.12f, 0.12f));      // 主桌这一头
         ArtAnchor.TrackFraction(wedExitBtn, new Rect2(0.90f, 0.82f, 0.10f, 0.16f));    // 门口
+
+        // 第二十轮 F1：没拉的礼花筒拆成贴片（立在喜糖盘旁）——
+        // 拉响（收走）之后从桌上消失。挂在婚宴背景层下面，婚宴淡入淡出时贴片跟着走。
+        crackerPatch = HiddenPatch.CreateAtFraction(
+            "res://assets/art/props/patch_cracker.png",
+            null,
+            new Rect2(0.565f, 0.775f, 0.038f, 0.088f));
+        bgWedding.AddChild(crackerPatch);
+        if (GameManager.Instance.HasHiddenItem(cfg.CrackerItem))
+            crackerPatch.HideImmediately(); // 读档进来就已经收过了
 
         // "点万物有回应"：三个场景各一套，跟着幕开关
         flavorDorm = MakeFlavorLayer("ch08_dorm");
@@ -456,8 +467,20 @@ public partial class Ch08 : ChapterBase
     {
         draftChosen = true;
 
+        // 第二十轮 F8：选了「去阳台吹十分钟风」——
+        // 夜色漫上来：远楼的窗灯、栏杆、一支烟的剪影，对白和夜风同屏（对话在 CanvasLayer 上层）。
+        BalconyNight balcony = null;
+        if (index == 2)
+        {
+            balcony = new BalconyNight { Modulate = new Color(1, 1, 1, 0) };
+            AddChild(balcony);
+            balcony.FadeIn(1.0f);
+        }
+
         DialogueManager.Instance.PlaySequence(ChapterId, $"draft_{index}", () =>
         {
+            // 回屋：夜色淡下去再接 draft_end（balcony 淡出完自毁）
+            balcony?.FadeOut(0.9f);
             DialogueManager.Instance.PlaySequence(ChapterId, "draft_end", () =>
             {
                 bedBtn.Visible = true;
@@ -735,6 +758,7 @@ public partial class Ch08 : ChapterBase
         {
             if (!string.IsNullOrEmpty(cfg.CrackerItem))
                 FindHiddenItem(cfg.CrackerItem);
+            crackerPatch?.Disappear(); // 礼花筒从喜糖盘旁消失（第二十轮 F1）
             toastBtn.Visible = true;
             UpdateHint();
         });

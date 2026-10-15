@@ -303,6 +303,30 @@ public class MomentsData
 {
     public string Cover { get; set; } = "";
     public List<MomentPost> Posts { get; set; } = new();
+
+    /// <summary>
+    /// 玩家可以发的朋友圈（第二十轮 F7）：顶栏相机点开，三选一文案。
+    /// afterChapter 到了才出现在发表面板里；发过的组（存本局内存）不再出现。
+    /// </summary>
+    public List<MomentPublishGroup> PublishGroups { get; set; } = new();
+}
+
+/// <summary>一组可发表的朋友圈（一个场景、三种说法）</summary>
+public class MomentPublishGroup
+{
+    public string Id { get; set; } = "";
+    public int AfterChapter { get; set; }
+    public List<MomentPublishOption> Options { get; set; } = new();
+}
+
+/// <summary>发表面板里的一条候选文案：发出去之后谁来点赞、谁接什么神评论</summary>
+public class MomentPublishOption
+{
+    public string Text { get; set; } = "";
+    public List<string> Likes { get; set; } = new();
+
+    /// <summary>好友的评论（按顺序浮出：第一条约 3 秒、第二条约 6 秒）</summary>
+    public List<MomentComment> Comments { get; set; } = new();
 }
 
 /// <summary>一条朋友圈动态</summary>

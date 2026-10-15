@@ -39,6 +39,7 @@ public partial class LockScreen : Control
 
     private Label clockLabel;
     private Label dateLabel;
+    private Label batteryPct;   // 锁屏右上角的电量百分比（第二十轮 F4）
     private PanelContainer noticeCard;
     private Label noticeText;
     private Label hintLabel;
@@ -50,6 +51,7 @@ public partial class LockScreen : Control
     private float pressX;
     private string lastClock = "";
     private string lastDate = "";
+    private string lastBatteryPct = "";
 
     public override void _Ready()
     {
@@ -83,6 +85,32 @@ public partial class LockScreen : Control
         };
         wallDim.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
         AddChild(wallDim);
+
+        // ---- 右上角小状态行：电量百分比 + 电池图标（第二十轮 F4）----
+        var statusRow = new HBoxContainer { MouseFilter = MouseFilterEnum.Ignore };
+        statusRow.AddThemeConstantOverride("separation", 8);
+        statusRow.AnchorLeft = 1f;
+        statusRow.AnchorRight = 1f;
+        statusRow.OffsetLeft = -190;
+        statusRow.OffsetTop = 18;
+        statusRow.OffsetRight = -30;
+        statusRow.OffsetBottom = 52;
+        AddChild(statusRow);
+
+        batteryPct = new Label
+        {
+            Text = "",
+            HorizontalAlignment = HorizontalAlignment.Right,
+            MouseFilter = MouseFilterEnum.Ignore,
+        };
+        batteryPct.AddThemeFontSizeOverride("font_size", 24);
+        batteryPct.AddThemeColorOverride("font_color", new Color(1f, 0.99f, 0.96f));
+        batteryPct.AddThemeColorOverride("font_outline_color", new Color(0f, 0f, 0f, 0.4f));
+        batteryPct.AddThemeConstantOverride("outline_size", 6);
+        batteryPct.SizeFlagsHorizontal = SizeFlags.ExpandFill;
+        statusRow.AddChild(batteryPct);
+
+        statusRow.AddChild(new BatteryGlyph { CustomMinimumSize = new Vector2(52, 30) });
 
         // ---- 时间 / 日期 ----
         var top = new VBoxContainer { MouseFilter = MouseFilterEnum.Ignore };
@@ -242,6 +270,19 @@ public partial class LockScreen : Control
         {
             lastDate = date;
             dateLabel.Text = date;
+        }
+
+        // 电量百分比（第二十轮 F4）：低电量连数字一起变红
+        int lv = GameManager.Instance?.PhoneBattery ?? 100;
+        string pct = lv + "%";
+        if (pct != lastBatteryPct)
+        {
+            lastBatteryPct = pct;
+            batteryPct.Text = pct;
+            batteryPct.AddThemeColorOverride("font_color",
+                lv <= GameManager.BatteryLowThreshold
+                    ? new Color(1f, 0.45f, 0.4f)
+                    : new Color(1f, 0.99f, 0.96f));
         }
 
         // 壁纸昼夜切换（清遗留①）：故事走到傍晚，锁屏跟着换黄昏
@@ -558,24 +599,50 @@ public partial class AppIcon : Control
     }
 }
 
-/// <summary>状态栏右侧的小电池图标（画出来的，不用图）</summary>
+/// <summary>
+/// 状态栏右侧的小电池图标（画出来的，不用图）。
+/// 第二十轮 F4：电量是真的了——读 GameManager.PhoneBattery，
+/// 内格按电量画长度，≤25% 变红（低电量焦虑是剧情的一部分）。
+/// </summary>
 public partial class BatteryGlyph : Control
 {
+    private int lastLevel = -1;
+
     public override void _Ready()
     {
         MouseFilter = MouseFilterEnum.Ignore;
     }
 
+    public override void _Process(double delta)
+    {
+        int lv = GameManager.Instance?.PhoneBattery ?? 100;
+        if (lv != lastLevel)
+        {
+            lastLevel = lv;
+            QueueRedraw();
+        }
+    }
+
     public override void _Draw()
     {
+        int level = GameManager.Instance?.PhoneBattery ?? 100;
         var w = Size.X;
         var h = Size.Y;
         var body = new Rect2(0, h * 0.18f, w - 6, h * 0.64f);
         DrawStyleBox(MakeOutline(), body);
-        // 电量（就画满格——这个手机一直很有电）
-        var inner = new StyleBoxFlat { BgColor = new Color(1f, 0.99f, 0.96f) };
-        inner.SetCornerRadiusAll(4);
-        DrawStyleBox(inner, body.Grow(-4.5f));
+
+        // 内格：宽度 = 电量比例；低电量换红色
+        float fillW = (body.Size.X - 9f) * Mathf.Clamp(level, 0, 100) / 100f;
+        Color fillColor = level <= GameManager.BatteryLowThreshold
+            ? new Color(0.95f, 0.30f, 0.25f)
+            : new Color(1f, 0.99f, 0.96f);
+        if (fillW >= 1f)
+        {
+            var inner = new StyleBoxFlat { BgColor = fillColor };
+            inner.SetCornerRadiusAll(4);
+            DrawStyleBox(inner, new Rect2(body.Position.X + 4.5f, body.Position.Y + 4.5f, fillW, body.Size.Y - 9f));
+        }
+
         // 电池头
         var tip = new Rect2(body.End.X + 2, h * 0.36f, 4, h * 0.28f);
         var tipStyle = new StyleBoxFlat { BgColor = new Color(1f, 0.99f, 0.96f, 0.85f) };

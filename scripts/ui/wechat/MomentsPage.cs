@@ -41,6 +41,16 @@ public partial class MomentsPage : Control
     /// <summary>已经回过的评论回复（动态id+文案），避免同一句回复复读机</summary>
     private static readonly HashSet<string> usedCommentLines = new();
 
+    // ==================== 玩家发表（第二十轮 F7） ====================
+
+    /// <summary>本局内玩家发过的动态（重开手机还在；进程重启清空，和聊天 extraMessages 同一哲学）</summary>
+    private static readonly List<MomentPost> userPosts = new();
+
+    /// <summary>发过的文案组 id：同一组只发一次，发过就从相机面板里消失</summary>
+    private static readonly HashSet<string> publishedGroups = new();
+
+    private PanelContainer publishPanel; // 底部滑出的发表面板
+
     // ==================== 搭建 ====================
 
     public void Build(MomentsData moments)
@@ -83,6 +93,24 @@ public partial class MomentsPage : Control
         title.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
         header.AddChild(title);
 
+        // 相机按钮（第二十轮 F7）：微信朋友圈右上角那颗相机，点开发表
+        var cameraBtn = new Button
+        {
+            Text = "📷",
+            MouseFilter = MouseFilterEnum.Stop,
+            MouseDefaultCursorShape = CursorShape.PointingHand,
+        };
+        cameraBtn.AddThemeFontSizeOverride("font_size", 38);
+        ApplyEmptyStyle(cameraBtn);
+        cameraBtn.AnchorLeft = 1;
+        cameraBtn.AnchorRight = 1;
+        cameraBtn.OffsetLeft = -88;
+        cameraBtn.OffsetTop = 10;
+        cameraBtn.OffsetRight = -20;
+        cameraBtn.OffsetBottom = 90;
+        cameraBtn.Pressed += OnCameraPressed;
+        header.AddChild(cameraBtn);
+
         var headerLine = new ColorRect
         {
             Color = new Color(0, 0, 0, 0.07f),
@@ -107,8 +135,227 @@ public partial class MomentsPage : Control
 
         feed.AddChild(BuildCover());
 
+        // 玩家发过的动态压在预置流最上面（最新的在最前）
+        for (int i = userPosts.Count - 1; i >= 0; i--)
+            feed.AddChild(BuildPost(userPosts[i]));
+
         foreach (var post in data.Posts)
             feed.AddChild(BuildPost(post));
+    }
+
+    // ==================== 玩家发表（第二十轮 F7） ====================
+
+    /// <summary>相机按钮：有可发的组就弹面板，没有就轻轻回一句</summary>
+    private void OnCameraPressed()
+    {
+        var groups = AvailableGroups();
+        if (groups.Count == 0)
+        {
+            ToastPublished(DataStore.Text("moments.camera_toast"));
+            return;
+        }
+        ShowPublishPanel(groups);
+    }
+
+    /// <summary>当前能发的组：章节到了、还没发过</summary>
+    private List<MomentPublishGroup> AvailableGroups()
+    {
+        int chapter = GameManager.Instance?.CurrentChapter ?? 0;
+        var list = new List<MomentPublishGroup>();
+        foreach (var g in data.PublishGroups ?? new List<MomentPublishGroup>())
+        {
+            if (g.AfterChapter > chapter || publishedGroups.Contains(g.Id))
+                continue;
+            list.Add(g);
+        }
+        return list;
+    }
+
+    /// <summary>Toast 事件由 ChatOverlay 接管（同占位条目那套）</summary>
+    public event Action<string> ToastRequested;
+
+    private void ToastPublished(string text) => ToastRequested?.Invoke(text);
+
+    /// <summary>底部滑出的发表面板：每组一个场景标题，下面三条候选文案</summary>
+    private void ShowPublishPanel(List<MomentPublishGroup> groups)
+    {
+        ClosePublishPanel();
+
+        publishPanel = new PanelContainer { MouseFilter = MouseFilterEnum.Stop };
+        var style = new StyleBoxFlat { BgColor = new Color(0.97f, 0.97f, 0.98f) };
+        style.SetCornerRadiusAll(24);
+        style.ShadowColor = new Color(0, 0, 0, 0.25f);
+        style.ShadowSize = 18;
+        style.ShadowOffset = new Vector2(0, -4);
+        publishPanel.AddThemeStyleboxOverride("panel", style);
+        publishPanel.AnchorTop = 1;
+        publishPanel.AnchorRight = 1;
+        publishPanel.AnchorBottom = 1;
+        publishPanel.GrowHorizontal = GrowDirection.Both;
+        publishPanel.GrowVertical = GrowDirection.Begin;
+        publishPanel.ZIndex = 30;
+
+        var box = new VBoxContainer { MouseFilter = MouseFilterEnum.Ignore };
+        box.AddThemeConstantOverride("separation", 4);
+        publishPanel.AddChild(UiKit.WrapMargin(box, 28, 20, 28, 24));
+
+        var title = new Label
+        {
+            Text = DataStore.Text("moments.publish_title"),
+            HorizontalAlignment = HorizontalAlignment.Center,
+            MouseFilter = MouseFilterEnum.Ignore,
+        };
+        title.AddThemeFontSizeOverride("font_size", 28);
+        title.AddThemeColorOverride("font_color", TextDark);
+        box.AddChild(title);
+        box.AddChild(new Control { CustomMinimumSize = new Vector2(0, 10), MouseFilter = MouseFilterEnum.Ignore });
+
+        foreach (var g in groups)
+        {
+            var groupLabel = new Label { Text = DataStore.Text("moments.group_hint"), MouseFilter = MouseFilterEnum.Ignore };
+            groupLabel.AddThemeFontSizeOverride("font_size", 20);
+            groupLabel.AddThemeColorOverride("font_color", TextGray);
+            box.AddChild(groupLabel);
+
+            foreach (var opt in g.Options)
+            {
+                var capturedGroup = g;
+                var btn = new Button
+                {
+                    Text = opt.Text,
+                    MouseFilter = MouseFilterEnum.Stop,
+                    MouseDefaultCursorShape = CursorShape.PointingHand,
+                };
+                btn.AddThemeFontSizeOverride("font_size", 25);
+                var normal = new StyleBoxFlat { BgColor = Colors.White };
+                normal.SetCornerRadiusAll(14);
+                normal.SetBorderWidthAll(1);
+                normal.BorderColor = new Color(0, 0, 0, 0.08f);
+                normal.ContentMarginLeft = 20;
+                normal.ContentMarginRight = 20;
+                normal.ContentMarginTop = 14;
+                normal.ContentMarginBottom = 14;
+                var hoverSb = (StyleBoxFlat)normal.Duplicate();
+                hoverSb.BgColor = new Color(0.945f, 0.955f, 0.985f);
+                btn.AddThemeStyleboxOverride("normal", normal);
+                btn.AddThemeStyleboxOverride("hover", hoverSb);
+                btn.AddThemeStyleboxOverride("pressed", hoverSb);
+                btn.AddThemeStyleboxOverride("focus", new StyleBoxEmpty());
+                btn.Pressed += () => Publish(capturedGroup, opt);
+                box.AddChild(btn);
+            }
+        }
+
+        var cancel = new Button
+        {
+            Text = DataStore.Text("moments.cancel"),
+            MouseFilter = MouseFilterEnum.Stop,
+            MouseDefaultCursorShape = CursorShape.PointingHand,
+        };
+        cancel.AddThemeFontSizeOverride("font_size", 26);
+        var cancelStyle = new StyleBoxEmpty();
+        cancelStyle.ContentMarginTop = 12;
+        cancelStyle.ContentMarginBottom = 6;
+        cancel.AddThemeStyleboxOverride("normal", cancelStyle);
+        cancel.AddThemeStyleboxOverride("hover", cancelStyle);
+        cancel.AddThemeStyleboxOverride("pressed", cancelStyle);
+        cancel.AddThemeStyleboxOverride("focus", new StyleBoxEmpty());
+        cancel.AddThemeColorOverride("font_color", TextGray);
+        cancel.Pressed += ClosePublishPanel;
+        box.AddChild(cancel);
+
+        AddChild(publishPanel);
+
+        // 底部滑入
+        publishPanel.ResetSize();
+        publishPanel.Position = new Vector2(0, Size.Y);
+        var tw = publishPanel.CreateTween();
+        tw.TweenProperty(publishPanel, "position:y", Size.Y - publishPanel.Size.Y, 0.22)
+            .SetTrans(Tween.TransitionType.Cubic).SetEase(Tween.EaseType.Out);
+    }
+
+    private void ClosePublishPanel()
+    {
+        if (publishPanel != null && GodotObject.IsInstanceValid(publishPanel))
+            publishPanel.QueueFree();
+        publishPanel = null;
+    }
+
+    /// <summary>
+    /// 发出去：新动态插到流顶（时间"刚刚"），面板收起，
+    /// 然后好友的反应按节奏浮出——点赞和头一条评论约 3 秒，第二条约 6 秒。
+    /// </summary>
+    private void Publish(MomentPublishGroup group, MomentPublishOption opt)
+    {
+        publishedGroups.Add(group.Id);
+        ClosePublishPanel();
+
+        var post = new MomentPost
+        {
+            Id = $"user_{group.Id}",
+            Author = DataStore.Text("wx.tab_me"),
+            Avatar = WeChatData.MyAvatarPath,
+            Time = DataStore.Text("moments.just_now"),
+            Text = opt.Text,
+        };
+        userPosts.Add(post);
+
+        RebuildFeed();
+        ScrollToTop();
+
+        // 好友反应（延迟浮出）：局外计时器，页面重建也不影响数据本身
+        var tree = GetTree();
+        if (tree == null)
+            return;
+        string pid = post.Id;
+        tree.CreateTimer(2.8).Timeout += () =>
+        {
+            foreach (var like in opt.Likes)
+                if (!post.Likes.Contains(like))
+                    post.Likes.Add(like);
+            if (opt.Comments.Count > 0)
+                post.Comments.Add(opt.Comments[0]);
+            RefreshPostSocial(pid);
+        };
+        if (opt.Comments.Count > 1)
+            tree.CreateTimer(6.2).Timeout += () =>
+            {
+                post.Comments.Add(opt.Comments[1]);
+                RefreshPostSocial(pid);
+            };
+    }
+
+    /// <summary>按动态 id 找到界面句柄，只刷它的社交灰条（点赞/评论浮出的动画感）</summary>
+    private void RefreshPostSocial(string postId)
+    {
+        foreach (var ui in postUis)
+        {
+            if (ui.Post.Id != postId)
+                continue;
+            RebuildSocial(ui);
+            return;
+        }
+    }
+
+    /// <summary>整层动态流重铺（发表后调用；cover + 我的动态 + 预置流）</summary>
+    private void RebuildFeed()
+    {
+        if (feed == null)
+            return;
+        postUis.Clear();
+        foreach (var child in feed.GetChildren())
+            child.QueueFree();
+        feed.AddChild(BuildCover());
+        for (int i = userPosts.Count - 1; i >= 0; i--)
+            feed.AddChild(BuildPost(userPosts[i]));
+        foreach (var post in data.Posts)
+            feed.AddChild(BuildPost(post));
+    }
+
+    private void ScrollToTop()
+    {
+        if (feed?.GetParent() is ScrollContainer sc)
+            sc.ScrollVertical = 0;
     }
 
     /// <summary>封面 + 压角的自己</summary>

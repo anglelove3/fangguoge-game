@@ -163,6 +163,9 @@ public partial class ChatOverlay : Control
     private Control hiddenHint;
     private bool hintWasVisible = true;
 
+    /// <summary>低电量提示提醒到哪一章了（每章只弹一次；static = 同一次运行跨手机实例去重）</summary>
+    private static int lastLowBatteryWarnChapter = -1;
+
     private void RestoreHint()
     {
         if (hiddenHint != null && IsInstanceValid(hiddenHint))
@@ -217,6 +220,24 @@ public partial class ChatOverlay : Control
             ShowChat(contact);
         else
             ShowLockScreen();
+
+        // 低电量提醒（第二十轮 F4）：≤20% 且这一章还没提醒过 → 手机亮起来后浮一条提示。
+        // 每章只弹一次：焦虑给一次就够，刷屏就烦了。
+        int battery = GameManager.Instance?.PhoneBattery ?? 100;
+        int chapter = GameManager.Instance?.CurrentChapter ?? 0;
+        if (battery <= 20 && lastLowBatteryWarnChapter != chapter)
+        {
+            var timerTree = GetTree();
+            if (timerTree != null)
+            {
+                lastLowBatteryWarnChapter = chapter;
+                timerTree.CreateTimer(1.1).Timeout += () =>
+                {
+                    if (IsInstanceValid(this) && !closing)
+                        ShowToast(DataStore.Text("phone.low_battery", battery));
+                };
+            }
+        }
 
         // 手机打开期间：背景对话/热点全部锁死，点击只属于手机
         suppressing = true;
@@ -996,6 +1017,7 @@ public partial class ChatOverlay : Control
         pageHost.AddChild(momentsPage);
         momentsPage.Build(WeChatData.LoadMoments());
         momentsPage.BackPressed += ShowMain;
+        momentsPage.ToastRequested += ShowToast; // F7：发表面板的"没什么想说的"提示走全局 toast
         momentsPage.Visible = false;
     }
 
@@ -1792,6 +1814,7 @@ public partial class ChatOverlay : Control
 
         bool mine = msg.Sender == "me";
         bool isGroup = currentContact != null && currentContact.Kind == "group";
+        bool isSticker = msg.Type == "sticker"; // 第二十轮 F3：表情包无气泡无尾巴
 
         var row = new HBoxContainer();
         row.Name = "Row";
@@ -1806,17 +1829,20 @@ public partial class ChatOverlay : Control
 
         Control bubble = msg.Type == "image"
             ? MakeImageBubble(msg.Image)
-            : MakeTextBubble(msg.Text, mine);
+            : isSticker
+                ? MakeStickerBubble(msg.Image)
+                : MakeTextBubble(msg.Text, mine);
 
         // 小尾巴：独立控件，紧贴气泡靠头像那一侧（不能放进气泡容器里，会被拉伸）
-        var tail = new BubbleTail(mine ? MyBubbleColor : HerBubbleColor, mine);
+        // 表情包没有尾巴（微信大表情也是光秃秃贴着）
+        Control tail = isSticker ? null : new BubbleTail(mine ? MyBubbleColor : HerBubbleColor, mine);
 
         if (mine)
         {
             // 我：气泡靠右，尾巴在气泡右侧，头像最右
             row.AddChild(MakeHorizontalExpander());
             row.AddChild(bubble);
-            row.AddChild(tail);
+            if (tail != null) row.AddChild(tail);
             row.AddChild(avatar);
         }
         else if (isGroup && !string.IsNullOrEmpty(msg.SenderName))
@@ -1828,7 +1854,7 @@ public partial class ChatOverlay : Control
             col.AddChild(MakeSenderName(msg.SenderName));
             var inner = new HBoxContainer { MouseFilter = MouseFilterEnum.Ignore };
             inner.AddThemeConstantOverride("separation", 0);
-            inner.AddChild(tail);
+            if (tail != null) inner.AddChild(tail);
             inner.AddChild(bubble);
             col.AddChild(inner);
             row.AddChild(col);
@@ -1838,7 +1864,7 @@ public partial class ChatOverlay : Control
         {
             // 对方：头像最左，尾巴在气泡左侧
             row.AddChild(avatar);
-            row.AddChild(tail);
+            if (tail != null) row.AddChild(tail);
             row.AddChild(bubble);
             row.AddChild(MakeHorizontalExpander());
         }
@@ -1948,6 +1974,29 @@ public partial class ChatOverlay : Control
         bubble.AddThemeStyleboxOverride("panel", style);
         bubble.AddChild(margin);
         return bubble;
+    }
+
+    /// <summary>
+    /// 表情包气泡（第二十轮 F3）：微信大表情的样子——无底框无尾巴，
+    /// 小方图直接贴在聊天流里。图片缺失时退回一个文字气泡，不空块。
+    /// </summary>
+    private Control MakeStickerBubble(string path)
+    {
+        var tex = ResourceLoader.Exists(path) ? GD.Load<Texture2D>(path) : null;
+        if (tex == null)
+            return MakeTextBubble("[表情]", true);
+
+        const float size = 190f;
+        var img = new TextureRect
+        {
+            Texture = tex,
+            ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,
+            StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered,
+            CustomMinimumSize = new Vector2(size, size),
+            SizeFlagsVertical = SizeFlags.ShrinkBegin,
+            MouseFilter = MouseFilterEnum.Ignore,
+        };
+        return img;
     }
 
     /// <summary>图片气泡（圆角、按原比例缩放）</summary>
@@ -2135,9 +2184,9 @@ public class QuickReplyData
 public class ChatMessageData
 {
     public string Sender { get; set; } = "other"; // other（对方）/ me（我）/ divider（分割线）
-    public string Type { get; set; } = "text";    // text / image / divider
+    public string Type { get; set; } = "text";    // text / image / sticker / divider
     public string Text { get; set; } = "";        // 文字内容（divider 用 text 存日期）
-    public string Image { get; set; } = "";       // 图片路径（type = image 时用）
+    public string Image { get; set; } = "";       // 图片路径（type = image / sticker 时用）
 
     /// <summary>群聊里的发言人昵称（非空 = 气泡上方显示昵称 + 用该联系人的头像）</summary>
     public string SenderName { get; set; } = "";

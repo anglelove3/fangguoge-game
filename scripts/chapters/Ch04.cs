@@ -27,6 +27,7 @@ public partial class Ch04 : ChapterBase
     private int ashtrayStage;     // 烟灰缸彩蛋递进
     private bool earphoneTaken;   // 旧耳机已收走
     private bool chatOpen;        // 聊天界面是否开着
+    private HiddenPatch earphonePatch; // 桌上的旧耳机贴片（第二十轮 F1：收走后消失）
 
     private readonly Dictionary<string, Control> glows = new();
 
@@ -58,6 +59,16 @@ public partial class Ch04 : ChapterBase
         ArtAnchor.Track(phoneBtn, new Rect2(1616f, 880f, 168f, 88f));
         ArtAnchor.TrackFraction(ashtrayBtn, new Rect2(0.565f, 0.7f, 0.14f, 0.13f));
         ArtAnchor.TrackFraction(earphoneBtn, new Rect2(0.615f, 0.595f, 0.085f, 0.095f));
+
+        // 第二十轮 F1：旧耳机拆成贴片（底图上本来没画物件，耳机贴片摆在桌面上）——
+        // 收走之后从桌上消失。挂在宿舍背景层下面，跟着场景一起显隐。
+        earphonePatch = HiddenPatch.CreateAtFraction(
+            "res://assets/art/props/patch_earphone.png",
+            null,
+            new Rect2(0.60f, 0.615f, 0.10f, 0.075f));
+        background.AddChild(earphonePatch);
+        if (GameManager.Instance.HasHiddenItem("earphone"))
+            earphonePatch.HideImmediately(); // 读档进来就已经收过了
 
         // "点万物有回应"：窗外的灯、柜门上的照片、那两桶泡面（data/flavor/ch04.json）
         AddChild(FlavorSpots.Create(hotspotsRoot, "ch04"));
@@ -218,7 +229,11 @@ public partial class Ch04 : ChapterBase
         earphoneTaken = true;
         HotspotGlow.Sparkle(btn);
         btn.Disabled = true;
-        dm.PlaySequence(ChapterId, "explore_earphone", () => FindHiddenItem("earphone"));
+        dm.PlaySequence(ChapterId, "explore_earphone", () =>
+        {
+            FindHiddenItem("earphone");
+            earphonePatch?.Disappear(); // 耳机从桌上消失（第二十轮 F1）
+        });
     }
 
     // ==================== 深夜选择 → 天亮收尾 ====================
@@ -242,7 +257,13 @@ public partial class Ch04 : ChapterBase
         AudioManager.Instance?.PlayBgm(AudioManager.BgmGym1, -14f, 2.2f);
         var tw = CreateTween();
         tw.TweenProperty(background, "modulate:a", 0f, 0.8);
-        tw.TweenCallback(Callable.From(() => background.Texture = dayLab));
+        tw.TweenCallback(Callable.From(() =>
+        {
+            background.Texture = dayLab;
+            // 第二十轮 F1：天亮换到实验室，宿舍桌上的耳机贴片跟着夜色一起退场
+            if (earphonePatch != null)
+                earphonePatch.Visible = false;
+        }));
         tw.TweenProperty(background, "modulate:a", 1f, 1.0);
         tw.TweenInterval(0.4);
         tw.TweenCallback(Callable.From(() =>

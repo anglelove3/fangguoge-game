@@ -57,6 +57,9 @@ public partial class Ch03 : ChapterBase
         layout = DataStore.GetChapter(ChapterId);
 
         scale = GetNode<BalanceScale>("BalanceScale");
+        // 第二十轮 F1：光点已经收进背包的话（上一局/读档），右盘就不再亮着——
+        // 物品到手了，场景里的它也该消失
+        scale.OrbVisible = !GameManager.Instance.HasHiddenItem("light_orb");
         cardLayer = GetNode<Control>("CardLayer");
         rightPanBtn = GetNode<Button>("Hotspots/RightPanBtn");
         hotspotsRoot = GetNode<Control>("Hotspots");
@@ -541,6 +544,7 @@ public partial class Ch03 : ChapterBase
             {
                 orbAwarded = true;
                 FindHiddenItem("light_orb");
+                scale.OrbVisible = false; // 光点收进背包，右盘当场暗下去（第二十轮 F1）
             }
         });
     }

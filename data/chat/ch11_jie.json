@@ -14,6 +14,7 @@
     { "sender": "me", "type": "text", "text": "到了。旅馆很近。", "gateChoice": "ch11_gate_night" },
     { "sender": "other", "type": "text", "senderName": "江洁", "text": "嗯。明天……开学再说。早点睡。", "gateChoice": "ch11_gate_night" },
     { "sender": "me", "type": "text", "text": "嗯。晚安。", "gateChoice": "ch11_gate_night" },
-    { "sender": "other", "type": "text", "senderName": "江洁", "text": "[月亮]", "gateChoice": "ch11_gate_night" }
+    { "sender": "other", "type": "text", "senderName": "江洁", "text": "[月亮]", "gateChoice": "ch11_gate_night" },
+    { "sender": "other", "type": "sticker", "senderName": "江洁", "image": "res://assets/art/stickers/sticker_wanan.png" }
   ]
 }

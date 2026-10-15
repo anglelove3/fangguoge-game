@@ -21,6 +21,7 @@ public partial class Ch02 : ChapterBase
     private bool phoneChatSeenBefore; // 聊天后的感想对白是否已播过
     private int ashtrayStage;   // 烟灰缸：第几次数烟头（彩蛋，可反复点，文案递进）
     private bool lighterTaken;  // 窗台打火机：收进物品栏一次就不再触发
+    private HiddenPatch lighterPatch; // 窗台打火机贴片（第二十轮 F1：收走后消失）
 
     private Control hotspotsRoot;
     private Label hintLabel;
@@ -62,6 +63,16 @@ public partial class Ch02 : ChapterBase
         ArtAnchor.TrackFraction(windowBtn, new Rect2(0f, 0.02f, 0.22f, 0.64f));
         ArtAnchor.TrackFraction(ashtrayBtn, new Rect2(0.565f, 0.7f, 0.14f, 0.13f));
         ArtAnchor.TrackFraction(lighterBtn, new Rect2(0.09f, 0.67f, 0.12f, 0.11f));
+
+        // 第二十轮 F1：窗台的打火机拆成贴片——收走之后从窗台上消失。
+        // 挂在背景节点下面（背景怎么淡入淡出，贴片怎么跟）。
+        lighterPatch = HiddenPatch.Create(
+            "res://assets/art/props/patch_lighter.png",
+            "res://assets/art/props/patch_lighter_clean.png",
+            new Rect2(196f, 706f, 148f, 74f), exactFill: true);
+        GetNode("Background").AddSibling(lighterPatch);
+        if (GameManager.Instance.HasHiddenItem("lighter"))
+            lighterPatch.HideImmediately(); // 读档进来就已经收过了：窗台本来就空着
 
         // "点万物有回应"：柜门上的照片、便利贴、货架上的泡面（data/flavor/ch02.json）
         AddChild(FlavorSpots.Create(hotspotsRoot, "ch02"));
@@ -211,7 +222,11 @@ public partial class Ch02 : ChapterBase
         {
             lighterTaken = true;
             btn.Disabled = true;
-            dm.PlaySequence(ChapterId, "explore_lighter", () => FindHiddenItem("lighter"));
+            dm.PlaySequence(ChapterId, "explore_lighter", () =>
+            {
+                FindHiddenItem("lighter");
+                lighterPatch?.Disappear(); // 打火机从窗台上消失（第二十轮 F1）
+            });
         }
     }
 

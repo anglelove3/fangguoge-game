@@ -4,7 +4,8 @@
     { "type": "divider", "text": "周二 上午 10:26" },
     { "type": "divider", "text": "你添加了对方为微信好友，现在可以开始聊天了" },
     { "sender": "other", "type": "text", "senderName": "江洁", "text": "小米把你名片推给我的时候，我还以为是又是来问作业的。" },
-    { "sender": "other", "type": "text", "senderName": "江洁", "text": "她说你球打得一般，人还行。原话。" }
+    { "sender": "other", "type": "text", "senderName": "江洁", "text": "她说你球打得一般，人还行。原话。" },
+    { "sender": "other", "type": "sticker", "senderName": "江洁", "image": "res://assets/art/stickers/sticker_zan.png" }
   ],
   "quickReplies": [
     {

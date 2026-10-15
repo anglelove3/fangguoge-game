@@ -11,6 +11,7 @@
     { "sender": "other", "senderName": "俊杰（师弟）", "text": "对了，今晚还有一位神秘嘉宾" },
     { "sender": "other", "senderName": "金艮", "text": "就是说，谁啊？透露一下" },
     { "sender": "other", "senderName": "小米师妹", "text": "保密！[微笑]" },
+    { "sender": "other", "senderName": "小米师妹", "type": "sticker", "image": "res://assets/art/stickers/sticker_niulai.png" },
     { "type": "divider", "text": "今天 下午 5:45" },
     { "sender": "other", "senderName": "小米师妹", "text": "@我 师兄，今晚你要是敢聊论文，我就把你桌上的外卖单发群里" },
     { "sender": "me", "text": "……" },
