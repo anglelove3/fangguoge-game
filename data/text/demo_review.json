@@ -55,194 +55,194 @@
       "label": "天平还歪着，你下意识"
     },
     {
-      "choice": "ch04_night",
-      "chapter": "ch04",
+      "choice": "ch05_night",
+      "chapter": "ch05",
       "where": "第四章《手滑》",
       "label": "凌晨一点半，你选择了"
     },
     {
-      "choice": "ch04_heart_words",
-      "chapter": "ch04",
+      "choice": "ch05_heart_words",
+      "chapter": "ch05",
       "where": "第四章《手滑》",
       "label": "手机暗下去之后，你"
     },
     {
-      "choice": "ch05_comfort",
-      "chapter": "ch05",
+      "choice": "ch06_comfort",
+      "chapter": "ch06",
       "where": "第五章《碧蓝蓝天》",
       "label": "群里喊你聚会，你回的是"
     },
     {
-      "choice": "ch05_heart_rain",
-      "chapter": "ch05",
+      "choice": "ch06_heart_rain",
+      "chapter": "ch06",
       "where": "第五章《碧蓝蓝天》",
       "label": "兰亭窗外落着雨，你"
     },
     {
-      "choice": "ch06_reply",
-      "chapter": "ch06",
+      "choice": "ch07_reply",
+      "chapter": "ch07",
       "where": "第六章《放过自己》",
       "label": "金艮问「以前算不算」，你说"
     },
     {
-      "choice": "ch06_heart_toast",
-      "chapter": "ch06",
+      "choice": "ch07_heart_toast",
+      "chapter": "ch07",
       "where": "第六章《放过自己》",
       "label": "杯子举在半空，你"
     },
     {
-      "choice": "ch07_seat",
-      "chapter": "ch07",
+      "choice": "ch08_seat",
+      "chapter": "ch08",
       "where": "第七章《三点水》",
       "label": "包厢里只剩两张空椅子，你坐的是"
     },
     {
-      "choice": "ch07_heart_prep",
-      "chapter": "ch07",
+      "choice": "ch08_heart_prep",
+      "chapter": "ch08",
       "where": "第七章《三点水》",
       "label": "师妹在桌子底下问「准备说点什么」，你回她"
     },
     {
-      "choice": "ch07_heart_cue",
-      "chapter": "ch07",
+      "choice": "ch08_heart_cue",
+      "chapter": "ch08",
       "where": "第七章《三点水》",
       "label": "手心发潮的那一杆，你选的是"
     },
     {
-      "choice": "ch07_topic",
-      "chapter": "ch07",
+      "choice": "ch08_topic",
+      "chapter": "ch08",
       "where": "第七章《三点水》",
       "label": "轮到你开口时，你说的第一段话是"
     },
     {
-      "choice": "ch07_billiard",
-      "chapter": "ch07",
+      "choice": "ch08_billiard",
+      "chapter": "ch08",
       "where": "第七章《三点水》",
       "label": "跟江洁的那局台球，最后"
     },
     {
-      "choice": "ch08_draft",
-      "chapter": "ch08",
+      "choice": "ch09_draft",
+      "chapter": "ch09",
       "where": "第八章《还想再见》",
       "label": "群里 @ 了你一次，删了三遍之后发出去的是"
     },
     {
-      "choice": "ch08_heart_hello",
-      "chapter": "ch08",
+      "choice": "ch09_heart_hello",
+      "chapter": "ch09",
       "where": "第八章《还想再见》",
       "label": "她的会话刚出现在最上面，第一句你发的是"
     },
     {
-      "choice": "ch08_remark",
-      "chapter": "ch08",
+      "choice": "ch09_remark",
+      "chapter": "ch09",
       "where": "第八章《还想再见》",
       "label": "她的备注，你改成了"
     },
     {
-      "choice": "ch08_toast",
-      "chapter": "ch08",
+      "choice": "ch09_toast",
+      "chapter": "ch09",
       "where": "第八章《还想再见》",
       "label": "一桌人等着听你的近况，你说的是"
     },
     {
-      "choice": "ch08_heart_leave",
-      "chapter": "ch08",
+      "choice": "ch09_heart_leave",
+      "chapter": "ch09",
       "where": "第八章《还想再见》",
       "label": "散席门口看着别人一家老小上车，你心里想的是"
     },
     {
-      "choice": "ch08_where",
-      "chapter": "ch08",
+      "choice": "ch09_where",
+      "chapter": "ch09",
       "where": "第八章《还想再见》",
       "label": "第二次见面去哪儿，你定的是"
     },
     {
-      "choice": "ch09_heart_pin",
-      "chapter": "ch09",
+      "choice": "ch10_heart_pin",
+      "chapter": "ch10",
       "where": "第九章《置顶》",
       "label": "按下置顶之后，你跟自己解释的是"
     },
     {
-      "choice": "ch09_busy",
-      "chapter": "ch09",
+      "choice": "ch10_busy",
+      "chapter": "ch10",
       "where": "第九章《置顶》",
       "label": "忙了一下午才拿起手机，你回她的是"
     },
     {
-      "choice": "ch09_read",
-      "chapter": "ch09",
+      "choice": "ch10_read",
+      "chapter": "ch10",
       "where": "第九章《置顶》",
       "label": "深夜那句「没事」，你读出来的是"
     },
     {
-      "choice": "ch09_heart_late",
-      "chapter": "ch09",
+      "choice": "ch10_heart_late",
+      "chapter": "ch10",
       "where": "第九章《置顶》",
       "label": "她下线之后，你盯着置顶那一栏想的是"
     },
     {
-      "choice": "ch09_plan",
-      "chapter": "ch09",
+      "choice": "ch10_plan",
+      "chapter": "ch10",
       "where": "第九章《置顶》",
       "label": "这次见面你定的安排是"
     },
     {
-      "choice": "ch09_heart_popper",
-      "chapter": "ch09",
+      "choice": "ch10_heart_popper",
+      "chapter": "ch10",
       "where": "第九章《置顶》",
       "label": "礼花筒拉响的那一刻，你心里的是"
     },
     {
-      "choice": "ch10_why",
-      "chapter": "ch10",
+      "choice": "ch11_why",
+      "chapter": "ch11",
       "where": "第十章《向南》",
       "label": "她那句「出门全靠走」，你回的是"
     },
     {
-      "choice": "ch10_heart_decide",
-      "chapter": "ch10",
+      "choice": "ch11_heart_decide",
+      "chapter": "ch11",
       "where": "第十章《向南》",
       "label": "出发前夜关灯之前，你最后一个念头是"
     },
     {
-      "choice": "ch10_charge1",
-      "chapter": "ch10",
+      "choice": "ch11_charge1",
+      "chapter": "ch11",
       "where": "第十章《向南》",
       "label": "电量 58% 的上午，你选的是"
     },
     {
-      "choice": "ch10_rain",
-      "chapter": "ch10",
+      "choice": "ch11_rain",
+      "chapter": "ch11",
       "where": "第十章《向南》",
       "label": "雨最大的时候，你做的是"
     },
     {
-      "choice": "ch10_heart_noodle",
-      "chapter": "ch10",
+      "choice": "ch11_heart_noodle",
+      "chapter": "ch11",
       "where": "第十章《向南》",
       "label": "那根火腿肠浮起来的时候，你想的是"
     },
     {
-      "choice": "ch10_heart_burn",
-      "chapter": "ch10",
+      "choice": "ch11_heart_burn",
+      "chapter": "ch11",
       "where": "第十章《向南》",
       "label": "雨停了天边烧起来，你想记住的是"
     },
     {
-      "choice": "ch11_heart_approach",
-      "chapter": "ch11",
+      "choice": "ch12_heart_approach",
+      "chapter": "ch12",
       "where": "第十一章《十里长亭》",
       "label": "最后 100 米，你心里想的是"
     },
     {
-      "choice": "ch11_firstword",
-      "chapter": "ch11",
+      "choice": "ch12_firstword",
+      "chapter": "ch12",
       "where": "第十一章《十里长亭》",
       "label": "见面第一句话，你说的是"
     },
     {
-      "choice": "ch11_heart_nexttime",
-      "chapter": "ch11",
+      "choice": "ch12_heart_nexttime",
+      "chapter": "ch12",
       "where": "第十一章《十里长亭》",
       "label": "她说「下次」，你听到的是"
     }

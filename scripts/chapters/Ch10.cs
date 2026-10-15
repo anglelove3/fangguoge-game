@@ -2,21 +2,27 @@ using Godot;
 using System.Collections.Generic;
 
 /// <summary>
-/// 第十章：向南
+/// 第九章：置顶
 ///
-/// 流程（五幕，一天 + 前夜）：
-///   第 1 幕 周六夜·宿舍 —— 她那句「出门全靠走」→ why 三选（告知 / 套话 / 保密）
-///                          → 收拾行装（充电器 / 雨衣）→ 心声 → 睡
-///   第 2 幕 周日清晨·国道 —— RideTrack 滚行启动 → 早点摊一碗面 → 电量节点（charge1：稳 / 赌）
-///   第 3 幕 中午·充电小店 —— 老板、火腿肠、她的消息（按 why 线分流）→ 心声 → 出店
-///   第 4 幕 下午·雨 —— rain 三选（继续骑 / 桥洞等 / 先问她）→ 雨停 → 第三次充电（按 charge1 分流）
-///   第 5 幕 黄昏·临江 —— 路牌掠过 → 电量结算（A 骑到街口 / B 推 5km 坡道）→「我到了」→ 尾声
+/// 流程（五幕，跨一周）：
+///   第 1 幕 周一夜·宿舍 —— 群里催进展 → 长按她的会话【置顶】（玩家自己在微信里按）
+///                          → 心声：怎么跟自己解释 → 睡过这一晚
+///   第 2 幕 周三·实验室 —— 手机扣过去三次 → 三条消息回哪句（busy）
+///   第 3 幕 周四深夜      —— 她说「没事」→ 内心解读：这三个字怎么读（read，ReadCard 新机制）
+///                          → 论文被否第三版 / 想见 → 心声 → 睡
+///   第 4 幕 周六·河堤     —— 这一次他说了算（plan）→ 桥洞风铃 → 礼花筒终于拉响
+///                          （第八章塞过来的那枚，MarkItemUsed 落档）
+///   第 5 幕 周六夜·宿舍   —— 「今天很好。」→ 滑到底又滑回来，置顶的她还在最上面 → 尾声
 ///
-/// 【两个机制】
-///   1. 全程三线分层：why 的选择决定她"知不知道他要来"，之后每一段聊天消息
-///      都按 ch10_gate_{段落}_{线} 三份互斥钥匙放行——选哪条线，全程只看得见哪条线。
-///   2. 电量跨章联动：charge1 的选择一路连锁到第三次充电（B 线排队只充到 80%），
-///      最终决定黄昏"骑到街口"还是"推着车走完最后 5 公里"——联动到第十一章开场。
+/// 【这一章的两个"第一次"】
+///   1. 第一次内心解读（ReadCard）：选项不是三句话，而是三种"读法"——
+///      引用她的原话摆在上面，三种理解摆在下面，选完才说出对应的那句回复。
+///   2. 聊天记录第一次跨五天累积：本章的聊天消息全部走 gateChoice 幕门控
+///      （幕开始时 RecordGate 解锁），不走 LiveEvents——补投递只会追加在列表末尾，
+///      跟门控消息混排会在重载后乱序。"手机活了"用 GiveUnread 的小红点来演。
+///
+/// 【人物不写死在代码里】
+/// 置顶谁、开哪份聊天剧本、礼花筒是哪件物品、每一幕解锁哪把幕门——全部在 data/chapters/ch10.json。
 /// </summary>
 public partial class Ch10 : ChapterBase
 {
@@ -28,65 +34,69 @@ public partial class Ch10 : ChapterBase
     {
         public string JieContact { get; set; } = "";
         public string JieChat { get; set; } = "";
-        public string ScooterSfx { get; set; } = "";
-        public string GatePrefix { get; set; } = "ch10_gate_";
+        public string GroupContact { get; set; } = "";
+        public string GroupChat { get; set; } = "";
+        public string PopperItem { get; set; } = "";
         public Dictionary<string, string> Gates { get; set; } = new();
     }
 
     private ChapterConfig cfg = new();
 
-    /// <summary>why 选择 0/1/2 → 线字符 a/b/c（聊天分层钥匙的一部分）</summary>
-    private static string LineChar(int whyIndex) => "abc"[Mathf.Clamp(whyIndex, 0, 2)].ToString();
-
-    /// <summary>解锁一把"段落+线"组合钥匙：这一段的聊天里，只有玩家选中的那条线会渲染</summary>
-    private void UnlockLineGate(string seg)
+    /// <summary>
+    /// 解锁一幕的聊天幕门：这幕开始时记一次选择，聊天里带这把钥匙的消息从此可见。
+    /// （不真记进"选择回顾"——选项回顾只收 ShowChoice / 心声的正式选择。）
+    /// </summary>
+    private void RecordGate(string slot)
     {
-        RecordChoice($"{cfg.GatePrefix}{seg}_{LineChar(whyIndex)}", 0);
-    }
-
-    /// <summary>解锁共通段钥匙（eve 段：她的到家消息不分线）</summary>
-    private void UnlockGate(string key)
-    {
-        if (cfg.Gates != null && cfg.Gates.TryGetValue(key, out var v) && !string.IsNullOrEmpty(v))
-            RecordChoice(v, 0);
+        if (cfg.Gates != null && cfg.Gates.TryGetValue(slot, out var key) && !string.IsNullOrEmpty(key))
+            RecordChoice(key, 0);
     }
 
     // ==================== 节点 ====================
 
     private TextureRect bgDorm;
-    private TextureRect bgShop;
-    private RideTrack ride;
+    private TextureRect bgLab;
+    private TextureRect bgRiver;
 
     private Control hotspotsRoot;
     private Control flavorDorm;
-    private Control flavorShop;
+    private Control flavorLab;
+    private Control flavorRiver;
     private Label hintLabel;
 
+    // 宿舍（第 1 / 3 / 5 幕共用一间）
     private Button phoneBtn;
     private Button bedBtn;
-    private Button chargerBtn;
-    private Button raincoatBtn;
-    private Button shopPhoneBtn;
-    private Button shopExitBtn;
+    // 实验室（第 2 幕）
+    private Button labPhoneBtn;
+    private Button labExitBtn;
+    // 河堤（第 4 幕）
+    private Button bridgeBtn;
 
     private Control phoneGlow;
     private Control bedGlow;
-    private Control chargerGlow;
-    private Control raincoatGlow;
-    private Control shopPhoneGlow;
-    private Control shopExitGlow;
+    private Control labPhoneGlow;
+    private Control labExitGlow;
+    private Control bridgeGlow;
+
+    private AudioStreamPlayer windPlayer; // 河堤的风：进第 4 幕淡入，回宿舍淡出
 
     // ==================== 进度 ====================
 
-    private enum Phase { Eve, Road1, Shop, Road2, Road3 }
-    private Phase phase = Phase.Eve;
+    private enum Phase { Dorm1, Lab, Night2, River, Night3 }
+    private Phase phase = Phase.Dorm1;
 
-    private int whyIndex = -1;       // 第 1 幕：她知不知道（0 告知 / 1 套话 / 2 保密）
-    private int packed;              // 第 1 幕：行装点了几件（0~2）
-    private int chargeIndex = -1;    // 第 2 幕：电量选择（0 稳 / 1 赌）
-    private bool shopMsgDone;        // 第 3 幕：她的消息看过了
-    private int rainIndex = -1;      // 第 4 幕：雨的选择
-    private bool finished;           // 尾声播放中
+    private bool phoneArmed;     // 第 1 幕：那段"点开手机"的引导只演一次
+    private bool pinDone;        // 第 1 幕：玩家真的把她置顶了（pin 演完）
+    private bool labOpenPlayed;  // 第 2 幕：翻手机前的引导只演一次
+    private bool busyChosen;     // 第 2 幕：三条消息已经回了
+    private bool labDone;        // 第 2 幕：收尾演完，门开了
+    private bool night2OpenPlayed; // 第 3 幕：翻手机前的引导只演一次
+    private bool readChosen;     // 第 3 幕：「没事」已经读过了
+    private int readIndex;       // 第 3 幕：读成了哪一种（0/1/2，河堤开场跟着变）
+    private bool planChosen;     // 第 4 幕：去哪儿已经定了
+    private bool popperDone;     // 第 4 幕：礼花筒拉过了
+    private bool finished;       // 尾声播放中
 
     private ulong lastActivityMsec;
     private const ulong IdleHintDelayMsec = 12000;
@@ -95,67 +105,77 @@ public partial class Ch10 : ChapterBase
 
     protected override void OnChapterReady()
     {
-        GD.Print("第十章：向南 —— 389 公里");
+        GD.Print("第九章：置顶 —— 一抬头就能看见");
 
         cfg = DataStore.LoadJson<ChapterConfig>("res://data/chapters/ch10.json") ?? new ChapterConfig();
 
         AudioManager.Instance?.PlayBgm(AudioManager.BgmGym1, -16f, 1.5f);
 
         bgDorm = GetNode<TextureRect>("Background");
-        bgShop = GetNode<TextureRect>("ShopLayer");
-        ride = GetNode<RideTrack>("RideTrack");
+        bgLab = GetNode<TextureRect>("Lab");
+        bgRiver = GetNode<TextureRect>("River");
 
         hotspotsRoot = GetNode<Control>("Hotspots");
         hintLabel = GetNode<Label>("HintLabel");
 
         phoneBtn = GetNode<Button>("Hotspots/PhoneBtn");
         bedBtn = GetNode<Button>("Hotspots/BedBtn");
-        chargerBtn = GetNode<Button>("Hotspots/ChargerBtn");
-        raincoatBtn = GetNode<Button>("Hotspots/RaincoatBtn");
-        shopPhoneBtn = GetNode<Button>("Hotspots/ShopPhoneBtn");
-        shopExitBtn = GetNode<Button>("Hotspots/ShopExitBtn");
+        labPhoneBtn = GetNode<Button>("Hotspots/LabPhoneBtn");
+        labExitBtn = GetNode<Button>("Hotspots/LabExitBtn");
+        bridgeBtn = GetNode<Button>("Hotspots/BridgeBtn");
 
-        phoneBtn.Pressed += OnPhonePressed;
+        phoneBtn.Pressed += OnDormPhonePressed;
         bedBtn.Pressed += OnBedPressed;
-        chargerBtn.Pressed += OnChargerPressed;
-        raincoatBtn.Pressed += OnRaincoatPressed;
-        shopPhoneBtn.Pressed += OnShopPhonePressed;
-        shopExitBtn.Pressed += OnShopExitPressed;
+        labPhoneBtn.Pressed += OnLabPhonePressed;
+        labExitBtn.Pressed += OnLabExitPressed;
+        bridgeBtn.Pressed += OnBridgePressed;
 
         phoneGlow = HotspotGlow.Attach(phoneBtn);
         bedGlow = HotspotGlow.Attach(bedBtn);
-        chargerGlow = HotspotGlow.Attach(chargerBtn);
-        raincoatGlow = HotspotGlow.Attach(raincoatBtn);
-        shopPhoneGlow = HotspotGlow.Attach(shopPhoneBtn);
-        shopExitGlow = HotspotGlow.Attach(shopExitBtn);
+        labPhoneGlow = HotspotGlow.Attach(labPhoneBtn);
+        labExitGlow = HotspotGlow.Attach(labExitBtn);
+        bridgeGlow = HotspotGlow.Attach(bridgeBtn);
 
-        // 热点位置按"美术图比例"登记
-        ArtAnchor.TrackFraction(phoneBtn, new Rect2(0.902f, 0.859f, 0.094f, 0.086f)); // 桌上手机
+        // 热点位置按"美术图比例"登记（背景 cover 缩放时也跟着贴在原处）
+        ArtAnchor.TrackFraction(phoneBtn, new Rect2(0.902f, 0.859f, 0.094f, 0.086f)); // 桌上那台手机
         ArtAnchor.TrackFraction(bedBtn, new Rect2(0.44f, 0.10f, 0.26f, 0.10f));       // 上铺
-        ArtAnchor.TrackFraction(chargerBtn, new Rect2(0.06f, 0.58f, 0.14f, 0.10f));   // 桌上的充电器
-        ArtAnchor.TrackFraction(raincoatBtn, new Rect2(0.08f, 0.75f, 0.14f, 0.12f));  // 门后的雨衣
-        ArtAnchor.TrackFraction(shopPhoneBtn, new Rect2(0.544f, 0.771f, 0.095f, 0.098f));
-        ArtAnchor.TrackFraction(shopExitBtn, new Rect2(0.05f, 0.40f, 0.10f, 0.24f));  // 店门口的路
+        ArtAnchor.TrackFraction(labPhoneBtn, new Rect2(0.544f, 0.771f, 0.095f, 0.098f));
+        ArtAnchor.TrackFraction(labExitBtn, new Rect2(0.708f, 0.40f, 0.06f, 0.19f));   // 实验室的门
+        ArtAnchor.TrackFraction(bridgeBtn, new Rect2(0.70f, 0.28f, 0.18f, 0.30f));     // 桥洞那边
 
-        // "点万物有回应"：宿舍 / 小店各一层
+        // "点万物有回应"：三个场景各一套，跟着幕开关
         flavorDorm = MakeFlavorLayer("ch10_dorm");
-        flavorShop = MakeFlavorLayer("ch10_shop");
+        flavorLab = MakeFlavorLayer("ch10_lab");
+        flavorRiver = MakeFlavorLayer("ch10_river");
 
-        // 骑行层：底图 + 电机声先备好（层默认隐藏）
-        ride.SetBackground(GD.Load<Texture2D>("res://assets/art/backgrounds/road_v1.png"));
-        if (!string.IsNullOrEmpty(cfg.ScooterSfx))
-            ride.SetEngineStream(GD.Load<AudioStream>(cfg.ScooterSfx));
+        // "手机活起来"：两台手机都挂小红点（本章没有动态事件，只有未读数）
+        LiveEvents.AttachPhoneDot(phoneBtn);
+        LiveEvents.AttachPhoneDot(labPhoneBtn);
+
+        // 河堤的风：程序生成的无缝循环（沿用婚宴人声那套写法）
+        windPlayer = new AudioStreamPlayer { VolumeDb = -60f };
+        var windStream = GD.Load<AudioStream>(AudioManager.SfxRiverWindLoop);
+        if (windStream is AudioStreamWav wav)
+        {
+            wav.LoopMode = AudioStreamWav.LoopModeEnum.Forward;
+            wav.LoopBegin = 0;
+            wav.LoopEnd = wav.Data.Length / (wav.Stereo ? 4 : 2);
+        }
+        windPlayer.Stream = windStream;
+        AddChild(windPlayer);
 
         UiSounds.WireAll(this);
 
-        // 第 1 幕用章节主时刻（1 月 17 日 周六 21:40）
+        // 第 1 幕用章节主时刻（11 月 3 日 周一 22:15），时段先清干净
         StoryClock.ClearSegment();
 
+        // 开场只留宿舍这一层：手机先亮着，置顶完了床才出现
         hotspotsRoot.Visible = false;
         hintLabel.Visible = false;
         HideAllHotspots();
         phoneBtn.Visible = true;
-        flavorShop.Visible = false;
+        flavorLab.Visible = false;
+        flavorRiver.Visible = false;
 
         var tween = CreateTween();
         tween.SetParallel(true);
@@ -165,25 +185,29 @@ public partial class Ch10 : ChapterBase
         DialogueManager.Instance.PlaySequence(ChapterId, "intro", OnIntroFinished);
     }
 
+    /// <summary>建一层风味热点（"点万物有回应"），挂到 Hotspots 下面</summary>
     private Control MakeFlavorLayer(string flavorId)
     {
         var layer = new Control { MouseFilter = Control.MouseFilterEnum.Ignore };
         layer.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
         hotspotsRoot.AddChild(layer);
+        // 风味层垫到最底下：剧情主热区永远优先接住点击（和第七 / 八章同一条规矩）
         hotspotsRoot.MoveChild(layer, 0);
         AddChild(FlavorSpots.Create(layer, flavorId));
         return layer;
     }
 
+    /// <summary>换幕之前先把上一幕的热点全收掉</summary>
     private void HideAllHotspots()
     {
-        foreach (var btn in new[] { phoneBtn, bedBtn, chargerBtn, raincoatBtn, shopPhoneBtn, shopExitBtn })
+        foreach (var btn in new[] { phoneBtn, bedBtn, labPhoneBtn, labExitBtn, bridgeBtn })
         {
             if (btn != null)
                 btn.Visible = false;
         }
     }
 
+    /// <summary>出了这一章，章内时段作废</summary>
     public override void _ExitTree()
     {
         StoryClock.ClearSegment();
@@ -191,6 +215,7 @@ public partial class Ch10 : ChapterBase
 
     // ==================== 发呆提示 ====================
 
+    /// <summary>发呆 12 秒 → 当前这一幕"还没点的地方"轻轻呼吸</summary>
     public override void _Process(double delta)
     {
         var dm = DialogueManager.Instance;
@@ -216,25 +241,34 @@ public partial class Ch10 : ChapterBase
         }
     }
 
+    /// <summary>这一幕里"还该点、还没点完"的地方（发呆时挨个眨一下光）</summary>
     private List<Control> PendingSpots()
     {
         var list = new List<Control>();
         switch (phase)
         {
-            case Phase.Eve:
-                if (whyIndex < 0) break; // why 选项正摆在屏幕上
-                if (packed < 2)
-                {
-                    Add(list, chargerGlow);
-                    Add(list, raincoatGlow);
-                }
-                else
-                    Add(list, bedGlow);
+            case Phase.Dorm1:
+                if (!pinDone) Add(list, phoneGlow);
+                else Add(list, bedGlow);
                 break;
 
-            case Phase.Shop:
-                if (!shopMsgDone) Add(list, shopPhoneGlow);
-                else Add(list, shopExitGlow);
+            case Phase.Lab:
+                if (!labDone) Add(list, labPhoneGlow);
+                else Add(list, labExitGlow);
+                break;
+
+            case Phase.Night2:
+                if (!readChosen) Add(list, phoneGlow);
+                else Add(list, bedGlow);
+                break;
+
+            case Phase.River:
+                if (planChosen && !popperDone) Add(list, bridgeGlow);
+                break;
+
+            case Phase.Night3:
+                Add(list, phoneGlow);
+                Add(list, bedGlow);
                 break;
         }
         return list;
@@ -252,14 +286,14 @@ public partial class Ch10 : ChapterBase
     {
         hotspotsRoot.Visible = true;
         flavorDorm.Visible = true;
+        hintLabel.Visible = true;
         lastActivityMsec = Time.GetTicksMsec();
+        UpdateHint();
 
-        // 她到家的消息解锁（共通段），小红点亮起来
-        UnlockGate("eve");
-        LiveEvents.GiveUnread(cfg.JieContact, 2);
-
-        // 为什么去 / 怎么回——第十章的第一个选择，直接摊开
-        DialogueManager.Instance.ShowChoice(ChapterId, "why", OnWhyChosen);
+        // 解锁周一晚的聊天（她的围巾消息 + 群里的起哄），小红点跟着亮
+        RecordGate("dorm1");
+        LiveEvents.GiveUnread(cfg.JieContact, 1);
+        LiveEvents.GiveUnread(cfg.GroupContact, 3);
     }
 
     private void UpdateHint()
@@ -272,23 +306,29 @@ public partial class Ch10 : ChapterBase
 
         switch (phase)
         {
-            case Phase.Eve:
-                if (whyIndex < 0)
-                    ShowHint("hint.ch10_pack");
-                else if (packed < 2)
-                    ShowHint("hint.ch10_pack");
+            case Phase.Dorm1:
+                ShowHint(pinDone ? "hint.ch10_pin_done" : "hint.ch10_phone");
+                return;
+
+            case Phase.Lab:
+                ShowHint(labDone ? "hint.ch10_lab_done" : "hint.ch10_lab");
+                return;
+
+            case Phase.Night2:
+                if (readChosen)
+                    ShowHint("hint.ch10_night_done");
+                else if (night2OpenPlayed)
+                    hintLabel.Visible = false; // 「没事」的三种读法正摆在屏幕上
                 else
-                    ShowHint("hint.ch10_pack_done");
+                    ShowHint("hint.ch10_night");
                 return;
 
-            case Phase.Shop:
-                ShowHint(shopMsgDone ? "hint.ch10_shop_done" : "hint.ch10_shop");
+            case Phase.River:
+                ShowHint(planChosen && !popperDone ? "hint.ch10_river_done" : "hint.ch10_river");
                 return;
 
-            case Phase.Road1:
-            case Phase.Road2:
-            case Phase.Road3:
-                hintLabel.Visible = false; // 路上不提示——路牌就是提示
+            case Phase.Night3:
+                ShowHint("hint.ch10_night3");
                 return;
         }
 
@@ -303,6 +343,10 @@ public partial class Ch10 : ChapterBase
 
     // ==================== 手机 ====================
 
+    /// <summary>
+    /// 掏手机。chatId 传空 = 落在锁屏（自己解锁、自己翻进微信）；
+    /// 传会话名 = 直接进那个会话。onClose 是"放下手机之后要做的事"。
+    /// </summary>
     private void OpenPhone(string chatId, System.Action onClose)
     {
         var overlay = GD.Load<PackedScene>("res://scenes/ui/chat/chat_overlay.tscn")
@@ -316,328 +360,366 @@ public partial class Ch10 : ChapterBase
         overlay.Open(chatId);
     }
 
-    // ==================== 第 1 幕：周六夜，决定 ====================
+    // ==================== 第 1 幕：周一夜，置顶 ====================
 
-    /// <summary>宿舍的手机是"随便翻"的：她到家的消息已经解锁，翻完放回来就行</summary>
-    private void OnPhonePressed()
+    private void OnDormPhonePressed()
     {
+        // 第 3 幕（深夜「没事」）有自己的引导和收尾，先分出去
+        if (phase == Phase.Night2)
+        {
+            OnNight2PhonePressed();
+            return;
+        }
+
         var dm = DialogueManager.Instance;
         if (dm == null || dm.IsBusy || dm.IsUiSuppressed || finished)
             return;
 
         Sparkle(phoneBtn);
+
+        // 第 1 幕：先演"点开手机"的引导，再让玩家自己翻进微信去长按置顶
+        if (phase == Phase.Dorm1)
+        {
+            if (!phoneArmed)
+            {
+                phoneArmed = true;
+                UpdateHint(); // 引导要演了，先把"长按它"的提示收掉
+                dm.PlaySequence(ChapterId, "open_phone", () => OpenPhone("", EvaluateDorm1));
+                return;
+            }
+
+            OpenPhone("", EvaluateDorm1);
+            return;
+        }
+
+        // 第 5 幕：手机是"随便翻"的（置顶的她钉在最上面，五天的记录都在）
         OpenPhone("", null);
     }
 
-    private void OnWhyChosen(int index)
+    /// <summary>放下手机：她真的被置顶了吗？置顶了才放行去睡觉。</summary>
+    private void EvaluateDorm1()
     {
-        whyIndex = index;
-        DialogueManager.Instance.PlaySequence(ChapterId, $"why_{index}", () =>
-        {
-            DialogueManager.Instance.PlaySequence(ChapterId, "pack_intro", () =>
-            {
-                chargerBtn.Visible = true;
-                raincoatBtn.Visible = true;
-                UpdateHint();
-            });
-        });
-    }
-
-    private void OnChargerPressed()
-    {
-        var dm = DialogueManager.Instance;
-        if (dm == null || dm.IsBusy || dm.IsUiSuppressed || finished || chargerBtn.Visible == false)
-            return;
-
-        Sparkle(chargerBtn);
-        if (chargerBtn.HasMeta("packed"))
-            return;
-        chargerBtn.SetMeta("packed", 1);
-        packed++;
-        hintLabel.Visible = false;
-        dm.PlaySequence(ChapterId, "pack_charger", PackedStep);
-    }
-
-    private void OnRaincoatPressed()
-    {
-        var dm = DialogueManager.Instance;
-        if (dm == null || dm.IsBusy || dm.IsUiSuppressed || finished || raincoatBtn.Visible == false)
-            return;
-
-        Sparkle(raincoatBtn);
-        if (raincoatBtn.HasMeta("packed"))
-            return;
-        raincoatBtn.SetMeta("packed", 1);
-        packed++;
-        hintLabel.Visible = false;
-        dm.PlaySequence(ChapterId, "pack_raincoat", PackedStep);
-    }
-
-    private void PackedStep()
-    {
-        if (packed >= 2)
-        {
-            bedBtn.Visible = true;
-            UpdateHint();
-        }
-        else
-        {
-            lastActivityMsec = Time.GetTicksMsec();
-        }
-    }
-
-    private void OnBedPressed()
-    {
-        var dm = DialogueManager.Instance;
-        if (dm == null || dm.IsBusy || dm.IsUiSuppressed || finished)
-            return;
-        if (phase != Phase.Eve || whyIndex < 0 || packed < 2)
-            return;
-
-        bedBtn.Visible = false;
-        chargerBtn.Visible = false;
-        raincoatBtn.Visible = false;
-
-        // decide 心声挂在 decide 序列里（heartChoice）
-        dm.PlaySequence(ChapterId, "decide", () =>
-        {
-            dm.PlaySequence(ChapterId, "sleep", StartRoad1);
-        });
-    }
-
-    // ==================== 第 2 幕：清晨，国道 ====================
-
-    private void StartRoad1()
-    {
-        phase = Phase.Road1;
-        hotspotsRoot.Visible = false;
-        flavorDorm.Visible = false;
-        hintLabel.Visible = false;
-
-        // 骑行层上场：清晨天光 + 出发（公路 BGM 接班，宿舍那首 Gymnopédie 交出去）
-        bgDorm.Modulate = new Color(1, 1, 1, 0);
-        ride.Visible = true;
-        ride.SetTint("morning");
-        ride.Start();
-        ride.AddSign("G205 往南", 1.2f);
-        AudioManager.Instance?.PlayBgm(AudioManager.BgmRoad, -13f, 2.5f);
-
-        StoryClock.UseSegment("road_morning");
-
-        var dm = DialogueManager.Instance;
-        dm.PlaySequence(ChapterId, "road1_arrive", () =>
-        {
-            // 清晨段的聊天解锁（她的叮嘱 / 起哄 / 日常——按线）
-            UnlockLineGate("road1");
-            LiveEvents.GiveUnread(cfg.JieContact, 2);
-
-            dm.PlaySequence(ChapterId, "road1_ride", () =>
-            {
-                ride.SetBattery(58f);
-                ride.PauseForChoice();
-                dm.ShowChoice(ChapterId, "charge1", OnCharge1Chosen);
-            });
-        });
-    }
-
-    private void OnCharge1Chosen(int index)
-    {
-        chargeIndex = index;
-        var dm = DialogueManager.Instance;
-
-        // B 线（赌）途中电量报警演出
-        if (index == 1)
-            ride.SetBattery(10f, "电量低");
-
-        dm.PlaySequence(ChapterId, $"charge1_{index}", () =>
-        {
-            ride.Resume();
-            ride.SetBattery(index == 0 ? 100f : 18f);
-
-            dm.PlaySequence(ChapterId, "road1_end", StartShop);
-        });
-    }
-
-    // ==================== 第 3 幕：中午，充电小店 ====================
-
-    private void StartShop()
-    {
-        phase = Phase.Shop;
-        hotspotsRoot.Visible = false;
-        hintLabel.Visible = false;
-
-        // 停车进店：滚行层让位，小店背景淡入
-        ride.Stop();
-        ride.HideBattery();
-        ride.Visible = false;
-        CrossfadeTo(bgShop, 1.0f);
-
-        StoryClock.UseSegment("road_noon");
-
-        var dm = DialogueManager.Instance;
-        dm.PlaySequence(ChapterId, $"shop_arrive_{chargeIndex}", () =>
-        {
-            hotspotsRoot.Visible = true;
-            flavorShop.Visible = true;
-            shopPhoneBtn.Visible = true;
-            lastActivityMsec = Time.GetTicksMsec();
-
-            // 中午段的聊天解锁
-            UnlockLineGate("shop");
-            LiveEvents.GiveUnread(cfg.JieContact, 3);
-
-            UpdateHint();
-        });
-    }
-
-    private void OnShopPhonePressed()
-    {
-        var dm = DialogueManager.Instance;
-        if (dm == null || dm.IsBusy || dm.IsUiSuppressed || finished || phase != Phase.Shop || shopMsgDone)
-            return;
-
-        Sparkle(shopPhoneBtn);
-        shopMsgDone = true;
-        hintLabel.Visible = false;
-        OpenPhone(cfg.JieChat, OnShopChatClosed);
-    }
-
-    private void OnShopChatClosed()
-    {
-        if (!GodotObject.IsInstanceValid(this) || !shopMsgDone)
+        if (!GodotObject.IsInstanceValid(this) || pinDone)
             return;
 
         var dm = DialogueManager.Instance;
         if (dm == null || dm.IsBusy)
             return;
 
-        // 她的消息按 why 线在聊天里看过了；这里补他的反应 + 心声
-        dm.PlaySequence(ChapterId, $"shop_msg_{whyIndex}", () =>
+        if (!GameManager.Instance.IsPinned(cfg.JieContact))
         {
-            dm.PlaySequence(ChapterId, "noodle", () =>
+            UpdateHint();
+            return;
+        }
+
+        pinDone = true;
+        hintLabel.Visible = false;
+        dm.PlaySequence(ChapterId, "pin_done", () =>
+        {
+            // pin_intro 里挂着心声微选择（heartChoice），选完分支对白播完才会走到这里
+            dm.PlaySequence(ChapterId, "pin_intro", () =>
             {
-                dm.PlaySequence(ChapterId, "shop_end", () =>
+                bedBtn.Visible = true;
+                UpdateHint();
+            });
+        });
+    }
+
+    /// <summary>上铺：这一觉睡过去，就是下一幕</summary>
+    private void OnBedPressed()
+    {
+        var dm = DialogueManager.Instance;
+        if (dm == null || dm.IsBusy || dm.IsUiSuppressed || finished)
+            return;
+
+        switch (phase)
+        {
+            case Phase.Dorm1 when pinDone:
+                bedBtn.Visible = false;
+                dm.PlaySequence(ChapterId, "sleep1", StartLab);
+                break;
+
+            case Phase.Night2 when readChosen:
+                bedBtn.Visible = false;
+                StartRiver();
+                break;
+
+            case Phase.Night3:
+                bedBtn.Visible = false;
+                phoneBtn.Visible = false;
+                PlayOutro();
+                break;
+        }
+    }
+
+    // ==================== 第 2 幕：周三，实验室 ====================
+
+    private void StartLab()
+    {
+        hotspotsRoot.Visible = false;
+        hintLabel.Visible = false;
+        CrossfadeTo(bgLab, 1.1f);
+        StoryClock.UseSegment("lab");
+        DialogueManager.Instance.PlaySequence(ChapterId, "lab_arrive", EnterLab);
+    }
+
+    private void EnterLab()
+    {
+        phase = Phase.Lab;
+        HideAllHotspots();
+        flavorDorm.Visible = false;
+        flavorLab.Visible = true;
+        hotspotsRoot.Visible = true;
+        labPhoneBtn.Visible = true;
+        lastActivityMsec = Time.GetTicksMsec();
+        UpdateHint();
+
+        // 解锁周三下午的聊天：她连发三条 + 群里热闹
+        RecordGate("lab");
+        LiveEvents.GiveUnread(cfg.JieContact, 3);
+        LiveEvents.GiveUnread(cfg.GroupContact, 3);
+    }
+
+    private void OnLabPhonePressed()
+    {
+        var dm = DialogueManager.Instance;
+        if (dm == null || dm.IsBusy || dm.IsUiSuppressed || finished || phase != Phase.Lab)
+            return;
+
+        Sparkle(labPhoneBtn);
+
+        if (!labOpenPlayed)
+        {
+            labOpenPlayed = true;
+            UpdateHint();
+            dm.PlaySequence(ChapterId, "lab_open", () => OpenPhone(cfg.JieChat, OnLabChatClosed));
+            return;
+        }
+
+        OpenPhone(cfg.JieChat, OnLabChatClosed);
+    }
+
+    /// <summary>放下手机：三条消息在等，第一句回什么</summary>
+    private void OnLabChatClosed()
+    {
+        if (!GodotObject.IsInstanceValid(this) || busyChosen)
+            return;
+
+        var dm = DialogueManager.Instance;
+        if (dm == null || dm.IsBusy)
+            return;
+
+        busyChosen = true;
+        hintLabel.Visible = false;
+        dm.ShowChoice(ChapterId, "busy", OnBusyChosen);
+    }
+
+    private void OnBusyChosen(int index)
+    {
+        DialogueManager.Instance.PlaySequence(ChapterId, $"busy_{index}", () =>
+        {
+            labDone = true;
+            DialogueManager.Instance.PlaySequence(ChapterId, "lab_end", () =>
+            {
+                labExitBtn.Visible = true;
+                UpdateHint();
+            });
+        });
+    }
+
+    private void OnLabExitPressed()
+    {
+        var dm = DialogueManager.Instance;
+        if (dm == null || dm.IsBusy || dm.IsUiSuppressed || finished)
+            return;
+        if (phase != Phase.Lab || !labDone)
+            return;
+
+        Sparkle(labExitBtn);
+        StartNight2();
+    }
+
+    // ==================== 第 3 幕：周四深夜，「没事」 ====================
+
+    private void StartNight2()
+    {
+        hotspotsRoot.Visible = false;
+        hintLabel.Visible = false;
+        DipTo(bgDorm);
+        StoryClock.UseSegment("night2");
+        AudioManager.Instance?.PlayBgm(AudioManager.BgmGym3, -16f, 2.0f); // 夜里私聊那首
+        DialogueManager.Instance.PlaySequence(ChapterId, "night2_arrive", EnterNight2);
+    }
+
+    private void EnterNight2()
+    {
+        phase = Phase.Night2;
+        HideAllHotspots();
+        flavorLab.Visible = false;
+        flavorDorm.Visible = true;
+        hotspotsRoot.Visible = true;
+        phoneBtn.Visible = true;
+        lastActivityMsec = Time.GetTicksMsec();
+        UpdateHint();
+
+        // 解锁周四深夜的聊天：她那句「在吗」「没事」 + 群里约周六
+        RecordGate("night2");
+        LiveEvents.GiveUnread(cfg.JieContact, 2);
+        LiveEvents.GiveUnread(cfg.GroupContact, 2);
+    }
+
+    private void OnNight2PhonePressed()
+    {
+        var dm = DialogueManager.Instance;
+        if (dm == null || dm.IsBusy || dm.IsUiSuppressed || finished || phase != Phase.Night2 || readChosen)
+            return;
+
+        Sparkle(phoneBtn);
+
+        if (!night2OpenPlayed)
+        {
+            night2OpenPlayed = true;
+            UpdateHint();
+            dm.PlaySequence(ChapterId, "night2_open", () => OpenPhone(cfg.JieChat, OnNight2ChatClosed));
+            return;
+        }
+
+        OpenPhone(cfg.JieChat, OnNight2ChatClosed);
+    }
+
+    /// <summary>放下手机：深夜的「没事」，怎么读？（内心解读：ReadCard）</summary>
+    private void OnNight2ChatClosed()
+    {
+        if (!GodotObject.IsInstanceValid(this) || readChosen)
+            return;
+
+        var dm = DialogueManager.Instance;
+        if (dm == null || dm.IsBusy)
+            return;
+
+        readChosen = true;
+        hintLabel.Visible = false;
+        dm.ShowChoice(ChapterId, "read", OnReadChosen);
+    }
+
+    private void OnReadChosen(int index)
+    {
+        readIndex = index;
+        DialogueManager.Instance.PlaySequence(ChapterId, $"read_{index}", () =>
+        {
+            // late_intro 里挂着心声微选择
+            DialogueManager.Instance.PlaySequence(ChapterId, "late_intro", () =>
+            {
+                DialogueManager.Instance.PlaySequence(ChapterId, "night2_end", () =>
                 {
-                    shopExitBtn.Visible = true;
+                    bedBtn.Visible = true;
                     UpdateHint();
                 });
             });
         });
     }
 
-    private void OnShopExitPressed()
-    {
-        var dm = DialogueManager.Instance;
-        if (dm == null || dm.IsBusy || dm.IsUiSuppressed || finished)
-            return;
-        if (phase != Phase.Shop || !shopMsgDone)
-            return;
+    // ==================== 第 4 幕：周六，河堤 ====================
 
-        Sparkle(shopExitBtn);
-        StartRoad2();
+    private void StartRiver()
+    {
+        hotspotsRoot.Visible = false;
+        hintLabel.Visible = false;
+        CrossfadeTo(bgRiver, 1.4f);
+        StoryClock.UseSegment("riverside");
+        AudioManager.Instance?.PlayBgm(AudioManager.BgmGym2, -15f, 2.5f);
+        FadeWind(-14f, 2.2f);
+        DialogueManager.Instance.PlaySequence(ChapterId, $"riverside_arrive_{readIndex}", PlayPlanIntro);
     }
 
-    // ==================== 第 4 幕：下午，雨 ====================
-
-    private void StartRoad2()
+    private void PlayPlanIntro()
     {
-        phase = Phase.Road2;
-        hotspotsRoot.Visible = false;
-        flavorShop.Visible = false;
+        phase = Phase.River;
+        HideAllHotspots();
+        flavorDorm.Visible = false;
+        flavorRiver.Visible = true;
+        hotspotsRoot.Visible = true;
+        lastActivityMsec = Time.GetTicksMsec();
+        UpdateHint();
+
+        // 这一次，他说了算——三张牌正摊在屏幕上，不用再提示
         hintLabel.Visible = false;
-
-        // 回到公路：雨来
-        bgShop.Modulate = new Color(1, 1, 1, 0);
-        ride.Visible = true;
-        ride.SetTint("rain");
-        ride.SetRain(true);
-        ride.SetBattery(chargeIndex == 0 ? 88f : 62f);
-        ride.Start();
-
-        StoryClock.UseSegment("road_rain");
-
-        var dm = DialogueManager.Instance;
-        dm.PlaySequence(ChapterId, "rain_arrive", () =>
+        DialogueManager.Instance.PlaySequence(ChapterId, "plan_intro", () =>
         {
-            UnlockLineGate("rain");
-            LiveEvents.GiveUnread(cfg.JieContact, 2);
-
-            ride.PauseForChoice();
-            dm.ShowChoice(ChapterId, "rain", OnRainChosen);
+            DialogueManager.Instance.ShowChoice(ChapterId, "plan", OnPlanChosen);
         });
     }
 
-    private void OnRainChosen(int index)
+    private void OnPlanChosen(int index)
     {
-        rainIndex = index;
-        var dm = DialogueManager.Instance;
-
-        dm.PlaySequence(ChapterId, $"rain_{index}", () =>
+        planChosen = true;
+        DialogueManager.Instance.PlaySequence(ChapterId, $"plan_{index}", () =>
         {
-            // 雨停：第三次充电（按 charge1 分流：A 桩空即充 / B 排队只到 80%）
-            ride.Resume();
-            ride.SetRain(false);
-            ride.SetTint("noon");
-
-            dm.PlaySequence(ChapterId, "rain_end", () =>
+            DialogueManager.Instance.PlaySequence(ChapterId, "riverside_walk", () =>
             {
-                ride.PauseForChoice();
-                dm.PlaySequence(ChapterId, $"charge3_{chargeIndex}", () =>
-                {
-                    ride.Resume();
-                    ride.SetBattery(chargeIndex == 0 ? 100f : 80f);
+                bridgeBtn.Visible = true;
+                UpdateHint();
+            });
+        });
+    }
 
-                    // burn 心声：雨停了，天边烧起来
-                    dm.PlaySequence(ChapterId, "burn", StartRoad3);
+    /// <summary>桥洞：风铃在这儿响。兜里那枚礼花筒，该拿出来了</summary>
+    private void OnBridgePressed()
+    {
+        var dm = DialogueManager.Instance;
+        if (dm == null || dm.IsBusy || dm.IsUiSuppressed || finished || popperDone || !planChosen)
+            return;
+
+        popperDone = true;
+        Sparkle(bridgeBtn);
+        hintLabel.Visible = false;
+
+        dm.PlaySequence(ChapterId, "popper_draw", () =>
+        {
+            // 拉响！第八章喜糖盒里那枚礼花筒，在这里用掉（背包描述当场换成"用过的"）
+            AudioManager.Instance?.PlaySfx(AudioManager.SfxPartyPopper, -6f, 0.05f);
+            if (!string.IsNullOrEmpty(cfg.PopperItem))
+                GameManager.Instance.MarkItemUsed(cfg.PopperItem);
+
+            DialogueManager.Instance.PlaySequence(ChapterId, "popper_burst", () =>
+            {
+                // popper_intro 里挂着心声微选择
+                DialogueManager.Instance.PlaySequence(ChapterId, "popper_intro", () =>
+                {
+                    DialogueManager.Instance.PlaySequence(ChapterId, "popper_after", StartNight3);
                 });
             });
         });
     }
 
-    // ==================== 第 5 幕：黄昏，临江 ====================
+    // ==================== 第 5 幕：周六夜 ====================
 
-    private void StartRoad3()
+    private void StartNight3()
     {
-        phase = Phase.Road3;
         hotspotsRoot.Visible = false;
         hintLabel.Visible = false;
+        DipTo(bgDorm);
+        StoryClock.UseSegment("night3");
+        FadeWind(-60f, 1.6f); // 回到宿舍，风就留在河堤上了
+        AudioManager.Instance?.PlayBgm(AudioManager.BgmGym1, -15f, 2.0f);
+        DialogueManager.Instance.PlaySequence(ChapterId, "night3_arrive", EnterNight3);
+    }
 
-        ride.SetTint("dusk");
-        StoryClock.UseSegment("road_dusk");
+    private void EnterNight3()
+    {
+        phase = Phase.Night3;
+        HideAllHotspots();
+        flavorRiver.Visible = false;
+        flavorDorm.Visible = true;
+        hotspotsRoot.Visible = true;
+        phoneBtn.Visible = true;
+        bedBtn.Visible = true;
+        lastActivityMsec = Time.GetTicksMsec();
+        UpdateHint();
 
-        var dm = DialogueManager.Instance;
-
-        // 黄昏段的聊天解锁 + 到达路牌
-        UnlockLineGate("dusk");
-        LiveEvents.GiveUnread(cfg.JieContact, 2);
-
-        ride.AddSign("临江 20km", 0.8f, 1.1f);
-        ride.AddSign("临江 5km", 4.5f, 1.0f);
-
-        dm.PlaySequence(ChapterId, "dusk_arrive", () =>
-        {
-            // 电量结算：A 骑到街口 / B 推车 5km
-            if (chargeIndex == 1)
-                ride.SetBattery(8f, "电量耗尽");
-
-            dm.PlaySequence(ChapterId, $"empty_{chargeIndex}", () =>
-            {
-                // 到达段（按 why 线分流：A 她在路口等 / B「糖水铺怎么查到我们市」/ C 纯炸弹）
-                UnlockLineGate("arrive");
-                LiveEvents.GiveUnread(cfg.JieContact, 4);
-
-                ride.Stop(2.0f);
-                ride.HideBattery();
-
-                dm.PlaySequence(ChapterId, "arrive_intro", () =>
-                {
-                    dm.PlaySequence(ChapterId, $"arrive_{whyIndex}", () =>
-                    {
-                        dm.PlaySequence(ChapterId, "dusk_end", PlayOutro);
-                    });
-                });
-            });
-        });
+        // 解锁周六夜的最后两条：「今天很好。」+ 那个很轻的笑脸
+        RecordGate("night3");
+        LiveEvents.GiveUnread(cfg.JieContact, 1);
     }
 
     private void PlayOutro()
@@ -648,25 +730,56 @@ public partial class Ch10 : ChapterBase
         hotspotsRoot.Visible = false;
         hintLabel.Visible = false;
 
-        DialogueManager.Instance.PlaySequence(ChapterId, "outro", () =>
+        DialogueManager.Instance.PlaySequence(ChapterId, "scroll_show", () =>
         {
-            // r20：第十章尾声改接第十一章《十里长亭》（demo_end 改由第十一章尾声进入）
-            GoToNextChapter("res://scenes/chapters/ch11/ch11.tscn", 11);
+            DialogueManager.Instance.PlaySequence(ChapterId, "outro", () =>
+            {
+                // r19：第九章出口改接第十章《向南》（demo_end 改由第十章尾声进入）
+                GoToNextChapter("res://scenes/chapters/ch11/ch11.tscn", 10);
+            });
         });
     }
 
     // ==================== 小工具 ====================
 
+    /// <summary>点一下热点：星光 + 记一次"有动静"（发呆计时归零）</summary>
     private void Sparkle(Button btn)
     {
         lastActivityMsec = Time.GetTicksMsec();
         HotspotGlow.Sparkle(btn);
     }
 
+    /// <summary>把一张背景淡进来（盖在下面那层上面，往前走一幕用）</summary>
     private void CrossfadeTo(TextureRect layer, float seconds)
     {
         var tw = CreateTween();
         tw.TweenProperty(layer, "modulate:a", 1.0f, seconds)
             .SetTrans(Tween.TransitionType.Sine).SetEase(Tween.EaseType.InOut);
+    }
+
+    /// <summary>回宿舍（宿舍在最底下那层）：先把手上那层淡没，再淡进来——中间黑一下，就是"睡了一觉"</summary>
+    private void DipTo(TextureRect target)
+    {
+        var tw = CreateTween();
+        foreach (var bg in new[] { bgDorm, bgLab, bgRiver })
+        {
+            if (bg == target)
+                continue;
+            if (bg.Modulate.A > 0.01f)
+                tw.TweenProperty(bg, "modulate:a", 0.0f, 0.55f);
+        }
+        tw.TweenProperty(target, "modulate:a", 1.0f, 0.8f)
+            .SetTrans(Tween.TransitionType.Sine).SetEase(Tween.EaseType.InOut);
+    }
+
+    /// <summary>河堤的风淡入 / 淡出（toDb 高于静音阈值就先开始播）</summary>
+    private void FadeWind(float toDb, float seconds)
+    {
+        if (windPlayer == null)
+            return;
+        if (toDb > -59f && !windPlayer.Playing)
+            windPlayer.Play();
+        var tw = CreateTween();
+        tw.TweenProperty(windPlayer, "volume_db", toDb, seconds);
     }
 }

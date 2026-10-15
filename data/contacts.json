@@ -4,15 +4,15 @@
       "id": "jie",
       "name": "江洁",
       "avatar": "res://assets/art/chat/avatar_jie.png",
-      "chatFile": "ch08_jie",
+      "chatFile": "ch09_jie",
       "chatFileFrom": {
-        "9": "ch09_jie"
+        "9": "ch10_jie"
       },
       "sessionTime": "上午 10:26",
       "afterChapter": 8,
       "requiresFriend": true,
       "friendSource": "群聊「今天的局」里小米师妹推的名片",
-      "friendEvent": "ch08_add_jie",
+      "friendEvent": "ch09_add_jie",
       "unreadOnAdd": 1
     },
     {
@@ -123,7 +123,7 @@
       "name": "今天吃什么研讨组",
       "kind": "group",
       "members": 5,
-      "chatFile": "ch05_group",
+      "chatFile": "ch06_group",
       "afterChapter": 5,
       "sessionTime": "晚上 5:24",
       "previewText": "金艮: 人都快到了，就差你了",
@@ -139,10 +139,10 @@
       "name": "今天的局",
       "kind": "group",
       "members": 5,
-      "chatFile": "ch07_plan",
+      "chatFile": "ch08_plan",
       "chatFileFrom": {
-        "8": "ch08_group",
-        "9": "ch09_group"
+        "8": "ch09_group",
+        "9": "ch10_group"
       },
       "afterChapter": 7,
       "sessionTime": "下午 5:45",

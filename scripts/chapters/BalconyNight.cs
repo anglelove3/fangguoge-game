@@ -12,7 +12,7 @@ using System.Collections.Generic;
 /// 和 EmberDust / DrinkPour 同一套思路：剪影本来就是黑的，几何形+粒子最干净，
 /// 不用美术图，窗口怎么缩都不糊。烟雾粒子和主菜单咖啡蒸汽是同一套写法。
 ///
-/// 【用法】Ch08 在 draft_2 对白期间挂上（FadeIn），对白播完 FadeOut 后自毁。
+/// 【用法】Ch09 在 draft_2 对白期间挂上（FadeIn），对白播完 FadeOut 后自毁。
 /// 对话 UI 是 CanvasLayer(50)，永远盖在这一层上面——对白和夜风同屏。
 /// </summary>
 public partial class BalconyNight : Control

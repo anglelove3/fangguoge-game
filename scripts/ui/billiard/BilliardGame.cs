@@ -21,7 +21,7 @@ using System.Collections.Generic;
 ///   - 物理：240Hz 定步长，球-球弹性碰撞（等质量）、库边反弹、摩擦衰减；
 ///     这是"手感"所在，参数都在下面常量区。
 ///   - 绘制：全部自绘（台框/台呢/袋口/球/瞄准线/力度条/杆法盘），不依赖新美术。
-///   - 台词：全在 data/billiard/billiard.json；结果记进"选择回顾"（ch07_billiard）。
+///   - 台词：全在 data/billiard/billiard.json；结果记进"选择回顾"（ch08_billiard）。
 ///   - 模态规矩和手机/电脑一样：打开时抑制对话输入，关闭时恢复 + 回调。
 /// </summary>
 public partial class BilliardGame : Control
@@ -668,7 +668,7 @@ public partial class BilliardGame : Control
     private void EndGame()
     {
         int result = myScore > herScore ? 0 : (myScore < herScore ? 1 : 2);
-        GameManager.Instance?.RecordChoice("ch07_billiard", result);
+        GameManager.Instance?.RecordChoice("ch08_billiard", result);
 
         string key = result == 0 ? "win" : (result == 1 ? "lose" : "tie");
         var line = PickComment(key);

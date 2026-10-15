@@ -1,111 +1,87 @@
 using Godot;
-using System.Collections.Generic;
 
 /// <summary>
-/// 第四章：手滑
+/// 第四章：晚安（第二十二轮新增——分手当夜）
 ///
-/// 流程：分手当夜凌晨的宿舍 → 打开旧聊天（只读 + 幽灵打字）
-///      → 深夜三选一（出去走走 / 继续看手机 / 打电话给朋友）
-///      → 天亮后实验室（换背景）→ 尾声 → DEMO 结束页
+/// 流程：咖啡馆出来（暮色）→ 摸黑回宿舍（室友不在，泡面碗还在）
+///      → 掏手机，对着那个聊天框三选一（发「到家了吗」/ 打了又删 / 扣下洗脸）
+///      → 妈的消息 → 关灯躺下，谁也没说晚安 → 凌晨，接第五章《手滑》
 ///
-/// 【本章彩蛋】烟灰缸（可反复点，烟头数量递进）、旧耳机（隐藏物品）。
-/// 【本章演出核心】旧聊天是"只读"的：输入框打不了字，
-/// 却会自己一个字一个字打出「最近还好吗」，再一个字一个字删掉。
+/// 【这一章是"空"的一章】没有数值起伏、没有新角色、甚至没有几句话——
+/// 分手当夜本来就是这样：世界照常运转，只有你停下来了。
+/// 三选一的正确答案不存在：发了没回、删了也好、洗脸也好，夜都得自己熬过去。
+///
+/// 【衔接】intro 紧接第三章咖啡馆分手（同一天深夜）；outro 的「睡不着」
+/// 直接喂给第五章《手滑》的「凌晨一点半」。
 /// </summary>
 public partial class Ch04 : ChapterBase
 {
-    private const string ChapterId = "ch04"; // 对应 data/dialogues/ch04.json
+    private const string ChapterId = "ch04";
 
-    private TextureRect background;
     private Control hotspotsRoot;
     private Label hintLabel;
+    private Button phoneBtn;
+    private Button bedBtn;
+    private Control phoneGlow;
 
-    private bool phoneSeenOnce;   // 手机已看过一次（主线 1/1）
-    private bool chatSeenBefore;  // 旧聊天打开过（之后的感想对白只播一次）
-    private bool nightStarted;    // 深夜选择已经触发
-    private bool finished;        // 尾声播放中
-    private int ashtrayStage;     // 烟灰缸彩蛋递进
-    private bool earphoneTaken;   // 旧耳机已收走
-    private bool chatOpen;        // 聊天界面是否开着
-    private HiddenPatch earphonePatch; // 桌上的旧耳机贴片（第二十轮 F1：收走后消失）
-
-    private readonly Dictionary<string, Control> glows = new();
+    private bool phoneDone;  // 三选一做完了（妈的消息也跟着演完）
+    private bool finished;   // 尾声播放中
 
     private ulong lastActivityMsec;
     private const ulong IdleHintDelayMsec = 12000;
 
     protected override void OnChapterReady()
     {
-        GD.Print("第四章：手滑 —— 凌晨一点半，手滑点开了旧聊天");
+        GD.Print("第四章：晚安 —— 分手当夜，谁也没说晚安");
 
-        // 第十一轮 B4：这一章是深夜，换第三首吉姆诺佩蒂（更慢、更空）
-        // 第十一轮 B4：这一章是深夜，换第三首吉姆诺佩蒂（更慢、更空）
-        AudioManager.Instance?.PlayBgm(AudioManager.BgmGym3, -15f, 1.5f);
+        AudioManager.Instance?.PlayBgm(AudioManager.BgmGym3, -16f, 2.0f); // 全书最慢的那首
 
-        background = GetNode<TextureRect>("Background");
         hotspotsRoot = GetNode<Control>("Hotspots");
         hintLabel = GetNode<Label>("HintLabel");
+        phoneBtn = GetNode<Button>("Hotspots/PhoneBtn");
+        bedBtn = GetNode<Button>("Hotspots/BedBtn");
 
-        var phoneBtn = GetNode<Button>("Hotspots/PhoneBtn");
-        var ashtrayBtn = GetNode<Button>("Hotspots/AshtrayBtn");
-        var earphoneBtn = GetNode<Button>("Hotspots/EarphoneBtn");
         phoneBtn.Pressed += OnPhonePressed;
-        ashtrayBtn.Pressed += () => OnAshtrayPressed(ashtrayBtn);
-        earphoneBtn.Pressed += () => OnEarphonePressed(earphoneBtn);
+        bedBtn.Pressed += OnBedPressed;
 
-        glows["phone"] = HotspotGlow.Attach(phoneBtn);
+        phoneGlow = HotspotGlow.Attach(phoneBtn);
+        HotspotGlow.Attach(bedBtn);
 
-        // 第十五轮：热点按"美术图坐标"登记（手机 = 美术实测位置），窗口不成 16:9 也不漂
-        ArtAnchor.Track(phoneBtn, new Rect2(1616f, 880f, 168f, 88f));
-        ArtAnchor.TrackFraction(ashtrayBtn, new Rect2(0.565f, 0.7f, 0.14f, 0.13f));
-        ArtAnchor.TrackFraction(earphoneBtn, new Rect2(0.615f, 0.595f, 0.085f, 0.095f));
+        // 热点按美术图坐标登记（背景 cover 缩放也不漂）
+        ArtAnchor.Track(phoneBtn, new Rect2(1616f, 880f, 168f, 88f));   // 桌上的手机
+        ArtAnchor.TrackFraction(bedBtn, new Rect2(0.44f, 0.10f, 0.26f, 0.10f)); // 上铺
 
-        // 第二十轮 F1：旧耳机拆成贴片（底图上本来没画物件，耳机贴片摆在桌面上）——
-        // 收走之后从桌上消失。挂在宿舍背景层下面，跟着场景一起显隐。
-        earphonePatch = HiddenPatch.CreateAtFraction(
-            "res://assets/art/props/patch_earphone.png",
-            null,
-            new Rect2(0.60f, 0.615f, 0.10f, 0.075f));
-        background.AddChild(earphonePatch);
-        if (GameManager.Instance.HasHiddenItem("earphone"))
-            earphonePatch.HideImmediately(); // 读档进来就已经收过了
-
-        // "点万物有回应"：窗外的灯、柜门上的照片、那两桶泡面（data/flavor/ch04.json）
+        // "点万物有回应"（沿用宿舍那套：泡面碗、走廊声控灯）
         AddChild(FlavorSpots.Create(hotspotsRoot, "ch04"));
-
-        // "手机活起来"：手机热点右上角挂小红点（有未读消息时自己亮起来）
-        LiveEvents.AttachPhoneDot(phoneBtn);
 
         UiSounds.WireAll(this);
 
+        // 开场先只有对白
         hotspotsRoot.Visible = false;
         hintLabel.Visible = false;
+        bedBtn.Visible = false;
 
         var tween = CreateTween();
         tween.SetParallel(true);
         tween.TweenProperty(titleLabel, "modulate:a", 0.0f, 2.0f);
         tween.TweenProperty(subtitleLabel, "modulate:a", 0.0f, 2.0f);
 
-        DialogueManager.Instance.PlaySequence(ChapterId, "intro", OnIntroFinished);
+        DialogueManager.Instance.PlaySequence(ChapterId, "intro", () =>
+        {
+            DialogueManager.Instance.PlaySequence(ChapterId, "arrive", OnArriveFinished);
+        });
     }
 
-    /// <summary>发呆 12 秒 → 手机热点轻轻呼吸（引导去看旧聊天）</summary>
     public override void _Process(double delta)
     {
-        if (chatOpen)
-        {
-            lastActivityMsec = Time.GetTicksMsec();
-            return;
-        }
-
         var dm = DialogueManager.Instance;
-        if (dm != null && dm.IsBusy)
+        if (dm == null || dm.IsBusy)
         {
             lastActivityMsec = Time.GetTicksMsec();
             return;
         }
 
-        if (!hotspotsRoot.Visible || nightStarted)
+        if (!hotspotsRoot.Visible || finished)
             return;
 
         if (Time.GetTicksMsec() - lastActivityMsec < IdleHintDelayMsec)
@@ -113,166 +89,82 @@ public partial class Ch04 : ChapterBase
 
         lastActivityMsec = Time.GetTicksMsec();
 
-        if (!phoneSeenOnce && glows.TryGetValue("phone", out var glow) && glow != null)
-            HotspotGlow.Pulse(glow, 0f);
+        // 发呆：没做选择时手机呼吸，做完了就提醒睡下
+        if (!phoneDone && phoneGlow != null)
+            HotspotGlow.Pulse(phoneGlow, 0f);
     }
 
-    private void OnIntroFinished()
+    private void OnArriveFinished()
     {
-        hotspotsRoot.Visible = true;
-        hintLabel.Visible = true;
-        lastActivityMsec = Time.GetTicksMsec();
-        UpdateHint();
-
-        // "手机活起来"：凌晨的宿舍里，li-lab 群有人还在报仪器空档
-        LiveEvents.Fire(this, "ch04", "ch04_sanjin_lab");
-
-        // 分手之后，宝宝那头迟到的两句收尾（对不起 / 照顾好自己）
-        LiveEvents.Fire(this, "ch04", "ch04_baobao_sorry");
-        LiveEvents.Fire(this, "ch04", "ch04_baobao_care");
+        DialogueManager.Instance.PlaySequence(ChapterId, "phone_lead", () =>
+        {
+            hotspotsRoot.Visible = true;
+            phoneBtn.Visible = true;
+            lastActivityMsec = Time.GetTicksMsec();
+            UpdateHint();
+        });
     }
 
     private void UpdateHint()
     {
-        if (nightStarted)
+        if (finished)
         {
             hintLabel.Visible = false;
             return;
         }
-        hintLabel.Text = phoneSeenOnce
-            ? DataStore.Text("hint.ch04_done")
-            : DataStore.Text("hint.ch04", phoneSeenOnce ? 1 : 0, 1);
+        hintLabel.Visible = true;
+        hintLabel.Text = DataStore.Text(phoneDone ? "hint.ch04_sleep" : "hint.ch04");
     }
 
-    // ==================== 手机：打开旧聊天 ====================
+    // ==================== 手机：三选一 ====================
 
     private void OnPhonePressed()
     {
         var dm = DialogueManager.Instance;
-        if (dm == null || dm.IsBusy || chatOpen)
+        if (dm == null || dm.IsBusy || finished || phoneDone)
             return;
 
         lastActivityMsec = Time.GetTicksMsec();
-        var btn = GetNode<Button>("Hotspots/PhoneBtn");
-        HotspotGlow.Sparkle(btn);
+        HotspotGlow.Sparkle(phoneBtn);
+        hintLabel.Visible = false;
 
-        if (!phoneSeenOnce)
-        {
-            phoneSeenOnce = true;
-            UpdateHint();
-            dm.PlaySequence(ChapterId, "open_phone", OpenOldChat);
-        }
-        else
-        {
-            OpenOldChat();
-        }
+        DialogueManager.Instance.ShowChoice(ChapterId, "goodnight", OnGoodnightChosen);
     }
 
-    /// <summary>
-    /// 打开和她的旧聊天（只读 + 幽灵打字，内容在 data/chat/ch04_old_chat.json）。
-    /// 第一次收起手机后会播"打了又删"的感想，然后进入深夜选择。
-    /// </summary>
-    private void OpenOldChat()
+    private void OnGoodnightChosen(int index)
     {
-        chatOpen = true;
-        bool firstTime = !chatSeenBefore;
-        chatSeenBefore = true;
-
-        var overlay = GD.Load<PackedScene>("res://scenes/ui/chat/chat_overlay.tscn")
-            .Instantiate<ChatOverlay>();
-        AddChild(overlay);
-        overlay.Closed += () =>
+        var dm = DialogueManager.Instance;
+        // 微勇气：发了 2（敢问出口）/ 删了 0（话咽回去了）/ 洗脸 1（至少起身做了点什么）
+        int courage = index == 0 ? 2 : index == 1 ? 0 : 1;
+        GameManager.Instance.AddCourage(courage);
+        dm.PlaySequence(ChapterId, $"choice_{index}", () =>
         {
-            chatOpen = false;
-            lastActivityMsec = Time.GetTicksMsec();
-            if (firstTime && !nightStarted)
+            // 妈的消息：不管你选了哪条路，妈都会在这个点冒出来
+            dm.PlaySequence(ChapterId, "mom_msg", () =>
             {
-                nightStarted = true;
+                phoneDone = true;
+                bedBtn.Visible = true;
                 UpdateHint();
-                DialogueManager.Instance.PlaySequence(ChapterId, "after_chat", () =>
-                {
-                    DialogueManager.Instance.ShowChoice(ChapterId, "night", OnNightChosen);
-                });
-            }
-        };
-        overlay.Open("ch04_old_chat");
-    }
-
-    // ==================== 彩蛋热点 ====================
-
-    private void OnAshtrayPressed(Button btn)
-    {
-        var dm = DialogueManager.Instance;
-        if (dm == null || dm.IsBusy || chatOpen)
-            return;
-
-        lastActivityMsec = Time.GetTicksMsec();
-        HotspotGlow.Sparkle(btn);
-        ashtrayStage++;
-        string seq = ashtrayStage switch
-        {
-            1 => "egg_ashtray_1",
-            2 => "egg_ashtray_2",
-            3 => "egg_ashtray_3",
-            _ => "egg_ashtray_more",
-        };
-        dm.PlaySequence(ChapterId, seq, null);
-    }
-
-    private void OnEarphonePressed(Button btn)
-    {
-        var dm = DialogueManager.Instance;
-        if (dm == null || dm.IsBusy || chatOpen || earphoneTaken)
-            return;
-
-        lastActivityMsec = Time.GetTicksMsec();
-        earphoneTaken = true;
-        HotspotGlow.Sparkle(btn);
-        btn.Disabled = true;
-        dm.PlaySequence(ChapterId, "explore_earphone", () =>
-        {
-            FindHiddenItem("earphone");
-            earphonePatch?.Disappear(); // 耳机从桌上消失（第二十轮 F1）
+            });
         });
     }
 
-    // ==================== 深夜选择 → 天亮收尾 ====================
+    // ==================== 睡下：接《手滑》 ====================
 
-    private void OnNightChosen(int index)
+    private void OnBedPressed()
     {
-        DialogueManager.Instance.PlaySequence(ChapterId, $"night_{index}", PlayOutro);
-    }
-
-    /// <summary>天亮了：背景从深夜宿舍淡切到白天的实验室，再接尾声</summary>
-    private void PlayOutro()
-    {
-        if (finished)
+        var dm = DialogueManager.Instance;
+        if (dm == null || dm.IsBusy || finished || !phoneDone)
             return;
+
         finished = true;
         hotspotsRoot.Visible = false;
         hintLabel.Visible = false;
 
-        var dayLab = GD.Load<Texture2D>("res://assets/art/backgrounds/day_lab_v1.png");
-        // 天亮了：深夜那首退场，回到主题曲（跟着画面一起淡过来）
-        AudioManager.Instance?.PlayBgm(AudioManager.BgmGym1, -14f, 2.2f);
-        var tw = CreateTween();
-        tw.TweenProperty(background, "modulate:a", 0f, 0.8);
-        tw.TweenCallback(Callable.From(() =>
+        dm.PlaySequence(ChapterId, "outro", () =>
         {
-            background.Texture = dayLab;
-            // 第二十轮 F1：天亮换到实验室，宿舍桌上的耳机贴片跟着夜色一起退场
-            if (earphonePatch != null)
-                earphonePatch.Visible = false;
-        }));
-        tw.TweenProperty(background, "modulate:a", 1f, 1.0);
-        tw.TweenInterval(0.4);
-        tw.TweenCallback(Callable.From(() =>
-        {
-            DialogueManager.Instance.PlaySequence(ChapterId, "outro", () =>
-            {
-                // r13：第四章之后不再是"试玩结束"，接上正式剧情 第五章《碧蓝蓝天》
-                GoToNextChapter("res://scenes/chapters/ch05/ch05.tscn", 5);
-            });
-        }));
+            // 凌晨的宿舍——下一章《手滑》开场就是"凌晨一点半，手滑点开了旧聊天"
+            GoToNextChapter("res://scenes/chapters/ch05/ch05.tscn", 5);
+        });
     }
 }

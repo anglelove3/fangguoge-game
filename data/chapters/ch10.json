@@ -1,14 +1,16 @@
 {
-  "_comment": "第十章《向南》的接线参数。聊天三线分层的钥匙 = ch10_gate_{seg}_{line}，line 取 a/b/c（对应 why 选择 0/1/2），由 Ch10 在各幕开始时拼装解锁。老板进对白不进微信。",
+  "_comment": "第九章《置顶》的接线参数：群聊与私聊用哪份剧本、置顶目标联系人、礼花筒物品 id。本章的聊天消息全部走 gateChoice 幕门控（跨五天累积），不走 LiveEvents——补投递的消息只会追加在列表末尾，跟门控消息混排会在重载后乱序。",
 
   "jieContact": "jie",
   "jieChat": "ch10_jie",
-
-  "scooterSfx": "res://assets/audio/sfx/sfx_scooter_loop.wav",
+  "groupChat": "ch10_group",
+  "groupContact": "jinwanju",
+  "popperItem": "cracker",
 
   "gates": {
-    "eve": "ch10_gate_eve"
-  },
-
-  "gatePrefix": "ch10_gate_"
+    "dorm1": "ch10_gate_dorm1",
+    "lab": "ch10_gate_lab",
+    "night2": "ch10_gate_night2",
+    "night3": "ch10_gate_night3"
+  }
 }

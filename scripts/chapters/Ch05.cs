@@ -2,49 +2,32 @@ using Godot;
 using System.Collections.Generic;
 
 /// <summary>
-/// 第五章：碧蓝蓝天
+/// 第四章：手滑
 ///
-/// 流程：傍晚的实验室（手机震个不停）→ 打开「今天吃什么研讨组」
-///      → 收起手机后三选一（去 / 半推半就地去 / 让他们定）
-///      → 骑车穿过黄昏的校园（换背景）→「兰亭雨水」的雨夜饭局
-///      → 三个热点：看菜单（还记得第一章点过什么）/ 聊近况 / 听雨（心声微选择）
-///      → 宿舍开黑的尾声 → 第六章
+/// 流程：分手当夜凌晨的宿舍 → 打开旧聊天（只读 + 幽灵打字）
+///      → 深夜三选一（出去走走 / 继续看手机 / 打电话给朋友）
+///      → 天亮后实验室（换背景）→ 尾声 → DEMO 结束页
 ///
-/// 【本章演出核心】
-///   - 手机里的群聊是"活"的：三个人轮番叫你，最后一条是「来了就行」。
-///   - 进店之后雨声开始下（程序生成的 8 秒无缝循环），散场时雨停。
-///   - 点菜那句话记得你在第一章的选择（menu_echo_la）。
+/// 【本章彩蛋】烟灰缸（可反复点，烟头数量递进）、旧耳机（隐藏物品）。
+/// 【本章演出核心】旧聊天是"只读"的：输入框打不了字，
+/// 却会自己一个字一个字打出「最近还好吗」，再一个字一个字删掉。
 /// </summary>
 public partial class Ch05 : ChapterBase
 {
-    private const string ChapterId = "ch05";
-    private const string GroupChatFile = "ch05_group"; // 对应 data/chat/ch05_group.json
+    private const string ChapterId = "ch05"; // 对应 data/dialogues/ch05.json
 
-    private TextureRect bgDayLab;
-    private TextureRect bgCampus;
-    private TextureRect bgLanting;
-    private TextureRect bgDorm;
-
+    private TextureRect background;
     private Control hotspotsRoot;
-    private Control flavorLab;
-    private Control flavorLanting;
     private Label hintLabel;
 
-    private Button phoneBtn;
-    private Button menuBtn;
-    private Button friendsBtn;
-    private Button rainBtn;
-
-    private AudioStreamPlayer rainPlayer;
-
-    private bool phoneSeenOnce;   // 手机看过一次（主线 1/1）
-    private bool chatSeenBefore;  // 群聊打开过（之后的感想对白只播一次）
-    private bool comfortStarted;  // 傍晚选择已经触发
-    private bool arrivedLanting;  // 已经进店（兰亭阶段）
+    private bool phoneSeenOnce;   // 手机已看过一次（主线 1/1）
+    private bool chatSeenBefore;  // 旧聊天打开过（之后的感想对白只播一次）
+    private bool nightStarted;    // 深夜选择已经触发
     private bool finished;        // 尾声播放中
-    private bool chatOpen;        // 手机界面是否开着
-
-    private readonly HashSet<string> doneSpots = new(); // menu / friends / rain
+    private int ashtrayStage;     // 烟灰缸彩蛋递进
+    private bool earphoneTaken;   // 旧耳机已收走
+    private bool chatOpen;        // 聊天界面是否开着
+    private HiddenPatch earphonePatch; // 桌上的旧耳机贴片（第二十轮 F1：收走后消失）
 
     private readonly Dictionary<string, Control> glows = new();
 
@@ -53,74 +36,50 @@ public partial class Ch05 : ChapterBase
 
     protected override void OnChapterReady()
     {
-        GD.Print("第五章：碧蓝蓝天 —— 被朋友捞出来的那个傍晚");
+        GD.Print("第四章：手滑 —— 凌晨一点半，手滑点开了旧聊天");
 
-        AudioManager.Instance?.PlayBgm(AudioManager.BgmGym1, -14f, 1.5f);
+        // 第十一轮 B4：这一章是深夜，换第三首吉姆诺佩蒂（更慢、更空）
+        // 第十一轮 B4：这一章是深夜，换第三首吉姆诺佩蒂（更慢、更空）
+        AudioManager.Instance?.PlayBgm(AudioManager.BgmGym3, -15f, 1.5f);
 
-        bgDayLab = GetNode<TextureRect>("Background");
-        bgCampus = GetNode<TextureRect>("CampusDusk");
-        bgLanting = GetNode<TextureRect>("LantingRain");
-        bgDorm = GetNode<TextureRect>("DormNight");
-
+        background = GetNode<TextureRect>("Background");
         hotspotsRoot = GetNode<Control>("Hotspots");
         hintLabel = GetNode<Label>("HintLabel");
 
-        phoneBtn = GetNode<Button>("Hotspots/PhoneBtn");
-        menuBtn = GetNode<Button>("Hotspots/MenuBtn");
-        friendsBtn = GetNode<Button>("Hotspots/FriendsBtn");
-        rainBtn = GetNode<Button>("Hotspots/RainBtn");
-
+        var phoneBtn = GetNode<Button>("Hotspots/PhoneBtn");
+        var ashtrayBtn = GetNode<Button>("Hotspots/AshtrayBtn");
+        var earphoneBtn = GetNode<Button>("Hotspots/EarphoneBtn");
         phoneBtn.Pressed += OnPhonePressed;
-        menuBtn.Pressed += () => OnSpotPressed("menu", menuBtn);
-        friendsBtn.Pressed += () => OnSpotPressed("friends", friendsBtn);
-        rainBtn.Pressed += () => OnSpotPressed("rain", rainBtn);
+        ashtrayBtn.Pressed += () => OnAshtrayPressed(ashtrayBtn);
+        earphoneBtn.Pressed += () => OnEarphonePressed(earphoneBtn);
 
         glows["phone"] = HotspotGlow.Attach(phoneBtn);
-        glows["menu"] = HotspotGlow.Attach(menuBtn);
-        glows["friends"] = HotspotGlow.Attach(friendsBtn);
-        glows["rain"] = HotspotGlow.Attach(rainBtn);
 
-        // 第十五轮：热点按"美术图坐标"登记——窗口不成 16:9 时背景会偏移，热点跟着走
-        ArtAnchor.Track(phoneBtn, new Rect2(975f, 790f, 170f, 100f)); // 桌上的手机（等贴进 day_lab 图里）
-        ArtAnchor.TrackFraction(menuBtn, new Rect2(0.11f, 0.8f, 0.33f, 0.195f));
-        ArtAnchor.TrackFraction(friendsBtn, new Rect2(0.53f, 0.42f, 0.27f, 0.38f));
-        ArtAnchor.TrackFraction(rainBtn, new Rect2(0.03f, 0.1f, 0.39f, 0.48f));
+        // 第十五轮：热点按"美术图坐标"登记（手机 = 美术实测位置），窗口不成 16:9 也不漂
+        ArtAnchor.Track(phoneBtn, new Rect2(1616f, 880f, 168f, 88f));
+        ArtAnchor.TrackFraction(ashtrayBtn, new Rect2(0.565f, 0.7f, 0.14f, 0.13f));
+        ArtAnchor.TrackFraction(earphoneBtn, new Rect2(0.615f, 0.595f, 0.085f, 0.095f));
 
-        // "点万物有回应"：实验室的和兰亭的各一套，跟着阶段开关
-        flavorLab = new Control { MouseFilter = Control.MouseFilterEnum.Ignore };
-        flavorLab.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
-        hotspotsRoot.AddChild(flavorLab);
-        AddChild(FlavorSpots.Create(flavorLab, "ch05_lab"));
+        // 第二十轮 F1：旧耳机拆成贴片（底图上本来没画物件，耳机贴片摆在桌面上）——
+        // 收走之后从桌上消失。挂在宿舍背景层下面，跟着场景一起显隐。
+        earphonePatch = HiddenPatch.CreateAtFraction(
+            "res://assets/art/props/patch_earphone.png",
+            null,
+            new Rect2(0.60f, 0.615f, 0.10f, 0.075f));
+        background.AddChild(earphonePatch);
+        if (GameManager.Instance.HasHiddenItem("earphone"))
+            earphonePatch.HideImmediately(); // 读档进来就已经收过了
 
-        flavorLanting = new Control { MouseFilter = Control.MouseFilterEnum.Ignore };
-        flavorLanting.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
-        hotspotsRoot.AddChild(flavorLanting);
-        AddChild(FlavorSpots.Create(flavorLanting, "ch05_lanting"));
+        // "点万物有回应"：窗外的灯、柜门上的照片、那两桶泡面（data/flavor/ch05.json）
+        AddChild(FlavorSpots.Create(hotspotsRoot, "ch05"));
 
-        // "手机活起来"：手机热点右上角挂小红点
+        // "手机活起来"：手机热点右上角挂小红点（有未读消息时自己亮起来）
         LiveEvents.AttachPhoneDot(phoneBtn);
-
-        // 雨声：程序生成的 8 秒无缝循环，进店时淡入、散场时淡出
-        rainPlayer = new AudioStreamPlayer { VolumeDb = -60f };
-        var rainStream = GD.Load<AudioStream>("res://assets/audio/sfx/sfx_rain.wav");
-        if (rainStream is AudioStreamWav wav)
-        {
-            wav.LoopMode = AudioStreamWav.LoopModeEnum.Forward;
-            wav.LoopBegin = 0;
-            wav.LoopEnd = wav.Data.Length / (wav.Stereo ? 4 : 2);
-        }
-        rainPlayer.Stream = rainStream;
-        AddChild(rainPlayer);
 
         UiSounds.WireAll(this);
 
-        // 开场：只有实验室阶段能看
         hotspotsRoot.Visible = false;
         hintLabel.Visible = false;
-        menuBtn.Visible = false;
-        friendsBtn.Visible = false;
-        rainBtn.Visible = false;
-        flavorLanting.Visible = false;
 
         var tween = CreateTween();
         tween.SetParallel(true);
@@ -130,7 +89,7 @@ public partial class Ch05 : ChapterBase
         DialogueManager.Instance.PlaySequence(ChapterId, "intro", OnIntroFinished);
     }
 
-    /// <summary>发呆 12 秒 → 还没点过的地方轻轻呼吸</summary>
+    /// <summary>发呆 12 秒 → 手机热点轻轻呼吸（引导去看旧聊天）</summary>
     public override void _Process(double delta)
     {
         if (chatOpen)
@@ -146,7 +105,7 @@ public partial class Ch05 : ChapterBase
             return;
         }
 
-        if (!hotspotsRoot.Visible || finished)
+        if (!hotspotsRoot.Visible || nightStarted)
             return;
 
         if (Time.GetTicksMsec() - lastActivityMsec < IdleHintDelayMsec)
@@ -154,95 +113,66 @@ public partial class Ch05 : ChapterBase
 
         lastActivityMsec = Time.GetTicksMsec();
 
-        float delay = 0f;
-        if (!phoneSeenOnce && glows.TryGetValue("phone", out var pg) && pg != null)
-        {
-            HotspotGlow.Pulse(pg, delay);
-            delay += 0.4f;
-        }
-
-        if (arrivedLanting)
-        {
-            foreach (var id in new[] { "menu", "friends", "rain" })
-            {
-                if (doneSpots.Contains(id))
-                    continue;
-                if (glows.TryGetValue(id, out var g) && g != null)
-                {
-                    HotspotGlow.Pulse(g, delay);
-                    delay += 0.4f;
-                }
-            }
-        }
+        if (!phoneSeenOnce && glows.TryGetValue("phone", out var glow) && glow != null)
+            HotspotGlow.Pulse(glow, 0f);
     }
 
     private void OnIntroFinished()
     {
         hotspotsRoot.Visible = true;
-        flavorLab.Visible = true;
-        flavorLanting.Visible = false;
         hintLabel.Visible = true;
         lastActivityMsec = Time.GetTicksMsec();
         UpdateHint();
+
+        // "手机活起来"：凌晨的宿舍里，li-lab 群有人还在报仪器空档
+        LiveEvents.Fire(this, "ch05", "ch05_sanjin_lab");
+
+        // 分手之后，宝宝那头迟到的两句收尾（对不起 / 照顾好自己）
+        LiveEvents.Fire(this, "ch05", "ch05_baobao_sorry");
+        LiveEvents.Fire(this, "ch05", "ch05_baobao_care");
     }
 
     private void UpdateHint()
     {
-        if (finished)
+        if (nightStarted)
         {
             hintLabel.Visible = false;
             return;
         }
-
-        if (!arrivedLanting)
-        {
-            // 实验室阶段：先看手机；看过之后、出发之前，提示先收起来
-            if (phoneSeenOnce)
-            {
-                hintLabel.Visible = false;
-                return;
-            }
-            hintLabel.Text = DataStore.Text("hint.ch05_phone");
-            return;
-        }
-
-        if (doneSpots.Count >= 3)
-        {
-            hintLabel.Text = DataStore.Text("hint.ch05_done");
-            return;
-        }
-
-        hintLabel.Text = DataStore.Text("hint.ch05", doneSpots.Count, 3);
+        hintLabel.Text = phoneSeenOnce
+            ? DataStore.Text("hint.ch05_done")
+            : DataStore.Text("hint.ch05", phoneSeenOnce ? 1 : 0, 1);
     }
 
-    // ==================== 手机：打开群聊 ====================
+    // ==================== 手机：打开旧聊天 ====================
 
     private void OnPhonePressed()
     {
         var dm = DialogueManager.Instance;
-        if (dm == null || dm.IsBusy || chatOpen || finished)
+        if (dm == null || dm.IsBusy || chatOpen)
             return;
 
         lastActivityMsec = Time.GetTicksMsec();
-        HotspotGlow.Sparkle(phoneBtn);
+        var btn = GetNode<Button>("Hotspots/PhoneBtn");
+        HotspotGlow.Sparkle(btn);
 
         if (!phoneSeenOnce)
         {
             phoneSeenOnce = true;
             UpdateHint();
-            dm.PlaySequence(ChapterId, "open_phone", OpenGroupChat);
+            dm.PlaySequence(ChapterId, "open_phone", OpenOldChat);
         }
         else
         {
-            OpenGroupChat();
+            OpenOldChat();
         }
     }
 
     /// <summary>
-    /// 打开「今天吃什么研讨组」（内容在 data/chat/ch05_group.json）。
-    /// 第一次收起手机后会播一段感想，然后进入傍晚的三选一。
+    /// 打开和她的旧聊天（只读 + 幽灵打字，内容在 data/chat/ch05_old_chat.json）。
+    /// 第一次收起手机后会播"打了又删"的感想，然后进入深夜选择。
     /// </summary>
-    private void OpenGroupChat()
+    private void OpenOldChat()
     {
         chatOpen = true;
         bool firstTime = !chatSeenBefore;
@@ -255,103 +185,65 @@ public partial class Ch05 : ChapterBase
         {
             chatOpen = false;
             lastActivityMsec = Time.GetTicksMsec();
-            if (firstTime && !comfortStarted)
+            if (firstTime && !nightStarted)
             {
-                comfortStarted = true;
+                nightStarted = true;
                 UpdateHint();
                 DialogueManager.Instance.PlaySequence(ChapterId, "after_chat", () =>
                 {
-                    DialogueManager.Instance.ShowChoice(ChapterId, "comfort", OnComfortChosen);
+                    DialogueManager.Instance.ShowChoice(ChapterId, "night", OnNightChosen);
                 });
             }
         };
-        overlay.Open(GroupChatFile);
+        overlay.Open("ch05_old_chat");
     }
 
-    // ==================== 傍晚选择 → 骑车 → 进店 ====================
+    // ==================== 彩蛋热点 ====================
 
-    private void OnComfortChosen(int index)
-    {
-        DialogueManager.Instance.PlaySequence(ChapterId, $"comfort_{index}", StartRide);
-    }
-
-    /// <summary>出发：实验室淡出，校园黄昏淡入</summary>
-    private void StartRide()
-    {
-        hotspotsRoot.Visible = false;
-        hintLabel.Visible = false;
-        CrossfadeTo(bgCampus, 1.0f);
-        DialogueManager.Instance.PlaySequence(ChapterId, "ride", ArriveLanting);
-    }
-
-    /// <summary>到湖边：黄昏淡出，兰亭雨夜淡入，雨声开始下</summary>
-    private void ArriveLanting()
-    {
-        CrossfadeTo(bgLanting, 1.1f);
-        FadeRain(-20f, 2.0f);
-        DialogueManager.Instance.PlaySequence(ChapterId, "arrive", EnterLanting);
-    }
-
-    private void EnterLanting()
-    {
-        arrivedLanting = true;
-        hotspotsRoot.Visible = true;
-        flavorLab.Visible = false;
-        flavorLanting.Visible = true;
-        menuBtn.Visible = true;
-        friendsBtn.Visible = true;
-        rainBtn.Visible = true;
-        hintLabel.Visible = true;
-        lastActivityMsec = Time.GetTicksMsec();
-        UpdateHint();
-
-        // "手机活起来"：饭吃到一半，爸发来"最近忙不忙"
-        LiveEvents.Fire(this, ChapterId, "ch05_ba_ask");
-    }
-
-    // ==================== 兰亭三个热点 ====================
-
-    private void OnSpotPressed(string id, Button btn)
+    private void OnAshtrayPressed(Button btn)
     {
         var dm = DialogueManager.Instance;
-        if (dm == null || dm.IsBusy || chatOpen || finished || !arrivedLanting)
+        if (dm == null || dm.IsBusy || chatOpen)
             return;
-        if (id != "friends" && doneSpots.Contains(id))
-            return; // 菜单和雨只点一次；近况可以反复聊
 
         lastActivityMsec = Time.GetTicksMsec();
         HotspotGlow.Sparkle(btn);
-
-        if (id == "friends")
+        ashtrayStage++;
+        string seq = ashtrayStage switch
         {
-            bool firstTime = doneSpots.Add("friends");
-            UpdateHint();
-            dm.PlaySequence(ChapterId, firstTime ? "friends_1" : "friends_more", CheckAllFound);
-            return;
-        }
-
-        doneSpots.Add(id);
-        UpdateHint();
-
-        if (id == "menu")
-        {
-            // 还记得第一章点过什么吗？（点了辣子鸡的人，多一段专属台词）
-            bool laZiJi = GameManager.Instance.ChoiceHistory.TryGetValue("ch01_order_food", out int v) && v == 0;
-            dm.PlaySequence(ChapterId, laZiJi ? "menu_echo_la" : "menu_echo", CheckAllFound);
-            return;
-        }
-
-        // rain：一段引导 + 心声微选择（heart "rain"）
-        dm.PlaySequence(ChapterId, "rain", CheckAllFound);
+            1 => "egg_ashtray_1",
+            2 => "egg_ashtray_2",
+            3 => "egg_ashtray_3",
+            _ => "egg_ashtray_more",
+        };
+        dm.PlaySequence(ChapterId, seq, null);
     }
 
-    private void CheckAllFound()
+    private void OnEarphonePressed(Button btn)
     {
-        if (doneSpots.Count >= 3)
-            PlayOutro();
+        var dm = DialogueManager.Instance;
+        if (dm == null || dm.IsBusy || chatOpen || earphoneTaken)
+            return;
+
+        lastActivityMsec = Time.GetTicksMsec();
+        earphoneTaken = true;
+        HotspotGlow.Sparkle(btn);
+        btn.Disabled = true;
+        dm.PlaySequence(ChapterId, "explore_earphone", () =>
+        {
+            FindHiddenItem("earphone");
+            earphonePatch?.Disappear(); // 耳机从桌上消失（第二十轮 F1）
+        });
     }
 
-    /// <summary>散场：最后一桌笑完 → 转到宿舍 → 尾声 → 第六章</summary>
+    // ==================== 深夜选择 → 天亮收尾 ====================
+
+    private void OnNightChosen(int index)
+    {
+        DialogueManager.Instance.PlaySequence(ChapterId, $"night_{index}", PlayOutro);
+    }
+
+    /// <summary>天亮了：背景从深夜宿舍淡切到白天的实验室，再接尾声</summary>
     private void PlayOutro()
     {
         if (finished)
@@ -360,35 +252,27 @@ public partial class Ch05 : ChapterBase
         hotspotsRoot.Visible = false;
         hintLabel.Visible = false;
 
-        DialogueManager.Instance.PlaySequence(ChapterId, "all_found", () =>
+        var dayLab = GD.Load<Texture2D>("res://assets/art/backgrounds/day_lab_v1.png");
+        // 天亮了：深夜那首退场，回到主题曲（跟着画面一起淡过来）
+        AudioManager.Instance?.PlayBgm(AudioManager.BgmGym1, -14f, 2.2f);
+        var tw = CreateTween();
+        tw.TweenProperty(background, "modulate:a", 0f, 0.8);
+        tw.TweenCallback(Callable.From(() =>
         {
-            CrossfadeTo(bgDorm, 1.2f);
-            FadeRain(-60f, 1.6f); // 散场的时候，雨停了
+            background.Texture = dayLab;
+            // 第二十轮 F1：天亮换到实验室，宿舍桌上的耳机贴片跟着夜色一起退场
+            if (earphonePatch != null)
+                earphonePatch.Visible = false;
+        }));
+        tw.TweenProperty(background, "modulate:a", 1f, 1.0);
+        tw.TweenInterval(0.4);
+        tw.TweenCallback(Callable.From(() =>
+        {
             DialogueManager.Instance.PlaySequence(ChapterId, "outro", () =>
             {
-                GoToNextChapter("res://scenes/chapters/ch06/ch06.tscn", 6);
+                // r13：第四章之后不再是"试玩结束"，接上正式剧情 第五章《碧蓝蓝天》
+                GoToNextChapter("res://scenes/chapters/ch06/ch06.tscn", 5);
             });
-        });
-    }
-
-    // ==================== 小工具 ====================
-
-    /// <summary>把一张背景图淡进来（盖在之前的背景上面，alpha 从 0 到 1）</summary>
-    private void CrossfadeTo(TextureRect layer, float seconds)
-    {
-        var tw = CreateTween();
-        tw.TweenProperty(layer, "modulate:a", 1.0f, seconds)
-            .SetTrans(Tween.TransitionType.Sine).SetEase(Tween.EaseType.InOut);
-    }
-
-    /// <summary>雨声淡入 / 淡出（toDb 高于静音阈值就先开始播）</summary>
-    private void FadeRain(float toDb, float seconds)
-    {
-        if (rainPlayer == null)
-            return;
-        if (toDb > -59f && !rainPlayer.Playing)
-            rainPlayer.Play();
-        var tw = CreateTween();
-        tw.TweenProperty(rainPlayer, "volume_db", toDb, seconds);
+        }));
     }
 }

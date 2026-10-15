@@ -10,7 +10,7 @@ using System.Collections.Generic;
 ///   3. HUD 电量条：电量是剧情脚本的演出元素，不是系统——章节脚本说掉多少就掉多少
 ///   4. 雨幕粒子 + 时段调色层（清晨灰蓝 / 雨天暗青 / 黄昏烧红，同一张底图三种天光）
 ///
-/// 【与章节脚本的关系】Ch10 是导演，RideTrack 是舞台：
+/// 【与章节脚本的关系】Ch11 是导演，RideTrack 是舞台：
 ///   Start()/Stop() 行进开关；SetTint("morning"/"rain"/"dusk") 切天光；
 ///   AddSign()/AddMarker() 安排掠过物；SetBattery() 摆电量；PauseForChoice()/Resume() 停车答题。
 /// </summary>
@@ -102,7 +102,7 @@ public partial class RideTrack : Control
         AddChild(engine);
     }
 
-    /// <summary>底图贴图由章节脚本给（ch10.tscn 也可以直接配，这里兜底）</summary>
+    /// <summary>底图贴图由章节脚本给（ch11.tscn 也可以直接配，这里兜底）</summary>
     public void SetBackground(Texture2D tex) => bg.Texture = tex;
 
     /// <summary>电机声流（章节脚本把 AudioStreamWav 给进来，内部转循环）</summary>

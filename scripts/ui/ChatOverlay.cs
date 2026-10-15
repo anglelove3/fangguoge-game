@@ -1597,7 +1597,7 @@ public partial class ChatOverlay : Control
 
     /// <summary>
     /// 这个会话在本局里被点开过吗（第十八轮：第八章要判断"他真的去翻她了吗"）。
-    /// 传联系人 id（jie）或会话文件名（ch08_jie）都算，章节脚本不用关心微信内部怎么匹配。
+    /// 传联系人 id（jie）或会话文件名（ch09_jie）都算，章节脚本不用关心微信内部怎么匹配。
     /// </summary>
     public static bool WasChatOpened(string contactOrChatId) =>
         !string.IsNullOrEmpty(contactOrChatId) && openedChats.Contains(contactOrChatId);

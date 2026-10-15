@@ -58,11 +58,75 @@
       ]
     },
     {
+      "id": "m6b",
+      "author": "宝宝",
+      "authorId": "baobao",
+      "avatar": "res://assets/art/chat/her_avatar_v1.png",
+      "time": "2小时前",
+      "afterChapter": 3,
+      "text": "",
+      "images": [
+        "res://assets/art/chat/photo_back_v1.png"
+      ],
+      "likes": [],
+      "comments": [
+        {
+          "author": "叶冰玉（高中同学）",
+          "text": "你还好吧？"
+        },
+        {
+          "author": "宝宝",
+          "text": "嗯。"
+        }
+      ],
+      "commentReplies": [
+        {
+          "keywords": [
+            "怎么了",
+            "发生什么",
+            "出什么事"
+          ],
+          "lines": [
+            "没什么。"
+          ]
+        },
+        {
+          "keywords": [
+            "在哪",
+            "陪你",
+            "聊聊"
+          ],
+          "lines": [
+            "不用。我挺好的。"
+          ]
+        }
+      ],
+      "commentFallback": [
+        "……",
+        "别担心。"
+      ]
+    },
+    {
+      "id": "m6c",
+      "author": "叶冰玉（高中同学）",
+      "avatar": "",
+      "time": "昨天",
+      "afterChapter": 3,
+      "text": "有些人啊，认识十几年，还是看不懂。……算了，不说了。睡觉。",
+      "images": [],
+      "likes": [
+        "同桌"
+      ],
+      "comments": [],
+      "commentReplies": [],
+      "commentFallback": []
+    },
+    {
       "id": "m7",
       "author": "妈",
       "avatar": "res://assets/art/chat/avatar_ma.png",
       "time": "1 小时前",
-      "afterChapter": 4,
+      "afterChapter": 5,
       "text": "跟娃说好了，腊月二十回来。腌菜备上，就等他进门。",
       "images": [],
       "likes": [
@@ -398,91 +462,163 @@
   ],
   "publishGroups": [
     {
-      "id": "pub_ch05",
+      "id": "pub_ch06",
       "afterChapter": 5,
       "options": [
         {
           "text": "今天离心机终于排到我了。全组的数据都指着这一台机器。",
-          "likes": ["同桌"],
+          "likes": [
+            "同桌"
+          ],
           "comments": [
-            { "author": "三金师兄", "text": "占机王的日常。" },
-            { "author": "俊杰（师弟）", "text": "师兄带带我" }
+            {
+              "author": "三金师兄",
+              "text": "占机王的日常。"
+            },
+            {
+              "author": "俊杰（师弟）",
+              "text": "师兄带带我"
+            }
           ]
         },
         {
           "text": "实验日常：等仪器的一小时，够写半页记录。",
-          "likes": ["小米师妹"],
+          "likes": [
+            "小米师妹"
+          ],
           "comments": [
-            { "author": "小米师妹", "text": "师兄威武！" },
-            { "author": "金艮", "text": "就是说，等机器不如等开饭。" }
+            {
+              "author": "小米师妹",
+              "text": "师兄威武！"
+            },
+            {
+              "author": "金艮",
+              "text": "就是说，等机器不如等开饭。"
+            }
           ]
         },
         {
           "text": "平平无奇的一天。数据没有崩。",
-          "likes": ["金艮"],
+          "likes": [
+            "金艮"
+          ],
           "comments": [
-            { "author": "金艮", "text": "就是说，这值得发个圈？" },
-            { "author": "同桌", "text": "没崩就是好日子" }
+            {
+              "author": "金艮",
+              "text": "就是说，这值得发个圈？"
+            },
+            {
+              "author": "同桌",
+              "text": "没崩就是好日子"
+            }
           ]
         }
       ]
     },
     {
-      "id": "pub_ch07",
+      "id": "pub_ch08",
       "afterChapter": 7,
       "options": [
         {
           "text": "今晚手感不错。",
-          "likes": ["小米师妹"],
+          "likes": [
+            "小米师妹"
+          ],
           "comments": [
-            { "author": "小米师妹", "text": "就说！江洁姐肯定让你了吧" },
-            { "author": "金艮", "text": "就是说，下一把别跑。" }
+            {
+              "author": "小米师妹",
+              "text": "就说！江洁姐肯定让你了吧"
+            },
+            {
+              "author": "金艮",
+              "text": "就是说，下一把别跑。"
+            }
           ]
         },
         {
           "text": "输了三局，赢了一顿夜宵。",
-          "likes": ["俊杰（师弟）"],
+          "likes": [
+            "俊杰（师弟）"
+          ],
           "comments": [
-            { "author": "俊杰（师弟）", "text": "夜宵才是本体" },
-            { "author": "小米师妹", "text": "下次我上场！" }
+            {
+              "author": "俊杰（师弟）",
+              "text": "夜宵才是本体"
+            },
+            {
+              "author": "小米师妹",
+              "text": "下次我上场！"
+            }
           ]
         },
         {
           "text": "台球这东西，七分靠心态。",
-          "likes": ["江洁"],
+          "likes": [
+            "江洁"
+          ],
           "comments": [
-            { "author": "江洁", "text": "嗯。线走得正。" },
-            { "author": "金艮", "text": "就是说，哲学家。" }
+            {
+              "author": "江洁",
+              "text": "嗯。线走得正。"
+            },
+            {
+              "author": "金艮",
+              "text": "就是说，哲学家。"
+            }
           ]
         }
       ]
     },
     {
-      "id": "pub_ch09",
+      "id": "pub_ch10",
       "afterChapter": 9,
       "options": [
         {
           "text": "江边的风很舒服。",
-          "likes": ["江洁"],
+          "likes": [
+            "江洁"
+          ],
           "comments": [
-            { "author": "江洁", "text": "嗯。风把人也吹清楚了。" },
-            { "author": "妈", "text": "晚上别在江边待太久" }
+            {
+              "author": "江洁",
+              "text": "嗯。风把人也吹清楚了。"
+            },
+            {
+              "author": "妈",
+              "text": "晚上别在江边待太久"
+            }
           ]
         },
         {
           "text": "晚风、江堤、走不完的路。",
-          "likes": ["同桌"],
+          "likes": [
+            "同桌"
+          ],
           "comments": [
-            { "author": "同桌", "text": "诗人上线了？" },
-            { "author": "叶冰玉（高中同学）", "text": "你那边也入秋了吧" }
+            {
+              "author": "同桌",
+              "text": "诗人上线了？"
+            },
+            {
+              "author": "叶冰玉（高中同学）",
+              "text": "你那边也入秋了吧"
+            }
           ]
         },
         {
           "text": "今天走了两万步。",
-          "likes": ["金艮"],
+          "likes": [
+            "金艮"
+          ],
           "comments": [
-            { "author": "金艮", "text": "就是说，微信运动第一预定。" },
-            { "author": "小米师妹", "text": "师兄动起来了！" }
+            {
+              "author": "金艮",
+              "text": "就是说，微信运动第一预定。"
+            },
+            {
+              "author": "小米师妹",
+              "text": "师兄动起来了！"
+            }
           ]
         }
       ]

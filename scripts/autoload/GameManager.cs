@@ -74,7 +74,13 @@ public partial class GameManager : Node
     public System.Collections.Generic.IReadOnlyDictionary<string, int> ChoiceHistory => choiceHistory;
 
     // 存档格式版本：3 = 在 v2 的基础上加了"人物关系"一层（加好友 / 备注 / 关系阶段 / 关键节点）
-    private const int SaveVersion = 3;
+    private const int SaveVersion = 4;
+
+    /// <summary>
+    /// 第二十二轮：分手章插入（新 ch04《晚安》），全库编号 +1 的那一版。
+    /// v3 及以前的存档：章节号与带章号前缀的记录 id 都要平移，判据绑在这个常量上。
+    /// </summary>
+    private const int ChapterShiftVersion = 4;
 
     // 数值口径迁移只发生在"从 v1（0 起点）升到 v2（50 起点）"这一步。
     // 单独留一个常量，是因为升到 v3 时如果还写 version < SaveVersion，
@@ -207,6 +213,20 @@ public partial class GameManager : Node
     public bool HasChoice(string choiceId) =>
         !string.IsNullOrEmpty(choiceId) && choiceHistory.ContainsKey(choiceId);
 
+    /// <summary>
+    /// 章节号平移（第二十二轮编号手术的存档迁移用）：
+    /// "ch04_xxx" 及以后的章前缀 +1，"ch03" 及以前不动，无前缀的原样返回。
+    /// </summary>
+    private static string ShiftChapterId(string id)
+    {
+        if (string.IsNullOrEmpty(id))
+            return id;
+        var m = System.Text.RegularExpressions.Regex.Match(id, @"^ch(\d{2})(_.*)?$");
+        if (!m.Success || int.Parse(m.Groups[1].Value) < 4)
+            return id;
+        return $"ch{int.Parse(m.Groups[1].Value) + 1:00}{m.Groups[2].Value}";
+    }
+
     // ========== 手机动态事件（第十二轮） ==========
 
     /// <summary>这个动态事件是不是已经触发过？（重玩章节不重复收到）</summary>
@@ -246,12 +266,12 @@ public partial class GameManager : Node
     /// <summary>红色低电量阈值（状态栏图标变红）</summary>
     public const int BatteryLowThreshold = 25;
 
-    /// <summary>每章开始的目标电量；100 = 剧情充电点</summary>
+    /// <summary>每章开始的目标电量；100 = 剧情充电点（第二十二轮编号 +1 后的键位）</summary>
     private static readonly System.Collections.Generic.Dictionary<int, int> ChapterBattery = new()
     {
-        { 0, 100 }, { 1, 100 }, { 2, 88 }, { 3, 74 }, { 4, 58 },
-        { 5, 100 }, { 6, 82 }, { 7, 64 }, { 8, 20 },
-        { 9, 100 }, { 10, 100 }, { 11, 82 },
+        { 0, 100 }, { 1, 100 }, { 2, 88 }, { 3, 74 }, { 4, 64 },
+        { 5, 58 }, { 6, 100 }, { 7, 82 }, { 8, 64 }, { 9, 20 },
+        { 10, 100 }, { 11, 100 }, { 12, 82 },
     };
 
     /// <summary>
@@ -705,13 +725,14 @@ public partial class GameManager : Node
             }
             SeedRelationships(); // 老档里没记下的"早就认识的人"补齐
 
-            // 第十九轮补账：删除系统上线之前，已经读到第七章往后的旧档，
-            // 默认"第六章那晚的酒没白喝"——宝宝已经在回宿舍的路上删掉了。
-            // 不补的话，第 9 章《置顶》的列表里她还挂在上面，就是穿帮。
-            if (CurrentChapter >= 7 && !IsDeleted("baobao"))
+            // 第十九轮补账：删除系统上线之前，已经玩过《放过自己》（现在是第七章）的旧档，
+            // 默认"那晚的酒没白喝"——宝宝已经在回宿舍的路上删掉了。
+            // 不补的话，后面的列表里她还挂在上面，就是穿帮。
+            // （第二十二轮编号 +1：原第六章《放过自己》现在是第七章，阈值 7 → 8）
+            if (CurrentChapter >= 8 && !IsDeleted("baobao"))
             {
-                DeleteFriend("baobao", "legacy_ch06_delete");
-                GD.Print("[读档] 旧档补账：第六章的删除已默认发生（baobao）");
+                DeleteFriend("baobao", "legacy_ch07_delete");
+                GD.Print("[读档] 旧档补账：第七章的删除已默认发生（baobao）");
             }
 
             // 置顶联系人 + 已用物品（第十八轮；老存档没有这两个字段 → 按空处理，不用升版本）
@@ -741,6 +762,25 @@ public partial class GameManager : Node
                 Affection = Mathf.Clamp(Affection + StatStart, 0, 100);
                 Courage = Mathf.Clamp(Courage + StatStart, 0, 100);
                 GD.Print($"[读档] 检测到 v{saveData.version} 旧存档，数值已平移到 {StatStart} 起点口径");
+                shifted = true;
+            }
+
+            // ========== 第二十二轮：分手章插入，全库编号 +1（老档迁移） ==========
+            // v3 及以前的存档：currentChapter >= 4 的整体 +1（新 ch04《晚安》插在《天平》之后）；
+            // 带章号前缀的记录 id（动态事件 / 选择）一起平移，去重和回顾才不会错位。
+            if (saveData.version < ChapterShiftVersion)
+            {
+                if (CurrentChapter >= 4 && CurrentChapter != 99)
+                {
+                    CurrentChapter += 1;
+                    GD.Print($"[读档] 章节号平移（分手章插入）：现在第 {CurrentChapter} 章");
+                }
+                for (int i = 0; i < liveEvents.Count; i++)
+                    liveEvents[i] = ShiftChapterId(liveEvents[i]);
+                var shiftedChoices = new System.Collections.Generic.Dictionary<string, int>();
+                foreach (var kv in choiceHistory)
+                    shiftedChoices[ShiftChapterId(kv.Key)] = kv.Value;
+                choiceHistory = shiftedChoices;
                 shifted = true;
             }
 
@@ -931,7 +971,7 @@ public class RelationshipState
     /// <summary>关系阶段（just_met / friend / close / dating…）；空 = 用角色卡里的出厂值</summary>
     public string stage { get; set; } = "";
 
-    /// <summary>关键节点：这个人身上发生过的事（ch08_first_chat、ch08_remark…），用来去重和后续章节判定</summary>
+    /// <summary>关键节点：这个人身上发生过的事（ch09_first_chat、ch09_remark…），用来去重和后续章节判定</summary>
     public System.Collections.Generic.HashSet<string> keyEvents { get; set; } = new();
 
     /// <summary>

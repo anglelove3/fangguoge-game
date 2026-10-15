@@ -333,7 +333,7 @@ public partial class MainMenu : Control
     }
 
     /// <summary>目前开发到的最后一章（通关档的"重玩落点"）</summary>
-    private const int LastChapter = 11;
+    private const int LastChapter = 12;
 
     /// <summary>
     /// 点击"设置"→ 打开设置界面
@@ -365,14 +365,14 @@ public partial class MainMenu : Control
             1 => "res://scenes/chapters/ch01/ch01.tscn",
             2 => "res://scenes/chapters/ch02/ch02.tscn",
             3 => "res://scenes/chapters/ch03/ch03.tscn",
-            4 => "res://scenes/chapters/ch04/ch04.tscn",
-            5 => "res://scenes/chapters/ch05/ch05.tscn",
-            6 => "res://scenes/chapters/ch06/ch06.tscn",
-            7 => "res://scenes/chapters/ch07/ch07.tscn",
-            8 => "res://scenes/chapters/ch08/ch08.tscn",
-            9 => "res://scenes/chapters/ch09/ch09.tscn",
-            10 => "res://scenes/chapters/ch10/ch10.tscn",
-            11 => "res://scenes/chapters/ch11/ch11.tscn",
+            4 => "res://scenes/chapters/ch05/ch05.tscn",
+            5 => "res://scenes/chapters/ch06/ch06.tscn",
+            6 => "res://scenes/chapters/ch07/ch07.tscn",
+            7 => "res://scenes/chapters/ch08/ch08.tscn",
+            8 => "res://scenes/chapters/ch09/ch09.tscn",
+            9 => "res://scenes/chapters/ch10/ch10.tscn",
+            10 => "res://scenes/chapters/ch11/ch11.tscn",
+            11 => "res://scenes/chapters/ch12/ch12.tscn",
             99 => "res://scenes/ui/demo_end/demo_end.tscn", // 试玩结束页
             // 后续章节在这里添加：
             _ => "res://scenes/chapters/prologue/prologue.tscn"
