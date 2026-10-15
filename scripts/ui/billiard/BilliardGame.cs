@@ -64,13 +64,23 @@ public partial class BilliardGame : Control
 
     private static readonly Color[] BallCols =
     {
-        new(0.90f, 0.72f, 0.20f), // 1 黄
-        new(0.25f, 0.45f, 0.82f), // 2 蓝
-        new(0.82f, 0.24f, 0.22f), // 3 红
-        new(0.55f, 0.30f, 0.75f), // 4 紫
-        new(0.90f, 0.52f, 0.18f), // 5 橙
-        new(0.16f, 0.62f, 0.58f), // 6 青
+        new(0.90f, 0.72f, 0.20f), // 1/9  黄
+        new(0.25f, 0.45f, 0.82f), // 2/10 蓝
+        new(0.82f, 0.24f, 0.22f), // 3/11 红
+        new(0.55f, 0.30f, 0.75f), // 4/12 紫
+        new(0.90f, 0.52f, 0.18f), // 5/13 橙
+        new(0.16f, 0.62f, 0.58f), // 6/14 青
+        new(0.72f, 0.38f, 0.16f), // 7/15 栗
+        new(0.13f, 0.11f, 0.12f), // 8    黑八
     };
+
+    /// <summary>花色分组（第二十二轮 F13）：0 = 实色（1-7），1 = 花条（9-15），-1 = 未定，8 = 黑八不走花色</summary>
+    private static int SuitOf(int n)
+    {
+        if (n is >= 1 and <= 7) return 0;
+        if (n is >= 9 and <= 15) return 1;
+        return -1;
+    }
 
     // ==================== 球 ====================
 
@@ -97,7 +107,7 @@ public partial class BilliardGame : Control
 
     // ==================== 流程状态 ====================
 
-    private enum GState { Intro, Aim, Sim, Comment, HerThink, Outro }
+    private enum GState { Intro, Aim, Sim, Comment, HerThink, Outro, Placing }
 
     private GState gs = GState.Intro;
     private int myShots, herShots, myScore, herScore;
@@ -105,6 +115,12 @@ public partial class BilliardGame : Control
     private bool turnIsMine = true;   // HUD 显示当前该谁打
     private bool shotScratch;
     private int shotPocketCount;
+    private readonly List<int> shotPotted = new(); // 本杆进袋的彩球号（第二十二轮 F13 规则结算用）
+
+    // ---- 花色分组（第二十二轮 F13：迷你八球）----
+    private int mySuit = -1, herSuit = -1;   // -1 未定 / 0 实色 1-7 / 1 花条 9-15
+    private bool freeBallMe, freeBallHer;    // 下一杆自由球（白球落袋 = 犯规的代价）
+    private Vector2 lastMouse;               // 自由球摆放时白球跟着鼠标走
 
     private readonly List<BilliardData.CommentLine> commentQueue = new();
     private Action afterComments;
@@ -139,6 +155,7 @@ public partial class BilliardGame : Control
     private BoardView board;
     private Label scoreLabel;
     private Label turnLabel;
+    private Label suitLabel;
     private Label hintLabel;
     private Label spinLabel;
     private Control commentBar;
@@ -168,6 +185,8 @@ public partial class BilliardGame : Control
         scoreLabel.Name = "ScoreLabel";
         turnLabel = MakeHudLabel(62, 94, 22, UIDim);
         turnLabel.Name = "TurnLabel";
+        suitLabel = MakeHudLabel(94, 124, 19, new Color(0.93f, 0.88f, 0.70f));
+        suitLabel.Name = "SuitLabel";
         hintLabel = MakeHudLabel(892, 924, 20, new Color(0.93f, 0.88f, 0.70f));
         hintLabel.Name = "HintLabel";
         hintLabel.Visible = false;
@@ -329,19 +348,46 @@ public partial class BilliardGame : Control
         balls.Clear();
         balls.Add(new Ball { Pos = new Vector2(FeltRect.Position.X + FeltRect.Size.X * 0.24f, cy), Col = WhiteBallCol, Number = 0 });
 
-        // 三排三角（1 / 2·3 / 4·5·6），顶球朝白球
+        // ---- 15 球标准三角（第二十二轮 F13）：8 号黑八钉在第三排正中央，两底角一实一花 ----
+        var order = new List<int>();
+        for (int n = 1; n <= 15; n++)
+            if (n != 8)
+                order.Add(n);
+        // 洗牌（8 号最后再插回中心位）
+        for (int i = order.Count - 1; i > 0; i--)
+        {
+            int j = rng.RandiRange(0, i);
+            (order[i], order[j]) = (order[j], order[i]);
+        }
+        // 两底角强制一实一花（摆球的规矩）
+        int cornerA = order.FindIndex(n => SuitOf(n) == 0);
+        int cornerB = order.FindIndex(n => SuitOf(n) == 1);
+        if (cornerA < 0 || cornerB < 0)
+        {
+            cornerA = 0;
+            cornerB = order.Count - 1;
+        }
+        // 第三排中央 index（0-based 累积）：row0:0 / row1:1-2 / row2:3-5 → 中央 = 4
+        int centerIdx = 4;
+        // 三角里的位置 6、14 = 两个底角（row4 的第一个和最后一个：累积 10..14 → 首尾 10 与 14）
+        (order[cornerA], order[10]) = (order[10], order[cornerA]);
+        (order[cornerB], order[14]) = (order[14], order[cornerB]);
+        order.Insert(centerIdx, 8); // 现在是 15 颗，index 4 = 8 号
+
         float apexX = FeltRect.Position.X + FeltRect.Size.X * 0.70f;
         float rowDx = 2f * BallR * 0.866f;
-        int number = 1;
-        for (int row = 0; row < 3; row++)
+        int number = 0;
+        for (int row = 0; row < 5; row++)
         {
             for (int i = 0; i <= row; i++)
             {
+                int n = order[number];
+                Color baseCol = n == 8 ? BallCols[7] : BallCols[(n - 1) % 7];
                 balls.Add(new Ball
                 {
                     Pos = new Vector2(apexX + row * (rowDx + 0.5f), cy + (i * 2f - row) * BallR),
-                    Col = BallCols[(number - 1) % BallCols.Length],
-                    Number = number,
+                    Col = baseCol,
+                    Number = n,
                 });
                 number++;
             }
@@ -507,7 +553,10 @@ public partial class BilliardGame : Control
         if (b.Number == 0)
             shotScratch = true;
         else
+        {
             shotPocketCount++;
+            shotPotted.Add(b.Number);
+        }
     }
 
     private bool AllStopped()
@@ -539,6 +588,7 @@ public partial class BilliardGame : Control
 
         shotScratch = false;
         shotPocketCount = 0;
+        shotPotted.Clear();
         physAcc = 0f;
         gs = GState.Sim;
 
@@ -546,21 +596,94 @@ public partial class BilliardGame : Control
         UpdateHud();
     }
 
+    // ==================== 规则结算（第二十二轮 F13：迷你八球） ====================
+    //
+    // 规则一句话版：第一颗进的彩球定花色，之后只打自己的花色；
+    // 白球落袋 = 犯规（本杆白打 + 对手下一杆自由球）；
+    // 黑八是雷——没清完自己花色就打进去 = 直接判负。
+
     private void ResolveShot()
     {
-        if (lastShooterMe)
-            myScore += shotPocketCount;
-        else
-            herScore += shotPocketCount;
+        bool foul = shotScratch;                 // 犯规：本杆计分作废 + 对手自由球
+        bool eightDown = shotPotted.Contains(8); // 黑八进袋（优先级最高，下面单独判）
 
-        if (shotScratch)
-            RespotWhite();
+        // ---- 花色与计分（犯规时整杆作废，但定色照算——球确实进了）----
+        int gained = 0;   // 本杆合法净胜（进自己花色）
+        int gifted = 0;   // 帮对面进的
+        foreach (var n in shotPotted)
+        {
+            if (n == 8)
+                continue;
+
+            int suit = SuitOf(n);
+            if (mySuit < 0 && herSuit < 0)
+            {
+                // 第一颗彩球定色：进球方拿这个花色
+                if (lastShooterMe) { mySuit = suit; herSuit = 1 - suit; }
+                else { herSuit = suit; mySuit = 1 - suit; }
+                suitLabel.Visible = true;
+            }
+
+            int scorerSuit = lastShooterMe ? mySuit : herSuit;
+            if (suit == scorerSuit)
+                gained++;
+            else
+                gifted++; // 打错花色 = 帮对面清球（八球的直觉）
+        }
+
+        if (!foul)
+        {
+            if (lastShooterMe)
+            {
+                myScore += gained;
+                herScore += gifted;
+            }
+            else
+            {
+                herScore += gained;
+                myScore += gifted;
+            }
+        }
+
+        // ---- 犯规：对手下一杆自由球 ----
+        if (foul)
+        {
+            if (lastShooterMe)
+            {
+                freeBallHer = true;
+                RespotWhite();
+            }
+            else
+            {
+                freeBallMe = true;
+                RespotWhite();
+            }
+        }
 
         UpdateHud();
 
-        string key = lastShooterMe
-            ? (shotScratch ? "playerScratch" : (shotPocketCount > 0 ? "playerPocket" : "playerMiss"))
-            : (shotScratch ? "herScratch" : (shotPocketCount > 0 ? "herPocket" : "herMiss"));
+        // ---- 黑八：进 = 直接定胜负（清完自己花色才算合法，三杆制里基本就是雷）----
+        if (eightDown)
+        {
+            int shooterSuit = lastShooterMe ? mySuit : herSuit;
+            bool legallyCleared = shooterSuit >= 0 && SuitCleared(shooterSuit);
+            // 合法打八（自己花色全清）且没犯规 → 打八的一方赢；否则抢黑八判负
+            bool shooterWins = legallyCleared && !foul;
+            bool meWin = lastShooterMe ? shooterWins : !shooterWins;
+            EndGame(8, meWin);
+            return;
+        }
+
+        // ---- 点评键 ----
+        string key;
+        if (foul)
+            key = lastShooterMe ? "playerScratch" : "herScratch";
+        else if (gifted > 0 && gained == 0)
+            key = lastShooterMe ? "playerWrongSuit" : "herWrongSuit";
+        else if (shotPocketCount > 0)
+            key = lastShooterMe ? "playerPocket" : "herPocket";
+        else
+            key = lastShooterMe ? "playerMiss" : "herMiss";
 
         var line = PickComment(key);
         gs = GState.Comment;
@@ -568,6 +691,19 @@ public partial class BilliardGame : Control
             ShowComments(new List<BilliardData.CommentLine> { line }, NextPhase);
         else
             NextPhase();
+    }
+
+    /// <summary>某花色的球是不是全部进袋了（合法打黑八的前提）</summary>
+    private bool SuitCleared(int suit)
+    {
+        foreach (var b in balls)
+        {
+            if (b.Pocketed || b.Number == 0 || b.Number == 8)
+                continue;
+            if (SuitOf(b.Number) == suit)
+                return false;
+        }
+        return true;
     }
 
     private void RespotWhite()
@@ -599,20 +735,20 @@ public partial class BilliardGame : Control
 
     private void NextPhase()
     {
-        // 彩球打光了就提前收官
-        bool anyColored = false;
+        // 彩球打光了就提前收官（黑八留在桌上不算——它是雷，不是目标）
+        bool anyTarget = false;
         foreach (var b in balls)
         {
-            if (b.Number > 0 && !b.Pocketed)
+            if (b.Number > 0 && b.Number != 8 && !b.Pocketed)
             {
-                anyColored = true;
+                anyTarget = true;
                 break;
             }
         }
 
-        if (!anyColored || (myShots >= 3 && herShots >= 3))
+        if (!anyTarget || (myShots >= 3 && herShots >= 3))
         {
-            EndGame();
+            EndGame(myScore > herScore ? 0 : (myScore < herScore ? 1 : 2), myScore > herScore);
             return;
         }
 
@@ -624,10 +760,22 @@ public partial class BilliardGame : Control
 
     private void BeginPlayerTurn()
     {
-        gs = GState.Aim;
         turnIsMine = true;
         dragging = false;
         spinDragging = false;
+
+        if (freeBallMe)
+        {
+            // 自由球（第二十二轮 F13）：白球跟手指走，点台面任意合法位置放下再打
+            freeBallMe = false;
+            gs = GState.Placing;
+            hintLabel.Text = HudText("freeBallMe");
+            hintLabel.Visible = true;
+            UpdateHud();
+            return;
+        }
+
+        gs = GState.Aim;
         if (!aimHintShown)
         {
             aimHintShown = true;
@@ -649,10 +797,14 @@ public partial class BilliardGame : Control
     private void BeginHerThink()
     {
         gs = GState.HerThink;
-        PlanHerShot(out Vector2 dir, out float power);
+
+        bool herFree = freeBallHer;
+        freeBallHer = false;
+
+        PlanHerShot(out Vector2 dir, out float power, herFree);
         herAimDir = dir;
         herAimShow = true;
-        hintLabel.Text = HudText("sheThinks");
+        hintLabel.Text = HudText(herFree ? "herFreeBall" : "sheThinks");
         hintLabel.Visible = true;
 
         flowT = 0.9f;
@@ -665,9 +817,11 @@ public partial class BilliardGame : Control
         UpdateHud();
     }
 
-    private void EndGame()
+    private void EndGame(int result, bool meWin)
     {
-        int result = myScore > herScore ? 0 : (myScore < herScore ? 1 : 2);
+        // 黑八判负/直胜优先于比分（result = 8 就是"黑八定生死"那一档）
+        if (result == 8)
+            result = meWin ? 0 : 1;
         GameManager.Instance?.RecordChoice("ch08_billiard", result);
 
         string key = result == 0 ? "win" : (result == 1 ? "lose" : "tie");
@@ -686,12 +840,17 @@ public partial class BilliardGame : Control
 
     // ==================== 江洁的 AI ====================
 
-    /// <summary>挑一颗目标球 + 一个袋口，对着"幽灵球"位打；带一点点手感误差</summary>
-    private void PlanHerShot(out Vector2 dir, out float power)
+    /// <summary>
+    /// 挑一颗目标球 + 一个袋口，对着"幽灵球"位打；带一点点手感误差。
+    /// 第二十二轮 F13：只打自己的花色（未定色时打任意彩球）、永远不碰黑八；
+    /// 自由球时先把白球摆到目标球正后方直线位，等于她白捡一个绝佳球型。
+    /// </summary>
+    private void PlanHerShot(out Vector2 dir, out float power, bool freeBall)
     {
         var white = balls[0];
         Ball best = null;
         Vector2 bestDir = Vector2.Right;
+        Vector2 bestGhost = Vector2.Zero;
         float bestScore = float.MaxValue;
         float bestDist = 600f;
 
@@ -699,6 +858,10 @@ public partial class BilliardGame : Control
         {
             if (b.Number == 0 || b.Pocketed)
                 continue;
+            if (b.Number == 8)
+                continue; // 黑八是雷，她不碰（人设：她稳，但不赌）
+            if (herSuit >= 0 && SuitOf(b.Number) != herSuit)
+                continue; // 定了花色就只打自己的
 
             foreach (var p in pockets)
             {
@@ -706,8 +869,8 @@ public partial class BilliardGame : Control
                 Vector2 ghost = b.Pos - dirBP * (2f * BallR);
 
                 float dW = (ghost - white.Pos).Length();
-                if (dW < 70f)
-                    continue; // 贴脸球没角度，换一颗
+                if (dW < 70f && !freeBall)
+                    continue; // 贴脸球没角度，换一颗（自由球没这个烦恼——白球要挪过去）
 
                 float dBP = (b.Pos - p).Length();
                 float score = dW + dBP * 0.9f;
@@ -720,6 +883,7 @@ public partial class BilliardGame : Control
                 {
                     bestScore = score;
                     best = b;
+                    bestGhost = ghost;
                     bestDir = (ghost - white.Pos).Normalized();
                     bestDist = dW + dBP;
                 }
@@ -728,11 +892,13 @@ public partial class BilliardGame : Control
 
         if (best == null)
         {
-            // 没得选：对着最近的一颗轻轻碰一下
+            // 没得选：对着最近的一颗非黑八轻轻碰一下
             float nearest = float.MaxValue;
             foreach (var b in balls)
             {
-                if (b.Number == 0 || b.Pocketed)
+                if (b.Number == 0 || b.Pocketed || b.Number == 8)
+                    continue;
+                if (herSuit >= 0 && SuitOf(b.Number) != herSuit)
                     continue;
                 float d = (b.Pos - white.Pos).Length();
                 if (d < nearest)
@@ -742,6 +908,20 @@ public partial class BilliardGame : Control
                     bestDist = d;
                 }
             }
+        }
+
+        // 自由球：把白球直接摆到幽灵球正后方（连线延长线上退 2R），球型瞬间变成送分题
+        if (freeBall && best != null)
+        {
+            Vector2 shootDir = (bestGhost - (bestGhost - bestDir * 100f)).Normalized();
+            white.Pos = bestGhost - bestDir * (2f * BallR);
+            int guard = 0;
+            while (BallAt(white.Pos, white) && guard < 30)
+            {
+                white.Pos -= bestDir * (BallR * 0.8f);
+                guard++;
+            }
+            bestDir = (bestGhost - white.Pos).Normalized();
         }
 
         // 手感误差：转个 ±0.42°（她手稳，这样中近距离能进、长台会歪）
@@ -865,6 +1045,12 @@ public partial class BilliardGame : Control
             "aimHint" => h.AimHint,
             "sheThinks" => h.SheThinks,
             "clickContinue" => h.ClickContinue,
+            "freeBallMe" => h.FreeBallMe,
+            "herFreeBall" => h.HerFreeBall,
+            "suitUndecided" => h.SuitUndecided,
+            "suitSolid" => h.SuitSolid,
+            "suitStripe" => h.SuitStripe,
+            "eightWarn" => h.EightWarn,
             _ => key,
         };
     }
@@ -875,6 +1061,11 @@ public partial class BilliardGame : Control
         scoreLabel.Text = HudText("scoreMe") + "  " + myScore + " : " + herScore + "  " + HudText("scoreHer");
         int n = turnIsMine ? Mathf.Min(myShots + 1, 3) : Mathf.Min(herShots + 1, 3);
         turnLabel.Text = string.Format(HudText("shotN"), n) + " · " + (turnIsMine ? HudText("yourTurn") : HudText("herTurn"));
+
+        // 花色行（第二十二轮 F13）：你的花色 + 黑八警示
+        string mine = mySuit == 0 ? HudText("suitSolid") : mySuit == 1 ? HudText("suitStripe") : HudText("suitUndecided");
+        string hers = herSuit == 0 ? HudText("suitSolid") : herSuit == 1 ? HudText("suitStripe") : HudText("suitUndecided");
+        suitLabel.Text = string.Format(HudText("eightWarn"), mine, hers);
     }
 
     private void UpdateSpinLabel()
@@ -900,6 +1091,7 @@ public partial class BilliardGame : Control
     {
         if (@event is InputEventMouseButton mb && mb.ButtonIndex == MouseButton.Left)
         {
+            lastMouse = mb.Position;
             if (mb.Pressed)
                 OnPress(mb.Position);
             else
@@ -908,6 +1100,7 @@ public partial class BilliardGame : Control
         }
         else if (@event is InputEventMouseMotion mm)
         {
+            lastMouse = mm.Position;
             if (dragging || spinDragging)
                 dragNow = mm.Position;
             if (spinDragging)
@@ -915,7 +1108,7 @@ public partial class BilliardGame : Control
                 UpdateSpinFromPos(mm.Position);
                 board.QueueRedraw();
             }
-            if (dragging)
+            if (dragging || gs == GState.Placing)
                 board.QueueRedraw();
         }
     }
@@ -947,6 +1140,29 @@ public partial class BilliardGame : Control
 
         switch (gs)
         {
+            case GState.Placing:
+            {
+                // 自由球：点台面任意合法位置放下白球，然后进入瞄准
+                Vector2 target = ClampToFelt(pos);
+                var white = balls[0];
+                white.Pos = target;
+                int guard = 0;
+                while (BallAt(white.Pos, white) && guard < 40)
+                {
+                    target += new Vector2(3f * BallR, 0f);
+                    target.X = Mathf.Min(target.X, FeltRect.End.X - BallR);
+                    white.Pos = target;
+                    guard++;
+                }
+                white.Pocketed = false;
+                white.Vel = Vector2.Zero;
+                gs = GState.Aim;
+                hintLabel.Visible = false;
+                AudioManager.Instance?.PlaySfx(AudioManager.SfxBallClack, -14f, 0.04f);
+                board.QueueRedraw();
+                break;
+            }
+
             case GState.Aim:
                 if (SpinZone.HasPoint(pos))
                 {
@@ -967,6 +1183,14 @@ public partial class BilliardGame : Control
                 Close();
                 break;
         }
+    }
+
+    /// <summary>把台面上的点夹回台呢内（球心不出界）</summary>
+    private Vector2 ClampToFelt(Vector2 p)
+    {
+        return new Vector2(
+            Mathf.Clamp(p.X, FeltRect.Position.X + BallR, FeltRect.End.X - BallR),
+            Mathf.Clamp(p.Y, FeltRect.Position.Y + BallR, FeltRect.End.Y - BallR));
     }
 
     private void OnRelease(Vector2 pos)
@@ -1065,6 +1289,16 @@ public partial class BilliardGame : Control
             if (b.Pocketed)
                 continue;
             DrawBallAt(c, b.Pos, BallR, b.Col, b.Number, 1f);
+        }
+
+        // 自由球摆放中：白球跟着手指走（虚影），落点非法时发红
+        if (gs == GState.Placing)
+        {
+            var ghostPos = ClampToFelt(lastMouse);
+            bool blocked = BallAt(ghostPos, balls[0]);
+            var wcol = blocked ? new Color(0.95f, 0.5f, 0.45f, 0.55f) : new Color(0.93f, 0.91f, 0.84f, 0.55f);
+            c.DrawCircle(ghostPos, BallR, wcol);
+            c.DrawArc(ghostPos, BallR + 4f, 0f, Mathf.Tau, 32, new Color(0.98f, 0.96f, 0.82f, 0.8f), 2f, true);
         }
 
         // 她的看线
@@ -1177,8 +1411,16 @@ public partial class BilliardGame : Control
 
         // 影子
         DrawEllipse(c, pos + new Vector2(2.5f, 4.5f), r * 1.02f, r * 0.55f, new Color(0, 0, 0, 0.25f * alpha));
-        // 球体
-        c.DrawCircle(pos, r, col with { A = alpha });
+        // 球体（花条 9-15：白底 + 一条横向色带，第二十二轮 F13）
+        if (number >= 9)
+        {
+            c.DrawCircle(pos, r, new Color(0.96f, 0.95f, 0.90f, alpha));
+            DrawEllipse(c, pos, r * 0.94f, r * 0.52f, col with { A = alpha * 0.92f });
+        }
+        else
+        {
+            c.DrawCircle(pos, r, col with { A = alpha });
+        }
         // 高光
         c.DrawCircle(pos + new Vector2(-r * 0.34f, -r * 0.4f), r * 0.32f, new Color(1, 1, 1, 0.72f * alpha));
         // 描边

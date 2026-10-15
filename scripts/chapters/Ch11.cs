@@ -414,12 +414,15 @@ public partial class Ch11 : ChapterBase
         flavorDorm.Visible = false;
         hintLabel.Visible = false;
 
-        // 骑行层上场：清晨天光 + 出发（公路 BGM 接班，宿舍那首 Gymnopédie 交出去）
+        // 骑行层上场：清晨天光 + 出发（0.8s 音画过渡；公路 BGM 接班，宿舍那首交出去）
         bgDorm.Modulate = new Color(1, 1, 1, 0);
         ride.Visible = true;
+        ride.FadeIn();
         ride.SetTint("morning");
         ride.Start();
         ride.AddSign("G205 往南", 1.2f);
+        ride.AddFlavor("服务区的橘猫睡得四仰八叉", 5.5f);
+        ride.AddFlavor("前车货车贴着：离我远点，拉着一车玻璃心", 11f);
         AudioManager.Instance?.PlayBgm(AudioManager.BgmRoad, -13f, 2.5f);
 
         StoryClock.UseSegment("road_morning");
@@ -430,6 +433,7 @@ public partial class Ch11 : ChapterBase
             // 清晨段的聊天解锁（她的叮嘱 / 起哄 / 日常——按线）
             UnlockLineGate("road1");
             LiveEvents.GiveUnread(cfg.JieContact, 2);
+            ride.ShowBanner(cfg.JieContact, "风大。骑慢点。"); // F19：骑行途中微信实时横幅
 
             dm.PlaySequence(ChapterId, "road1_ride", () =>
             {
@@ -466,10 +470,15 @@ public partial class Ch11 : ChapterBase
         hotspotsRoot.Visible = false;
         hintLabel.Visible = false;
 
-        // 停车进店：滚行层让位，小店背景淡入
+        // 停车进店：滚行层 0.5s 淡出让位，小店背景淡入
         ride.Stop();
         ride.HideBattery();
-        ride.Visible = false;
+        ride.FadeOut(0.5f);
+        GetTree().CreateTimer(0.55).Timeout += () =>
+        {
+            if (GodotObject.IsInstanceValid(this))
+                ride.Visible = false;
+        };
         CrossfadeTo(bgShop, 1.0f);
 
         StoryClock.UseSegment("road_noon");
@@ -546,13 +555,16 @@ public partial class Ch11 : ChapterBase
         flavorShop.Visible = false;
         hintLabel.Visible = false;
 
-        // 回到公路：雨来
+        // 回到公路：雨来（0.8s 音画过渡 + F19 雨天横幅与彩蛋）
         bgShop.Modulate = new Color(1, 1, 1, 0);
         ride.Visible = true;
+        ride.FadeIn();
         ride.SetTint("rain");
         ride.SetRain(true);
         ride.SetBattery(chargeIndex == 0 ? 88f : 62f);
         ride.Start();
+        ride.AddFlavor("FM 96.7：今晚到明晚，沿江地区有雾", 4f);
+        ride.AddFlavor("路边小卖部的狗对你摇了摇尾巴", 9f);
 
         StoryClock.UseSegment("road_rain");
 
@@ -561,6 +573,7 @@ public partial class Ch11 : ChapterBase
         {
             UnlockLineGate("rain");
             LiveEvents.GiveUnread(cfg.JieContact, 2);
+            ride.ShowBanner(cfg.JieContact, "雨那么大，你敢骑？？？"); // F19：雨天实时横幅
 
             ride.PauseForChoice();
             dm.ShowChoice(ChapterId, "rain", OnRainChosen);
@@ -607,12 +620,14 @@ public partial class Ch11 : ChapterBase
 
         var dm = DialogueManager.Instance;
 
-        // 黄昏段的聊天解锁 + 到达路牌
+        // 黄昏段的聊天解锁 + 到达路牌 + F19 黄昏横幅与彩蛋
         UnlockLineGate("dusk");
         LiveEvents.GiveUnread(cfg.JieContact, 2);
+        ride.ShowBanner(cfg.JieContact, "到哪了？天烧起来了。");
 
         ride.AddSign("临江 20km", 0.8f, 1.1f);
         ride.AddSign("临江 5km", 4.5f, 1.0f);
+        ride.AddFlavor("远处广场舞的音乐，风里飘过来一半", 3f);
 
         dm.PlaySequence(ChapterId, "dusk_arrive", () =>
         {

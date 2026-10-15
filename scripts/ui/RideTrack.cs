@@ -2,28 +2,39 @@ using Godot;
 using System.Collections.Generic;
 
 /// <summary>
-/// 公路滚行演出层（第十章《向南》招牌组件）
+/// 公路滚行层（第二十二轮 F18 重做）：从"看演出"升级成"轻轻开车"。
 ///
-/// 【设计定位】玩家不操控车——这一层只负责把"他正在往南骑"演出来：
-///   1. 背景缓慢漂移（水彩图整体轻摆，行进起伏感，不需要循环接缝）
-///   2. 掠过物（路牌 / 里程碑）从右往左滑过屏幕——程序绘制的 UI 物件，零新素材
-///   3. HUD 电量条：电量是剧情脚本的演出元素，不是系统——章节脚本说掉多少就掉多少
-///   4. 雨幕粒子 + 时段调色层（清晨灰蓝 / 雨天暗青 / 黄昏烧红，同一张底图三种天光）
+/// 【重做前的问题（试玩反馈 #14）】
+///   背景左右晃 = 在荡秋千不在骑车；掠过物是浮在半空的 UI 面板；进出场硬切。
 ///
-/// 【与章节脚本的关系】Ch11 是导演，RideTrack 是舞台：
-///   Start()/Stop() 行进开关；SetTint("morning"/"rain"/"dusk") 切天光；
-///   AddSign()/AddMarker() 安排掠过物；SetBattery() 摆电量；PauseForChoice()/Resume() 停车答题。
+/// 【重做后】
+///   1. 伪 3D 公路：下半屏程序绘制的路面（灭点透视 + 中央虚线滚动 + 路边电线杆
+///      从远处涌出），上半屏保留水彩底图当天空远景——速度感从这里来。
+///   2. 骑手剪影：人和电动车在画面下方，←→ / A D 轻轻左右挪（无惩罚、无碰撞，
+///      纯参与感——这条路没有对错，只有风）。
+///   3. F19 骑行途中微信横幅：ShowBanner() 从顶部滑入，红点未读照常；到节点停车可读。
+///   4. F19 聊天外彩蛋：AddFlavor() 暖黄小卡掠过（服务区橘猫 / 货车标语 / 电台 FM）。
+///   5. 入出场 0.8 秒音画过渡：FadeIn() / FadeOut()。
+///
+/// 【与章节脚本的关系】Ch11 是导演，RideTrack 是舞台。
+/// 旧 API（Start/Stop/SetTint/SetRain/SetBattery/AddSign/AddMarker/PauseForChoice/Resume）
+/// 全部保留，章节脚本零破坏。
 /// </summary>
 public partial class RideTrack : Control
 {
     // ==================== 节点 ====================
 
-    private TextureRect bg;            // 公路底图（超屏，漂移用）
+    private TextureRect bg;            // 公路底图（上半屏远景）
     private Control passingRoot;       // 掠过物容器
-    private ColorRect darken;          // 压暗层（所有天光共用）
+    private ColorRect darken;          // 压暗层
     private ColorRect tintLayer;       // 天光染色层
     private GpuParticles2D rain;       // 雨幕
     private AudioStreamPlayer engine;  // 电机声循环
+    private RoadLayer road;            // 伪 3D 公路 + 骑手（第二十二轮重做）
+    private Panel banner;              // F19 微信横幅
+    private Label bannerName;
+    private Label bannerText;
+    private Tween bannerTween;
 
     // 电量 HUD
     private Control batteryHud;
@@ -33,22 +44,16 @@ public partial class RideTrack : Control
 
     // ==================== 状态 ====================
 
-    private bool running;          // 行进中（背景漂移 + 掠过物生成）
-    private float driftPhase;      // 背景漂移相位
-    private double spawnTimer;     // 掠过物生成计时
-    private float passSpeed = 1.0f; // 掠过速度倍率（停车时降到 0）
-    private float speedTarget = 1.0f;
-    private double signCountdown;  // 下一块路牌的间隔
-    private readonly List<(Panel body, Label text, float speed)> passers = new();
-
-    private System.Random rng = new();
+    private bool running;
+    private double spawnTimer;
+    private double signCountdown = 6;
+    private readonly System.Random rng = new();
 
     // ==================== 天光配方 ====================
 
-    private static readonly System.Collections.Generic.Dictionary<string, (Color tint, Color dark)> Tints =
+    private static readonly Dictionary<string, (Color tint, Color dark)> Tints =
         new()
         {
-            // tint = 染色层颜色；dark = 压暗层颜色（a 通道即浓度）
             { "morning", (new Color(0.55f, 0.65f, 0.85f, 0.16f), new Color(0.10f, 0.12f, 0.22f, 0.10f)) },
             { "noon",    (new Color(1.00f, 0.95f, 0.82f, 0.08f), new Color(0.10f, 0.10f, 0.15f, 0.04f)) },
             { "rain",    (new Color(0.35f, 0.45f, 0.60f, 0.22f), new Color(0.05f, 0.08f, 0.16f, 0.28f)) },
@@ -63,7 +68,6 @@ public partial class RideTrack : Control
         SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
         MouseFilter = MouseFilterEnum.Ignore;
 
-        // —— 底图：超屏 12%，行进时左右轻摆 ——
         bg = new TextureRect
         {
             Name = "RoadBg",
@@ -72,11 +76,8 @@ public partial class RideTrack : Control
             MouseFilter = MouseFilterEnum.Ignore,
         };
         bg.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
-        bg.OffsetLeft = -110;
-        bg.OffsetRight = 110;
         AddChild(bg);
 
-        // —— 天光两层 ——
         tintLayer = new ColorRect { MouseFilter = MouseFilterEnum.Ignore, Color = Colors.Transparent };
         darken = new ColorRect { MouseFilter = MouseFilterEnum.Ignore, Color = Colors.Transparent };
         foreach (var layer in new Control[] { tintLayer, darken })
@@ -85,27 +86,38 @@ public partial class RideTrack : Control
             AddChild(layer);
         }
 
-        // —— 掠过物容器 ——
         passingRoot = new Control { MouseFilter = MouseFilterEnum.Ignore };
         passingRoot.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
         AddChild(passingRoot);
 
-        // —— 雨幕 ——
         rain = BuildRain();
         AddChild(rain);
 
-        // —— 电量 HUD ——
         BuildBatteryHud();
+        BuildBanner();
 
-        // —— 电机声（流由章节脚本给；这里只管淡入淡出） ——
         engine = new AudioStreamPlayer { VolumeDb = -60f };
         AddChild(engine);
     }
 
-    /// <summary>底图贴图由章节脚本给（ch11.tscn 也可以直接配，这里兜底）</summary>
+    /// <summary>公道路图层最后挂（盖住下半屏），需要 bg 就绪后再加；由章节场景树保证顺序</summary>
+    public override void _EnterTree()
+    {
+        // RoadLayer 在 _Ready 里加不合适（要盖在 tint 之上、banner 之下）——延迟到首帧前
+        CallDeferred(nameof(EnsureRoadLayer));
+    }
+
+    private void EnsureRoadLayer()
+    {
+        if (road != null)
+            return;
+        road = new RoadLayer { G = this, MouseFilter = MouseFilterEnum.Ignore };
+        road.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
+        AddChild(road);
+    }
+
     public void SetBackground(Texture2D tex) => bg.Texture = tex;
 
-    /// <summary>电机声流（章节脚本把 AudioStreamWav 给进来，内部转循环）</summary>
     public void SetEngineStream(AudioStream stream)
     {
         if (stream is AudioStreamWav wav)
@@ -117,13 +129,29 @@ public partial class RideTrack : Control
         engine.Stream = stream;
     }
 
+    // ==================== 入出场过渡（F18 保底项） ====================
+
+    /// <summary>0.8 秒音画淡入（配合 Visible = true 使用）</summary>
+    public void FadeIn(float seconds = 0.8f)
+    {
+        Modulate = new Color(1, 1, 1, 0);
+        var tw = CreateTween();
+        tw.TweenProperty(this, "modulate:a", 1f, seconds).SetEase(Tween.EaseType.Out);
+    }
+
+    /// <summary>0.8 秒音画淡出（invisible 由章节脚本随后设置）</summary>
+    public void FadeOut(float seconds = 0.8f)
+    {
+        var tw = CreateTween();
+        tw.TweenProperty(this, "modulate:a", 0f, seconds).SetEase(Tween.EaseType.In);
+    }
+
     // ==================== 行进控制 ====================
 
-    /// <summary>出发（淡入电机声，开始漂移与掠过物）</summary>
     public void Start(float engineDb = -14f)
     {
         running = true;
-        speedTarget = 1f;
+        road?.SetMoving(true);
         if (engine.Stream != null)
         {
             if (!engine.Playing)
@@ -133,10 +161,9 @@ public partial class RideTrack : Control
         }
     }
 
-    /// <summary>停车答题（电机声淡下去，掠过物减速停住）</summary>
     public void PauseForChoice()
     {
-        speedTarget = 0f;
+        road?.SetMoving(false);
         if (engine.Playing)
         {
             var tw = CreateTween();
@@ -144,10 +171,10 @@ public partial class RideTrack : Control
         }
     }
 
-    /// <summary>答完题继续骑</summary>
     public void Resume(float engineDb = -14f)
     {
-        speedTarget = 1f;
+        running = true;
+        road?.SetMoving(true);
         if (engine.Stream != null)
         {
             if (!engine.Playing)
@@ -157,11 +184,10 @@ public partial class RideTrack : Control
         }
     }
 
-    /// <summary>彻底收工（进店 / 到站 / 出章）——电机声淡出，掠过物清场</summary>
     public void Stop(float fade = 1.4f)
     {
         running = false;
-        speedTarget = 0f;
+        road?.SetMoving(false);
         if (engine.Playing)
         {
             var tw = CreateTween();
@@ -172,7 +198,6 @@ public partial class RideTrack : Control
 
     // ==================== 天光 / 雨 / 电量 ====================
 
-    /// <summary>切天光（"morning" / "noon" / "rain" / "dusk" / "night"），1.6 秒缓变</summary>
     public void SetTint(string key)
     {
         if (!Tints.TryGetValue(key, out var recipe))
@@ -182,16 +207,13 @@ public partial class RideTrack : Control
         tw.TweenProperty(darken, "color", recipe.dark, 1.6f);
     }
 
-    /// <summary>雨幕开关</summary>
     public void SetRain(bool on, float fade = 1.2f)
     {
         rain.Emitting = on;
-        // 雨幕浓度用 amount_ratio 缓变（Godot 4.7 支持）
         var tw = CreateTween();
         tw.TweenProperty(rain, "amount_ratio", on ? 1.0f : 0.0f, fade);
     }
 
-    /// <summary>电量 0~100。颜色跟着分档：稳 / 紧 / 红</summary>
     public void SetBattery(float percent, string text = "")
     {
         batteryHud.Visible = true;
@@ -199,20 +221,96 @@ public partial class RideTrack : Control
         batteryFill.AnchorRight = percent / 100f;
 
         var c = percent > 30f
-            ? new Color(0.72f, 0.78f, 0.62f)      // 灰绿——还稳
+            ? new Color(0.72f, 0.78f, 0.62f)
             : percent > 12f
-                ? new Color(0.90f, 0.68f, 0.38f)  // 橙——紧了
-                : new Color(0.85f, 0.36f, 0.30f); // 红——赌命
+                ? new Color(0.90f, 0.68f, 0.38f)
+                : new Color(0.85f, 0.36f, 0.30f);
         batteryFill.Color = c;
         batteryLabel.Text = string.IsNullOrEmpty(text) ? $"电量 {percent:0}%" : text;
     }
 
-    /// <summary>收掉电量 HUD（进店吃饭 / 到站下车时）</summary>
     public void HideBattery() => batteryHud.Visible = false;
 
-    // ==================== 掠过物 ====================
+    // ==================== F19 微信横幅 ====================
 
-    /// <summary>一块绿底白字路牌从右往左掠过（delay 秒后出发）</summary>
+    /// <summary>骑行途中微信消息横幅：顶部滑入 2.6 秒自动收起（红点照常挂在手机上，停车可读）</summary>
+    public void ShowBanner(string contact, string text)
+    {
+        bannerName.Text = contact;
+        bannerText.Text = text;
+        banner.Visible = true;
+
+        bannerTween?.Kill();
+        banner.Modulate = new Color(1, 1, 1, 0);
+        banner.Position = new Vector2(160, -80);
+        bannerTween = CreateTween();
+        bannerTween.TweenProperty(banner, "modulate:a", 1f, 0.25f);
+        bannerTween.Parallel().TweenProperty(banner, "position:y", 28f, 0.3f)
+            .SetTrans(Tween.TransitionType.Back).SetEase(Tween.EaseType.Out);
+        bannerTween.TweenInterval(2.6f);
+        bannerTween.TweenProperty(banner, "modulate:a", 0f, 0.35f);
+        bannerTween.Parallel().TweenProperty(banner, "position:y", -80f, 0.3f);
+        bannerTween.TweenCallback(Callable.From(() => banner.Visible = false));
+    }
+
+    private void BuildBanner()
+    {
+        banner = new Panel { MouseFilter = MouseFilterEnum.Ignore, Visible = false };
+        var style = new StyleBoxFlat
+        {
+            BgColor = new Color(0.10f, 0.12f, 0.10f, 0.88f),
+            CornerRadiusTopLeft = 18, CornerRadiusTopRight = 18,
+            CornerRadiusBottomLeft = 18, CornerRadiusBottomRight = 18,
+            BorderColor = new Color(0.16f, 0.62f, 0.30f, 0.7f),
+            BorderWidthLeft = 2, BorderWidthRight = 2, BorderWidthTop = 2, BorderWidthBottom = 2,
+        };
+        banner.AddThemeStyleboxOverride("panel", style);
+
+        banner.AnchorLeft = 0f; banner.AnchorRight = 0f;
+        banner.AnchorTop = 0f; banner.AnchorBottom = 0f;
+        banner.OffsetLeft = 160; banner.OffsetRight = 1120;
+        banner.OffsetTop = -80; banner.OffsetBottom = 20;
+        banner.ZIndex = 20;
+        AddChild(banner);
+
+        var icon = new Panel { MouseFilter = MouseFilterEnum.Ignore };
+        var iconStyle = new StyleBoxFlat { BgColor = new Color(0.16f, 0.62f, 0.30f) };
+        iconStyle.SetCornerRadiusAll(12);
+        icon.AddThemeStyleboxOverride("panel", iconStyle);
+        icon.Position = new Vector2(18, 14);
+        icon.Size = new Vector2(44, 44);
+        banner.AddChild(icon);
+        var iconGlyph = new Label
+        {
+            Text = "微",
+            HorizontalAlignment = HorizontalAlignment.Center,
+            VerticalAlignment = VerticalAlignment.Center,
+            MouseFilter = MouseFilterEnum.Ignore,
+        };
+        iconGlyph.AddThemeFontSizeOverride("font_size", 24);
+        iconGlyph.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
+        icon.AddChild(iconGlyph);
+
+        bannerName = new Label { MouseFilter = MouseFilterEnum.Ignore };
+        bannerName.Position = new Vector2(78, 12);
+        bannerName.AddThemeFontSizeOverride("font_size", 19);
+        bannerName.AddThemeColorOverride("font_color", new Color(0.65f, 0.78f, 0.66f));
+        banner.AddChild(bannerName);
+
+        bannerText = new Label
+        {
+            MouseFilter = MouseFilterEnum.Ignore,
+            TextOverrunBehavior = TextServer.OverrunBehavior.TrimEllipsis,
+        };
+        bannerText.Position = new Vector2(78, 40);
+        bannerText.Size = new Vector2(920, 34);
+        bannerText.AddThemeFontSizeOverride("font_size", 25);
+        bannerText.AddThemeColorOverride("font_color", new Color(0.96f, 0.95f, 0.90f));
+        banner.AddChild(bannerText);
+    }
+
+    // ==================== 掠过物（路牌 / 里程碑 / F19 彩蛋卡） ====================
+
     public void AddSign(string text, float delay = 0f, float speed = 1.0f)
     {
         var board = new Panel();
@@ -237,10 +335,9 @@ public partial class RideTrack : Control
         label.AddThemeColorOverride("font_color", new Color(0.95f, 0.97f, 0.94f));
         board.AddChild(label);
 
-        SpawnPasser(board, label, new Vector2(230, 64), new Vector2(0.5f, 0.30f), delay, speed);
+        SpawnPasser(board, label, new Vector2(230, 64), new Vector2(0.5f, 0.26f), delay, speed);
     }
 
-    /// <summary>一块里程碑小柱从右往左掠过</summary>
     public void AddMarker(string text, float delay = 0f, float speed = 1.0f)
     {
         var board = new Panel();
@@ -262,11 +359,39 @@ public partial class RideTrack : Control
         label.AddThemeColorOverride("font_color", new Color(0.25f, 0.25f, 0.25f));
         board.AddChild(label);
 
-        SpawnPasser(board, label, new Vector2(72, 40), new Vector2(0.5f, 0.62f), delay, speed);
+        SpawnPasser(board, label, new Vector2(72, 40), new Vector2(0.5f, 0.50f), delay, speed);
     }
 
-    /// <summary>把一个掠过物放进容器：从屏幕右侧外滑到左侧外，滑完自己删自己</summary>
-    private void SpawnPasser(Panel body, Label label, Vector2 size, Vector2 anchorY, float delay, float speed)
+    /// <summary>F19 聊天外彩蛋：暖黄小卡（服务区橘猫 / 货车标语 / FM 电台），从右往左轻轻掠过</summary>
+    public void AddFlavor(string text, float delay = 0f, float speed = 1.0f)
+    {
+        var board = new Panel();
+        var style = new StyleBoxFlat
+        {
+            BgColor = new Color(0.96f, 0.90f, 0.72f, 0.94f),
+            CornerRadiusTopLeft = 10, CornerRadiusTopRight = 10,
+            CornerRadiusBottomLeft = 10, CornerRadiusBottomRight = 10,
+            ShadowColor = new Color(0, 0, 0, 0.25f),
+            ShadowSize = 6,
+        };
+        board.AddThemeStyleboxOverride("panel", style);
+        board.MouseFilter = MouseFilterEnum.Ignore;
+
+        var label = new Label
+        {
+            Text = text,
+            AutowrapMode = TextServer.AutowrapMode.WordSmart,
+            HorizontalAlignment = HorizontalAlignment.Center,
+            VerticalAlignment = VerticalAlignment.Center,
+        };
+        label.AddThemeFontSizeOverride("font_size", 18);
+        label.AddThemeColorOverride("font_color", new Color(0.35f, 0.28f, 0.16f));
+        board.AddChild(label);
+
+        SpawnPasser(board, label, new Vector2(190, 92), new Vector2(0.82f, 0.74f), delay, speed);
+    }
+
+    private void SpawnPasser(Panel body, Label label, Vector2 size, Vector2 anchor, float delay, float speed)
     {
         body.CustomMinimumSize = size;
         body.Size = size;
@@ -275,51 +400,39 @@ public partial class RideTrack : Control
 
         float startX = GetViewport().GetVisibleRect().Size.X + 40;
         float endX = -size.X - 60;
-        float y = GetViewport().GetVisibleRect().Size.Y * anchorY.Y;
+        float y = GetViewport().GetVisibleRect().Size.Y * anchor.Y;
 
         body.Position = new Vector2(startX, y);
         body.Modulate = new Color(1, 1, 1, 0);
 
-        passers.Add((body, label, speed));
-
         var tw = CreateTween();
         tw.TweenInterval(delay);
         tw.TweenProperty(body, "modulate:a", 1.0f, 0.3f);
-        // 滑行推进与自删都在 _Process 里按 meta 做（passSpeed 实时缩放，停车时减速停住）
+
         body.SetMeta("pass_t", 0.0f);
         body.SetMeta("pass_speed", speed);
         body.SetMeta("pass_x0", startX);
         body.SetMeta("pass_x1", endX);
         body.SetMeta("pass_dur", (startX - endX) / 420.0f * (1f / Mathf.Max(speed, 0.05f)));
+        passers.Add(body);
     }
+
+    private readonly List<Panel> passers = new();
 
     // ==================== 帧循环 ====================
 
     public override void _Process(double delta)
     {
-        // 速度缓变（停车/起步的惯性）
-        passSpeed = Mathf.MoveToward(passSpeed, speedTarget, (float)delta * 0.8f);
-
-        // —— 背景漂移：行进时轻摆，停车时定住 ——
-        if (running)
-        {
-            driftPhase += (float)delta * 0.35f * Mathf.Max(passSpeed, 0.15f);
-            float drift = Mathf.Sin(driftPhase) * 70f;
-            bg.OffsetLeft = -110 + drift;
-            bg.OffsetRight = 110 + drift;
-        }
-
-        // —— 掠过物推进（t 到头自删） ——
         for (int i = passers.Count - 1; i >= 0; i--)
         {
-            var (body, _, _) = passers[i];
+            var body = passers[i];
             if (!GodotObject.IsInstanceValid(body) || !body.HasMeta("pass_t"))
             {
                 passers.RemoveAt(i);
                 continue;
             }
 
-            float t = (float)body.GetMeta("pass_t") + (float)delta / (float)body.GetMeta("pass_dur") * passSpeed;
+            float t = (float)body.GetMeta("pass_t") + (float)delta / (float)body.GetMeta("pass_dur");
             body.SetMeta("pass_t", t);
 
             float x0 = (float)body.GetMeta("pass_x0");
@@ -333,10 +446,9 @@ public partial class RideTrack : Control
             }
         }
 
-        // —— 自动生成零散掠过物（里程碑为主，行进中每 5~9 秒一块） ——
         if (running)
         {
-            spawnTimer += delta * passSpeed;
+            spawnTimer += delta;
             if (spawnTimer > signCountdown)
             {
                 spawnTimer = 0;
@@ -347,12 +459,10 @@ public partial class RideTrack : Control
         }
     }
 
-    // ==================== 程序构建小件 ====================
+    // ==================== 雨幕 ====================
 
-    /// <summary>雨幕：顶部横排发射，斜向下落的长条雨丝</summary>
     private GpuParticles2D BuildRain()
     {
-        // 雨丝纹理：2x16 的白色细条，两端渐隐
         var img = Image.CreateEmpty(2, 16, false, Image.Format.Rgba8);
         for (int y = 0; y < 16; y++)
         {
@@ -394,7 +504,8 @@ public partial class RideTrack : Control
         return m;
     }
 
-    /// <summary>电量 HUD：右下角电池外框 + 填充 + 文案</summary>
+    // ==================== 电量 HUD ====================
+
     private void BuildBatteryHud()
     {
         batteryHud = new Control { MouseFilter = MouseFilterEnum.Ignore, Visible = false };
@@ -439,5 +550,158 @@ public partial class RideTrack : Control
         batteryLabel.AnchorTop = 0f; batteryLabel.AnchorBottom = 1f;
         batteryLabel.OffsetLeft = 0; batteryLabel.OffsetRight = -10;
         batteryFrame.AddChild(batteryLabel);
+    }
+
+    // ==================== 伪 3D 公路 + 骑手（第二十二轮重做核心） ====================
+    //
+    // 【画法】
+    //   地平线在 42% 高。路面 = 从灭点扇开的深灰梯形；
+    //   中央虚线 12 段向下滚动（scrollT 匀速推进 = 前进感）；
+    //   路边电线杆 8 根，从远处一个小点涌成近处一根大杆；
+    //   骑手剪影在路面下方，←→/A D 左右挪（路跟着反打一点点 = 转弯感）。
+    // 【操控】无惩罚无目标：这条路没有对错，只有风。
+
+    private partial class RoadLayer : Control
+    {
+        public RideTrack G;
+
+        private float scrollT;      // 路面滚动相位（0~1 循环）
+        private bool moving;
+        private float steer;        // -1..1 骑手横向位置（缓动）
+        private float steerInput;   // 按键输入
+        private readonly Color RoadCol = new(0.22f, 0.22f, 0.24f);
+        private readonly Color RoadSide = new(0.30f, 0.31f, 0.27f);
+        private readonly Color LineCol = new(0.90f, 0.88f, 0.78f, 0.8f);
+        private readonly Color RiderCol = new(0.06f, 0.055f, 0.05f);
+
+        public override void _Process(double delta)
+        {
+            float dt = (float)delta;
+
+            // 轻操控：←→ / A D；松手缓缓回中
+            steerInput = 0f;
+            if (Input.IsKeyPressed(Key.Left) || Input.IsKeyPressed(Key.A))
+                steerInput = -1f;
+            else if (Input.IsKeyPressed(Key.Right) || Input.IsKeyPressed(Key.D))
+                steerInput = 1f;
+            steer = Mathf.MoveToward(steer, steerInput, dt * (steerInput != 0f ? 1.6f : 0.9f));
+            steer = Mathf.Clamp(steer, -1f, 1f);
+
+            if (moving)
+                scrollT = (scrollT + dt * 0.55f) % 1f;
+
+            QueueRedraw();
+        }
+
+        public void SetMoving(bool on) => moving = on;
+
+        public override void _Draw()
+        {
+            float w = Size.X;
+            float h = Size.Y;
+            float horizon = h * 0.42f;
+
+            float vanishX = w * 0.5f + steer * w * 0.06f;         // 灭点跟着骑手偏一点（转弯感）
+            float riderX = w * 0.5f + steer * w * 0.22f;           // 骑手横向位置
+            float roadHalfNear = w * 0.46f;
+            float roadHalfFar = w * 0.045f;
+
+            // ---- 路肩大地（草/路肩色，接住底图和路面的过渡） ----
+            DrawRect(new Rect2(0, horizon, w, h - horizon), RoadSide);
+
+            // ---- 路面梯形 ----
+            DrawColoredPolygon(new[]
+            {
+                new Vector2(vanishX - roadHalfFar, horizon),
+                new Vector2(vanishX + roadHalfFar, horizon),
+                new Vector2(w * 0.5f + roadHalfNear, h),
+                new Vector2(w * 0.5f - roadHalfNear, h),
+            }, RoadCol);
+
+            // ---- 路肩白实线（两条） ----
+            for (int side = -1; side <= 1; side += 2)
+            {
+                float farX = vanishX + side * roadHalfFar;
+                float nearX = w * 0.5f + side * roadHalfNear;
+                DrawLine(new Vector2(farX, horizon), new Vector2(nearX, h),
+                    new Color(0.92f, 0.90f, 0.84f, 0.55f), 3.5f);
+            }
+
+            // ---- 中央虚线（12 段滚动） ----
+            for (int i = 0; i < 12; i++)
+            {
+                float t0 = (i / 12f + scrollT) % 1f;
+                float t1 = (t0 + 0.045f) % 1f;
+                if (t1 < t0) t1 += 1f;
+                float y0 = Mathf.Lerp(horizon, h, t0 * t0 * (3f - 2f * t0)); // smoothstep 透视感
+                float y1 = Mathf.Lerp(horizon, h, t1 * t1 * (3f - 2f * t1));
+                float x0 = Mathf.Lerp(vanishX, w * 0.5f + steer * w * 0.1f, t0);
+                float x1 = Mathf.Lerp(vanishX, w * 0.5f + steer * w * 0.1f, t1);
+                float lw = Mathf.Lerp(1.5f, 6f, t0);
+                DrawLine(new Vector2(x0, y0), new Vector2(x1, y1), LineCol, lw);
+            }
+
+            // ---- 路边电线杆（8 根，远处小点涌成大杆；左右交替） ----
+            for (int i = 0; i < 8; i++)
+            {
+                float t = (i / 8f + scrollT * 0.92f) % 1f;
+                float y = Mathf.Lerp(horizon, h, t * t * (3f - 2f * t));
+                float sideSign = i % 2 == 0 ? -1f : 1f;
+                float poleX = Mathf.Lerp(vanishX, w * 0.5f + sideSign * w * 0.52f, t);
+                float poleH = Mathf.Lerp(7f, 240f, t * t);
+                var poleCol = new Color(0.14f, 0.13f, 0.12f, 0.85f);
+                DrawLine(new Vector2(poleX, y), new Vector2(poleX, y - poleH), poleCol, Mathf.Lerp(1.5f, 7f, t));
+                // 横臂
+                DrawLine(new Vector2(poleX - poleH * 0.12f, y - poleH + poleH * 0.06f),
+                    new Vector2(poleX + poleH * 0.12f, y - poleH + poleH * 0.06f), poleCol,
+                    Mathf.Lerp(1f, 4.5f, t));
+            }
+
+            // ---- 骑手剪影（人 + 电动车，面朝右） ----
+            float baseY = h * 0.90f;
+            float s = h / 1080f; // 剪影尺寸按 1080p 基准
+            var ink = RiderCol;
+            float rx = riderX;
+
+            // 车身
+            DrawSetTransform(new Vector2(rx, baseY), steer * -0.05f, Vector2.One);
+            var body = new Rect2(-46 * s, -34 * s, 92 * s, 20 * s);
+            DrawStyleBox(new StyleBoxFlat
+            {
+                BgColor = ink,
+                CornerRadiusTopLeft = 10, CornerRadiusTopRight = 14,
+                CornerRadiusBottomLeft = 6, CornerRadiusBottomRight = 6,
+            }, body);
+            // 轮子（前后）
+            DrawCircle(new Vector2(-32 * s, -6 * s), 15 * s, ink);
+            DrawCircle(new Vector2(34 * s, -6 * s), 15 * s, ink);
+            DrawCircle(new Vector2(-32 * s, -6 * s), 6 * s, new Color(0.35f, 0.33f, 0.32f));
+            DrawCircle(new Vector2(34 * s, -6 * s), 6 * s, new Color(0.35f, 0.33f, 0.32f));
+            // 车头把手
+            DrawLine(new Vector2(34 * s, -30 * s), new Vector2(46 * s, -58 * s), ink, 5 * s);
+            // 人：身体前倾 + 头
+            DrawCircle(new Vector2(-6 * s, -96 * s), 15 * s, ink);
+            DrawColoredPolygon(new[]
+            {
+                new Vector2(-20 * s, -34 * s),
+                new Vector2(10 * s, -34 * s),
+                new Vector2(4 * s, -84 * s),
+                new Vector2(-16 * s, -84 * s),
+            }, ink);
+            // 手臂伸向把手
+            DrawLine(new Vector2(-2 * s, -80 * s), new Vector2(42 * s, -56 * s), ink, 7 * s);
+            // 腿
+            DrawLine(new Vector2(-10 * s, -36 * s), new Vector2(-4 * s, -6 * s), ink, 8 * s);
+            DrawSetTransform(Vector2.Zero, 0, Vector2.One);
+
+            // ---- 操作提示（第一次） ----
+            if (moving && steer == 0f)
+            {
+                var font = GetThemeDefaultFont();
+                DrawString(font, new Vector2(w * 0.5f - 150, h * 0.965f),
+                    "← → 轻轻挪动，风里没有对错", HorizontalAlignment.Left, -1, 19,
+                    new Color(0.95f, 0.93f, 0.86f, 0.55f));
+            }
+        }
     }
 }

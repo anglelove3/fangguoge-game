@@ -38,6 +38,14 @@ public static class BilliardData
         public string AimHint { get; set; } = "";
         public string SheThinks { get; set; } = "";
         public string ClickContinue { get; set; } = "";
+
+        // 第二十二轮 F13：迷你八球
+        public string FreeBallMe { get; set; } = "自由球——点台面任意位置放白球";
+        public string HerFreeBall { get; set; } = "她把白球摆到了一个好位置……";
+        public string SuitUndecided { get; set; } = "花色未定 · 第一颗进的就是你的";
+        public string SuitSolid { get; set; } = "实色（1-7）";
+        public string SuitStripe { get; set; } = "花条（9-15）";
+        public string EightWarn { get; set; } = "你：{0} ｜ 她：{1} ｜ 黑八 = 雷";
     }
 
     public class BilliardFile
