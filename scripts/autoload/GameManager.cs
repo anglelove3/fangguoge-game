@@ -368,13 +368,15 @@ public partial class GameManager : Node
     /// <summary>这件东西在背包里被看过没有（背包格子上的"新"标记用）</summary>
     public bool HasBagSeen(string itemId) => bagSeen.Contains(itemId);
 
-    /// <summary>玩家打开过背包 → 现有物品都算"看过"了（会进存档）</summary>
-    public void MarkBagSeen()
+    /// <summary>
+    /// 玩家点开过这件东西 → 它的红点消掉（会进存档）。
+    /// 第二十四轮 F24：从「打开背包全消」改成逐物品——红点要陪玩家到他真的点开为止。
+    /// </summary>
+    public void MarkBagSeen(string itemId)
     {
-        bool changed = false;
-        foreach (var id in inventory)
-            changed |= bagSeen.Add(id);
-        if (changed)
+        if (string.IsNullOrEmpty(itemId) || !inventory.Contains(itemId))
+            return;
+        if (bagSeen.Add(itemId))
             SaveGame();
     }
 

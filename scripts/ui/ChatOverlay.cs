@@ -1480,6 +1480,10 @@ public partial class ChatOverlay : Control
         inputField.Text = "";
         HidePlusPanel();
         AppendMessage(new ChatMessageData { Sender = "me", Text = text });
+        // 第二十四轮 F20：自由打字也算"真的发出去过一句话"——
+        // 第八章的推进判定走 WasQuickReplyUsed，v1.2 加自由输入时漏了记账，
+        // 结果玩家用键盘发的消息不算数，主线永远不推进。预设/自由从此同权。
+        usedQuickReplies.Add(currentContact.Id);
         SchedulePersonaReply(currentContact.Id, text);
     }
 
@@ -2038,10 +2042,12 @@ public partial class ChatOverlay : Control
     /// <summary>对方头像：系统账号用图标块，联系人有图用图，没图用首字色块</summary>
     private static Control MakeContactAvatar(ContactData c, float size)
     {
-        if (c != null && !string.IsNullOrEmpty(c.Icon))
-            return WeChatMainPage.MakeListAvatar(c, size);
+        // 第二十四轮 F23：照片优先于图标字块——小米师妹配了 icon 字块也配了照片，
+        // 旧优先级让聊天页永远显示字块（列表页仍走 MakeListAvatar 不受影响）
         if (c != null && !string.IsNullOrEmpty(c.Avatar) && ResourceLoader.Exists(c.Avatar))
             return MakePhotoAvatar(c.Avatar, size);
+        if (c != null && !string.IsNullOrEmpty(c.Icon))
+            return WeChatMainPage.MakeListAvatar(c, size);
         var avatar = new InitialAvatar(c == null ? "?" : WeChatData.DisplayName(c), size);
         avatar.SizeFlagsVertical = SizeFlags.ShrinkBegin;
         return avatar;

@@ -52,6 +52,7 @@ public partial class LockScreen : Control
     private string lastClock = "";
     private string lastDate = "";
     private string lastBatteryPct = "";
+    private int lastUnreadOnLock = -1;   // 锁屏通知卡跟随未读变化（第二十四轮 F22）
 
     public override void _Ready()
     {
@@ -285,6 +286,15 @@ public partial class LockScreen : Control
                     : new Color(1f, 0.99f, 0.96f));
         }
 
+        // 未读数实时驱动通知卡（第二十四轮 F22）：
+        // 以前只在掏手机那一刻刷新，读完消息锁屏还挂着「1 条新消息」骗人
+        int unread = LiveEvents.TotalUnread;
+        if (unread != lastUnreadOnLock)
+        {
+            lastUnreadOnLock = unread;
+            Refresh();
+        }
+
         // 壁纸昼夜切换（清遗留①）：故事走到傍晚，锁屏跟着换黄昏
         bool day = StoryClock.IsDaytime();
         if (day != lastDay)
@@ -369,6 +379,7 @@ public partial class PhoneDesktop : Control
     private ColorRect wallDim;
     private bool? lastDay;
     private string lastClock = "";
+    private int lastUnreadOnDesktop = -1;   // 桌面角标跟随未读变化（第二十四轮 F22）
 
     public override void _Ready()
     {
@@ -465,6 +476,14 @@ public partial class PhoneDesktop : Control
         {
             lastClock = clock;
             statusClock.Text = clock;
+        }
+
+        // 微信角标跟随未读变化（第二十四轮 F22，与锁屏同源）
+        int unread = LiveEvents.TotalUnread;
+        if (unread != lastUnreadOnDesktop)
+        {
+            lastUnreadOnDesktop = unread;
+            Refresh();
         }
 
         // 壁纸昼夜切换（清遗留①）：和锁屏同一套规则

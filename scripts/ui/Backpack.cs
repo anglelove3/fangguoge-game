@@ -312,12 +312,12 @@ public partial class Backpack : Control
             return;
         opened = true;
 
-        // 先记下"这次新看到的"，再标记全部看过 —— 格子上给它们留个小圆点
+        // 先记下"还没点开过"的 —— 格子上给它们留个小圆点。
+        // 第二十四轮 F24：不再打开背包就全部记为已看，红点保留到玩家点开那件东西为止。
         var fresh = new List<string>();
         foreach (var id in GameManager.Instance?.InventoryItems ?? (IReadOnlyCollection<string>)new List<string>())
             if (!GameManager.Instance.HasBagSeen(id))
                 fresh.Add(id);
-        GameManager.Instance?.MarkBagSeen();
 
         RebuildGrid(fresh);
         ShowGrid();
@@ -453,7 +453,34 @@ public partial class Backpack : Control
         btn.AddThemeStyleboxOverride("normal", FlatStyle(SlotBg, 16));
         btn.AddThemeStyleboxOverride("hover", HoverSlotStyle());
         btn.AddThemeStyleboxOverride("pressed", FlatStyle(SlotPressedBg, 16));
-        btn.Pressed += () => ShowDetail(def.Id);
+
+        // "还没点开过"的小圆点（第二十四轮 F24：点了这件东西才消，不再开包全消）
+        Label dot = null;
+        if (isFresh)
+        {
+            dot = new Label
+            {
+                Text = "●",
+                MouseFilter = MouseFilterEnum.Ignore,
+            };
+            dot.AddThemeFontSizeOverride("font_size", 18);
+            dot.AddThemeColorOverride("font_color", new Color(0.90f, 0.44f, 0.20f));
+            dot.AnchorLeft = 1f;
+            dot.AnchorRight = 1f;
+            dot.AnchorTop = 0f;
+            dot.AnchorBottom = 0f;
+            dot.OffsetLeft = -30;
+            dot.OffsetTop = 6;
+            btn.AddChild(dot);
+        }
+
+        btn.Pressed += () =>
+        {
+            if (dot != null)
+                dot.Visible = false;
+            GameManager.Instance?.MarkBagSeen(def.Id);
+            ShowDetail(def.Id);
+        };
         UiSounds.Wire(btn); // 格子是打开背包时才建的，赶不上 _Ready 里的统一接线
 
         var column = new VBoxContainer { MouseFilter = MouseFilterEnum.Ignore };
@@ -485,25 +512,6 @@ public partial class Backpack : Control
         name.AddThemeFontSizeOverride("font_size", 22);
         name.AddThemeColorOverride("font_color", InkDark);
         column.AddChild(name);
-
-        // "这次才看到"的小圆点（打开背包的那一刻就不再出现）
-        if (isFresh)
-        {
-            var dot = new Label
-            {
-                Text = "●",
-                MouseFilter = MouseFilterEnum.Ignore,
-            };
-            dot.AddThemeFontSizeOverride("font_size", 18);
-            dot.AddThemeColorOverride("font_color", new Color(0.90f, 0.44f, 0.20f));
-            dot.AnchorLeft = 1f;
-            dot.AnchorRight = 1f;
-            dot.AnchorTop = 0f;
-            dot.AnchorBottom = 0f;
-            dot.OffsetLeft = -30;
-            dot.OffsetTop = 6;
-            btn.AddChild(dot);
-        }
 
         return btn;
     }
