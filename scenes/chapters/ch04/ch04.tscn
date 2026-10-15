@@ -1,7 +1,23 @@
-[gd_scene load_steps=3 format=3 uid="uid://ch04night001"]
+[gd_scene load_steps=7 format=3 uid="uid://ch04night001"]
 
 [ext_resource type="Script" path="res://scripts/chapters/Ch04.cs" id="1_ch04"]
 [ext_resource type="Texture2D" path="res://assets/art/backgrounds/dorm_night_v2.png" id="2_dorm"]
+
+[sub_resource type="StyleBoxFlat" id="SB_hot_normal"]
+bg_color = Color(0, 0, 0, 0)
+border_color = Color(0, 0, 0, 0)
+
+[sub_resource type="StyleBoxFlat" id="SB_hot_hover"]
+bg_color = Color(0, 0, 0, 0)
+border_color = Color(0, 0, 0, 0)
+
+[sub_resource type="StyleBoxFlat" id="SB_hot_pressed"]
+bg_color = Color(0, 0, 0, 0)
+border_color = Color(0, 0, 0, 0)
+
+[sub_resource type="StyleBoxFlat" id="SB_hot_disabled"]
+bg_color = Color(0, 0, 0, 0)
+border_color = Color(0, 0, 0, 0)
 
 [node name="Ch04" type="Control"]
 layout_mode = 3
@@ -64,7 +80,15 @@ mouse_filter = 2
 [node name="PhoneBtn" type="Button" parent="Hotspots"]
 layout_mode = 1
 mouse_filter = 0
+theme_override_styles/normal = SubResource("SB_hot_normal")
+theme_override_styles/hover = SubResource("SB_hot_hover")
+theme_override_styles/pressed = SubResource("SB_hot_pressed")
+theme_override_styles/disabled = SubResource("SB_hot_disabled")
 
 [node name="BedBtn" type="Button" parent="Hotspots"]
 layout_mode = 1
 mouse_filter = 0
+theme_override_styles/normal = SubResource("SB_hot_normal")
+theme_override_styles/hover = SubResource("SB_hot_hover")
+theme_override_styles/pressed = SubResource("SB_hot_pressed")
+theme_override_styles/disabled = SubResource("SB_hot_disabled")

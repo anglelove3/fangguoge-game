@@ -234,10 +234,10 @@ public partial class DrinkPour : Node2D
 
     public override void _Draw()
     {
-        // ---- 桌面上的影子 ----
-        DrawEllipseLocal(myOffset + new Vector2(0f, 4f), 62f, 12f, new Color(0f, 0f, 0f, 0.16f));
-        DrawEllipseLocal(friendPos + new Vector2(0f, 3f), 50f, 10f, new Color(0f, 0f, 0f, 0.13f));
-        DrawEllipseLocal(new Vector2(BottleDx + 8f, 4f), 40f, 10f, new Color(0f, 0f, 0f, 0.15f));
+        // ---- 桌面上的影子（第二十四轮 F27：加深加扁，让瓶杯「坐」在桌布上而不是悬浮） ----
+        DrawEllipseLocal(myOffset + new Vector2(0f, 3f), 74f, 11f, new Color(0f, 0f, 0f, 0.26f));
+        DrawEllipseLocal(friendPos + new Vector2(0f, 2f), 58f, 9f, new Color(0f, 0f, 0f, 0.22f));
+        DrawEllipseLocal(new Vector2(BottleDx + 8f, 3f), 46f, 9f, new Color(0f, 0f, 0f, 0.25f));
 
         // ---- 酒瓶（倒酒时绕瓶底旋转、并朝杯子挪一点） ----
         float angle = 0f;

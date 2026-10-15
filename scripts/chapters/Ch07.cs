@@ -65,7 +65,7 @@ public partial class Ch07 : ChapterBase
         // 烤炉上空的火星子（挂在烤炉中上方的位置）——也跟着美术图钉住
         var embers = new EmberDust();
         AddChild(embers);
-        ArtAnchor.Track2D(drink, new Vector2(335f, 858f), 0.42f); // 杯底中心钉在夜摊桌面上
+        ArtAnchor.Track2D(drink, new Vector2(332f, 892f), 0.38f); // 杯底中心钉在夜摊桌面上（第二十四轮 F27：下移坐进桌布前缘，略缩小减少顶视违和）
         ArtAnchor.Track2D(embers, new Vector2(723f, 652f));
 
         UiSounds.WireAll(this);
