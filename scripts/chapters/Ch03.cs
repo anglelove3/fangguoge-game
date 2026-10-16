@@ -29,6 +29,7 @@ public partial class Ch03 : ChapterBase
     private ChapterLayout layout = new();
 
     private BalanceScale scale;
+    private SplitBalanceScene splitStage;   // 分屏舞台（第二十四轮 F33）
     private Control cardLayer;
     private Button rightPanBtn;
     private Control rightPanGlow;
@@ -57,6 +58,7 @@ public partial class Ch03 : ChapterBase
         layout = DataStore.GetChapter(ChapterId);
 
         scale = GetNode<BalanceScale>("BalanceScale");
+        splitStage = GetNodeOrNull<SplitBalanceScene>("SplitStage");
         // 第二十轮 F1：光点已经收进背包的话（上一局/读档），右盘就不再亮着——
         // 物品到手了，场景里的它也该消失
         scale.OrbVisible = !GameManager.Instance.HasHiddenItem("light_orb");
@@ -99,6 +101,8 @@ public partial class Ch03 : ChapterBase
     /// <summary>发呆 12 秒 → 还没放的东西轻轻呼吸</summary>
     public override void _Process(double delta)
     {
+        splitStage?.SetTilt(scale != null ? scale.CurrentTilt01 : 0f);
+
         var dm = DialogueManager.Instance;
         if (dm != null && dm.IsBusy)
         {
@@ -476,6 +480,10 @@ public partial class Ch03 : ChapterBase
 
             if (isCard) scale.AddMemoryChip();
             else scale.AddCompensationChip();
+
+            // F33：放到第三件（一张卡+两个补偿物左右）时，两侧世界同时切到「更晚」
+            int placed = scale.MemoryChips + scale.CompensationChips;
+            splitStage?.SetStage(placed >= 3 ? 1 : 0);
 
             AudioManager.Instance?.PlaySfx(AudioManager.SfxItemPlace, -12f, 0.05f);
 
