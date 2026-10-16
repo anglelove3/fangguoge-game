@@ -676,16 +676,34 @@ public partial class ComputerOverlay : Control
 
         foreach (var d in ComputerData.Data.Drives)
         {
-            var row = new HBoxContainer { MouseFilter = MouseFilterEnum.Ignore };
-            row.AddThemeConstantOverride("separation", 14);
+            // 盘行可以点进去（第二十四轮 F31）：C 盘=测试数据、D 盘=论文、F 盘=经典报错彩蛋
+            string group = d.Name.Contains("(C") ? "data" : d.Name.Contains("(D") ? "paper" : "";
+
+            var row = new Button
+            {
+                FocusMode = FocusModeEnum.None,
+                MouseDefaultCursorShape = group != "" ? CursorShape.PointingHand : CursorShape.Arrow,
+                SizeFlagsHorizontal = SizeFlags.ExpandFill,
+                Disabled = group == "",
+            };
+            row.AddThemeStyleboxOverride("normal", RoundStyle(new Color(0, 0, 0, 0), 8));
+            if (group != "")
+                row.AddThemeStyleboxOverride("hover", RoundStyle(new Color(0.13f, 0.31f, 0.72f, 0.12f), 8));
+            if (group != "")
+                row.Pressed += () => PushWindow(group == "data" ? "本地磁盘 (C:)" : "本地磁盘 (D:)",
+                    () => BuildFileListView(group), 720, 560);
             col.AddChild(row);
 
+            var inner = new HBoxContainer { MouseFilter = MouseFilterEnum.Ignore };
+            inner.AddThemeConstantOverride("separation", 14);
+            row.AddChild(inner);
+
             var icon = new ComputerIcon { Kind = "drive", MouseFilter = MouseFilterEnum.Ignore, CustomMinimumSize = new Vector2(44, 44) };
-            row.AddChild(icon);
+            inner.AddChild(icon);
 
             var texts = new VBoxContainer { MouseFilter = MouseFilterEnum.Ignore, SizeFlagsHorizontal = SizeFlags.ExpandFill };
             texts.AddThemeConstantOverride("separation", 2);
-            row.AddChild(texts);
+            inner.AddChild(texts);
 
             var name = new Label { Text = d.Name, MouseFilter = MouseFilterEnum.Ignore };
             name.AddThemeFontSizeOverride("font_size", 22);
@@ -707,6 +725,21 @@ public partial class ComputerOverlay : Control
             texts.AddChild(hint);
         }
 
+        // 可移动磁盘的经典报错彩蛋（点 F 盘的提示行也能触发）
+        var fRow = new Label
+        {
+            Text = "（F 盘点什么都会让你先插盘——有些东西点了也没用，这很电脑。）",
+            MouseFilter = MouseFilterEnum.Stop,
+        };
+        fRow.AddThemeFontSizeOverride("font_size", 17);
+        fRow.AddThemeColorOverride("font_color", InkMid);
+        fRow.GuiInput += e =>
+        {
+            if (e is InputEventMouseButton mb && mb.Pressed)
+                ShowComputerToast("请将磁盘插入驱动器 F:。");
+        };
+        col.AddChild(fRow);
+
         var spacer = new Control { SizeFlagsVertical = SizeFlags.ExpandFill, MouseFilter = MouseFilterEnum.Ignore };
         col.AddChild(spacer);
 
@@ -719,22 +752,125 @@ public partial class ComputerOverlay : Control
         return root;
     }
 
-    /// <summary>文件夹页：一排文件行，点开有内容</summary>
+    /// <summary>文件夹页：一排文件行，点开有内容；右键可删进回收站 / 从回收站还原（第二十四轮 F31）</summary>
     private Control BuildFileListView(string group)
     {
         var files = ComputerData.FilesIn(group);
+        bool inRecycle = group == "recycle";
         var root = new Control { MouseFilter = MouseFilterEnum.Ignore };
         root.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
 
+        var colOuter = new VBoxContainer { MouseFilter = MouseFilterEnum.Ignore };
+        colOuter.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
+        root.AddChild(colOuter);
+
+        // 回收站工具条：清空（带确认）
+        if (inRecycle)
+        {
+            var bar = new HBoxContainer { MouseFilter = MouseFilterEnum.Ignore };
+            bar.AddThemeConstantOverride("separation", 10);
+            colOuter.AddChild(bar);
+
+            var emptyBtn = new Button
+            {
+                Text = "清空回收站",
+                FocusMode = FocusModeEnum.None,
+                MouseDefaultCursorShape = CursorShape.PointingHand,
+            };
+            emptyBtn.AddThemeFontSizeOverride("font_size", 19);
+            emptyBtn.AddThemeStyleboxOverride("normal", RoundStyle(new Color(0.55f, 0.18f, 0.16f, 0.16f), 8));
+            emptyBtn.AddThemeStyleboxOverride("hover", RoundStyle(new Color(0.55f, 0.18f, 0.16f, 0.32f), 8));
+            emptyBtn.Pressed += () =>
+            {
+                ShowConfirm("确定要清空回收站吗？里面的东西就真的没有了。",
+                    () => { ComputerData.EmptyRecycle(); ShowTopWindow(); });
+            };
+            bar.AddChild(emptyBtn);
+            var hint = new Label
+            {
+                Text = "右键文件可以还原",
+                MouseFilter = MouseFilterEnum.Ignore,
+            };
+            hint.AddThemeFontSizeOverride("font_size", 17);
+            hint.AddThemeColorOverride("font_color", InkMid);
+            bar.AddChild(hint);
+        }
+
+        // 新建文件夹（第二十四轮 F31：data / paper 盘里可以建自己的文件夹）
+        if (group is "data" or "paper")
+        {
+            var bar = new HBoxContainer { MouseFilter = MouseFilterEnum.Ignore };
+            bar.AddThemeConstantOverride("separation", 10);
+            colOuter.AddChild(bar);
+
+            var newBtn = new Button
+            {
+                Text = "＋ 新建文件夹",
+                FocusMode = FocusModeEnum.None,
+                MouseDefaultCursorShape = CursorShape.PointingHand,
+            };
+            newBtn.AddThemeFontSizeOverride("font_size", 19);
+            newBtn.AddThemeStyleboxOverride("normal", RoundStyle(new Color(0.13f, 0.31f, 0.72f, 0.10f), 8));
+            newBtn.AddThemeStyleboxOverride("hover", RoundStyle(new Color(0.13f, 0.31f, 0.72f, 0.22f), 8));
+            newBtn.Pressed += () =>
+            {
+                // 自动编号：新建文件夹 / 新建文件夹 (2) / ...
+                string name = "新建文件夹";
+                for (int i = 2; ComputerData.CustomFolders.Contains(name); i++)
+                    name = $"新建文件夹 ({i})";
+                ComputerData.CustomFolders.Add(name);
+                ShowTopWindow();
+            };
+            bar.AddChild(newBtn);
+        }
+
         var scroll = new ScrollContainer { MouseFilter = MouseFilterEnum.Stop };
-        scroll.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
-        scroll.OffsetLeft = 16; scroll.OffsetRight = -16; scroll.OffsetTop = 12; scroll.OffsetBottom = -12;
+        scroll.SizeFlagsVertical = SizeFlags.ExpandFill;
         scroll.HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled;
-        root.AddChild(scroll);
+        colOuter.AddChild(scroll);
 
         var col = new VBoxContainer { MouseFilter = MouseFilterEnum.Ignore, SizeFlagsHorizontal = SizeFlags.ExpandFill };
         col.AddThemeConstantOverride("separation", 6);
         scroll.AddChild(col);
+
+        // 玩家自建的文件夹（空壳，右键可删——拟真彩蛋，不影响任何剧情）
+        if ((group is "data" or "paper") && ComputerData.CustomFolders.Count > 0)
+        {
+            foreach (var folderName in ComputerData.CustomFolders.ToArray())
+            {
+                var fn = folderName;
+                var row = new Button
+                {
+                    CustomMinimumSize = new Vector2(0, 52),
+                    FocusMode = FocusModeEnum.None,
+                    MouseDefaultCursorShape = CursorShape.PointingHand,
+                    SizeFlagsHorizontal = SizeFlags.ExpandFill,
+                };
+                row.AddThemeStyleboxOverride("normal", RoundStyle(new Color(0, 0, 0, 0), 8));
+                row.AddThemeStyleboxOverride("hover", RoundStyle(new Color(0.13f, 0.31f, 0.72f, 0.14f), 8));
+                row.Pressed += () => ShowComputerToast($"「{fn}」是空的。和你现在的心情差不多。");
+                row.GuiInput += e =>
+                {
+                    if (e is InputEventMouseButton mb && mb.Pressed && mb.ButtonIndex == MouseButton.Right)
+                        ShowFileMenu("删 除", () => { ComputerData.CustomFolders.Remove(fn); ShowTopWindow(); });
+                };
+                col.AddChild(row);
+
+                var line = new HBoxContainer { MouseFilter = MouseFilterEnum.Ignore };
+                line.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
+                line.OffsetLeft = 10; line.OffsetRight = -10;
+                line.AddThemeConstantOverride("separation", 12);
+                row.AddChild(line);
+
+                var icon = new ComputerIcon { Kind = "folder", MouseFilter = MouseFilterEnum.Ignore, CustomMinimumSize = new Vector2(38, 38), SizeFlagsVertical = SizeFlags.ShrinkCenter };
+                line.AddChild(icon);
+
+                var name = new Label { Text = fn, VerticalAlignment = VerticalAlignment.Center, MouseFilter = MouseFilterEnum.Ignore };
+                name.AddThemeFontSizeOverride("font_size", 21);
+                name.AddThemeColorOverride("font_color", InkDark);
+                line.AddChild(name);
+            }
+        }
 
         foreach (var f in files)
         {
@@ -750,6 +886,22 @@ public partial class ComputerOverlay : Control
             row.AddThemeStyleboxOverride("hover", RoundStyle(new Color(0.13f, 0.31f, 0.72f, 0.14f), 8));
             row.AddThemeStyleboxOverride("pressed", RoundStyle(new Color(0.13f, 0.31f, 0.72f, 0.24f), 8));
             row.Pressed += () => PushWindow(file.Name, () => BuildViewerView(file), 760, 640);
+            row.GuiInput += e =>
+            {
+                // 右键：回收站里=还原（玩家删的）/彻底删除（预置旧文件）；其他地方=删进回收站
+                if (e is InputEventMouseButton mb && mb.Pressed && mb.ButtonIndex == MouseButton.Right)
+                {
+                    if (inRecycle)
+                    {
+                        if (ComputerData.RecycleIds.Contains(file.Id))
+                            ShowFileMenu("还 原", () => { ComputerData.RestoreFromRecycle(file.Id); ShowTopWindow(); });
+                        else
+                            ShowFileMenu("彻底删除", () => { ComputerData.PurgedIds.Add(file.Id); ShowTopWindow(); });
+                    }
+                    else
+                        ShowFileMenu("删 除", () => { ComputerData.MoveToRecycle(file.Id); ShowTopWindow(); });
+                }
+            };
             UiSounds.Wire(row);
 
             var line = new HBoxContainer { MouseFilter = MouseFilterEnum.Ignore };
@@ -792,6 +944,157 @@ public partial class ComputerOverlay : Control
         "audio" => "audio",
         _ => "text",
     };
+
+    // ==================== 右键菜单 / 确认框（第二十四轮 F31） ====================
+
+    private Control fileMenu;
+
+    /// <summary>在鼠标位置弹一个小菜单（单条目）；点别处自动收起</summary>
+    private void ShowFileMenu(string label, Action action)
+    {
+        CloseFileMenu();
+        var mouse = GetGlobalMousePosition();
+
+        var backdrop = new Control
+        {
+            // 全屏透明垫：点菜单以外任何地方都收起
+            MouseFilter = MouseFilterEnum.Stop,
+        };
+        backdrop.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
+        backdrop.GuiInput += e =>
+        {
+            if (e is InputEventMouseButton mb && mb.Pressed)
+                CloseFileMenu();
+        };
+        AddChild(backdrop);
+
+        var menu = new Panel { MouseFilter = MouseFilterEnum.Stop };
+        var style = new StyleBoxFlat
+        {
+            BgColor = new Color(0.97f, 0.96f, 0.93f),
+            BorderColor = new Color(0.6f, 0.58f, 0.52f),
+            BorderWidthLeft = 1, BorderWidthRight = 1, BorderWidthTop = 1, BorderWidthBottom = 1,
+        };
+        style.SetCornerRadiusAll(6);
+        style.ContentMarginLeft = 6; style.ContentMarginRight = 6;
+        style.ContentMarginTop = 5; style.ContentMarginBottom = 5;
+        menu.AddThemeStyleboxOverride("panel", style);
+
+        var btn = new Button
+        {
+            Text = label,
+            FocusMode = FocusModeEnum.None,
+            MouseDefaultCursorShape = CursorShape.PointingHand,
+            CustomMinimumSize = new Vector2(120, 40),
+        };
+        btn.AddThemeFontSizeOverride("font_size", 20);
+        btn.AddThemeStyleboxOverride("normal", RoundStyle(new Color(0, 0, 0, 0), 6));
+        btn.AddThemeStyleboxOverride("hover", RoundStyle(new Color(0.13f, 0.31f, 0.72f, 0.16f), 6));
+        btn.Pressed += () =>
+        {
+            CloseFileMenu();
+            action();
+        };
+        menu.AddChild(btn);
+
+        fileMenu = backdrop;
+        backdrop.AddChild(menu);
+        var mp = menu.Position = mouse + new Vector2(4, 4);
+        // 贴边防出屏
+        if (mp.X + 140 > Size.X) mp.X = Size.X - 148;
+        if (mp.Y + 56 > Size.Y) mp.Y = Size.Y - 64;
+        menu.Position = mp;
+    }
+
+    private Control toastLayer;
+
+    /// <summary>电脑里的小浮提示（两秒后自己淡掉）</summary>
+    private void ShowComputerToast(string text)
+    {
+        toastLayer?.QueueFree();
+        var label = new Label
+        {
+            Text = text,
+            MouseFilter = MouseFilterEnum.Ignore,
+            HorizontalAlignment = HorizontalAlignment.Center,
+        };
+        label.SetAnchorsAndOffsetsPreset(LayoutPreset.CenterBottom);
+        label.OffsetTop = -110; label.OffsetBottom = -70;
+        label.OffsetLeft = -280; label.OffsetRight = 280;
+        label.AddThemeFontSizeOverride("font_size", 20);
+        label.AddThemeColorOverride("font_color", new Color(1f, 0.97f, 0.9f));
+        label.AddThemeColorOverride("font_outline_color", new Color(0.1f, 0.1f, 0.12f, 0.9f));
+        label.AddThemeConstantOverride("outline_size", 8);
+        toastLayer = label;
+        AddChild(label);
+        var tw = CreateTween();
+        tw.TweenInterval(2.0);
+        tw.TweenProperty(label, "modulate:a", 0f, 0.4);
+        tw.TweenCallback(Callable.From(() =>
+        {
+            if (toastLayer == label)
+                toastLayer = null;
+            label.QueueFree();
+        }));
+    }
+
+    private void CloseFileMenu()
+    {
+        if (fileMenu != null && GodotObject.IsInstanceValid(fileMenu))
+            fileMenu.QueueFree();
+        fileMenu = null;
+    }
+
+    /// <summary>小确认框（清空回收站这类"点了就没"的操作用）</summary>
+    private void ShowConfirm(string text, Action onYes)
+    {
+        var backdrop = new Control { MouseFilter = MouseFilterEnum.Stop };
+        backdrop.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
+        AddChild(backdrop);
+
+        var panel = new Panel { MouseFilter = MouseFilterEnum.Stop };
+        var style = new StyleBoxFlat
+        {
+            BgColor = new Color(0.97f, 0.96f, 0.93f),
+            BorderColor = new Color(0.6f, 0.58f, 0.52f),
+            BorderWidthLeft = 1, BorderWidthRight = 1, BorderWidthTop = 1, BorderWidthBottom = 1,
+        };
+        style.SetCornerRadiusAll(10);
+        style.ContentMarginLeft = 22; style.ContentMarginRight = 22;
+        style.ContentMarginTop = 18; style.ContentMarginBottom = 16;
+        panel.AddThemeStyleboxOverride("panel", style);
+
+        var col = new VBoxContainer { MouseFilter = MouseFilterEnum.Ignore };
+        col.AddThemeConstantOverride("separation", 16);
+        panel.AddChild(col);
+
+        var label = new Label { Text = text, MouseFilter = MouseFilterEnum.Ignore, AutowrapMode = TextServer.AutowrapMode.WordSmart };
+        label.AddThemeFontSizeOverride("font_size", 21);
+        label.AddThemeColorOverride("font_color", InkDark);
+        label.CustomMinimumSize = new Vector2(420, 0);
+        col.AddChild(label);
+
+        var btns = new HBoxContainer { MouseFilter = MouseFilterEnum.Ignore };
+        btns.AddThemeConstantOverride("separation", 14);
+        btns.Alignment = BoxContainer.AlignmentMode.End;
+        col.AddChild(btns);
+
+        void Mk(string t, Color bg, Action act)
+        {
+            var b = new Button { Text = t, FocusMode = FocusModeEnum.None, MouseDefaultCursorShape = CursorShape.PointingHand, CustomMinimumSize = new Vector2(96, 42) };
+            b.AddThemeFontSizeOverride("font_size", 20);
+            b.AddThemeStyleboxOverride("normal", RoundStyle(bg, 8));
+            b.AddThemeStyleboxOverride("hover", RoundStyle(bg.Lightened(0.08f), 8));
+            b.Pressed += () => { backdrop.QueueFree(); act(); };
+            btns.AddChild(b);
+        }
+
+        Mk("取消", new Color(0.85f, 0.84f, 0.8f), () => { });
+        Mk("确定", new Color(0.62f, 0.30f, 0.24f), onYes);
+
+        backdrop.AddChild(panel);
+        panel.Position = (Size - new Vector2(500, 190)) / 2f;
+    }
 
     /// <summary>邮件列表</summary>
     private Control BuildMailListView()

@@ -96,6 +96,52 @@ public static class ComputerData
     /// <summary>按 id 找一个文件</summary>
     public static FileEntry File(string id) => Data.Files.Find(f => f.Id == id);
 
-    /// <summary>某个分组里的文件</summary>
-    public static List<FileEntry> FilesIn(string group) => Data.Files.FindAll(f => f.Group == group);
+    // ==================== 文件系统运行时状态（第二十四轮 F31） ====================
+    // 回收站不再是摆设：文件能删进回收站、能还原、能清空。
+    // 状态记在本局内存里（关机重开电脑会"恢复出厂"——那台电脑的记忆和男主一样不可靠，反而贴题）。
+
+    /// <summary>被玩家删进回收站的文件 id（不含 JSON 里预置在 recycle 组的旧文件）</summary>
+    public static System.Collections.Generic.List<string> RecycleIds { get; } = new();
+
+    /// <summary>清空回收站后彻底消失的文件 id</summary>
+    public static System.Collections.Generic.HashSet<string> PurgedIds { get; } = new();
+
+    /// <summary>我的电脑里新建的文件夹名</summary>
+    public static System.Collections.Generic.List<string> CustomFolders { get; } = new();
+
+    /// <summary>某个分组里现在能看到的文件（过滤已删除/已清空/已挪去回收站的）</summary>
+    public static List<FileEntry> FilesIn(string group)
+    {
+        var list = Data.Files.FindAll(f => f.Group == group
+            && !PurgedIds.Contains(f.Id)
+            && !(group != "recycle" && RecycleIds.Contains(f.Id)));
+        if (group == "recycle")
+        {
+            foreach (var id in RecycleIds)
+            {
+                var f = File(id);
+                if (f != null && !list.Contains(f))
+                    list.Add(f);
+            }
+        }
+        return list;
+    }
+
+    /// <summary>删进回收站（从原分组消失）</summary>
+    public static void MoveToRecycle(string fileId)
+    {
+        if (!string.IsNullOrEmpty(fileId) && !RecycleIds.Contains(fileId))
+            RecycleIds.Add(fileId);
+    }
+
+    /// <summary>从回收站还原（回到原分组）</summary>
+    public static void RestoreFromRecycle(string fileId) => RecycleIds.Remove(fileId);
+
+    /// <summary>清空回收站：里面的文件彻底消失</summary>
+    public static void EmptyRecycle()
+    {
+        foreach (var id in RecycleIds)
+            PurgedIds.Add(id);
+        RecycleIds.Clear();
+    }
 }
