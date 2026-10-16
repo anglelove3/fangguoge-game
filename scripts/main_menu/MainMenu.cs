@@ -53,6 +53,22 @@ public partial class MainMenu : Control
         settingsButton.Pressed += OnSettingsPressed;
         quitButton.Pressed += OnQuitPressed;
 
+        // 章节直达（第二十四轮：演示/测试用——点按钮弹出章表，选哪章进哪章）
+        var chapterButton = new Button
+        {
+            Text = "章节选择",
+            FocusMode = FocusModeEnum.None,
+            MouseDefaultCursorShape = CursorShape.PointingHand,
+        };
+        chapterButton.AddThemeFontSizeOverride("font_size", 26);
+        var vb = GetNodeOrNull<VBoxContainer>("VBoxContainer");
+        if (vb != null)
+        {
+            vb.AddChild(chapterButton);
+            chapterButton.Pressed += OnChapterSelectPressed;
+            UiSounds.Wire(chapterButton);
+        }
+
         // 给所有按钮挂上"悬停/点击"音效
         UiSounds.WireAll(this);
 
@@ -60,6 +76,103 @@ public partial class MainMenu : Control
         SetupAtmosphere(startButton, settingsButton, quitButton);
 
         GD.Print("主菜单已加载");
+    }
+
+    /// <summary>章节名表（第二十四轮：与各章 tscn 的 ChapterTitle 一致）</summary>
+    private static readonly string[] ChapterNames =
+    {
+        "序章 · 那首歌",
+        "第一章 · 寄居蟹",
+        "第二章 · 一千公里",
+        "第三章 · 天平",
+        "第四章 · 晚安",
+        "第五章 · 手滑",
+        "第六章 · 碧蓝蓝天",
+        "第七章 · 放过自己",
+        "第八章 · 三点水",
+        "第九章 · 还想再见",
+        "第十章 · 置顶",
+        "第十一章 · 向南",
+        "第十二章 · 十里长亭",
+    };
+
+    /// <summary>章节直达面板：滚动列表，点哪章进哪章（演示与测试用）</summary>
+    private void OnChapterSelectPressed()
+    {
+        var layer = new Control { MouseFilter = MouseFilterEnum.Stop };
+        layer.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
+        AddChild(layer);
+
+        // 半透明垫：点外面关闭
+        layer.Draw += () => layer.DrawRect(layer.GetRect(), new Color(0.04f, 0.05f, 0.08f, 0.72f));
+        layer.GuiInput += e =>
+        {
+            if (e is InputEventMouseButton mb && mb.Pressed)
+                layer.QueueFree();
+        };
+
+        var panel = new Panel { MouseFilter = MouseFilterEnum.Stop };
+        var style = new StyleBoxFlat
+        {
+            BgColor = new Color(0.10f, 0.11f, 0.14f, 0.96f),
+            BorderColor = new Color(0.90f, 0.80f, 0.55f, 0.5f),
+            BorderWidthLeft = 1, BorderWidthRight = 1, BorderWidthTop = 1, BorderWidthBottom = 1,
+        };
+        style.SetCornerRadiusAll(14);
+        style.ContentMarginLeft = 22; style.ContentMarginRight = 22;
+        style.ContentMarginTop = 18; style.ContentMarginBottom = 18;
+        panel.AddThemeStyleboxOverride("panel", style);
+        panel.CustomMinimumSize = new Vector2(430, 0);
+        layer.AddChild(panel);
+        panel.SetAnchorsAndOffsetsPreset(LayoutPreset.Center);
+        panel.OffsetLeft = -215; panel.OffsetRight = 215;
+        panel.OffsetTop = -300; panel.OffsetBottom = 300;
+
+        var col = new VBoxContainer { MouseFilter = MouseFilterEnum.Ignore };
+        col.AddThemeConstantOverride("separation", 4);
+        panel.AddChild(col);
+
+        var title = new Label
+        {
+            Text = "选择章节",
+            HorizontalAlignment = HorizontalAlignment.Center,
+            MouseFilter = MouseFilterEnum.Ignore,
+        };
+        title.AddThemeFontSizeOverride("font_size", 28);
+        title.AddThemeColorOverride("font_color", new Color(0.95f, 0.93f, 0.85f));
+        col.AddChild(title);
+        col.AddChild(new Control { CustomMinimumSize = new Vector2(0, 8), MouseFilter = MouseFilterEnum.Ignore });
+
+        var scroll = new ScrollContainer { MouseFilter = MouseFilterEnum.Stop };
+        scroll.SizeFlagsVertical = SizeFlags.ExpandFill;
+        scroll.HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled;
+        col.AddChild(scroll);
+
+        var list = new VBoxContainer { MouseFilter = MouseFilterEnum.Ignore, SizeFlagsHorizontal = SizeFlags.ExpandFill };
+        list.AddThemeConstantOverride("separation", 2);
+        scroll.AddChild(list);
+
+        for (int i = 0; i <= LastChapter; i++)
+        {
+            int chapter = i;
+            var btn = new Button
+            {
+                Text = i < ChapterNames.Length ? ChapterNames[i] : $"第 {i} 章",
+                Alignment = HorizontalAlignment.Left,
+                FocusMode = FocusModeEnum.None,
+                MouseDefaultCursorShape = CursorShape.PointingHand,
+                SizeFlagsHorizontal = SizeFlags.ExpandFill,
+            };
+            btn.AddThemeFontSizeOverride("font_size", 21);
+            btn.AddThemeStyleboxOverride("normal", new StyleBoxFlat { BgColor = new Color(1, 1, 1, 0.04f) });
+            btn.AddThemeStyleboxOverride("hover", new StyleBoxFlat { BgColor = new Color(0.90f, 0.80f, 0.55f, 0.16f) });
+            btn.Pressed += () =>
+            {
+                layer.QueueFree();
+                GameManager.Instance.ChangeSceneWithTransition(GetChapterScenePath(chapter));
+            };
+            list.AddChild(btn);
+        }
     }
 
     // ==================== 氛围层（纯代码生成） ====================

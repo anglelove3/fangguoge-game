@@ -2,7 +2,7 @@ using Godot;
 using System.Collections.Generic;
 
 /// <summary>
-/// 第八章：还想再见
+/// 第九章：还想再见
 ///
 /// 流程（六幕，跨六天）：
 ///   第 1 幕 周一夜·宿舍 —— 群里 47 条消息 + 三条删掉的草稿（ghost typing）→ 发出去哪句（draft）
@@ -118,7 +118,7 @@ public partial class Ch09 : ChapterBase
 
     protected override void OnChapterReady()
     {
-        GD.Print("第八章：还想再见 —— 有些话憋着会发酸");
+        GD.Print("第九章：还想再见 —— 有些话憋着会发酸");
 
         cfg = DataStore.LoadJson<ChapterConfig>("res://data/chapters/ch09.json") ?? new ChapterConfig();
 

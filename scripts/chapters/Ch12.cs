@@ -2,7 +2,7 @@ using Godot;
 using System.Collections.Generic;
 
 /// <summary>
-/// 第十一章：十里长亭
+/// 第十二章：十里长亭
 ///
 /// 流程（五段，一个傍晚）：
 ///   老街   —— 按 ch11 的电量选择分流开场（骑到街口 / 推车进城）→ 她的定位 → 出街
@@ -73,7 +73,7 @@ public partial class Ch12 : ChapterBase
 
     protected override void OnChapterReady()
     {
-        GD.Print("第十一章：十里长亭 —— 越接近，越慢");
+        GD.Print("第十二章：十里长亭 —— 越接近，越慢");
 
         cfg = DataStore.LoadJson<ChapterConfig>("res://data/chapters/ch12.json") ?? new ChapterConfig();
 

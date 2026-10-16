@@ -1,7 +1,7 @@
 using Godot;
 
 /// <summary>
-/// 第七章：三点水
+/// 第八章：三点水
 ///
 /// 流程：周六傍晚的宿舍（群里在攒局「今天的局」）
 ///      → 收起手机出门 → 罗曼蒂克（台球房：第一次见到江洁）
@@ -60,7 +60,7 @@ public partial class Ch08 : ChapterBase
 
     protected override void OnChapterReady()
     {
-        GD.Print("第七章：三点水 —— 朋友攒的局，和一个名字里有水的姑娘");
+        GD.Print("第八章：三点水 —— 朋友攒的局，和一个名字里有水的姑娘");
 
         AudioManager.Instance?.PlayBgm(AudioManager.BgmGym1, -14f, 1.5f);
 

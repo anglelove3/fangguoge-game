@@ -2,7 +2,7 @@ using Godot;
 using System.Collections.Generic;
 
 /// <summary>
-/// 第九章：置顶
+/// 第十章：置顶
 ///
 /// 流程（五幕，跨一周）：
 ///   第 1 幕 周一夜·宿舍 —— 群里催进展 → 长按她的会话【置顶】（玩家自己在微信里按）
@@ -105,7 +105,7 @@ public partial class Ch10 : ChapterBase
 
     protected override void OnChapterReady()
     {
-        GD.Print("第九章：置顶 —— 一抬头就能看见");
+        GD.Print("第十章：置顶 —— 一抬头就能看见");
 
         cfg = DataStore.LoadJson<ChapterConfig>("res://data/chapters/ch10.json") ?? new ChapterConfig();
 

@@ -2,7 +2,7 @@ using Godot;
 using System.Collections.Generic;
 
 /// <summary>
-/// 第五章：碧蓝蓝天
+/// 第六章：碧蓝蓝天
 ///
 /// 流程：傍晚的实验室（手机震个不停）→ 打开「今天吃什么研讨组」
 ///      → 收起手机后三选一（去 / 半推半就地去 / 让他们定）
@@ -53,7 +53,7 @@ public partial class Ch06 : ChapterBase
 
     protected override void OnChapterReady()
     {
-        GD.Print("第五章：碧蓝蓝天 —— 被朋友捞出来的那个傍晚");
+        GD.Print("第六章：碧蓝蓝天 —— 被朋友捞出来的那个傍晚");
 
         AudioManager.Instance?.PlayBgm(AudioManager.BgmGym1, -14f, 1.5f);
 

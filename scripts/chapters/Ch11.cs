@@ -2,7 +2,7 @@ using Godot;
 using System.Collections.Generic;
 
 /// <summary>
-/// 第十章：向南
+/// 第十一章：向南
 ///
 /// 流程（五幕，一天 + 前夜）：
 ///   第 1 幕 周六夜·宿舍 —— 她那句「出门全靠走」→ why 三选（告知 / 套话 / 保密）
@@ -95,7 +95,7 @@ public partial class Ch11 : ChapterBase
 
     protected override void OnChapterReady()
     {
-        GD.Print("第十章：向南 —— 389 公里");
+        GD.Print("第十一章：向南 —— 389 公里");
 
         cfg = DataStore.LoadJson<ChapterConfig>("res://data/chapters/ch11.json") ?? new ChapterConfig();
 

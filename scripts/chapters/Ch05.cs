@@ -2,7 +2,7 @@ using Godot;
 using System.Collections.Generic;
 
 /// <summary>
-/// 第四章：手滑
+/// 第五章：手滑
 ///
 /// 流程：分手当夜凌晨的宿舍 → 打开旧聊天（只读 + 幽灵打字）
 ///      → 深夜三选一（出去走走 / 继续看手机 / 打电话给朋友）
@@ -36,7 +36,7 @@ public partial class Ch05 : ChapterBase
 
     protected override void OnChapterReady()
     {
-        GD.Print("第四章：手滑 —— 凌晨一点半，手滑点开了旧聊天");
+        GD.Print("第五章：手滑 —— 凌晨一点半，手滑点开了旧聊天");
 
         // 第十一轮 B4：这一章是深夜，换第三首吉姆诺佩蒂（更慢、更空）
         // 第十一轮 B4：这一章是深夜，换第三首吉姆诺佩蒂（更慢、更空）

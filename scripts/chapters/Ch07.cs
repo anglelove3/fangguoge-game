@@ -1,7 +1,7 @@
 using Godot;
 
 /// <summary>
-/// 第六章：放过自己
+/// 第七章：放过自己
 ///
 /// 流程：深夜烧烤摊（金艮请你吃串）→ 自己动手倒酒，一杯一层往事（4 杯）
 ///      → 第四杯之后的三选一（怎么接住"你从来没放过自己"这句话）
@@ -37,7 +37,7 @@ public partial class Ch07 : ChapterBase
 
     protected override void OnChapterReady()
     {
-        GD.Print("第六章：放过自己 —— 酒过三巡，才敢说的话");
+        GD.Print("第七章：放过自己 —— 酒过三巡，才敢说的话");
 
         AudioManager.Instance?.PlayBgm(AudioManager.BgmGym3, -14f, 1.5f);
 
