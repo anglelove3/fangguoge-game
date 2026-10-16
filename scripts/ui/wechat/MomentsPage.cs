@@ -719,6 +719,11 @@ public partial class MomentsPage : Control
     private void ScheduleCommentReply(PostUi ui, string comment)
     {
         var post = ui.Post;
+
+        // 性格化回复概率（第二十四轮 F34）：叶冰玉这类看心情的人，已读不回才是本体
+        if (GD.Randf() > post.ReplyChance)
+            return;
+
         double delay = GD.RandRange(15.0, 40.0);
         GetTree().CreateTimer(delay).Timeout += () =>
         {

@@ -312,6 +312,8 @@ public partial class Ch08 : ChapterBase
         hintLabel.Visible = false;
         CrossfadeTo(bgRmt, 1.1f);
         FadeMahjong(-22f, 2.2f);
+        // 第二十四轮 F35：离开工位进会场——那点柔软收起来，理性冷静的《Gym2》回岗
+        AudioManager.Instance?.PlayBgm(AudioManager.BgmGym2, -15f, 2.5f);
         DialogueManager.Instance.PlaySequence(ChapterId, "arrive", EnterRmt);
     }
 

@@ -298,6 +298,9 @@ public partial class Ch02 : ChapterBase
     /// </summary>
     private void StartPhoneCall()
     {
+        // 第二十四轮 F35：视频接通——白天的平静从这里裂开，深夜的心事换《Heartbreaking》来扛
+        AudioManager.Instance?.PlayBgm(AudioManager.BgmHeartbreaking, -16f, 2.8f);
+
         DialogueManager.Instance.PlaySequence(ChapterId, "call_arrive", () =>
         {
             // 接通了：右上角亮起通话提示，呼吸闪烁

@@ -362,6 +362,13 @@ public class MomentPost
     /// 用来让朋友圈跟着剧情走：人还是那些人，时间线却在动。
     /// </summary>
     public int AfterChapter { get; set; }
+
+    /// <summary>
+    /// 玩家评论后作者回复的概率（第二十四轮 F34，0~1，默认 1.0 必回）。
+    /// 真实的朋友圈不是有问必答：妈秒回型填 1.0，叶冰玉这种看心情的填 0.2——
+    /// 「已读不回」本身就是性格。
+    /// </summary>
+    public double ReplyChance { get; set; } = 1.0;
 }
 
 /// <summary>朋友圈评论回复规则：评论命中 keywords 之一 → 从 lines 里抽一条回</summary>

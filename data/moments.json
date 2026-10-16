@@ -55,7 +55,8 @@
         "嗯。",
         "……",
         "你也照顾好自己。"
-      ]
+      ],
+      "reply_chance": 1.0
     },
     {
       "id": "m6b",
@@ -104,7 +105,8 @@
       "commentFallback": [
         "……",
         "别担心。"
-      ]
+      ],
+      "reply_chance": 1.0
     },
     {
       "id": "m6c",
@@ -119,7 +121,14 @@
       ],
       "comments": [],
       "commentReplies": [],
-      "commentFallback": []
+      "commentFallback": [],
+      "reply_chance": 0.2,
+      "comment_fallback": [
+        "嗯。",
+        "你倒是会接话。",
+        "行吧，就你看得开。",
+        "……随你。"
+      ]
     },
     {
       "id": "m7",
@@ -165,7 +174,8 @@
       "commentFallback": [
         "在外边按时吃饭",
         "家里都好，不用惦记"
-      ]
+      ],
+      "reply_chance": 1.0
     },
     {
       "id": "m1",
@@ -227,7 +237,8 @@
         "哈哈被你发现了",
         "标记成功，下次一起去",
         "你也觉得好喝吧！"
-      ]
+      ],
+      "reply_chance": 0.7
     },
     {
       "id": "m2",
@@ -285,7 +296,8 @@
         "实验室夜猫子+1",
         "最后一组数据，跑完就走"
       ],
-      "avatar": "res://assets/art/chat/avatar_junjie.png"
+      "avatar": "res://assets/art/chat/avatar_junjie.png",
+      "reply_chance": 0.6
     },
     {
       "id": "m3",
@@ -345,7 +357,8 @@
       "commentFallback": [
         "它现在暂住我宿舍阳台，别声张哈",
         "正在给二饼找靠谱人家，优先熟人"
-      ]
+      ],
+      "reply_chance": 0.7
     },
     {
       "id": "m4",
@@ -403,7 +416,8 @@
         "嗯，改天再走走",
         "有些地方，回去走走挺好的"
       ],
-      "avatar": "res://assets/art/chat/avatar_yebingyu.png"
+      "avatar": "res://assets/art/chat/avatar_yebingyu.png",
+      "reply_chance": 0.25
     },
     {
       "id": "m5",
@@ -457,7 +471,8 @@
         "好好吃饭，别老凑合",
         "记得吃早饭"
       ],
-      "avatar": "res://assets/art/chat/avatar_ma.png"
+      "avatar": "res://assets/art/chat/avatar_ma.png",
+      "reply_chance": 1.0
     }
   ],
   "publishGroups": [
