@@ -450,6 +450,9 @@ public partial class DialogueManager : CanvasLayer
 			GameManager.Instance.RecordChoice($"{currentChapterId}_heart_{heartId}", index);
 			heartChips.HideAll();
 
+			// 第二十四轮 F32：章节可以监听心声选择，挂配套演出（如第二章窗玻璃写字）
+			HeartChosen?.Invoke(currentChapterId, heartId, index);
+
 			// 玩家选的分支对白插到剩余队列的最前面，接着往下播
 			var rest = lineQueue;
 			lineQueue = new Queue<DialogueLine>(option.Lines ?? new List<DialogueLine>());
@@ -459,6 +462,9 @@ public partial class DialogueManager : CanvasLayer
 			ShowNextLine();
 		});
 	}
+
+	/// <summary>心声选择事件（第二十四轮 F32）：章节脚本订阅它挂配套演出</summary>
+	public event Action<string, string, int> HeartChosen;
 
 	/// <summary>
 	/// 打字机播完一行的回调

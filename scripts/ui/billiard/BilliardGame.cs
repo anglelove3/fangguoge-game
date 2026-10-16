@@ -121,6 +121,8 @@ public partial class BilliardGame : Control
     private int mySuit = -1, herSuit = -1;   // -1 未定 / 0 实色 1-7 / 1 花条 9-15
     private bool freeBallMe, freeBallHer;    // 下一杆自由球（白球落袋 = 犯规的代价）
     private Vector2 lastMouse;               // 自由球摆放时白球跟着鼠标走
+    private bool lastKeepTurn;               // 本杆是否连杆（进了自己花色且没犯规）
+    private int stalemate;                   // 连续无进球杆数（防死循环保险）
 
     private readonly List<BilliardData.CommentLine> commentQueue = new();
     private Action afterComments;
@@ -645,6 +647,10 @@ public partial class BilliardGame : Control
             }
         }
 
+        // 连杆判定（第二十四轮 F30：完整八球制）：没犯规且进了自己花色 → 继续击球
+        lastKeepTurn = !foul && gained > 0;
+        stalemate = gained > 0 ? 0 : stalemate + 1;
+
         // ---- 犯规：对手下一杆自由球 ----
         if (foul)
         {
@@ -735,7 +741,7 @@ public partial class BilliardGame : Control
 
     private void NextPhase()
     {
-        // 彩球打光了就提前收官（黑八留在桌上不算——它是雷，不是目标）
+        // 兜底终局：目标彩球全进光（正常一定以黑八收），或连续 24 杆无进球（极端僵局按分判）
         bool anyTarget = false;
         foreach (var b in balls)
         {
@@ -746,16 +752,26 @@ public partial class BilliardGame : Control
             }
         }
 
-        if (!anyTarget || (myShots >= 3 && herShots >= 3))
+        if (!anyTarget || stalemate >= 24)
         {
             EndGame(myScore > herScore ? 0 : (myScore < herScore ? 1 : 2), myScore > herScore);
             return;
         }
 
+        // 连杆（第二十四轮 F30）：进了自己花色且没犯规 → 同一人继续；否则换人
+        bool keepMine = lastKeepTurn && lastShooterMe;
+        bool keepHers = lastKeepTurn && !lastShooterMe;
+
         if (lastShooterMe)
-            BeginHerTurn();
+        {
+            if (keepMine) BeginPlayerTurn();
+            else BeginHerTurn();
+        }
         else
-            BeginPlayerTurn();
+        {
+            if (keepHers) BeginHerTurn();
+            else BeginPlayerTurn();
+        }
     }
 
     private void BeginPlayerTurn()
@@ -854,13 +870,16 @@ public partial class BilliardGame : Control
         float bestScore = float.MaxValue;
         float bestDist = 600f;
 
+        // 清完自己花色后，黑八就是她的制胜球（第二十四轮 F30）
+        bool herReadyForEight = herSuit >= 0 && SuitCleared(herSuit);
+
         foreach (var b in balls)
         {
             if (b.Number == 0 || b.Pocketed)
                 continue;
-            if (b.Number == 8)
-                continue; // 黑八是雷，她不碰（人设：她稳，但不赌）
-            if (herSuit >= 0 && SuitOf(b.Number) != herSuit)
+            if (b.Number == 8 && !herReadyForEight)
+                continue; // 黑八是雷，没清完绝不碰
+            if (b.Number != 8 && herSuit >= 0 && SuitOf(b.Number) != herSuit)
                 continue; // 定了花色就只打自己的
 
             foreach (var p in pockets)
@@ -892,13 +911,15 @@ public partial class BilliardGame : Control
 
         if (best == null)
         {
-            // 没得选：对着最近的一颗非黑八轻轻碰一下
+            // 没得选：对着最近的一颗合法目标轻轻碰一下
             float nearest = float.MaxValue;
             foreach (var b in balls)
             {
-                if (b.Number == 0 || b.Pocketed || b.Number == 8)
+                if (b.Number == 0 || b.Pocketed)
                     continue;
-                if (herSuit >= 0 && SuitOf(b.Number) != herSuit)
+                if (b.Number == 8 && !herReadyForEight)
+                    continue;
+                if (b.Number != 8 && herSuit >= 0 && SuitOf(b.Number) != herSuit)
                     continue;
                 float d = (b.Pos - white.Pos).Length();
                 if (d < nearest)
@@ -1059,13 +1080,43 @@ public partial class BilliardGame : Control
     {
         _ = initial;
         scoreLabel.Text = HudText("scoreMe") + "  " + myScore + " : " + herScore + "  " + HudText("scoreHer");
-        int n = turnIsMine ? Mathf.Min(myShots + 1, 3) : Mathf.Min(herShots + 1, 3);
-        turnLabel.Text = string.Format(HudText("shotN"), n) + " · " + (turnIsMine ? HudText("yourTurn") : HudText("herTurn"));
 
-        // 花色行（第二十二轮 F13）：你的花色 + 黑八警示
+        // 完整八球（第二十四轮 F30）：不再有杆数上限——显示回合归属 + 双方剩球
         string mine = mySuit == 0 ? HudText("suitSolid") : mySuit == 1 ? HudText("suitStripe") : HudText("suitUndecided");
         string hers = herSuit == 0 ? HudText("suitSolid") : herSuit == 1 ? HudText("suitStripe") : HudText("suitUndecided");
+        string turn = turnIsMine ? HudText("yourTurn") : HudText("herTurn");
+
+        if (mySuit < 0)
+        {
+            turnLabel.Text = turn + " · " + HudText("suitUndecided");
+            suitLabel.Text = string.Format(HudText("eightWarn"), mine, hers);
+            return;
+        }
+
+        int myLeft = Remaining(mySuit);
+        int herLeft = Remaining(herSuit);
+        bool myEight = myLeft == 0;
+        bool herEight = herLeft == 0;
+
+        turnLabel.Text = turn + " · " + (turnIsMine
+            ? (myEight ? HudText("eightGo") : string.Format(HudText("suitLeft"), mine, myLeft))
+            : (herEight ? HudText("herEight") : string.Format(HudText("suitLeft"), hers, herLeft)));
+
         suitLabel.Text = string.Format(HudText("eightWarn"), mine, hers);
+    }
+
+    /// <summary>某花色还剩几颗在桌上（不含黑八）</summary>
+    private int Remaining(int suit)
+    {
+        int n = 0;
+        foreach (var b in balls)
+        {
+            if (b.Pocketed || b.Number == 0 || b.Number == 8)
+                continue;
+            if (SuitOf(b.Number) == suit)
+                n++;
+        }
+        return n;
     }
 
     private void UpdateSpinLabel()

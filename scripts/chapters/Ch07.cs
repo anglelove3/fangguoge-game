@@ -236,6 +236,8 @@ public partial class Ch07 : ChapterBase
         {
             if (!GodotObject.IsInstanceValid(this))
                 return;
+            // 第二十四轮 F35：碰杯是这一章的情绪转折——苦涩（Gym3）从这一口起转成释然（Piano Between）
+            AudioManager.Instance?.PlayBgm(AudioManager.BgmPianoBetween, -14f, 2.5f);
             DialogueManager.Instance.PlaySequence(ChapterId, "outro", () =>
             {
                 // 第十九轮保底（F16）：玩家跳过了删除引导也没关系——剧情上"回去的路上"这一刀照样落。

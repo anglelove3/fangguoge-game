@@ -59,6 +59,11 @@ public partial class AudioManager : Node
 	public const string BgmGym3 = "res://assets/audio/bgm/gymnopedie_no3.ogg"; // 第四章《手滑》深夜
 	public const string BgmRoad = "res://assets/audio/bgm/bgm_road_v1.mp3";    // 第十章《向南》公路（Carefree, Kevin MacLeod, CC-BY）
 
+	// 第二十四轮 F35 心情曲库（Kevin MacLeod, incompetech.com, CC-BY 4.0）
+	public const string BgmSadTrio = "res://assets/audio/bgm/bgm_sad_trio.mp3";           // 分手沉重（第三章《天平》后段 / 第四章《晚安》）
+	public const string BgmHeartbreaking = "res://assets/audio/bgm/bgm_heartbreaking.mp3"; // 深夜心碎（第五章《手滑》凌晨备选）
+	public const string BgmPianoBetween = "res://assets/audio/bgm/bgm_piano_between.mp3";  // 苦涩转释然（第七章《放过自己》碰杯后）
+
 	/// <summary>当前 BGM 的"基础音量"（不含设置页偏移），设置页改音量时要用它重算</summary>
 	private float bgmBaseDb = -14f;
 

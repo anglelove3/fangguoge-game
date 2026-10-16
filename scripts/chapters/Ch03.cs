@@ -155,6 +155,9 @@ public partial class Ch03 : ChapterBase
 
     private void OnIntroFinished()
     {
+        // 第二十四轮 F35：「对不起」已经出口——音乐从天平的冷峻（Gym2）沉到分手的重量（Sad Trio）
+        AudioManager.Instance?.PlayBgm(AudioManager.BgmSadTrio, -15f, 3.0f);
+
         hotspotsRoot.Visible = true;
         rightPanBtn.Disabled = false;
         hintLabel.Visible = true;

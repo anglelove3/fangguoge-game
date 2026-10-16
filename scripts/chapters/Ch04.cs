@@ -34,7 +34,7 @@ public partial class Ch04 : ChapterBase
     {
         GD.Print("第四章：晚安 —— 分手当夜，谁也没说晚安");
 
-        AudioManager.Instance?.PlayBgm(AudioManager.BgmGym3, -16f, 2.0f); // 全书最慢的那首
+        AudioManager.Instance?.PlayBgm(AudioManager.BgmSadTrio, -15f, 2.0f); // 分手当夜——沉重比孤独更贴（第二十四轮 F35）
 
         hotspotsRoot = GetNode<Control>("Hotspots");
         hintLabel = GetNode<Label>("HintLabel");

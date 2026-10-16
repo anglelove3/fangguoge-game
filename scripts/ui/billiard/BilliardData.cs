@@ -46,6 +46,11 @@ public static class BilliardData
         public string SuitSolid { get; set; } = "实色（1-7）";
         public string SuitStripe { get; set; } = "花条（9-15）";
         public string EightWarn { get; set; } = "你：{0} ｜ 她：{1} ｜ 黑八 = 雷";
+
+        // 第二十四轮 F30：完整八球制
+        public string SuitLeft { get; set; } = "{0}剩 {1} 颗";
+        public string EightGo { get; set; } = "清完了——黑八可以打了！";
+        public string HerEight { get; set; } = "她的花色清完了，盯着黑八……";
     }
 
     public class BilliardFile

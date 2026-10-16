@@ -91,7 +91,18 @@ public partial class Ch02 : ChapterBase
         tween.TweenProperty(titleLabel, "modulate:a", 0.0f, 2.0f);
         tween.TweenProperty(subtitleLabel, "modulate:a", 0.0f, 2.0f);
 
+        // 第二十四轮 F32：心声「把两座城市连成线」→ 窗玻璃哈气写字演出
+        DialogueManager.Instance.HeartChosen += OnHeartChosen;
+
         DialogueManager.Instance.PlaySequence(ChapterId, "intro", OnIntroFinished);
+    }
+
+    private void OnHeartChosen(string chapterId, string heartId, int index)
+    {
+        if (chapterId != ChapterId || heartId != "window" || index != 0)
+            return;
+        DialogueManager.Instance.HeartChosen -= OnHeartChosen; // 一次性
+        AddChild(new WindowFog());
     }
 
     /// <summary>发呆 12 秒 → 未找到的热点轻轻呼吸</summary>
