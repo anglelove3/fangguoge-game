@@ -100,15 +100,16 @@ public partial class ChapterBase : Control
             1 => AudioManager.AmbStreet,   // 寄居蟹：白天校园外
             2 => AudioManager.AmbStreet,   // 一千公里：白天→深夜章内切
             3 => AudioManager.AmbNight,    // 天平：深夜
-            4 => AudioManager.AmbNight,    // 晚安：深夜
-            5 => AudioManager.AmbNight,    // 手滑：凌晨
-            6 => AudioManager.AmbWind,     // 碧蓝蓝天：海风
-            7 => AudioManager.AmbStreet,   // 放过自己：夜摊人声
-            8 => AudioManager.AmbRain,     // 三点水：雨夜实验室
-            9 => AudioManager.AmbNight,    // 还想再见：夜里
-            10 => AudioManager.AmbNight,   // 置顶：前夜
-            11 => AudioManager.AmbWind,    // 向南：骑行风声
-            12 => AudioManager.AmbWind,    // 十里长亭：风
+            4 => AudioManager.AmbStreet,   // 星月：广场深夜（喷泉+街道底噪）
+            5 => AudioManager.AmbNight,    // 晚安：深夜
+            6 => AudioManager.AmbNight,    // 手滑：凌晨
+            7 => AudioManager.AmbWind,     // 碧蓝蓝天：海风
+            8 => AudioManager.AmbStreet,   // 放过自己：夜摊人声
+            9 => AudioManager.AmbRain,     // 三点水：雨夜实验室
+            10 => AudioManager.AmbNight,   // 还想再见：夜里
+            11 => AudioManager.AmbNight,   // 置顶：前夜
+            12 => AudioManager.AmbWind,    // 向南：骑行风声
+            13 => AudioManager.AmbWind,    // 十里长亭：风
             _ => "",
         };
         if (!string.IsNullOrEmpty(amb))

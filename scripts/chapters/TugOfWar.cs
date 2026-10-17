@@ -21,6 +21,8 @@ public partial class TugOfWar : Control
     private Vector2 handVel;
     private bool holding;          // 鼠标按着
     private float grip;            // 抓握强度 0~1（靠近手=1，远了衰减）
+    private float fadeOut;         // 落幕淡出（0~1）
+    private bool flashbackFired;   // 闪回只涌上来一次
 
     private const float Dur = 7.5f;         // 总时长上限（超时强制滑脱）
     private const float CatchRadius = 90f;  // 抓握判定半径
@@ -58,7 +60,13 @@ public partial class TugOfWar : Control
     public override void _Process(double delta)
     {
         if (resolved)
+        {
+            // 第三轮完善：落幕时手慢慢淡出（松开/滑脱的那只手慢慢看不见）
+            t += (float)delta;
+            fadeOut = Mathf.Clamp(fadeOut + (float)delta / 1.2f, 0f, 1f);
+            QueueRedraw();
             return;
+        }
         float dt = (float)delta;
         t += dt;
 
@@ -77,6 +85,14 @@ public partial class TugOfWar : Control
         {
             Resolve(false);
             return;
+        }
+
+        // 抓到一半（约 3.5 秒、且真的抓着的时候）：回忆涌上来——闪回两层老照片
+        if (!flashbackFired && t >= 3.5f && holding && grip > 0.3f)
+        {
+            flashbackFired = true;
+            var scene = GetTree()?.CurrentScene;
+            scene?.AddChild(new FlashbackMemory());
         }
 
         QueueRedraw();
@@ -106,12 +122,14 @@ public partial class TugOfWar : Control
     public override void _Draw()
     {
         var size = GetViewportRect().Size;
+        float gone = 1f - fadeOut; // 1 = 还在，0 = 彻底看不见
 
         // 背景微压暗，注意力收到手上
-        DrawRect(new Rect2(0, 0, size.X, size.Y), new Color(0.02f, 0.02f, 0.05f, 0.45f));
+        DrawRect(new Rect2(0, 0, size.X, size.Y), new Color(0.02f, 0.02f, 0.05f, 0.45f * gone));
 
         // 她的手（剪影：纤细的手腕+五指轮廓，深色偏暖）
-        DrawHand(handPos, holding ? Mathf.Max(grip, 0.15f) : 0f);
+        if (gone > 0.01f)
+            DrawHand(handPos, (holding ? Mathf.Max(grip, 0.15f) : 0f) * gone, gone);
 
         // 抓着的时候：鼠标和手之间一根绷紧的线（张力可视化）
         if (holding && grip > 0.05f)
@@ -144,9 +162,9 @@ public partial class TugOfWar : Control
     }
 
     /// <summary>画一只剪影的手（手腕朝左，指尖朝右——正在离开的方向）</summary>
-    private void DrawHand(Vector2 p, float gripGlow)
+    private void DrawHand(Vector2 p, float gripGlow, float alpha = 1f)
     {
-        var skin = new Color(0.16f, 0.13f, 0.14f, 0.92f);
+        var skin = new Color(0.16f, 0.13f, 0.14f, 0.92f * alpha);
         // 手掌
         DrawEllipse(p, 26f, 20f, skin);
         // 五指（指尖朝右）
