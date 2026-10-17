@@ -59,6 +59,7 @@ public partial class Ch03 : ChapterBase
 
         scale = GetNode<BalanceScale>("BalanceScale");
         splitStage = GetNodeOrNull<SplitBalanceScene>("SplitStage");
+        SpawnDragProps();
         // 第二十轮 F1：光点已经收进背包的话（上一局/读档），右盘就不再亮着——
         // 物品到手了，场景里的它也该消失
         scale.OrbVisible = !GameManager.Instance.HasHiddenItem("light_orb");
@@ -530,6 +531,88 @@ public partial class Ch03 : ChapterBase
     {
         int i = Mathf.Clamp(n - 1, 0, layout.TiltAfterChips.Count - 1);
         return layout.TiltAfterChips.Count > 0 ? layout.TiltAfterChips[i] : -24f - 6f * n;
+    }
+
+    // ==================== 可拖物品（第三轮：把画里的东西压上天平） ====================
+
+    /// <summary>
+    /// 左右两幅画里的实物可以拖：他的泡面桶/书堆压左盘（回忆沉），
+    /// 她的咖啡杯/便利贴压右盘（补偿，和道歉一样轻）。
+    /// 拖上去会弹这件东西专属的回忆——物件比卡片更疼。
+    /// </summary>
+    private void SpawnDragProps()
+    {
+        var defs = new (string id, bool his, Rect2 frame, string[] lines)[]
+        {
+            ("drag_noodle", true, new Rect2(0.155f, 0.545f, 0.095f, 0.105f), new[]
+            {
+                "你现在吃饭了吗？",
+                "（那时候我总跟她说泡面是人间美味。其实只是没钱。）",
+                "（她笑着说：等你有钱了，请我吃贵的。我说好。）",
+            }),
+            ("drag_books", true, new Rect2(0.012f, 0.400f, 0.100f, 0.240f), new[]
+            {
+                "（这一摞，是我熬夜的全部证据。）",
+                "（她说过一句：别熬了，你眼睛都红了。）",
+                "（我当时说没事。现在眼睛还是红的。)",
+            }),
+            ("drag_coffee", false, new Rect2(0.745f, 0.590f, 0.085f, 0.105f), new[]
+            {
+                "（她的咖啡杯。第三杯，凉了。）",
+                "（她说她也在加班。原来加的，不是班。）",
+            }),
+            ("drag_notes", false, new Rect2(0.205f, 0.375f, 0.090f, 0.125f), new[]
+            {
+                "（显示器边上全是便利贴。她一直记性差。）",
+                "（现在想想，有些日子她记得比谁都清楚。）",
+            }),
+        };
+
+        foreach (var def in defs)
+        {
+            string path = $"res://assets/art/props/drag/{def.id}.png";
+            if (!ResourceLoader.Exists(path))
+                continue;
+            var prop = new DragProp
+            {
+                Texture = GD.Load<Texture2D>(path),
+                BelongsToHim = def.his,
+            };
+            prop.Lines = new System.Collections.Generic.List<DialogueLine>();
+            foreach (var line in def.lines)
+                prop.Lines.Add(new DialogueLine { Speaker = "我", Text = line });
+            prop.Setup(() => scale.LeftPanDropGlobal());
+            prop.Dropped += OnPropDropped;
+
+            // 按整屏比例定位
+            prop.AnchorLeft = def.frame.Position.X;
+            prop.AnchorRight = def.frame.Position.X + def.frame.Size.X;
+            prop.AnchorTop = def.frame.Position.Y;
+            prop.AnchorBottom = def.frame.Position.Y + def.frame.Size.Y;
+            prop.OffsetLeft = 0; prop.OffsetRight = 0;
+            prop.OffsetTop = 0; prop.OffsetBottom = 0;
+            AddChild(prop);
+        }
+    }
+
+    /// <summary>物品落盘：天平加码 + 倾斜 + 专属回忆</summary>
+    private void OnPropDropped(DragProp prop)
+    {
+        if (prop.BelongsToHim)
+        {
+            scale.AddMemoryChip();
+            scale.SetTilt(TiltAfterCards(scale.MemoryChips));
+        }
+        else
+        {
+            scale.AddCompensationChip();
+            scale.SetTilt(TiltAfterChips(scale.CompensationChips));
+        }
+        AudioManager.Instance?.PlaySfx(AudioManager.SfxItemPlace, -12f, 0.05f);
+
+        var dm = DialogueManager.Instance;
+        if (dm != null && !dm.IsBusy && prop.Lines.Count > 0)
+            dm.PlayLines(prop.Lines);
     }
 
     // ==================== 右盘彩蛋 ====================
