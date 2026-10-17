@@ -247,7 +247,7 @@ public partial class Ch07 : ChapterBase
                 GameManager.Instance?.DeleteFriend("baobao", "ch08_auto_delete");
 
                 AudioManager.Instance?.PlayBgm(AudioManager.BgmGym1, -14f, 2.5f);
-                GoToNextChapter("res://scenes/chapters/ch09/ch09.tscn", 7);
+                GoToNextChapter("res://scenes/chapters/ch08/ch08.tscn", 8);
             });
         });
     }

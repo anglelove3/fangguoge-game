@@ -272,7 +272,7 @@ public partial class Ch05 : ChapterBase
             DialogueManager.Instance.PlaySequence(ChapterId, "outro", () =>
             {
                 // r13：第五章之后不再是"试玩结束"，接上正式剧情 第六章《碧蓝蓝天》
-                GoToNextChapter("res://scenes/chapters/ch07/ch07.tscn", 5);
+                GoToNextChapter("res://scenes/chapters/ch06/ch06.tscn", 6);
             });
         }));
     }

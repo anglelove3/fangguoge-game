@@ -367,7 +367,7 @@ public partial class Ch06 : ChapterBase
             FadeRain(-60f, 1.6f); // 散场的时候，雨停了
             DialogueManager.Instance.PlaySequence(ChapterId, "outro", () =>
             {
-                GoToNextChapter("res://scenes/chapters/ch08/ch08.tscn", 6);
+                GoToNextChapter("res://scenes/chapters/ch07/ch07.tscn", 7);
             });
         });
     }

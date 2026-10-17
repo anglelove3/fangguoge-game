@@ -667,7 +667,7 @@ public partial class Ch11 : ChapterBase
         DialogueManager.Instance.PlaySequence(ChapterId, "outro", () =>
         {
             // r20：第十一章尾声改接第十二章《十里长亭》（demo_end 改由第十二章尾声进入）
-            GoToNextChapter("res://scenes/chapters/ch13/ch13.tscn", 11);
+            GoToNextChapter("res://scenes/chapters/ch12/ch12.tscn", 12);
         });
     }
 

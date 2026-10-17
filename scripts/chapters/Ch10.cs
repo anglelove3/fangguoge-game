@@ -736,7 +736,7 @@ public partial class Ch10 : ChapterBase
             DialogueManager.Instance.PlaySequence(ChapterId, "outro", () =>
             {
                 // r19：第十章出口改接第十一章《向南》（demo_end 改由第十一章尾声进入）
-                GoToNextChapter("res://scenes/chapters/ch12/ch12.tscn", 10);
+                GoToNextChapter("res://scenes/chapters/ch11/ch11.tscn", 11);
             });
         });
     }
