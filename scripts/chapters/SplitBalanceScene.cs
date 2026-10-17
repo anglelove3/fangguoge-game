@@ -32,6 +32,11 @@ public partial class SplitBalanceScene : Control
         leftV2 = MakeHalf(Dir + "left_v2_dorm_late.png", true, startAlpha: 0f);
         rightV2 = MakeHalf(Dir + "right_v2_office_late.png", false, startAlpha: 0f);
 
+        // 诊断：四层状态一行打清（左右图加载失败时一眼定位）
+        GD.Print($"[分屏] L1={(leftV1.Texture != null)} R1={(rightV1.Texture != null)} "
+                 + $"L2={(leftV2.Texture != null)} R2={(rightV2.Texture != null)} "
+                 + $"L1size={leftV1.Size} R1size={rightV1.Size}");
+
         // 中缝：一道极细的暖白光，像有人把夜色从中间撕开
         seam = new ColorRect
         {
@@ -54,12 +59,17 @@ public partial class SplitBalanceScene : Control
             MouseFilter = MouseFilterEnum.Ignore,
             Modulate = new Color(1, 1, 1, startAlpha),
         };
-        rect.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
-        if (left)
-            rect.OffsetRight = -GetViewportRect().Size.X / 2f;   // 只占左半
-        else
-            rect.OffsetLeft = GetViewportRect().Size.X / 2f;      // 只占右半
+        // 第三轮修复：显式 anchors 划半屏（左=0~0.5，右=0.5~1），offset 全 0——
+        // 旧写法用运行时 viewport 宽度算 offset，时序不稳会导致左右错位/越界
+        rect.AnchorLeft = left ? 0f : 0.5f;
+        rect.AnchorRight = left ? 0.5f : 1f;
+        rect.AnchorTop = 0f;
+        rect.AnchorBottom = 1f;
+        rect.OffsetLeft = 0; rect.OffsetRight = 0;
+        rect.OffsetTop = 0; rect.OffsetBottom = 0;
         AddChild(rect);
+        if (rect.Texture == null)
+            GD.PrintErr($"[分屏] 图加载失败: {path}");
         return rect;
     }
 
