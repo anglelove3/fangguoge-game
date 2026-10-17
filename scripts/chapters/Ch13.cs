@@ -452,6 +452,18 @@ public partial class Ch13 : ChapterBase
         hotspotsRoot.Visible = false;
         hintLabel.Visible = false;
 
+        // 第三轮：走之前，最后一次可以回头（或不回头）——两种收尾
+        DialogueManager.Instance.ShowChoice(ChapterId, "lookback", OnLookBackChosen);
+    }
+
+    private void OnLookBackChosen(int index)
+    {
+        string seq = index == 0 ? "lookback_yes" : "lookback_no";
+        DialogueManager.Instance.PlaySequence(ChapterId, seq, PlayEndingOutro);
+    }
+
+    private void PlayEndingOutro()
+    {
         DialogueManager.Instance.PlaySequence(ChapterId, "outro", () =>
         {
             // 第三轮 B1：送别长镜头——画面缓缓横移+推近，像谁在缓慢回头；
