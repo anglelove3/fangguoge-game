@@ -61,6 +61,10 @@ public partial class HeartBlades : Control
     private readonly List<(Vector2 p, float r, float a)> blood = new();
     private int pulledCount;
     private bool allIn;
+    private float clickWindow;
+    private int clickCount;
+    private bool fifthFired;
+    private float fifthShake;
     private bool lineShown;
     private float shakeT;
     private float beatSkip;      // 漏拍（0~1，1=刚漏过）
@@ -169,6 +173,15 @@ public partial class HeartBlades : Control
             blood[i] = (p, Mathf.Min(r + dt * 34f, 90f), Mathf.Min(a + dt * 1.6f, 0.55f));
         }
 
+        if (clickWindow > 0f)
+        {
+            clickWindow -= dt;
+            if (clickWindow <= 0f)
+                clickCount = 0;
+        }
+        if (fifthShake > 0f)
+            fifthShake = Mathf.Max(0f, fifthShake - dt);
+
         if (shakeT > 0f)
             shakeT = Mathf.Max(0f, shakeT - dt);
         if (beatSkip > 0f)
@@ -200,7 +213,19 @@ public partial class HeartBlades : Control
 
     public override void _Input(InputEvent @event)
     {
-        if (!allIn || !(@event is InputEventMouseButton mb) || !mb.Pressed || mb.ButtonIndex != MouseButton.Left)
+        if (!(@event is InputEventMouseButton mb) || !mb.Pressed || mb.ButtonIndex != MouseButton.Left)
+            return;
+
+        // 第三轮：不耐烦是有代价的——插刀过程中狂点，她自己再补一刀
+        clickCount++;
+        clickWindow = 0.6f;
+        if (!fifthFired && !allIn && clickCount >= 4 && t > DarkIn + HeartIn + 1.0f)
+        {
+            SendFifthBlade();
+            return;
+        }
+
+        if (!allIn)
             return;
         var p = GetViewport().GetMousePosition();
         foreach (var b in blades)
@@ -214,6 +239,24 @@ public partial class HeartBlades : Control
                 break;
             }
         }
+    }
+
+    /// <summary>第五把刀：你连听她说完都做不到（玩家自己招来的）</summary>
+    private void SendFifthBlade()
+    {
+        fifthFired = true;
+        fifthShake = 0.5f;
+        var from = heartCenter + new Vector2(0, -GetViewportRect().Size.Y * 0.7f);
+        blades.Add(new Blade
+        {
+            Pos = heartCenter + new Vector2(0, heartScale * 983f * 0.06f),
+            Dir = new Vector2(0, 1),
+            Angle = 0.05f,
+            AppearAt = t,
+            StartFrom = from,
+            Text = "你连听我说完，都做不到。",
+        });
+        AudioManager.Instance?.PlaySfx(AudioManager.SfxMetalTap, -4f, 0.05f, 0.6f);
     }
 
     public override void _Draw()

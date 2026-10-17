@@ -90,8 +90,16 @@ public partial class Ch08 : ChapterBase
         }
         DialogueManager.Instance.PlaySequence(ChapterId, "river_intro", () =>
         {
-            DialogueManager.Instance.ShowChoice(ChapterId, "river", OnRiverChosen);
+            // 第三轮：二十秒内不选，也是答案——就坐着看河水
+            DialogueManager.Instance.ShowChoice(ChapterId, "river", OnRiverChosen, 20f, OnRiverTimeout);
         });
+    }
+
+    /// <summary>河边的「不选」——比任何选项都真实的那种回答</summary>
+    private void OnRiverTimeout()
+    {
+        GameManager.Instance.AddCourage(4); // 沉默也是勇气
+        DialogueManager.Instance.PlaySequence(ChapterId, "river_wait", BackToNightStall);
     }
 
     /// <summary>河边的三个反思方向（第三轮）</summary>

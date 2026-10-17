@@ -302,7 +302,10 @@ public partial class DialogueManager : CanvasLayer
 	/// <param name="chapterId">章节名</param>
 	/// <param name="choiceGroupId">选项组名，对应 JSON 里 choices 下的键</param>
 	/// <param name="onSelected">选完后要做的事，参数是选了第几个（从 0 开始）</param>
-	public void ShowChoice(string chapterId, string choiceGroupId, Action<int> onSelected = null)
+	/// <param name="timeoutSec">>0 = 到时没选也算一种回答（第三轮：真正的选择也可以在选项之外）</param>
+	/// <param name="onTimeout">超时回调（面板会先关掉）</param>
+	public void ShowChoice(string chapterId, string choiceGroupId, Action<int> onSelected = null,
+	                       float timeoutSec = 0f, Action onTimeout = null)
 	{
 		var data = LoadChapterData(chapterId);
 		if (data == null || !data.Choices.TryGetValue(choiceGroupId, out var group))
@@ -313,6 +316,22 @@ public partial class DialogueManager : CanvasLayer
 		}
 
 		state = State.WaitingChoice;
+
+		// 第三轮：空等也是一种选择——到点还没动，她自己走 / 河水继续流
+		if (timeoutSec > 0f)
+		{
+			var timer = GetTree().CreateTimer(timeoutSec);
+			timer.Timeout += () =>
+			{
+				if (state != State.WaitingChoice)
+					return; // 玩家已经选了
+				state = State.Idle;
+				choicePanel?.Hide();
+				readCard?.HideAll();
+				GD.Print("[对话] 选项超时——没有选择，也是一种选择");
+				onTimeout?.Invoke();
+			};
+		}
 
 		// 提示语直接显示（不做打字机，等玩家看选项）
 		string promptSpeaker = WeChatData.ResolveSpeaker(group.PromptSpeaker); // 第十九轮（F17）：备注一致
