@@ -684,6 +684,7 @@ public partial class ComputerOverlay : Control
                 FocusMode = FocusModeEnum.None,
                 MouseDefaultCursorShape = group != "" ? CursorShape.PointingHand : CursorShape.Arrow,
                 SizeFlagsHorizontal = SizeFlags.ExpandFill,
+                CustomMinimumSize = new Vector2(0, 76), // 第三轮 F1：不设高度 Button 会塌成 0，三行叠一起
                 Disabled = group == "",
             };
             row.AddThemeStyleboxOverride("normal", RoundStyle(new Color(0, 0, 0, 0), 8));
@@ -988,6 +989,9 @@ public partial class ComputerOverlay : Control
             CustomMinimumSize = new Vector2(120, 40),
         };
         btn.AddThemeFontSizeOverride("font_size", 20);
+        btn.AddThemeColorOverride("font_color", new Color(0.15f, 0.13f, 0.11f));
+        btn.AddThemeColorOverride("font_hover_color", new Color(0.10f, 0.09f, 0.08f));
+        btn.AddThemeColorOverride("font_pressed_color", new Color(0.10f, 0.09f, 0.08f));
         btn.AddThemeStyleboxOverride("normal", RoundStyle(new Color(0, 0, 0, 0), 6));
         btn.AddThemeStyleboxOverride("hover", RoundStyle(new Color(0.13f, 0.31f, 0.72f, 0.16f), 6));
         btn.Pressed += () =>

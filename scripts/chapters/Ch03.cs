@@ -104,6 +104,10 @@ public partial class Ch03 : ChapterBase
         base._Process(delta);
         splitStage?.SetTilt(scale != null ? scale.CurrentTilt01 : 0f);
 
+        // 第三轮 F5：天平接近平衡 → 左右浮现美好画面（暖光透出来）；失衡就熄掉
+        if (scale != null && splitStage != null && scale.MemoryChips + scale.CompensationChips > 0)
+            splitStage.SetBalanceGlow(scale.IsBalanced);
+
         var dm = DialogueManager.Instance;
         if (dm != null && dm.IsBusy)
         {

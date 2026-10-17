@@ -21,6 +21,7 @@ public partial class Ch04 : ChapterBase
     private const string ChapterId = "ch04"; // 对应 data/dialogues/ch04.json
     private Button fountainBtn, benchBtn, lampBtn, herBtn;
     private Label hintLabel;
+    private Control hotspotsRoot;
     private readonly HashSet<string> foundItems = new();
     private bool meetDone;
     private bool tugDone;
@@ -31,6 +32,7 @@ public partial class Ch04 : ChapterBase
         base._Ready();
 
         hintLabel = GetNode<Label>("HintLabel");
+        hotspotsRoot = GetNode<Control>("Hotspots");
         fountainBtn = GetNode<Button>("Hotspots/FountainBtn");
         benchBtn = GetNode<Button>("Hotspots/BenchBtn");
         lampBtn = GetNode<Button>("Hotspots/LampBtn");
@@ -50,13 +52,32 @@ public partial class Ch04 : ChapterBase
 
         UiSounds.WireAll(this);
 
+        // 第三轮 F6：她真的站在喷泉边（水彩背影剪影，冷蓝灰调贴夜色）——
+        // 从开场就在那里，和提示文案「喷泉边站着一个人」对得上
+        var herSprite = new TextureRect
+        {
+            Texture = ResourceLoader.Exists("res://assets/art/props/her_silhouette_v1.png")
+                ? GD.Load<Texture2D>("res://assets/art/props/her_silhouette_v1.png") : null,
+            ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,
+            StretchMode = TextureRect.StretchModeEnum.KeepAspectCovered,
+            MouseFilter = MouseFilterEnum.Ignore,
+        };
+        AddChild(herSprite);
+        ArtAnchor.Track(herSprite, new Rect2(1100f, 390f, 200f, 430f));
+
         // 标题淡出
         var tween = CreateTween();
         tween.SetParallel(true);
         tween.TweenProperty(titleLabel, "modulate:a", 0.0f, 2.0);
         tween.TweenProperty(subtitleLabel, "modulate:a", 0.0f, 2.0);
 
-        DialogueManager.Instance.PlaySequence(ChapterId, "intro", null);
+        // 第三轮 F6 修复：intro 播完必须放开热点——旧版回调传 null，
+        // hotspotsRoot 永远不可见，玩家点哪儿都没反应（整个章卡死在开场）
+        DialogueManager.Instance.PlaySequence(ChapterId, "intro", () =>
+        {
+            hotspotsRoot.Visible = true;
+            hintLabel.Visible = true;
+        });
     }
 
     private void OnHotspot(string id, Button btn)

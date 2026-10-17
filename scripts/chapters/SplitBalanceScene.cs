@@ -87,4 +87,33 @@ public partial class SplitBalanceScene : Control
         rightV1.Position = new Vector2(-push, 0);
         rightV2.Position = rightV1.Position;
     }
+
+    private bool balanceOn;
+    private Tween balanceTween;
+
+    /// <summary>
+    /// 平衡瞬间（第三轮 F5）：天平接近平衡时，两侧浮出一层暖光——
+    /// 像「以前挺好的时候」被短暂想起来。失衡就熄掉。
+    /// </summary>
+    public void SetBalanceGlow(bool on)
+    {
+        if (on == balanceOn)
+            return;
+        balanceOn = on;
+        balanceTween?.Kill();
+        balanceTween = CreateTween();
+        balanceTween.SetParallel(true);
+        // 平衡时两侧照片提亮回暖（v1/v2 都提——「那时候的画面」透出来）
+        var target = on ? new Color(1.12f, 1.06f, 0.96f, 1f) : Colors.White;
+        balanceTween.TweenProperty(leftV1, "modulate", target, 1.0);
+        balanceTween.TweenProperty(rightV1, "modulate", target, 1.0);
+        if (stage >= 1)
+        {
+            balanceTween.TweenProperty(leftV2, "modulate", target, 1.0);
+            balanceTween.TweenProperty(rightV2, "modulate", target, 1.0);
+        }
+        // 中缝暖光同步变亮变宽（世界短暂连起来了）
+        balanceTween.TweenProperty(seam, "color",
+            on ? new Color(1f, 0.96f, 0.86f, 0.5f) : new Color(1f, 0.96f, 0.86f, 0.22f), 1.0);
+    }
 }

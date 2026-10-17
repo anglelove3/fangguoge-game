@@ -42,6 +42,9 @@ public partial class BalanceScale : Node2D
     /// <summary>当前倾斜比例 0~1（±10 度满量程；分屏塌陷感用，第二十四轮 F33）</summary>
     public float CurrentTilt01 => Mathf.Clamp(Mathf.Abs(currentAngle) / 10f, 0f, 1f);
 
+    /// <summary>接近平衡（|角度| < 1.5°）——第三轮 F5：平衡的瞬间左右浮现美好画面</summary>
+    public bool IsBalanced => Mathf.Abs(currentAngle + IdleAmp * Mathf.Sin(timeAcc * 1.15f)) < 1.5f;
+
     /// <summary>左托盘上的记忆纸片数量（三张卡片）</summary>
     public int MemoryChips { get; private set; }
 
