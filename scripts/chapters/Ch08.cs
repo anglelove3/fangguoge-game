@@ -25,6 +25,7 @@ public partial class Ch08 : ChapterBase
     private Control pourGlow;
     private Control phoneGlow;
     private DrinkPour drink;
+    private Texture2D stallBg;              // 夜摊原背景（河边开场用）
 
     private int pourCount;      // 已经倒了几杯（0~4）
     private bool pourBusy;      // 倒酒动画播放中
@@ -79,7 +80,47 @@ public partial class Ch08 : ChapterBase
         tween.TweenProperty(titleLabel, "modulate:a", 0.0f, 2.0f);
         tween.TweenProperty(subtitleLabel, "modulate:a", 0.0f, 2.0f);
 
-        DialogueManager.Instance.PlaySequence(ChapterId, "intro", OnIntroFinished);
+        // 第三轮：河边开场——先把他一个人放在黄昏的河堤上，想完事情再去夜摊。
+        var bg = GetNodeOrNull<TextureRect>("Background");
+        if (bg != null)
+        {
+            stallBg = bg.Texture;
+            if (ResourceLoader.Exists("res://assets/art/backgrounds/river_dusk_v1.png"))
+                bg.Texture = GD.Load<Texture2D>("res://assets/art/backgrounds/river_dusk_v1.png");
+        }
+        DialogueManager.Instance.PlaySequence(ChapterId, "river_intro", () =>
+        {
+            DialogueManager.Instance.ShowChoice(ChapterId, "river", OnRiverChosen);
+        });
+    }
+
+    /// <summary>河边的三个反思方向（第三轮）</summary>
+    private void OnRiverChosen(int index)
+    {
+        GameManager.Instance.AddCourage(index == 0 ? 5 : index == 1 ? 3 : 2);
+        string seq = index switch { 0 => "river_clear", 1 => "river_stuck", _ => "river_none" };
+        DialogueManager.Instance.PlaySequence(ChapterId, seq, BackToNightStall);
+    }
+
+    /// <summary>想完了 → 背景淡切回夜摊 → 接原 intro</summary>
+    private void BackToNightStall()
+    {
+        var bg = GetNodeOrNull<TextureRect>("Background");
+        if (bg == null || stallBg == null)
+        {
+            DialogueManager.Instance.PlaySequence(ChapterId, "intro", OnIntroFinished);
+            return;
+        }
+        var tw = CreateTween();
+        tw.TweenProperty(bg, "modulate:a", 0f, 1.2);
+        tw.TweenCallback(Callable.From(() =>
+        {
+            bg.Texture = stallBg;
+            var tw2 = CreateTween();
+            tw2.TweenProperty(bg, "modulate:a", 1f, 1.4);
+            tw2.TweenCallback(Callable.From(() =>
+                DialogueManager.Instance.PlaySequence(ChapterId, "intro", OnIntroFinished)));
+        }));
     }
 
     /// <summary>发呆 12 秒 → 酒瓶子轻轻呼吸一下（提醒还能倒酒）</summary>
