@@ -192,7 +192,18 @@ public partial class Ch06 : ChapterBase
                 UpdateHint();
                 DialogueManager.Instance.PlaySequence(ChapterId, "after_chat", () =>
                 {
-                    DialogueManager.Instance.ShowChoice(ChapterId, "night", OnNightChosen);
+                    // 第三轮：删不掉的合照——他翻到相册里他们的第一张照片，
+                    // 按了删除。照片先裂开，然后整张碎掉。黑场一行字。
+                    DialogueManager.Instance.PlaySequence(ChapterId, "photo_delete", () =>
+                    {
+                        AddChild(new ShatterPhoto(() =>
+                        {
+                            DialogueManager.Instance.PlaySequence(ChapterId, "after_shatter", () =>
+                            {
+                                DialogueManager.Instance.ShowChoice(ChapterId, "night", OnNightChosen);
+                            });
+                        }));
+                    });
                 });
             }
         };
