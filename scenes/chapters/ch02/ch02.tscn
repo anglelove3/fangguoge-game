@@ -1,7 +1,7 @@
 [gd_scene load_steps=12 format=3 uid="uid://ch02scene001"]
 
 [ext_resource type="Script" path="res://scripts/chapters/Ch02.cs" id="1_ch02"]
-[ext_resource type="Texture2D" path="res://assets/art/backgrounds/dorm_night_v2.png" id="2_dorm"]
+[ext_resource type="Texture2D" path="res://assets/art/backgrounds/dorm_night_v3.png" id="2_dorm"]
 
 [sub_resource type="StyleBoxFlat" id="SB_hot_normal"]
 bg_color = Color(0, 0, 0, 0)

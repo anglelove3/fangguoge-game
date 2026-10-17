@@ -59,21 +59,55 @@ public partial class Ch02 : ChapterBase
 
         // 第十五轮：热点改按"美术图坐标"登记——背景是 cover 缩放，
         // 窗口不成 16:9 时美术整体会偏移，热点跟着走才不会"点手机点不到"
-        ArtAnchor.Track(phoneBtn, new Rect2(1616f, 880f, 168f, 88f)); // 桌上的手机（美术实测位置）
-        ArtAnchor.TrackFraction(windowBtn, new Rect2(0f, 0.02f, 0.22f, 0.64f));
-        ArtAnchor.TrackFraction(ashtrayBtn, new Rect2(0.565f, 0.7f, 0.14f, 0.13f));
-        ArtAnchor.TrackFraction(lighterBtn, new Rect2(0.09f, 0.67f, 0.12f, 0.11f));
+        // 第三轮：底图换 dorm_night_v3（AI 重绘横版，窗台干净无补丁）——
+        // 三件道具（打火机/烟灰缸/耳机）+ 手机都改为「道具块 + 同图干净补片」双层贴片：
+        // 收集后上层淡出，露出同一张图裁的干净底，纹理一致零色差。
+        ArtAnchor.Track(phoneBtn, new Rect2(1500f, 828f, 168f, 92f));   // 桌上手机（贴片位置）
+        ArtAnchor.TrackFraction(windowBtn, new Rect2(0f, 0.02f, 0.28f, 0.64f));
+        ArtAnchor.Track(ashtrayBtn, new Rect2(502f, 582f, 161f, 93f));  // 烟灰缸（新图实测换算）
+        ArtAnchor.Track(lighterBtn, new Rect2(88f, 711f, 128f, 77f));   // 窗台打火机
 
         // 第三轮 F1：打火机彻底 sprite 化——底图已把打火机原地抹净（逐行渐变填充，窗台横带无缝），
         // 打火机本体是一张带羽化边的独立贴片。收走时它淡出，露出底下本来干净的窗台——
         // 不再有「净底贴片对不齐」的马赛克问题（旧方案：净底矩形 + 底图有打火机 = 永远差一层）。
+        // 打火机（窗台）
         lighterPatch = HiddenPatch.Create(
-            "res://assets/art/props/patch_lighter.png",
-            null,
-            new Rect2(196f, 706f, 148f, 74f), exactFill: true);
+            "res://assets/art/props/patch/lighter_prop.png",
+            "res://assets/art/props/patch/clean_sill.png",
+            new Rect2(88f, 711f, 128f, 77f), exactFill: true);
         GetNode("Background").AddSibling(lighterPatch);
         if (GameManager.Instance.HasHiddenItem("lighter"))
-            lighterPatch.HideImmediately(); // 读档进来就已经收过了：窗台本来就空着
+            lighterPatch.HideImmediately();
+
+        // 烟灰缸（桌面）
+        var ashtrayPatch = HiddenPatch.Create(
+            "res://assets/art/props/patch/ashtray_prop.png",
+            "res://assets/art/props/patch/clean_desk_a.png",
+            new Rect2(502f, 582f, 161f, 93f), exactFill: true);
+        GetNode("Background").AddSibling(ashtrayPatch);
+        if (GameManager.Instance.HasHiddenItem("ashtray"))
+            ashtrayPatch.HideImmediately();
+
+        // 耳机（桌面右侧）
+        var earphonePatch = HiddenPatch.Create(
+            "res://assets/art/props/patch/earphone_prop.png",
+            "res://assets/art/props/patch/clean_desk_b.png",
+            new Rect2(1085f, 473f, 231f, 149f), exactFill: true);
+        GetNode("Background").AddSibling(earphonePatch);
+        if (GameManager.Instance.HasHiddenItem("earphone"))
+            earphonePatch.HideImmediately();
+
+        // 手机贴片（新图没画手机——从旧图裁出来单独挂）
+        var phoneSprite = new TextureRect
+        {
+            Texture = ResourceLoader.Exists("res://assets/art/props/patch/phone_prop.png")
+                ? GD.Load<Texture2D>("res://assets/art/props/patch/phone_prop.png") : null,
+            ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,
+            StretchMode = TextureRect.StretchModeEnum.Scale,
+            MouseFilter = MouseFilterEnum.Ignore,
+        };
+        GetNode("Background").AddSibling(phoneSprite);
+        ArtAnchor.Track(phoneSprite, new Rect2(1500f, 828f, 168f, 92f));
 
         // "点万物有回应"：柜门上的照片、便利贴、货架上的泡面（data/flavor/ch02.json）
         AddChild(FlavorSpots.Create(hotspotsRoot, "ch02"));
