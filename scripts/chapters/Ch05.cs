@@ -147,9 +147,8 @@ public partial class Ch05 : ChapterBase
                 // 妈的消息：不管你选了哪条路，妈都会在这个点冒出来
                 dm.PlaySequence(ChapterId, "mom_msg", () =>
                 {
-                    phoneDone = true;
-                    bedBtn.Visible = true;
-                    UpdateHint();
+                    // 第三轮：出轨线的「发现时刻」——妈的消息之后，他睡不着，翻到她的 QQ 空间
+                    dm.PlaySequence(ChapterId, "qq_hint", OpenQqDiscovery);
                 });
             });
         };
@@ -162,6 +161,30 @@ public partial class Ch05 : ChapterBase
         {
             playLines();
         }
+    }
+
+    /// <summary>
+    /// 打开手机让他自己翻 QQ 空间（第三轮：伤害的发现由玩家亲手完成）——
+    /// 点开 QQ → 空间 → 那张照片 → 发现演出 → 放下手机 → 台词「原来那天她说在加班」。
+    /// </summary>
+    private void OpenQqDiscovery()
+    {
+        var overlay = GD.Load<PackedScene>("res://scenes/ui/chat/chat_overlay.tscn")
+            .Instantiate<ChatOverlay>();
+        AddChild(overlay);
+        overlay.Closed += () =>
+        {
+            lastActivityMsec = Time.GetTicksMsec();
+            var dm = DialogueManager.Instance;
+            string seq = QqSpaceView.DiscoveredOnce ? "qq_reveal" : "qq_skip";
+            dm.PlaySequence(ChapterId, seq, () =>
+            {
+                phoneDone = true;
+                bedBtn.Visible = true;
+                UpdateHint();
+            });
+        };
+        overlay.Open("");
     }
 
     // ==================== 睡下：接《手滑》 ====================

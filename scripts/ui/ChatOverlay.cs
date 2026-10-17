@@ -66,6 +66,7 @@ public partial class ChatOverlay : Control
     private MomentsPage momentsPage;
     private SubscriptionsPage subscriptionsPage; // 订阅号消息（第九轮）
     private StepsRankingPage stepsPage;          // 微信运动排行（第九轮）
+    private QqSpaceView qqPage;                  // QQ空间（第三轮：出轨线的物证）
     private NewFriendsPage newFriendsPage;       // 通讯录「新的朋友」（第十八轮：加好友演出）
 
     // 第十五轮：手机桌面端
@@ -317,7 +318,7 @@ public partial class ChatOverlay : Control
     /// <summary>让当前可见的 App 先消化 Esc（内部层级）；true = 已消化</summary>
     private bool TryAppGoBack()
     {
-        PhoneAppPage[] apps = { musicPage, albumPage, mailPage, aiPage, demoPage };
+        PhoneAppPage[] apps = { musicPage, albumPage, mailPage, aiPage, demoPage, qqPage };
         foreach (var app in apps)
         {
             if (app != null && app.Visible)
@@ -450,13 +451,14 @@ public partial class ChatOverlay : Control
     {
         lockPage = new LockScreen();
         desktopPage = new PhoneDesktop();
+        qqPage = new QqSpaceView();
         musicPage = new MusicAppPage();
         albumPage = new AlbumAppPage();
         mailPage = new MailAppPage();
         aiPage = new AiChatPage();
         demoPage = new DemoAppPage();
 
-        Control[] pages = { lockPage, desktopPage, musicPage, albumPage, mailPage, aiPage, demoPage };
+        Control[] pages = { lockPage, desktopPage, musicPage, albumPage, mailPage, aiPage, demoPage, qqPage };
         foreach (var page in pages)
         {
             page.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
@@ -470,7 +472,7 @@ public partial class ChatOverlay : Control
         desktopPage.AppLaunched += LaunchApp;
 
         // App 的返回键回桌面；小提示接进手机统一的 toast
-        PhoneAppPage[] apps = { musicPage, albumPage, mailPage, aiPage, demoPage };
+        PhoneAppPage[] apps = { musicPage, albumPage, mailPage, aiPage, demoPage, qqPage };
         foreach (var app in apps)
         {
             app.BackRequested += ShowDesktop;
@@ -518,6 +520,10 @@ public partial class ChatOverlay : Control
             case "ai":
                 SetPage(aiPage);
                 aiPage.OnShown();
+                break;
+            case "qq":
+                SetPage(qqPage);
+                qqPage.OnShown();
                 break;
             default:
                 demoPage.Open(def);

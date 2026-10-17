@@ -829,6 +829,7 @@ public partial class GameManager : Node
         }
 
         ResetGame();
+        QqSpaceView.DiscoveredOnce = false; // 新游戏：物证发现标记重置
         SaveGame();
     }
 
