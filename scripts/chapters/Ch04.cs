@@ -29,6 +29,8 @@ public partial class Ch04 : ChapterBase
 
     public override void _Ready()
     {
+        try
+        {
         base._Ready();
 
         hintLabel = GetNode<Label>("HintLabel");
@@ -78,6 +80,12 @@ public partial class Ch04 : ChapterBase
             hotspotsRoot.Visible = true;
             hintLabel.Visible = true;
         });
+        GD.Print("[星月] _Ready 完成，热点已放开");
+        }
+        catch (System.Exception e)
+        {
+            GD.PrintErr($"[星月] _Ready 异常: {e}");
+        }
     }
 
     private void OnHotspot(string id, Button btn)
