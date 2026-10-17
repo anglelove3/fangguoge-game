@@ -36,6 +36,17 @@ public partial class ChapterBase : Control
 
     // ========== Godot 生命周期 ==========
 
+    /// <summary>顶部提示统一降调（第三轮 F7）：字号压到 19、降低描边、半透明白</summary>
+    private void ApplyHintStyle()
+    {
+        var hint = GetNodeOrNull<Label>("HintLabel");
+        if (hint == null)
+            return;
+        hint.AddThemeFontSizeOverride("font_size", 19);
+        hint.AddThemeConstantOverride("outline_size", 6);
+        hint.Modulate = new Color(1f, 1f, 1f, 0.82f);
+    }
+
     /// <summary>
     /// _Ready：节点第一次出现时调用
     /// 这里做通用初始化，子类不需要重复写
@@ -67,6 +78,10 @@ public partial class ChapterBase : Control
 
         // 左上角的背包按钮（第十五轮：手机/捡到的东西随时能翻出来看）
         BuildBagButton();
+
+        // 第三轮 F7：顶部交互提示统一降调（各章自己的字号设置完之后再覆盖——
+        // 旧版 24 号白字带重描边直接飘在画面上，太抢戏）
+        CallDeferred(nameof(ApplyHintStyle));
 
         // 更新章节编号
         GameManager.Instance.CurrentChapter = ChapterIndex;

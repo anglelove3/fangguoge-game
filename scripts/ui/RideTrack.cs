@@ -78,6 +78,32 @@ public partial class RideTrack : Control
         bg.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
         AddChild(bg);
 
+        // 第三轮 F5：照片带 → 程序路面的渐变融合（旧版上下两套画风硬切，衔接突兀）
+        var grad = new Gradient();
+        grad.SetColor(0, new Color(0.22f, 0.22f, 0.24f, 0f));
+        grad.SetColor(1, new Color(0.22f, 0.22f, 0.24f, 0.88f));
+        var gradTex = new GradientTexture2D
+        {
+            Gradient = grad,
+            Width = 8,
+            Height = 160,
+            FillFrom = new Vector2(0, 0),
+            FillTo = new Vector2(0, 1),
+        };
+        var blendBand = new TextureRect
+        {
+            Texture = gradTex,
+            ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,
+            StretchMode = TextureRect.StretchModeEnum.Scale,
+            MouseFilter = MouseFilterEnum.Ignore,
+        };
+        blendBand.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
+        blendBand.AnchorTop = 0.30f;
+        blendBand.AnchorBottom = 0.60f;
+        blendBand.OffsetLeft = 0; blendBand.OffsetRight = 0;
+        blendBand.OffsetTop = 0; blendBand.OffsetBottom = 0;
+        AddChild(blendBand);
+
         tintLayer = new ColorRect { MouseFilter = MouseFilterEnum.Ignore, Color = Colors.Transparent };
         darken = new ColorRect { MouseFilter = MouseFilterEnum.Ignore, Color = Colors.Transparent };
         foreach (var layer in new Control[] { tintLayer, darken })
@@ -569,6 +595,12 @@ public partial class RideTrack : Control
         private bool moving;
         private float steer;        // -1..1 骑手横向位置（缓动）
         private float steerInput;   // 按键输入
+
+        // 第三轮 F5：路上的障碍物（纯视觉演出——水洼/树枝/落石/路牌，从远到近掠过）
+        private class Obstacle { public float X; public float Z; public int Kind; }
+        private readonly System.Collections.Generic.List<Obstacle> obstacles = new();
+        private float spawnAcc;
+        private readonly System.Random rng = new();
         private readonly Color RoadCol = new(0.22f, 0.22f, 0.24f);
         private readonly Color RoadSide = new(0.30f, 0.31f, 0.27f);
         private readonly Color LineCol = new(0.90f, 0.88f, 0.78f, 0.8f);
@@ -588,7 +620,28 @@ public partial class RideTrack : Control
             steer = Mathf.Clamp(steer, -1f, 1f);
 
             if (moving)
+            {
                 scrollT = (scrollT + dt * 0.55f) % 1f;
+
+                // 障碍物：约每 2.5~4 秒来一个，从地平线滑到眼前
+                spawnAcc += dt;
+                if (spawnAcc > 2.5f + (float)rng.NextDouble() * 1.5f)
+                {
+                    spawnAcc = 0f;
+                    obstacles.Add(new Obstacle
+                    {
+                        X = -0.55f + (float)rng.NextDouble() * 1.1f,
+                        Z = 0.02f,
+                        Kind = rng.Next(4),   // 0 水洼 / 1 树枝 / 2 落石 / 3 路牌
+                    });
+                }
+                for (int i = obstacles.Count - 1; i >= 0; i--)
+                {
+                    obstacles[i].Z += dt * 0.30f;
+                    if (obstacles[i].Z > 1.18f)
+                        obstacles.RemoveAt(i);
+                }
+            }
 
             QueueRedraw();
         }
@@ -655,6 +708,53 @@ public partial class RideTrack : Control
                 DrawLine(new Vector2(poleX - poleH * 0.12f, y - poleH + poleH * 0.06f),
                     new Vector2(poleX + poleH * 0.12f, y - poleH + poleH * 0.06f), poleCol,
                     Mathf.Lerp(1f, 4.5f, t));
+            }
+
+            // ---- 障碍物（第三轮 F5）：从地平线滑过来，逼近时变大、淡出 ----
+            foreach (var ob in obstacles)
+            {
+                float z = ob.Z;
+                if (z <= 0f || z >= 1.12f)
+                    continue;
+                float persp = z * z;                       // 近处加速变大
+                float y = horizon + (h * 0.86f - horizon) * persp;
+                float halfRoad = Mathf.Lerp(roadHalfFar, roadHalfNear, persp);
+                float x = vanishX + ob.X * halfRoad;
+                float sc = h / 1080f * (0.25f + persp * 1.5f);
+                float alpha = Mathf.Clamp(1.4f - z * 1.3f, 0f, 1f);
+                if (alpha <= 0.02f)
+                    continue;
+
+                switch (ob.Kind)
+                {
+                    case 0: // 积水坑：深色扁椭圆 + 一道冷反光
+                        DrawSetTransform(new Vector2(x, y), 0f, new Vector2(1f, 0.35f));
+                        DrawCircle(Vector2.Zero, 34f * sc, new Color(0.13f, 0.15f, 0.19f, 0.55f * alpha));
+                        DrawCircle(Vector2.Zero, 22f * sc, new Color(0.35f, 0.40f, 0.48f, 0.35f * alpha));
+                        DrawSetTransform(Vector2.Zero, 0f, Vector2.One);
+                        break;
+                    case 1: // 掉落的树枝：两段折线
+                        DrawLine(new Vector2(x - 30 * sc, y), new Vector2(x + 8 * sc, y - 4 * sc),
+                            new Color(0.18f, 0.14f, 0.10f, 0.8f * alpha), 4f * sc);
+                        DrawLine(new Vector2(x + 8 * sc, y - 4 * sc), new Vector2(x + 36 * sc, y - 1 * sc),
+                            new Color(0.20f, 0.15f, 0.11f, 0.75f * alpha), 3f * sc);
+                        break;
+                    case 2: // 落石：两三块小石块
+                        DrawCircle(new Vector2(x, y), 11f * sc, new Color(0.32f, 0.32f, 0.33f, 0.85f * alpha));
+                        DrawCircle(new Vector2(x + 16 * sc, y + 3 * sc), 7f * sc, new Color(0.28f, 0.28f, 0.30f, 0.8f * alpha));
+                        DrawCircle(new Vector2(x - 14 * sc, y + 2 * sc), 5f * sc, new Color(0.30f, 0.30f, 0.31f, 0.7f * alpha));
+                        break;
+                    case 3: // 路边警示牌：一根杆 + 三角牌
+                        DrawLine(new Vector2(x, y), new Vector2(x, y - 52 * sc),
+                            new Color(0.30f, 0.28f, 0.24f, 0.9f * alpha), 3f * sc);
+                        DrawColoredPolygon(new[]
+                        {
+                            new Vector2(x, y - 78 * sc),
+                            new Vector2(x - 20 * sc, y - 48 * sc),
+                            new Vector2(x + 20 * sc, y - 48 * sc),
+                        }, new Color(0.85f, 0.70f, 0.30f, 0.85f * alpha));
+                        break;
+                }
             }
 
             // ---- 骑手剪影（人 + 电动车，面朝右） ----

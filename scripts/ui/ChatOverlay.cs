@@ -2042,10 +2042,18 @@ public partial class ChatOverlay : Control
     /// <summary>对方头像：系统账号用图标块，联系人有图用图，没图用首字色块</summary>
     private static Control MakeContactAvatar(ContactData c, float size)
     {
-        // 第二十四轮 F23：照片优先于图标字块——小米师妹配了 icon 字块也配了照片，
-        // 旧优先级让聊天页永远显示字块（列表页仍走 MakeListAvatar 不受影响）
-        if (c != null && !string.IsNullOrEmpty(c.Avatar) && ResourceLoader.Exists(c.Avatar))
-            return MakePhotoAvatar(c.Avatar, size);
+        // 第二十四轮 F23 / 第三轮 F3：照片优先；加载失败打日志（此前字块头像问题反复出现，
+        // 无法判断是「文件没加载」还是「跑的是旧构建」——这行日志一次定位）
+        if (c != null && !string.IsNullOrEmpty(c.Avatar))
+        {
+            if (ResourceLoader.Exists(c.Avatar))
+                return MakePhotoAvatar(c.Avatar, size);
+            GD.PrintErr($"[头像] 联系人 {c.Id} 的头像文件不存在: {c.Avatar}——回退字块");
+        }
+        else if (c != null)
+        {
+            GD.PrintErr($"[头像] 联系人 {c.Id} 没配 avatar 字段——回退字块");
+        }
         if (c != null && !string.IsNullOrEmpty(c.Icon))
             return WeChatMainPage.MakeListAvatar(c, size);
         var avatar = new InitialAvatar(c == null ? "?" : WeChatData.DisplayName(c), size);

@@ -51,6 +51,44 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0.02, 0.02, 0.1, 0.3)
 
+[node name="ChapterTitle" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.5
+anchor_top = 0.42
+anchor_right = 0.5
+anchor_bottom = 0.42
+offset_left = -520.0
+offset_top = -130.0
+offset_right = 520.0
+offset_bottom = -40.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(1, 0.97, 0.92, 1)
+theme_override_colors/font_outline_color = Color(0.05, 0.05, 0.1, 0.9)
+theme_override_constants/outline_size = 8
+theme_override_font_sizes/font_size = 76
+text = "第四章：晚安"
+horizontal_alignment = 1
+
+[node name="ChapterSubtitle" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.5
+anchor_top = 0.42
+anchor_right = 0.5
+anchor_bottom = 0.42
+offset_left = -520.0
+offset_top = 70.0
+offset_right = 520.0
+offset_bottom = 120.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.35, 0.37, 0.45, 1)
+theme_override_font_sizes/font_size = 24
+text = "有些话打了又删，最后没发"
+horizontal_alignment = 1
+
 [node name="HintLabel" type="Label" parent="."]
 layout_mode = 1
 anchors_preset = -1

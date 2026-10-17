@@ -64,11 +64,12 @@ public partial class Ch02 : ChapterBase
         ArtAnchor.TrackFraction(ashtrayBtn, new Rect2(0.565f, 0.7f, 0.14f, 0.13f));
         ArtAnchor.TrackFraction(lighterBtn, new Rect2(0.09f, 0.67f, 0.12f, 0.11f));
 
-        // 第二十轮 F1：窗台的打火机拆成贴片——收走之后从窗台上消失。
-        // 挂在背景节点下面（背景怎么淡入淡出，贴片怎么跟）。
+        // 第三轮 F1：打火机彻底 sprite 化——底图已把打火机原地抹净（逐行渐变填充，窗台横带无缝），
+        // 打火机本体是一张带羽化边的独立贴片。收走时它淡出，露出底下本来干净的窗台——
+        // 不再有「净底贴片对不齐」的马赛克问题（旧方案：净底矩形 + 底图有打火机 = 永远差一层）。
         lighterPatch = HiddenPatch.Create(
             "res://assets/art/props/patch_lighter.png",
-            "res://assets/art/props/patch_lighter_clean.png",
+            null,
             new Rect2(196f, 706f, 148f, 74f), exactFill: true);
         GetNode("Background").AddSibling(lighterPatch);
         if (GameManager.Instance.HasHiddenItem("lighter"))

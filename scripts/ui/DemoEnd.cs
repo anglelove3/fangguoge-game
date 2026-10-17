@@ -34,8 +34,21 @@ public partial class DemoEnd : Control
         var box = GetNode<VBoxContainer>("Center/VBox/ReviewScroll/ReviewBox");
         BuildReview(box);
 
-        GetNode<Button>("Center/VBox/BackButton").Pressed += OnBackPressed;
-        GetNode<Button>("Center/VBox/BackButton").Text = DataStore.Text("demo_end.back");
+        var backBtn = GetNode<Button>("Center/VBox/BackButton");
+        backBtn.Pressed += OnBackPressed;
+        backBtn.Text = DataStore.Text("demo_end.back");
+
+        // 第三轮 F8：通关后可以直接挑一章重玩（替掉旧的"只能从头再来"）
+        var replayBtn = new Button
+        {
+            Text = "回到某一章重玩",
+            FocusMode = FocusModeEnum.None,
+            MouseDefaultCursorShape = CursorShape.PointingHand,
+        };
+        replayBtn.AddThemeFontSizeOverride("font_size", 22);
+        replayBtn.Pressed += () => ChapterJump.ShowPanel(this);
+        backBtn.GetParent().AddChild(replayBtn);
+        backBtn.GetParent().MoveChild(replayBtn, backBtn.GetIndex());
 
         // 按钮音效
         UiSounds.WireAll(this);
