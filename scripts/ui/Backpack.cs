@@ -411,6 +411,14 @@ public partial class Backpack : Control
             ? DataStore.Text(descKey)
             : "";
 
+        // 第三轮：每件东西都有一段「当时的记忆」——点开背包，物件自己会说话
+        if (def != null)
+        {
+            var mem = ItemMemory.Get(def.Id);
+            if (!string.IsNullOrEmpty(mem))
+                detailDesc.Text += "\n\n「记忆」\n" + mem;
+        }
+
         detailAction.Visible = def != null && def.Action == "phone";
 
         gridWrap.Visible = false;

@@ -53,6 +53,16 @@ public partial class DialogueBox : Control
 
     public bool IsTyping => typing;
 
+    /// <summary>第三轮：文字大小（设置页可调）——RichTextLabel 用 normal_font_size</summary>
+    private void ApplyTextScale()
+    {
+        float scale = GameSettings.Instance?.TextScale ?? 1.0f;
+        int baseSize = 27;
+        textLabel.AddThemeFontSizeOverride("normal_font_size", (int)(baseSize * scale));
+        textLabel.AddThemeFontSizeOverride("italics_font_size", (int)(baseSize * scale));
+        textLabel.AddThemeFontSizeOverride("bold_font_size", (int)(baseSize * scale));
+    }
+
     public override void _Ready()
     {
         panel = GetNode<Control>("Panel");
@@ -69,6 +79,7 @@ public partial class DialogueBox : Control
 
         // 文本自适应高度：对话框按内容长高矮，单句话不再留一大片空
         textLabel.FitContent = true;
+        ApplyTextScale();
 
         Hide(); // 默认隐藏，需要时再显示
     }
@@ -240,6 +251,9 @@ public partial class DialogueBox : Control
             float cps = GameSettings.Instance != null
                 ? GameSettings.Instance.CharsPerSecond
                 : CharsPerSecond;
+            // 第三轮：按住 Ctrl 快进（二周目想快点过已读段落）
+            if (Input.IsKeyPressed(Key.Ctrl) || Input.IsKeyPressed(Key.Meta))
+                cps *= 8f;
             int total = textLabel.GetTotalCharacterCount();
             charsShown += cps * (float)delta;
 

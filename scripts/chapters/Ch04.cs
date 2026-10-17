@@ -105,6 +105,10 @@ public partial class Ch04 : ChapterBase
 
         dm.PlaySequence(ChapterId, "meet", () =>
         {
+            // 第三轮：她视角的 13 秒——他走过去之前，她的手机震过。
+            // 那条消息他没看见。谁发的、她为什么没回——不解释。
+            AddChild(new HerPovMoment(() =>
+            {
             // 拉扯演出：抓住她的手腕
             AddChild(new TugOfWar(released =>
             {
@@ -113,6 +117,7 @@ public partial class Ch04 : ChapterBase
                 GameManager.Instance.AddCourage(released ? 4 : 2);
                 string seq = released ? "tug_release" : "tug_slip";
                 DialogueManager.Instance.PlaySequence(ChapterId, seq, OnTugResolved);
+            }));
             }));
         });
     }

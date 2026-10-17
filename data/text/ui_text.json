@@ -1,28 +1,22 @@
 {
   "ui.continue_hint": "点击继续 ▾",
   "ui.auto_badge": "▶ 自动播放中（Tab 关闭）",
-
   "confirm.back_title": "要离开这一章吗？",
   "confirm.back_body": "进度会保存。不过本章的演出要从头再看一遍。",
   "confirm.back_yes": "返回主菜单",
   "confirm.back_no": "继续留在本章",
-
   "confirm.newgame_title": "要开始新的故事吗？",
   "confirm.newgame_body": "现有的进度会先备份成一份旧存档，然后从头开始。",
   "confirm.newgame_yes": "重新开始",
   "confirm.newgame_no": "先不",
-
   "toast.affection": "好感度",
   "toast.courage": "勇气值",
-
   "live.toast_default": "手机轻轻震了一下……",
-
   "ending.1": "晴天（完美结局）",
   "ending.2": "南风（温暖结局）",
   "ending.3": "寄居蟹（遗憾结局）",
   "ending.4": "开始懂了（隐藏结局）",
   "ending.0": "未知",
-
   "hint.prologue": "深夜的实验室……好像有什么在等着你（{0}/{1}）",
   "hint.prologue_done": "（场景里的东西都看过了）",
   "hint.ch01": "热闹的川菜馆……好像有什么在等着你（{0}/{1}）",
@@ -56,7 +50,6 @@
   "hint.ch10_toast": "（糖纸捏成一团，礼花筒揣进了兜里。敬酒的人快过来了）",
   "hint.ch10_leave": "（一桌人还在闹。……散席了，去门口等车吧）",
   "hint.ch10_sleep3": "（定了。周日下午，老校门口——这一觉睡得有点长）",
-
   "hint.ch11_phone": "她的会话停在中间。长按它——微信会问你，要不要置顶",
   "hint.ch11_pin_done": "（置顶了。一抬头就能看见）（点床，睡过这一晚）",
   "hint.ch11_lab": "手机扣在桌上一下午了。拿起来看看",
@@ -75,7 +68,6 @@
   "hint.ch13_phone_done": "（顺着定位走。路口，出老街）",
   "hint.ch13_meet": "前面那盏灯下，有个人影。走过去",
   "hint.ch13_meet_done": "（该说的话，已经在路上了）",
-
   "wx.menu_pin": "置顶该聊天",
   "wx.menu_unpin": "取消置顶",
   "wx.menu_decoy": "标为未读",
@@ -94,27 +86,22 @@
   "moments.just_now": "刚刚",
   "phone.low_battery": "电量不足 {0}%，记得充电",
   "wx.pin_badge": "置顶",
-
   "bag.item_cracker_desc_used": "已经拉响了——彩带落进了河风里。",
-
   "ch10.remark_0": "江洁",
   "ch10.remark_1": "三点水",
   "ch10.remark_2": "洁",
-
   "ch03.card_ticket": "铁盒里的车票",
   "ch03.card_ticket_sub": "一千公里，来来回回",
   "ch03.card_notes": "大学的错题本",
   "ch03.card_notes_sub": "你抄的，她划的重点",
   "ch03.card_scarf": "织到一半的围巾",
   "ch03.card_scarf_sub": "赶在她的生日之前……",
-
   "ch03.chip_apology": "一句道歉",
   "ch03.chip_apology_sub": "你在心里练了一路",
   "ch03.chip_grades": "这学期的成绩",
   "ch03.chip_grades_sub": "专业第一，她没看过",
   "ch03.chip_nights": "熬夜的几个夜晚",
   "ch03.chip_nights_sub": "她说「早点睡」",
-
   "bag.button": "背包",
   "bag.title": "背包",
   "bag.close_tip": "合上背包",
@@ -131,7 +118,6 @@
   "bag.item_orb_desc": "像一滴露水，又像一星火。",
   "bag.item_earphone_desc": "白色的线已经发了黄，只剩一边还响。",
   "bag.item_cracker_desc": "红色的纸筒，拉环还挂着。她说，下次给想见的人拉。",
-
   "phone.home": "主屏",
   "phone.lock_hint": "上滑解锁",
   "phone.lock_unread": "{0} 条新消息",
@@ -145,7 +131,6 @@
   "phone.ai.placeholder": "和它说点什么……",
   "phone.ai.input_toast": "它今天说的够多了，先回去想想吧。",
   "phone.demo_footer": "演示版：这个 App 就先看到这儿。",
-
   "pc.leave": "起身离开",
   "pc.leave_tip": "合上电脑，回实验室（Esc）",
   "pc.power_tip": "电源键",
@@ -162,7 +147,6 @@
   "pc.mail_title": "邮箱",
   "pc.playing": "循环播放中",
   "pc.mentor_sign": "—— 导师",
-
   "settings.title": "设置",
   "settings.fullscreen": "全屏显示",
   "settings.music": "音乐音量",
@@ -171,15 +155,12 @@
   "settings.auto_speed": "自动播放速度",
   "settings.back": "返回主菜单",
   "settings.tip": "提示：对话中按住 Ctrl 可快进，按 Tab 切换自动播放。",
-
   "demo_end.title": "感谢试玩！",
   "demo_end.review_title": "这一路，你是这样走过来的——",
   "demo_end.review_missing": "（这一处，你还没玩到）",
   "demo_end.hint": "完整的十五个章节正在路上，敬请期待。",
   "demo_end.back": "返回主菜单",
-
   "common.send": "发送",
-
   "chat.contact_baobao": "宝宝",
   "chat.me_prefix": "我：",
   "chat.input_placeholder": "发消息……",
@@ -203,7 +184,6 @@
   "chat.readonly_toast": "这里只能看，不能发言～",
   "chat.empty_input_toast": "先输入一点内容再发送～",
   "chat.quick_title": "怎么回？",
-
   "wx.tab_chats": "微信",
   "wx.icon_glyph": "微",
   "wx.tab_contacts": "通讯录",
@@ -225,12 +205,10 @@
   "wx.session_time_default": "昨天",
   "wx.new_friends": "新的朋友",
   "wx.new_friends_icon": "新",
-
   "moments.like": "赞",
   "moments.unlike": "取消赞",
   "moments.comment": "评论",
   "moments.comment_placeholder": "说点什么……",
-
   "sys.subscriptions_title": "订阅号消息",
   "sys.article_meta": "{0} · {1} · 阅读 {2}",
   "sys.article_toast": "演示版：文章正文暂未开放～",
@@ -245,11 +223,10 @@
   "sys.new_friends_added": "已添加",
   "sys.new_friends_empty": "目前没有新朋友",
   "sys.new_friends_toast": "「{0}」已经躺在你的通讯录里了",
-
   "phone.fallback_music": "网易云音乐",
   "phone.fallback_album": "相册",
   "phone.fallback_mail": "QQ邮箱",
   "phone.ai_initial": "深",
-
-  "pc.led_label": "电源"
+  "pc.led_label": "电源",
+  "settings.text_scale": "文字大小"
 }

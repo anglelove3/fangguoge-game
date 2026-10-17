@@ -81,6 +81,12 @@ public partial class Settings : Control
         {
             gs.AutoSpeed = value;
         });
+        // 第三轮：文字大小（0.85 ~ 1.35，中间值 1.0）
+        AddSliderRow(box, DataStore.Text("settings.text_scale"),
+            Mathf.InverseLerp(0.85f, 1.35f, gs.TextScale), value =>
+        {
+            gs.TextScale = Mathf.Lerp(0.85f, 1.35f, value);
+        });
 
         // ---- 全屏开关 ----
         var fullscreen = new CheckButton

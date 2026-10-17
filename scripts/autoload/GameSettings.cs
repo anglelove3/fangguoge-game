@@ -39,6 +39,9 @@ public partial class GameSettings : Node
     /// <summary>全屏</summary>
     public bool Fullscreen { get; set; } = false;
 
+    /// <summary>文字大小（0.85~1.35，第三轮：玩家反馈字小看不清）</summary>
+    public float TextScale { get; set; } = 1.0f;
+
     /// <summary>文字速度换算成"每秒几个字"（打字机用）</summary>
     public float CharsPerSecond => Mathf.Lerp(12f, 60f, Mathf.Clamp(TextSpeed, 0f, 1f));
 
@@ -73,6 +76,7 @@ public partial class GameSettings : Node
         MusicVolume = (float)cfg.GetValue(Section, "music", MusicVolume);
         SfxVolume = (float)cfg.GetValue(Section, "sfx", SfxVolume);
         TextSpeed = (float)cfg.GetValue(Section, "text_speed", TextSpeed);
+        TextScale = Mathf.Clamp((float)cfg.GetValue(Section, "text_scale", TextScale), 0.85f, 1.35f);
         AutoSpeed = (float)cfg.GetValue(Section, "auto_speed", AutoSpeed);
         Fullscreen = (bool)cfg.GetValue(Section, "fullscreen", Fullscreen);
     }
@@ -84,6 +88,7 @@ public partial class GameSettings : Node
         cfg.SetValue(Section, "music", MusicVolume);
         cfg.SetValue(Section, "sfx", SfxVolume);
         cfg.SetValue(Section, "text_speed", TextSpeed);
+        cfg.SetValue(Section, "text_scale", TextScale);
         cfg.SetValue(Section, "auto_speed", AutoSpeed);
         cfg.SetValue(Section, "fullscreen", Fullscreen);
 
