@@ -30,6 +30,7 @@ public partial class Ch03 : ChapterBase
 
     private BalanceScale scale;
     private SplitBalanceScene splitStage;   // 分屏舞台（第二十四轮 F33）
+    private bool keyTakenBack;              // 第三轮：钥匙收回来了（隐藏选择）
     private Control cardLayer;
     private Button rightPanBtn;
     private Control rightPanGlow;
@@ -164,6 +165,19 @@ public partial class Ch03 : ChapterBase
     // ==================== 开场结束：卡片浮现 ====================
 
     private void OnIntroFinished()
+    {
+        // 第三轮：开场他把钥匙推出去——「我的全部：实验室的、宿舍的、还有心里那把」。
+        // 在她说第一句话之前，钥匙还能点回来。没有提示，只有一串钥匙躺在桌上。
+        AddChild(new KeyOffer(back =>
+        {
+            keyTakenBack = back;
+            string seq = back ? "key_back" : "key_give";
+            DialogueManager.Instance.PlaySequence(ChapterId, seq, ContinueAfterKeys);
+        }));
+    }
+
+    /// <summary>钥匙的事过去之后，天平章正常往下走</summary>
+    private void ContinueAfterKeys()
     {
         // 第二十四轮 F35：「对不起」已经出口——音乐从天平的冷峻（Gym2）沉到分手的重量（Sad Trio）
         AudioManager.Instance?.PlayBgm(AudioManager.BgmSadTrio, -15f, 3.0f);
@@ -686,6 +700,7 @@ public partial class Ch03 : ChapterBase
                 // 第三轮：心脏场景——她说完对不起，走出咖啡馆。
                 // 画面暗下来（像闭眼），黑暗里心脏在跳，她的话变成四把刀扎进来。
                 // 插满后玩家可以拔刀；无论拔不拔，它都还在跳。
+                // 收回过钥匙 → 最狠那句她说不出口（少一把刀）
                 AddChild(new HeartBlades(pulled =>
                 {
                     DialogueManager.Instance.PlaySequence(ChapterId, "heart_lines", () =>
@@ -693,7 +708,7 @@ public partial class Ch03 : ChapterBase
                         finished = true;
                         GoToNextChapter("res://scenes/chapters/ch04/ch04.tscn", 4);
                     });
-                }));
+                }, keyTakenBack));
             });
         });
     }

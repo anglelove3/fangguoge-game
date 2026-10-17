@@ -65,9 +65,13 @@ public partial class HeartBlades : Control
     private float shakeT;
     private float beatSkip;      // 漏拍（0~1，1=刚漏过）
 
-    public HeartBlades(System.Action<int> done)
+    private readonly bool skipWorstBlade;
+
+    /// <param name="skipWorstBlade">true = 她说不出口最狠那句（玩家收回过钥匙）</param>
+    public HeartBlades(System.Action<int> done, bool skipWorstBlade = false)
     {
         onDone = done;
+        this.skipWorstBlade = skipWorstBlade;
     }
 
     public override void _Ready()
@@ -91,7 +95,8 @@ public partial class HeartBlades : Control
             (new Vector2(0.9f, 0.4f), 0.65f),
         };
         var rng = new System.Random(2026);
-        for (int i = 0; i < 4; i++)
+        int count = skipWorstBlade ? 3 : 4;
+        for (int i = 0; i < count; i++)
         {
             var dir = dirs[i].Item1.Normalized();
             var pos = heartCenter + dir * (heartScale * 983f * 0.12f);
@@ -169,14 +174,15 @@ public partial class HeartBlades : Control
         if (beatSkip > 0f)
             beatSkip = Mathf.Max(0f, beatSkip - dt * 1.4f);
 
-        // 第三把刀落下时 BGM 停（音乐骤停）
-        if (t >= blades[2].AppearAt + BladeFlyIn - dt && t < blades[2].AppearAt + BladeFlyIn)
+        // 第三把刀（或最后一把）落下时 BGM 停（音乐骤停）
+        int bgmStopAt = Mathf.Min(2, blades.Count - 1);
+        if (t >= blades[bgmStopAt].AppearAt + BladeFlyIn - dt && t < blades[bgmStopAt].AppearAt + BladeFlyIn)
             AudioManager.Instance?.PlayBgm("", 0f, 0.4f);
 
-        allIn = t >= blades[3].AppearAt + BladeFlyIn;
+        allIn = t >= blades[blades.Count - 1].AppearAt + BladeFlyIn;
 
         // 结束
-        float endAt = blades[3].AppearAt + BladeFlyIn + WaitAfterBlades;
+        float endAt = blades[blades.Count - 1].AppearAt + BladeFlyIn + WaitAfterBlades;
         if (!lineShown && t >= endAt)
         {
             lineShown = true;
@@ -308,7 +314,7 @@ public partial class HeartBlades : Control
         }
 
         // 「点刀可以拔出来」提示（插满后、还没拔的时候）
-        if (allIn && pulledCount == 0 && t < blades[3].AppearAt + BladeFlyIn + 6f)
+        if (allIn && pulledCount == 0 && t < blades[blades.Count - 1].AppearAt + BladeFlyIn + 6f)
         {
             var font = GetThemeDefaultFont();
             string hint = "（点那些刀，可以拔出来。）";
@@ -320,7 +326,7 @@ public partial class HeartBlades : Control
         // 「它还在跳。」
         if (lineShown)
         {
-            float a = Mathf.Clamp((t - (blades[3].AppearAt + BladeFlyIn + WaitAfterBlades)) / 1.2f, 0f, 1f);
+            float a = Mathf.Clamp((t - (blades[blades.Count - 1].AppearAt + BladeFlyIn + WaitAfterBlades)) / 1.2f, 0f, 1f);
             var font = GetThemeDefaultFont();
             var lp = new Vector2(size.X / 2f - 62f, size.Y * 0.32f);
             DrawString(font, lp, "它还在跳。", HorizontalAlignment.Left, -1, 34,
