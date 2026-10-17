@@ -1,6 +1,6 @@
 [gd_scene load_steps=8 format=3 uid="uid://ch05plaza001"]
 
-[ext_resource type="Script" path="res://scripts/chapters/Ch05.cs" id="1_ch05"]
+[ext_resource type="Script" path="res://scripts/chapters/Ch04.cs" id="1_ch05"]
 [ext_resource type="Texture2D" path="res://assets/art/backgrounds/plaza_night_v1.png" id="2_plaza"]
 
 [sub_resource type="StyleBoxFlat" id="SB_hot_normal"]

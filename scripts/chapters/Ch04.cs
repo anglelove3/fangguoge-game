@@ -55,17 +55,25 @@ public partial class Ch04 : ChapterBase
         UiSounds.WireAll(this);
 
         // 第三轮 F6：她真的站在喷泉边（水彩背影剪影，冷蓝灰调贴夜色）——
-        // 从开场就在那里，和提示文案「喷泉边站着一个人」对得上
+        // 从开场就在那里，和提示文案「喷泉边站着一个人」对得上。
+        // 比例锚点定位（58%~73% 宽、35%~84% 高 = 喷泉右侧），不依赖 ArtAnchor 的映射时机
         var herSprite = new TextureRect
         {
             Texture = ResourceLoader.Exists("res://assets/art/props/her_silhouette_v1.png")
                 ? GD.Load<Texture2D>("res://assets/art/props/her_silhouette_v1.png") : null,
             ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,
-            StretchMode = TextureRect.StretchModeEnum.KeepAspectCovered,
+            StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered,
             MouseFilter = MouseFilterEnum.Ignore,
+            // 压暗一档，让她更像夜色里的剪影（原图偏亮）
+            Modulate = new Color(0.78f, 0.82f, 0.92f, 0.92f),
         };
+        herSprite.AnchorLeft = 0.575f;
+        herSprite.AnchorRight = 0.715f;
+        herSprite.AnchorTop = 0.34f;
+        herSprite.AnchorBottom = 0.84f;
+        herSprite.OffsetLeft = 0; herSprite.OffsetRight = 0;
+        herSprite.OffsetTop = 0; herSprite.OffsetBottom = 0;
         AddChild(herSprite);
-        ArtAnchor.Track(herSprite, new Rect2(1100f, 390f, 200f, 430f));
 
         // 标题淡出
         var tween = CreateTween();

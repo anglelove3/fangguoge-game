@@ -91,11 +91,19 @@ public partial class SplitBalanceScene : Control
     {
         k = Mathf.Clamp(k, 0f, 1f);
         float push = k * 18f;
-        // 左图右缘向中缝挪，右图左缘向中缝挪（平移整个 TextureRect）
-        leftV1.Position = new Vector2(push, 0);
-        leftV2.Position = leftV1.Position;
-        rightV1.Position = new Vector2(-push, 0);
-        rightV2.Position = rightV1.Position;
+        // 第三轮修复：用 Offset 平移（锚点定位的 Control 不能直接改 Position——
+        // 会把右半图拉回父节点左上角，导致"左边显示右半图、右边黑"的事故）
+        ApplyShift(leftV1, push);
+        ApplyShift(leftV2, push);
+        ApplyShift(rightV1, -push);
+        ApplyShift(rightV2, -push);
+    }
+
+    private static void ApplyShift(TextureRect r, float dx)
+    {
+        // 左右 offset 同步平移整块（宽度由 anchors 决定，不受影响）
+        r.OffsetLeft = dx;
+        r.OffsetRight = dx;
     }
 
     private bool balanceOn;

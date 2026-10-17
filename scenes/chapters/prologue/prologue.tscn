@@ -1,6 +1,6 @@
 [gd_scene load_steps=10 format=3 uid="uid://prologue001"]
 
-[ext_resource type="Script" uid="uid://dm262xhoukd4o" path="res://scripts/chapters/Prologue.cs" id="1_prologue"]
+[ext_resource type="Script" path="res://scripts/chapters/Prologue.cs" id="1_prologue"]
 [ext_resource type="Texture2D" path="res://assets/art/backgrounds/night_lab_v1.png" id="2_bg"]
 
 [sub_resource type="StyleBoxFlat" id="SB_hot_normal"]
