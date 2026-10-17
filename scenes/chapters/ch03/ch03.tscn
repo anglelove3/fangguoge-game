@@ -88,7 +88,7 @@ mouse_filter = 2
 script = ExtResource("4_split")
 
 [node name="BalanceScale" type="Node2D" parent="."]
-position = Vector2(960, 395)
+position = Vector2(896, 420)
 script = ExtResource("3_scale")
 
 [node name="CardLayer" type="Control" parent="."]

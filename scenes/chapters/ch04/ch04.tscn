@@ -103,7 +103,7 @@ theme_override_colors/font_color = Color(1, 0.95, 0.85, 1)
 theme_override_colors/font_outline_color = Color(0.05, 0.05, 0.1, 1)
 theme_override_constants/outline_size = 10
 theme_override_font_sizes/font_size = 24
-text = "（喷泉边站着一个人。夜风把她的外套吹得鼓起来。）"
+text = "（点喷泉、长椅、灯柱看看。三处都看完，过去找她。）"
 horizontal_alignment = 1
 
 [node name="Hotspots" type="Control" parent="."]

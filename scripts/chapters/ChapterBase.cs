@@ -66,7 +66,9 @@ public partial class ChapterBase : Control
             breathBg.PivotOffset = GetViewportRect().Size / 2f;
         }
 
-        bool talking = DialogueManager.Instance != null && DialogueManager.Instance.IsBusy;
+        // 第三轮反馈：呼吸感只在关键章（天平/星月/还想再见/十里长亭）——所有章都晃会腻
+        bool breathChapter = ChapterIndex is 3 or 4 or 9 or 13;
+        bool talking = breathChapter && DialogueManager.Instance != null && DialogueManager.Instance.IsBusy;
         if (talking != breathIn)
         {
             breathIn = talking;
@@ -85,6 +87,36 @@ public partial class ChapterBase : Control
     public override void _Process(double delta)
     {
         TickBreath();
+    }
+
+
+    /// <summary>
+    /// 章节主题 BGM（第三轮反馈：别老是同一首）——七首轮换，各章有身份：
+    /// 白天日常=Gym2 明亮 / 深夜孤独=Gym3 / 心碎=Heartbreaking / 苦涩转释然=PianoBetween / 公路=Road
+    /// 章内剧情可自行覆盖（这份只是进章时的底）
+    /// </summary>
+    private void StartChapterBgm()
+    {
+        string bgm = ChapterIndex switch
+        {
+            0 => AudioManager.BgmGym1,          // 序章·那首歌（主旋律）
+            1 => AudioManager.BgmGym2,          // 寄居蟹：白天轻快
+            2 => AudioManager.BgmHeartbreaking, // 一千公里：深夜等消息
+            3 => AudioManager.BgmGym2,          // 天平：开场平静，后段切 SadTrio（章内自己切）
+            4 => AudioManager.BgmSadTrio,       // 星月：告别
+            5 => AudioManager.BgmHeartbreaking, // 晚安：分手当夜（换成更痛的）
+            6 => AudioManager.BgmGym3,          // 手滑：凌晨
+            7 => AudioManager.BgmGym2,          // 碧蓝蓝天：白天海边（换掉 Gym1）
+            8 => AudioManager.BgmPianoBetween,  // 放过自己：夜摊
+            9 => AudioManager.BgmHeartbreaking, // 三点水：雨夜心碎（换掉 Gym1）
+            10 => AudioManager.BgmGym3,         // 还想再见：夜里回忆（换掉 Gym1）
+            11 => AudioManager.BgmPianoBetween, // 置顶：前夜苦涩转释然（换掉 Gym1）
+            12 => AudioManager.BgmRoad,         // 向南：公路
+            13 => AudioManager.BgmPianoBetween, // 十里长亭：释然收尾（换掉 Gym1）
+            _ => "",
+        };
+        if (!string.IsNullOrEmpty(bgm))
+            AudioManager.Instance?.PlayBgm(bgm, -16f, 2.2f);
     }
 
     /// <summary>
@@ -113,7 +145,7 @@ public partial class ChapterBase : Control
             _ => "",
         };
         if (!string.IsNullOrEmpty(amb))
-            AudioManager.Instance?.PlayAmbience(amb, -20f, 2.5f);
+            AudioManager.Instance?.PlayAmbience(amb, -27f, 2.5f);
     }
 
     /// <summary>
@@ -148,7 +180,8 @@ public partial class ChapterBase : Control
         // 左上角的背包按钮（第十五轮：手机/捡到的东西随时能翻出来看）
         BuildBagButton();
 
-        // 第三轮沉浸感 S2：每章的「空间声」环境音垫底（雨/风/深夜/街道）
+        // 第三轮：章节主题 BGM（七首轮换）+ 环境音垫底
+        StartChapterBgm();
         StartChapterAmbience();
 
         // 第三轮 F7：顶部交互提示统一降调（各章自己的字号设置完之后再覆盖——

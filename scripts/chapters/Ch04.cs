@@ -59,18 +59,18 @@ public partial class Ch04 : ChapterBase
         // 比例锚点定位（58%~73% 宽、35%~84% 高 = 喷泉右侧），不依赖 ArtAnchor 的映射时机
         var herSprite = new TextureRect
         {
-            Texture = ResourceLoader.Exists("res://assets/art/props/her_silhouette_v1.png")
-                ? GD.Load<Texture2D>("res://assets/art/props/her_silhouette_v1.png") : null,
+            Texture = ResourceLoader.Exists("res://assets/art/props/her_figure_v1.png")
+                ? GD.Load<Texture2D>("res://assets/art/props/her_figure_v1.png") : null,
             ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,
             StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered,
             MouseFilter = MouseFilterEnum.Ignore,
             // 压暗一档，让她更像夜色里的剪影（原图偏亮）
-            Modulate = new Color(0.78f, 0.82f, 0.92f, 0.92f),
+            Modulate = new Color(0.86f, 0.89f, 0.96f, 0.95f),
         };
         herSprite.AnchorLeft = 0.575f;
         herSprite.AnchorRight = 0.715f;
-        herSprite.AnchorTop = 0.34f;
-        herSprite.AnchorBottom = 0.84f;
+        herSprite.AnchorTop = 0.26f;
+        herSprite.AnchorBottom = 0.86f;
         herSprite.OffsetLeft = 0; herSprite.OffsetRight = 0;
         herSprite.OffsetTop = 0; herSprite.OffsetBottom = 0;
         AddChild(herSprite);
@@ -110,7 +110,7 @@ public partial class Ch04 : ChapterBase
             {
                 herBtn.Visible = true;
                 dm.PlaySequence(ChapterId, "all_found", null);
-                hintLabel.Text = "（她站在喷泉边上。过去吧。）";
+                hintLabel.Text = "（她在喷泉边。点她走过去。）";
             }
         });
     }

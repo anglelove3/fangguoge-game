@@ -13,12 +13,12 @@ using Godot;
 public partial class BalanceScale : Node2D
 {
     // ---------- 形状常量（本地下标：原点 = 横梁转轴） ----------
-    private const float BeamHalf = 330f;      // 横梁半长
+    private const float BeamHalf = 258f;      // 横梁半长（第三轮改：适配水彩天平贴图的托盘位置）
     private const float BeamThickness = 13f;
-    private const float StringLen = 140f;     // 吊绳长
+    private const float StringLen = 205f;     // 吊绳长（贴图托盘垂直偏移）
     private const float PanWidth = 214f;
     private const float PanHeight = 24f;
-    private const float GroundY = 170f;       // 底座落地高度
+    private const float GroundY = 218f;       // 底座落地高度（长柱+底座按贴图比例）
     private const float ColumnWidth = 15f;
 
     // ---------- 配色 ----------
@@ -97,9 +97,35 @@ public partial class BalanceScale : Node2D
         QueueRedraw();
     }
 
+    private Texture2D scaleTex;
+    private bool texChecked;
+
     public override void _Draw()
     {
         float shown = currentAngle + IdleAmp * Mathf.Sin(timeAcc * 1.15f);
+
+        // 第三轮：水彩天平贴图（与分屏两幅画的画风统一）——整图绕横杆中点旋转表达倾斜，
+        // 贴图缺失时回退到下面的程序化绘制
+        if (!texChecked)
+        {
+            texChecked = true;
+            if (ResourceLoader.Exists("res://assets/art/props/balance_scale_v1.png"))
+                scaleTex = GD.Load<Texture2D>("res://assets/art/props/balance_scale_v1.png");
+        }
+        if (scaleTex != null)
+        {
+            // 图 1006x581：横杆中点在图内 (0.50, 0.10)、托盘中心 (±0.32, 0.57)。
+            // 绘制时把横杆中点对齐到局部原点（topLeft 偏移），再绕原点旋转——等于绕横杆中点转
+            const float drawW = 660f;
+            float k = drawW / scaleTex.GetWidth();
+            var size = scaleTex.GetSize() * k;
+            var topLeft = new Vector2(-0.50f, -0.10f) * size;
+            DrawSetTransform(Vector2.Zero, Mathf.DegToRad(shown), Vector2.One);
+            DrawTextureRect(scaleTex, new Rect2(topLeft, size), false);
+            DrawSetTransform(Vector2.Zero, 0f, Vector2.One);
+            return;
+        }
+
         float a = Mathf.DegToRad(shown);
 
         Vector2 rightEnd = new Vector2(Mathf.Cos(a), Mathf.Sin(a)) * BeamHalf;
