@@ -259,7 +259,7 @@ public partial class Ch12 : ChapterBase
         UnlockGate("eve");
         LiveEvents.GiveUnread(cfg.JieContact, 2);
 
-        // 为什么去 / 怎么回——第十章的第一个选择，直接摊开
+        // 为什么去 / 怎么回——第十一章的第一个选择，直接摊开
         DialogueManager.Instance.ShowChoice(ChapterId, "why", OnWhyChosen);
     }
 
@@ -666,7 +666,7 @@ public partial class Ch12 : ChapterBase
 
         DialogueManager.Instance.PlaySequence(ChapterId, "outro", () =>
         {
-            // r20：第十章尾声改接第十二章《十里长亭》（demo_end 改由第十二章尾声进入）
+            // r20：第十一章尾声改接第十二章《十里长亭》（demo_end 改由第十二章尾声进入）
             GoToNextChapter("res://scenes/chapters/ch13/ch13.tscn", 13);
         });
     }

@@ -1,127 +1,78 @@
 using Godot;
 
 /// <summary>
-/// 第九章：三点水
+/// 第八章：放过自己
 ///
-/// 流程：周六傍晚的宿舍（群里在攒局「今天的局」）
-///      → 收起手机出门 → 罗曼蒂克（台球房：第一次见到江洁）
-///      → 上台真打一局台球（第十五轮：BilliardGame.cs 物理小游戏，三杆定胜负）
-///      → 皖江宴包厢（选座位：挨着她坐 or 靠门坐）
-///      → 开席（师妹桌子底下递话的心声微选择）→ 三选一：第一段话说什么
-///      → 散场的尾声（三点水三个字落地）→ 第九章《还想再见》
+/// 流程：深夜烧烤摊（金艮请你吃串）→ 自己动手倒酒，一杯一层往事（4 杯）
+///      → 第四杯之后的三选一（怎么接住"你从来没放过自己"这句话）
+///      → 金艮的回话 → 碰杯前的心声微选择 → 两只杯子碰在一起
+///      → 走回宿舍路上的尾声（那首歌又能听了）→ 第八章《三点水》
 ///
 /// 【本章演出核心】
-///   - 台球桌是"真"的：第十五轮换成了能瞄准、能拉杆、能进袋的一局物理台球。
-///   - 两个场所的换场都是背景交叉淡入淡出 + 麻将声淡入淡出。
-///   - 选座位不是选项框，是直接点包厢里那两张空椅子。
-///   - 手机全程能开：打台球的时候，叶冰玉的婚礼请帖会悄悄到。
+///   - 酒桌上的戏是真的：点热点倒酒，瓶身倾斜、酒线落进杯里、
+///     两只杯子一起涨满，最后碰杯"叮"的一声（DrinkPour.cs 纯代码绘制）。
+///   - 烤炉上飘着几点火星子（EmberDust）。
+///   - 手机在桌边：妈发来一句"天凉了，记得加衣服"——打开手机能看见她。
 /// </summary>
 public partial class Ch08 : ChapterBase
 {
-    private const string ChapterId = "ch09";
-    private const string GroupChatFile = "ch09_plan"; // 对应 data/chat/ch09_plan.json
-
-    private TextureRect bgDorm;
-    private TextureRect bgRmt;
-    private TextureRect bgWjy;
+    private const string ChapterId = "ch08";
 
     private Control hotspotsRoot;
-    private Control flavorDorm;
-    private Control flavorRmt;
-    private Control flavorWjy;
     private Label hintLabel;
-
+    private Button pourBtn;
     private Button phoneBtn;
-    private Button tableBtn;
-    private Button seatNearBtn;
-    private Button seatFarBtn;
-
+    private Control pourGlow;
     private Control phoneGlow;
-    private Control tableGlow;
-    private Control seatNearGlow;
-    private Control seatFarGlow;
+    private DrinkPour drink;
 
-    private AudioStreamPlayer mahjongPlayer;
-
-    private enum Phase { Dorm, Rmt, Wjy }
-    private Phase phase = Phase.Dorm;
-
-    private bool phoneSeenOnce;   // 手机第一次看过（开场的引导走完）
-    private bool chatSeenBefore;  // 群聊打开过（之后的打开走微信主页）
-    private bool chatOpen;        // 手机界面是否开着
-    private bool rmtStarted;      // 已经出门去罗曼蒂克
-    private bool tableStarted;    // 台球局已经开始
-    private bool cueDone;         // 台球局打完了
-    private bool seated;          // 座位已经选过
-    private bool finished;        // 尾声播放中
+    private int pourCount;      // 已经倒了几杯（0~4）
+    private bool pourBusy;      // 倒酒动画播放中
+    private bool finished;      // 尾声播放中
+    private bool chatOpen;      // 手机界面是否开着
+    private bool deleteWaiting; // 第十九轮：删除引导阶段——四杯下肚，手机在桌上，等玩家做个了断
 
     private ulong lastActivityMsec;
     private const ulong IdleHintDelayMsec = 12000;
 
     protected override void OnChapterReady()
     {
-        GD.Print("第九章：三点水 —— 朋友攒的局，和一个名字里有水的姑娘");
+        GD.Print("第八章：放过自己 —— 酒过三巡，才敢说的话");
 
-        AudioManager.Instance?.PlayBgm(AudioManager.BgmGym1, -14f, 1.5f);
-
-        bgDorm = GetNode<TextureRect>("Background");
-        bgRmt = GetNode<TextureRect>("Luoman");
-        bgWjy = GetNode<TextureRect>("Wanjiang");
+        AudioManager.Instance?.PlayBgm(AudioManager.BgmGym3, -14f, 1.5f);
 
         hotspotsRoot = GetNode<Control>("Hotspots");
         hintLabel = GetNode<Label>("HintLabel");
-
+        pourBtn = GetNode<Button>("Hotspots/PourBtn");
         phoneBtn = GetNode<Button>("Hotspots/PhoneBtn");
-        tableBtn = GetNode<Button>("Hotspots/TableBtn");
-        seatNearBtn = GetNode<Button>("Hotspots/SeatNearBtn");
-        seatFarBtn = GetNode<Button>("Hotspots/SeatFarBtn");
+        drink = GetNode<DrinkPour>("Drink");
 
+        pourBtn.Pressed += OnPourPressed;
         phoneBtn.Pressed += OnPhonePressed;
-        tableBtn.Pressed += OnTablePressed;
-        seatNearBtn.Pressed += () => OnSeatPressed(0);
-        seatFarBtn.Pressed += () => OnSeatPressed(1);
-
+        pourGlow = HotspotGlow.Attach(pourBtn);
         phoneGlow = HotspotGlow.Attach(phoneBtn);
-        tableGlow = HotspotGlow.Attach(tableBtn);
-        seatNearGlow = HotspotGlow.Attach(seatNearBtn);
-        seatFarGlow = HotspotGlow.Attach(seatFarBtn);
 
-        // 第十五轮：热点按"美术图坐标"登记（手机 = 宿舍美术实测位置）
-        ArtAnchor.Track(phoneBtn, new Rect2(1616f, 880f, 168f, 88f));
-        ArtAnchor.TrackFraction(tableBtn, new Rect2(0.22f, 0.6f, 0.56f, 0.33f));
-        ArtAnchor.TrackFraction(seatNearBtn, new Rect2(0.66f, 0.44f, 0.16f, 0.28f));
-        ArtAnchor.TrackFraction(seatFarBtn, new Rect2(0.15f, 0.43f, 0.18f, 0.29f));
+        // 第十五轮：热点按"美术图坐标"登记——窗口不成 16:9 时背景会整体偏移，热点跟着走
+        ArtAnchor.Track(pourBtn, new Rect2(205f, 675f, 260f, 275f));  // 酒瓶 + 两只杯子那一带
+        ArtAnchor.Track(phoneBtn, new Rect2(485f, 812f, 152f, 100f)); // 桌上的手机（已贴进夜摊图）
 
-        // "点万物有回应"：三个场景各一套，跟着阶段开关
-        flavorDorm = MakeFlavorLayer("ch09_dorm");
-        flavorRmt = MakeFlavorLayer("ch09_rmt");
-        flavorWjy = MakeFlavorLayer("ch09_wjy");
+        // "点万物有回应"：灯串、烤炉的白烟、一把空着的红塑料凳
+        AddChild(FlavorSpots.Create(hotspotsRoot, ChapterId));
 
-        // "手机活起来"：手机热点右上角挂小红点
+        // "手机活起来"：手机热点右上角挂未读小红点
         LiveEvents.AttachPhoneDot(phoneBtn);
 
-        // 麻将声：程序生成的 7 秒无缝循环，进罗曼蒂克时淡入、出门时淡出
-        mahjongPlayer = new AudioStreamPlayer { VolumeDb = -60f };
-        var mahjongStream = GD.Load<AudioStream>(AudioManager.SfxMahjongLoop);
-        if (mahjongStream is AudioStreamWav wav)
-        {
-            wav.LoopMode = AudioStreamWav.LoopModeEnum.Forward;
-            wav.LoopBegin = 0;
-            wav.LoopEnd = wav.Data.Length / (wav.Stereo ? 4 : 2);
-        }
-        mahjongPlayer.Stream = mahjongStream;
-        AddChild(mahjongPlayer);
+        // 烤炉上空的火星子（挂在烤炉中上方的位置）——也跟着美术图钉住
+        var embers = new EmberDust();
+        AddChild(embers);
+        ArtAnchor.Track2D(drink, new Vector2(332f, 892f), 0.38f); // 杯底中心钉在夜摊桌面上（第二十四轮 F27：下移坐进桌布前缘，略缩小减少顶视违和）
+        ArtAnchor.Track2D(embers, new Vector2(723f, 652f));
 
         UiSounds.WireAll(this);
 
-        // 开场：只有宿舍阶段能看
+        // 开场：先只有对话，热点等 intro 播完再放出来
         hotspotsRoot.Visible = false;
         hintLabel.Visible = false;
-        tableBtn.Visible = false;
-        seatNearBtn.Visible = false;
-        seatFarBtn.Visible = false;
-        flavorRmt.Visible = false;
-        flavorWjy.Visible = false;
 
         var tween = CreateTween();
         tween.SetParallel(true);
@@ -131,21 +82,7 @@ public partial class Ch08 : ChapterBase
         DialogueManager.Instance.PlaySequence(ChapterId, "intro", OnIntroFinished);
     }
 
-    /// <summary>建一层风味热点（"点万物有回应"），挂到 Hotspots 下面</summary>
-    private Control MakeFlavorLayer(string flavorId)
-    {
-        var layer = new Control { MouseFilter = Control.MouseFilterEnum.Ignore };
-        layer.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
-        hotspotsRoot.AddChild(layer);
-        // 风味层垫到最底下：剧情主热区（台球桌、椅子……）永远优先接住点击。
-        // 不垫的话，后加的"点万物"小点会盖在主热区上面
-        // （r14 回归抓到：点里侧椅子被"河鲜区"小点整个吃掉了）
-        hotspotsRoot.MoveChild(layer, 0);
-        AddChild(FlavorSpots.Create(layer, flavorId));
-        return layer;
-    }
-
-    /// <summary>发呆 12 秒 → 还没动过的地方轻轻呼吸</summary>
+    /// <summary>发呆 12 秒 → 酒瓶子轻轻呼吸一下（提醒还能倒酒）</summary>
     public override void _Process(double delta)
     {
         base._Process(delta);
@@ -170,38 +107,27 @@ public partial class Ch08 : ChapterBase
 
         lastActivityMsec = Time.GetTicksMsec();
 
-        float delay = 0f;
-        if (phase == Phase.Dorm && !phoneSeenOnce && phoneGlow != null)
+        if (deleteWaiting)
         {
-            HotspotGlow.Pulse(phoneGlow, delay);
-            delay += 0.4f;
+            // 删除引导阶段发呆：该提醒的是手机，不是酒瓶
+            if (phoneGlow != null)
+                HotspotGlow.Pulse(phoneGlow, 0f);
         }
-        else if (phase == Phase.Rmt && !cueDone && tableStarted == false && tableGlow != null)
+        else if (pourCount < 4 && pourGlow != null)
         {
-            HotspotGlow.Pulse(tableGlow, delay);
-            delay += 0.4f;
-        }
-        else if (phase == Phase.Wjy && !seated)
-        {
-            if (seatNearGlow != null)
-            {
-                HotspotGlow.Pulse(seatNearGlow, delay);
-                delay += 0.4f;
-            }
-            if (seatFarGlow != null)
-                HotspotGlow.Pulse(seatFarGlow, delay);
+            HotspotGlow.Pulse(pourGlow, 0f);
         }
     }
 
     private void OnIntroFinished()
     {
         hotspotsRoot.Visible = true;
-        flavorDorm.Visible = true;
-        flavorRmt.Visible = false;
-        flavorWjy.Visible = false;
         hintLabel.Visible = true;
         lastActivityMsec = Time.GetTicksMsec();
         UpdateHint();
+
+        // "手机活起来"：酒过三巡之前，妈发来一句"天凉了"
+        LiveEvents.Fire(this, ChapterId, "ch08_ma_cold");
     }
 
     private void UpdateHint()
@@ -212,30 +138,118 @@ public partial class Ch08 : ChapterBase
             return;
         }
 
-        switch (phase)
+        if (pourCount < 4)
         {
-            case Phase.Dorm:
-                if (phoneSeenOnce)
-                {
-                    hintLabel.Visible = false;
-                    return;
-                }
-                hintLabel.Text = DataStore.Text("hint.ch09_phone");
-                return;
-
-            case Phase.Rmt:
-                if (cueDone || tableStarted)
-                {
-                    hintLabel.Visible = false;
-                    return;
-                }
-                hintLabel.Text = DataStore.Text("hint.ch09_cue");
-                return;
-
-            case Phase.Wjy:
-                hintLabel.Text = DataStore.Text(seated ? "hint.ch09_done" : "hint.ch09_seat");
-                return;
+            hintLabel.Text = DataStore.Text("hint.ch08", pourCount, 4);
+            return;
         }
+
+        hintLabel.Text = DataStore.Text("hint.ch08_done");
+    }
+
+    // ==================== 倒酒 ====================
+
+    private void OnPourPressed()
+    {
+        var dm = DialogueManager.Instance;
+        if (dm == null || dm.IsBusy || chatOpen || finished || pourBusy)
+            return;
+
+        // 四杯已满 + 删除引导中：点酒瓶 = "先把这口喝完，不急着删"——走跳过分支，不卡玩家
+        if (pourCount >= 4)
+        {
+            if (!deleteWaiting)
+                return;
+
+            deleteWaiting = false;
+            lastActivityMsec = Time.GetTicksMsec();
+            HotspotGlow.Sparkle(pourBtn);
+            dm.PlaySequence(ChapterId, "delete_skip", StartReplyChoice);
+            return;
+        }
+
+        pourBusy = true;
+        lastActivityMsec = Time.GetTicksMsec();
+        HotspotGlow.Sparkle(pourBtn);
+
+        pourCount++;
+        UpdateHint();
+
+        int cup = pourCount;
+        drink.PourNext(() =>
+        {
+            pourBusy = false;
+            if (!GodotObject.IsInstanceValid(this))
+                return;
+            lastActivityMsec = Time.GetTicksMsec();
+            DialogueManager.Instance.PlaySequence(ChapterId, $"cup_{cup}", () =>
+            {
+                if (cup >= 4)
+                    OnPoursDone();
+            });
+        });
+    }
+
+    /// <summary>四杯酒下肚——先掏手机，再轮到那句话（第十九轮：删除引导）</summary>
+    private void OnPoursDone()
+    {
+        DialogueManager.Instance.PlaySequence(ChapterId, "delete_lead", () =>
+        {
+            if (!GodotObject.IsInstanceValid(this))
+                return;
+            deleteWaiting = true;
+            lastActivityMsec = Time.GetTicksMsec();
+
+            // 引导：提示语换成"做个了断"，手机热点开始呼吸——把选择权完整交给玩家
+            hintLabel.Text = DataStore.Text("hint.ch08_delete");
+            hintLabel.Visible = true;
+            if (phoneGlow != null)
+                HotspotGlow.Pulse(phoneGlow, 0f);
+        });
+    }
+
+    /// <summary>删除引导结束（删了 / 跳过）→ 回到正轨：那句"怎么接住"的三选一</summary>
+    private void StartReplyChoice()
+    {
+        deleteWaiting = false;
+        hintLabel.Visible = false;
+        DialogueManager.Instance.ShowChoice(ChapterId, "reply", OnReplyChosen);
+    }
+
+    private void OnReplyChosen(int index)
+    {
+        DialogueManager.Instance.PlaySequence(ChapterId, $"reply_{index}", () =>
+        {
+            DialogueManager.Instance.PlaySequence(ChapterId, "toast", OnToastWordsDone);
+        });
+    }
+
+    /// <summary>碰杯前的话都说完了（心声微选择也选完了）——轮到杯子</summary>
+    private void OnToastWordsDone()
+    {
+        if (finished)
+            return;
+        finished = true;
+        hotspotsRoot.Visible = false;
+        hintLabel.Visible = false;
+
+        drink.Cheers(() =>
+        {
+            if (!GodotObject.IsInstanceValid(this))
+                return;
+            // 第二十四轮 F35：碰杯是这一章的情绪转折——苦涩（Gym3）从这一口起转成释然（Piano Between）
+            AudioManager.Instance?.PlayBgm(AudioManager.BgmPianoBetween, -14f, 2.5f);
+            DialogueManager.Instance.PlaySequence(ChapterId, "outro", () =>
+            {
+                // 第十九轮保底（F16）：玩家跳过了删除引导也没关系——剧情上"回去的路上"这一刀照样落。
+                // 第 7 章起列表里不再有宝宝，第 9 章《置顶》时列表才是干净的。
+                // 已经亲手删过的话，DeleteFriend 幂等，不会重复落档。
+                GameManager.Instance?.DeleteFriend("baobao", "ch08_auto_delete");
+
+                AudioManager.Instance?.PlayBgm(AudioManager.BgmGym1, -14f, 2.5f);
+                GoToNextChapter("res://scenes/chapters/ch09/ch09.tscn", 9);
+            });
+        });
     }
 
     // ==================== 手机 ====================
@@ -249,231 +263,38 @@ public partial class Ch08 : ChapterBase
         lastActivityMsec = Time.GetTicksMsec();
         HotspotGlow.Sparkle(phoneBtn);
 
-        if (!phoneSeenOnce)
-        {
-            phoneSeenOnce = true;
-            UpdateHint();
-            dm.PlaySequence(ChapterId, "open_phone", OpenGroupChat);
-            return;
-        }
-
-        // 宿舍阶段再点还是进群；到了球房/饭店之后，打开的是微信主页
-        // （叶冰玉的请帖那些"活"的消息，都在主页的会话列表里）
-        if (phase == Phase.Dorm)
-            OpenGroupChat();
-        else
-            OpenWechatMain();
-    }
-
-    /// <summary>打开「今天的局」（内容在 data/chat/ch09_plan.json）。第一次收起手机会出门。</summary>
-    private void OpenGroupChat()
-    {
         chatOpen = true;
-        bool firstTime = !chatSeenBefore;
-        chatSeenBefore = true;
-
-        var overlay = GD.Load<PackedScene>("res://scenes/ui/chat/chat_overlay.tscn")
-            .Instantiate<ChatOverlay>();
+        var overlay = GD.Load<PackedScene>("res://scenes/ui/chat/chat_overlay.tscn").Instantiate<ChatOverlay>();
         AddChild(overlay);
         overlay.Closed += () =>
         {
             chatOpen = false;
             lastActivityMsec = Time.GetTicksMsec();
-            if (firstTime && !rmtStarted)
+
+            // 第十九轮：删除引导阶段关掉微信——检查那一刀落了没有
+            if (deleteWaiting)
             {
-                rmtStarted = true;
-                UpdateHint();
-                DialogueManager.Instance.PlaySequence(ChapterId, "after_phone", StartRmt);
+                bool deleted = GameManager.Instance?.IsDeleted("baobao") == true;
+                if (deleted)
+                {
+                    // 亲手删完了。给一段收尾对白，然后回到三选一
+                    DialogueManager.Instance.PlaySequence(ChapterId, "delete_done", StartReplyChoice);
+                }
+                else
+                {
+                    // 还没删。不催第二遍，只让酒桌陪玩家安静一下——手机还可以再点
+                    DialogueManager.Instance.PlaySequence(ChapterId, "delete_notyet", () =>
+                    {
+                        deleteWaiting = true;
+                        lastActivityMsec = Time.GetTicksMsec();
+                        hintLabel.Text = DataStore.Text("hint.ch08_delete");
+                        hintLabel.Visible = true;
+                        if (phoneGlow != null)
+                            HotspotGlow.Pulse(phoneGlow, 0f);
+                    });
+                }
             }
         };
-        overlay.Open(GroupChatFile);
-    }
-
-    /// <summary>打开微信主页（会话列表：能看见新来的消息）</summary>
-    private void OpenWechatMain()
-    {
-        chatOpen = true;
-        var overlay = GD.Load<PackedScene>("res://scenes/ui/chat/chat_overlay.tscn")
-            .Instantiate<ChatOverlay>();
-        AddChild(overlay);
-        overlay.Closed += () =>
-        {
-            chatOpen = false;
-            lastActivityMsec = Time.GetTicksMsec();
-        };
-        overlay.Open(""); // 空字符串 = 掏手机：先落在锁屏（叶冰玉那条消息在通知卡上挂着）
-    }
-
-    // ==================== 宿舍 → 罗曼蒂克 ====================
-
-    /// <summary>出门：宿舍淡出，球房淡入，麻将声起</summary>
-    private void StartRmt()
-    {
-        hotspotsRoot.Visible = false;
-        hintLabel.Visible = false;
-        CrossfadeTo(bgRmt, 1.1f);
-        FadeMahjong(-22f, 2.2f);
-        // 第二十四轮 F35：离开工位进会场——那点柔软收起来，理性冷静的《Gym2》回岗
-        AudioManager.Instance?.PlayBgm(AudioManager.BgmGym2, -15f, 2.5f);
-        DialogueManager.Instance.PlaySequence(ChapterId, "arrive", EnterRmt);
-    }
-
-    private void EnterRmt()
-    {
-        phase = Phase.Rmt;
-        hotspotsRoot.Visible = true;
-        flavorDorm.Visible = false;
-        flavorRmt.Visible = true;
-        flavorWjy.Visible = false;
-        tableBtn.Visible = true;
-        seatNearBtn.Visible = false;
-        seatFarBtn.Visible = false;
-        hintLabel.Visible = true;
-        lastActivityMsec = Time.GetTicksMsec();
-        UpdateHint();
-    }
-
-    // ==================== 台球桌 ====================
-
-    private void OnTablePressed()
-    {
-        var dm = DialogueManager.Instance;
-        if (dm == null || dm.IsBusy || chatOpen || finished || phase != Phase.Rmt || tableStarted)
-            return;
-
-        tableStarted = true;
-        lastActivityMsec = Time.GetTicksMsec();
-        HotspotGlow.Sparkle(tableBtn);
-        UpdateHint();
-        dm.PlaySequence(ChapterId, "table_intro", OnTableIntroDone);
-    }
-
-    /// <summary>台词说完（心声微选择也在里面选完了）——上台真打一局</summary>
-    private void OnTableIntroDone()
-    {
-        if (!GodotObject.IsInstanceValid(this))
-            return;
-
-        var game = new BilliardGame { Name = "BilliardGame" };
-        AddChild(game);
-        game.Closed += () =>
-        {
-            if (!GodotObject.IsInstanceValid(this))
-                return;
-            cueDone = true;
-            UpdateHint();
-            DialogueManager.Instance.PlaySequence(ChapterId, "table_done", () =>
-            {
-                DialogueManager.Instance.PlaySequence(ChapterId, "leave", StartWjy);
-            });
-        };
-        game.Open();
-    }
-
-    // ==================== 罗曼蒂克 → 皖江宴 ====================
-
-    /// <summary>转场：球房淡出，包厢淡入，麻将声淡出</summary>
-    private void StartWjy()
-    {
-        hotspotsRoot.Visible = false;
-        hintLabel.Visible = false;
-        CrossfadeTo(bgWjy, 1.2f);
-        FadeMahjong(-60f, 1.6f); // 出了球房，麻将声就留在门里了
-        DialogueManager.Instance.PlaySequence(ChapterId, "arrive_wjy", EnterWjy);
-    }
-
-    private void EnterWjy()
-    {
-        phase = Phase.Wjy;
-        tableBtn.Visible = false;
-        hotspotsRoot.Visible = true;
-        flavorRmt.Visible = false;
-        flavorWjy.Visible = true;
-        seatNearBtn.Visible = true;
-        seatFarBtn.Visible = true;
-        hintLabel.Visible = true;
-        lastActivityMsec = Time.GetTicksMsec();
-        UpdateHint();
-
-        // "手机活起来"：饭吃到一半，叶冰玉的婚礼请帖悄悄到
-        LiveEvents.Fire(this, ChapterId, "ch09_yebingyu_wedding");
-    }
-
-    // ==================== 选座位 ====================
-
-    /// <summary>两张空椅子不是选项框，是直接点的（0 = 里侧，1 = 靠门）</summary>
-    private void OnSeatPressed(int index)
-    {
-        var dm = DialogueManager.Instance;
-        if (dm == null || dm.IsBusy || chatOpen || finished || phase != Phase.Wjy || seated)
-            return;
-
-        seated = true;
-        lastActivityMsec = Time.GetTicksMsec();
-        HotspotGlow.Sparkle(index == 0 ? seatNearBtn : seatFarBtn);
-        seatNearBtn.Visible = false;
-        seatFarBtn.Visible = false;
-
-        // 记一笔"坐哪儿"（结束页的选择回顾用；不加好感/勇气）
-        RecordChoice("ch09_seat", index);
-        UpdateHint();
-
-        dm.PlaySequence(ChapterId, index == 0 ? "seat_near" : "seat_far", () =>
-        {
-            DialogueManager.Instance.PlaySequence(ChapterId, "dinner", () =>
-            {
-                DialogueManager.Instance.PlaySequence(ChapterId, "topic_intro", OnTopicIntroDone);
-            });
-        });
-    }
-
-    private void OnTopicIntroDone()
-    {
-        DialogueManager.Instance.ShowChoice(ChapterId, "topic", OnTopicChosen);
-    }
-
-    private void OnTopicChosen(int index)
-    {
-        DialogueManager.Instance.PlaySequence(ChapterId, $"topic_{index}", () =>
-        {
-            DialogueManager.Instance.PlaySequence(ChapterId, "topic_end", PlayOutro);
-        });
-    }
-
-    // ==================== 尾声 ====================
-
-    private void PlayOutro()
-    {
-        if (finished)
-            return;
-        finished = true;
-        hotspotsRoot.Visible = false;
-        hintLabel.Visible = false;
-
-        DialogueManager.Instance.PlaySequence(ChapterId, "outro", () =>
-        {
-            GoToNextChapter("res://scenes/chapters/ch09/ch09.tscn", 9);
-        });
-    }
-
-    // ==================== 小工具 ====================
-
-    /// <summary>把一张背景图淡进来（盖在之前的背景上面，alpha 从 0 到 1）</summary>
-    private void CrossfadeTo(TextureRect layer, float seconds)
-    {
-        var tw = CreateTween();
-        tw.TweenProperty(layer, "modulate:a", 1.0f, seconds)
-            .SetTrans(Tween.TransitionType.Sine).SetEase(Tween.EaseType.InOut);
-    }
-
-    /// <summary>麻将声淡入 / 淡出（toDb 高于静音阈值就先开始播）</summary>
-    private void FadeMahjong(float toDb, float seconds)
-    {
-        if (mahjongPlayer == null)
-            return;
-        if (toDb > -59f && !mahjongPlayer.Playing)
-            mahjongPlayer.Play();
-        var tw = CreateTween();
-        tw.TweenProperty(mahjongPlayer, "volume_db", toDb, seconds);
+        overlay.Open(""); // 空字符串 = 掏手机：先落在锁屏，未读通知卡上能看见妈那条消息，点它进微信
     }
 }

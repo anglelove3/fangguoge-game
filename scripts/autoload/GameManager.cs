@@ -74,7 +74,7 @@ public partial class GameManager : Node
     public System.Collections.Generic.IReadOnlyDictionary<string, int> ChoiceHistory => choiceHistory;
 
     // 存档格式版本：3 = 在 v2 的基础上加了"人物关系"一层（加好友 / 备注 / 关系阶段 / 关键节点）
-    private const int SaveVersion = 4;
+    private const int SaveVersion = 5;
 
     /// <summary>
     /// 第二十二轮：分手章插入（新 ch05《晚安》），全库编号 +1 的那一版。
@@ -770,6 +770,13 @@ public partial class GameManager : Node
             // ========== 第二十二轮：分手章插入，全库编号 +1（老档迁移） ==========
             // v3 及以前的存档：currentChapter >= 4 的整体 +1（新 ch05《晚安》插在《天平》之后）；
             // 带章号前缀的记录 id（动态事件 / 选择）一起平移，去重和回顾才不会错位。
+            // 第三轮 v5：星月章插入（新 ch04）——v4 存档 ch04+ 全体 +1
+            if (saveData.version == 4 && CurrentChapter >= 4 && CurrentChapter != 99)
+            {
+                CurrentChapter += 1;
+                GD.Print($"[读档] 章节号平移（星月章插入）：现在第 {CurrentChapter} 章");
+                shifted = true;
+            }
             if (saveData.version < ChapterShiftVersion)
             {
                 if (CurrentChapter >= 4 && CurrentChapter != 99)

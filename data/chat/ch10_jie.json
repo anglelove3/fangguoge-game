@@ -1,27 +1,30 @@
 {
   "title": "江洁",
   "messages": [
-    { "type": "divider", "text": "周日 晚上 9:47" },
-    { "sender": "me", "type": "text", "text": "到家了。" },
-    { "sender": "other", "type": "text", "senderName": "江洁", "text": "嗯。我也到了。" },
-    { "sender": "other", "type": "text", "senderName": "江洁", "text": "你兜里鼓鼓的，到底是什么呀。" },
-    { "sender": "me", "type": "text", "text": "下次你就知道了。" },
-
-    { "type": "divider", "text": "周一 晚上 10:22", "gateChoice": "ch11_gate_dorm1" },
-    { "sender": "other", "type": "text", "senderName": "江洁", "text": "今天风好大，你的围巾记得带上。", "gateChoice": "ch11_gate_dorm1" },
-
-    { "type": "divider", "text": "周三 下午 5:12", "gateChoice": "ch11_gate_lab" },
-    { "sender": "other", "type": "text", "senderName": "江洁", "text": "跟你说，我们组的离心机今天排到半夜才轮上。", "gateChoice": "ch11_gate_lab" },
-    { "sender": "other", "type": "text", "senderName": "江洁", "text": "算了，你肯定在忙。你忙。", "gateChoice": "ch11_gate_lab" },
-    { "sender": "other", "type": "text", "senderName": "江洁", "text": "看来你今天很忙嘛。", "gateChoice": "ch11_gate_lab" },
-
-    { "type": "divider", "text": "周四 深夜 11:31", "gateChoice": "ch11_gate_night2" },
-    { "sender": "other", "type": "text", "senderName": "江洁", "text": "在吗", "gateChoice": "ch11_gate_night2" },
-    { "sender": "me", "type": "text", "text": "在。怎么了？", "gateChoice": "ch11_gate_night2" },
-    { "sender": "other", "type": "text", "senderName": "江洁", "text": "没事。", "gateChoice": "ch11_gate_night2" },
-
-    { "type": "divider", "text": "周六 夜里 10:02", "gateChoice": "ch11_gate_night3" },
-    { "sender": "me", "type": "text", "text": "今天很好。", "gateChoice": "ch11_gate_night3" },
-    { "sender": "other", "type": "text", "senderName": "江洁", "text": "[笑脸]", "gateChoice": "ch11_gate_night3" }
+    { "type": "divider", "text": "周二 上午 10:26" },
+    { "type": "divider", "text": "你添加了对方为微信好友，现在可以开始聊天了" },
+    { "sender": "other", "type": "text", "senderName": "江洁", "text": "小米把你名片推给我的时候，我还以为是又是来问作业的。" },
+    { "sender": "other", "type": "text", "senderName": "江洁", "text": "她说你球打得一般，人还行。原话。" },
+    { "sender": "other", "type": "sticker", "senderName": "江洁", "image": "res://assets/art/stickers/sticker_zan.png" }
+  ],
+  "quickReplies": [
+    {
+      "text": "周六你有空吗。",
+      "affection": -1,
+      "courage": 5,
+      "reply": "周六？我看看。——你先说是什么事。"
+    },
+    {
+      "text": "你那边的风大不大。",
+      "affection": 4,
+      "courage": -2,
+      "reply": "大。公司楼下那排树都在摇。你是不是想说想见我。"
+    },
+    {
+      "text": "在吗",
+      "affection": 2,
+      "courage": 2,
+      "reply": "在。就这样？"
+    }
   ]
 }

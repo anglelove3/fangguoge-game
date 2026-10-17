@@ -1,9 +1,10 @@
-[gd_scene load_steps=10 format=3 uid="uid://ch13scene001"]
+[gd_scene load_steps=10 format=3 uid="uid://ch12scene001"]
 
-[ext_resource type="Script" path="res://scripts/chapters/Ch13.cs" id="1_ch13"]
-[ext_resource type="Texture2D" path="res://assets/art/backgrounds/old_street_v1.png" id="2_street"]
-[ext_resource type="Texture2D" path="res://assets/art/backgrounds/winter_bank_v1.png" id="3_bank"]
-[ext_resource type="Texture2D" path="res://assets/art/backgrounds/xiaoguan_night_v1.png" id="4_shop"]
+[ext_resource type="Script" path="res://scripts/chapters/Ch12.cs" id="1_ch12"]
+[ext_resource type="Script" path="res://scripts/ui/RideTrack.cs" id="2_ride"]
+[ext_resource type="Texture2D" path="res://assets/art/backgrounds/dorm_night_v2.png" id="3_dorm"]
+[ext_resource type="Texture2D" path="res://assets/art/backgrounds/road_v1.png" id="4_road"]
+[ext_resource type="Texture2D" path="res://assets/art/backgrounds/charge_shop_v1.png" id="5_shop"]
 
 [sub_resource type="StyleBoxFlat" id="SB_hot_normal"]
 bg_color = Color(0, 0, 0, 0)
@@ -21,16 +22,16 @@ border_color = Color(0, 0, 0, 0)
 bg_color = Color(0, 0, 0, 0)
 border_color = Color(0, 0, 0, 0)
 
-[node name="Ch13" type="Control"]
+[node name="Ch12" type="Control"]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-script = ExtResource("1_ch13")
-ChapterTitle = "第十三章：十里长亭"
-ChapterSubtitle = "越接近，越慢"
+script = ExtResource("1_ch12")
+ChapterTitle = "第十二章：向南"
+ChapterSubtitle = "389 公里"
 ChapterIndex = 12
 
 [node name="Background" type="TextureRect" parent="."]
@@ -40,11 +41,22 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-texture = ExtResource("2_street")
+texture = ExtResource("3_dorm")
 expand_mode = 1
 stretch_mode = 6
 
-[node name="Bank" type="TextureRect" parent="."]
+[node name="RideTrack" type="Control" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("2_ride")
+
+[node name="ShopLayer" type="TextureRect" parent="."]
 modulate = Color(1, 1, 1, 0)
 layout_mode = 1
 anchors_preset = 15
@@ -52,19 +64,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-texture = ExtResource("3_bank")
-expand_mode = 1
-stretch_mode = 6
-
-[node name="Xiaoguan" type="TextureRect" parent="."]
-modulate = Color(1, 1, 1, 0)
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-texture = ExtResource("4_shop")
+texture = ExtResource("5_shop")
 expand_mode = 1
 stretch_mode = 6
 
@@ -91,7 +91,7 @@ theme_override_colors/font_color = Color(1, 0.95, 0.85, 1)
 theme_override_colors/font_outline_color = Color(0.05, 0.05, 0.1, 1)
 theme_override_constants/outline_size = 10
 theme_override_font_sizes/font_size = 24
-text = "手机在响"
+text = "该收拾的东西，都在桌上"
 horizontal_alignment = 1
 
 [node name="Hotspots" type="Control" parent="."]
@@ -118,14 +118,60 @@ theme_override_styles/hover = SubResource("SB_hot_hover")
 theme_override_styles/pressed = SubResource("SB_hot_pressed")
 theme_override_styles/disabled = SubResource("SB_hot_disabled")
 
-[node name="GateBtn" type="Button" parent="Hotspots"]
+[node name="BedBtn" type="Button" parent="Hotspots"]
 visible = false
 layout_mode = 1
 anchors_preset = -1
+anchor_left = 0.44
+anchor_top = 0.1
+anchor_right = 0.7
+anchor_bottom = 0.2
+grow_horizontal = 2
+grow_vertical = 2
+mouse_default_cursor_shape = 2
+theme_override_styles/normal = SubResource("SB_hot_normal")
+theme_override_styles/hover = SubResource("SB_hot_hover")
+theme_override_styles/pressed = SubResource("SB_hot_pressed")
+theme_override_styles/disabled = SubResource("SB_hot_disabled")
+
+[node name="ChargerBtn" type="Button" parent="Hotspots"]
+layout_mode = 1
+anchors_preset = -1
 anchor_left = 0.05
-anchor_top = 0.35
-anchor_right = 0.16
-anchor_bottom = 0.62
+anchor_top = 0.55
+anchor_right = 0.22
+anchor_bottom = 0.68
+grow_horizontal = 2
+grow_vertical = 2
+mouse_default_cursor_shape = 2
+theme_override_styles/normal = SubResource("SB_hot_normal")
+theme_override_styles/hover = SubResource("SB_hot_hover")
+theme_override_styles/pressed = SubResource("SB_hot_pressed")
+theme_override_styles/disabled = SubResource("SB_hot_disabled")
+
+[node name="RaincoatBtn" type="Button" parent="Hotspots"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.06
+anchor_top = 0.72
+anchor_right = 0.24
+anchor_bottom = 0.86
+grow_horizontal = 2
+grow_vertical = 2
+mouse_default_cursor_shape = 2
+theme_override_styles/normal = SubResource("SB_hot_normal")
+theme_override_styles/hover = SubResource("SB_hot_hover")
+theme_override_styles/pressed = SubResource("SB_hot_pressed")
+theme_override_styles/disabled = SubResource("SB_hot_disabled")
+
+[node name="ShopPhoneBtn" type="Button" parent="Hotspots"]
+visible = false
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.544
+anchor_top = 0.771
+anchor_right = 0.639
+anchor_bottom = 0.869
 grow_horizontal = 2
 grow_vertical = 2
 mouse_default_cursor_shape = 2
@@ -166,7 +212,7 @@ theme_override_colors/font_color = Color(1, 0.97, 0.92, 1)
 theme_override_colors/font_outline_color = Color(0.05, 0.05, 0.1, 0.9)
 theme_override_constants/outline_size = 8
 theme_override_font_sizes/font_size = 76
-text = "第十三章：十里长亭"
+text = "第十二章：向南"
 horizontal_alignment = 1
 
 [node name="ChapterSubtitle" type="Label" parent="."]
@@ -183,7 +229,7 @@ offset_bottom = 120.0
 grow_horizontal = 2
 theme_override_colors/font_color = Color(0.35, 0.37, 0.45, 1)
 theme_override_font_sizes/font_size = 24
-text = "越接近，越慢"
+text = "389 公里"
 horizontal_alignment = 1
 
 [node name="BackButton" type="Button" parent="."]

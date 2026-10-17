@@ -31,7 +31,7 @@ grow_vertical = 2
 script = ExtResource("1_ch13")
 ChapterTitle = "第十三章：十里长亭"
 ChapterSubtitle = "越接近，越慢"
-ChapterIndex = 12
+ChapterIndex = 13
 
 [node name="Background" type="TextureRect" parent="."]
 layout_mode = 1
