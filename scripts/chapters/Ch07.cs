@@ -127,7 +127,7 @@ public partial class Ch07 : ChapterBase
         tween.TweenProperty(titleLabel, "modulate:a", 0.0f, 2.0f);
         tween.TweenProperty(subtitleLabel, "modulate:a", 0.0f, 2.0f);
 
-        DialogueManager.Instance.PlaySequence(ChapterId, "intro", OnIntroFinished);
+        DialogueManager.Instance.PlaySequence(ChapterId, "intro", SeaSideMoment);
     }
 
     /// <summary>发呆 12 秒 → 还没点过的地方轻轻呼吸</summary>
@@ -175,6 +175,51 @@ public partial class Ch07 : ChapterBase
                 }
             }
         }
+    }
+
+    /// <summary>
+    /// 第三轮：碧蓝蓝天——先带他去海边看一眼天（章名的由来），
+    /// 然后打两个水漂。什么也没发生，但好受了一点。
+    /// </summary>
+    private void SeaSideMoment()
+    {
+        var beach = GetNodeOrNull<TextureRect>("BeachDay");
+        if (beach == null)
+        {
+            OnIntroFinished();
+            return;
+        }
+        CrossfadeTo(beach, 1.6f);
+        var dm = DialogueManager.Instance;
+        dm.PlayLines(new System.Collections.Generic.List<DialogueLine>
+        {
+            new() { Speaker = "我", Text = "（那天下午我去了海边。不是特意去的，走着走着就到了。）" },
+            new() { Speaker = "我", Text = "（天很蓝。蓝得有点不像话。）" },
+            new() { Speaker = "我", Text = "（很久没抬头看过天了。实验、论文、改数据——头低久了，忘了上面还有这么大一块地方。）" },
+            new() { Speaker = "我", Text = "（海风是咸的。吹在脸上，像有人轻轻拍了一下。）" },
+        }, () =>
+        {
+            AddChild(new SkippingStone(bounces =>
+            {
+                string line = bounces switch
+                {
+                    0 => "（一下都没弹起来。石沉大海。也行。）",
+                    >= 5 => "（弹了六下。最后一次落下的时候，水面安静得像什么都没发生过。）",
+                    >= 3 => "（弹了四下。够了，比我想的多。）",
+                    _ => "（弹了两下就沉了。手生了。）",
+                };
+                dm.PlayLines(new System.Collections.Generic.List<DialogueLine>
+                {
+                    new() { Speaker = "我", Text = line },
+                    new() { Speaker = "我", Text = "（这大概是我这一个月里，最好受的十分钟。）" },
+                }, () =>
+                {
+                    var tw = CreateTween();
+                    tw.TweenProperty(beach, "modulate:a", 0f, 1.4);
+                    tw.TweenCallback(Callable.From(OnIntroFinished));
+                });
+            }));
+        });
     }
 
     private void OnIntroFinished()

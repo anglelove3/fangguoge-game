@@ -305,7 +305,7 @@ public partial class DialogueManager : CanvasLayer
 	/// <param name="timeoutSec">>0 = 到时没选也算一种回答（第三轮：真正的选择也可以在选项之外）</param>
 	/// <param name="onTimeout">超时回调（面板会先关掉）</param>
 	public void ShowChoice(string chapterId, string choiceGroupId, Action<int> onSelected = null,
-	                       float timeoutSec = 0f, Action onTimeout = null)
+						   float timeoutSec = 0f, Action onTimeout = null)
 	{
 		var data = LoadChapterData(chapterId);
 		if (data == null || !data.Choices.TryGetValue(choiceGroupId, out var group))

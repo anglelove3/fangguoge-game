@@ -1,10 +1,11 @@
-[gd_scene load_steps=13 format=3 uid="uid://ch07scene001"]
+[gd_scene load_steps=14 format=3 uid="uid://ch07scene001"]
 
 [ext_resource type="Script" path="res://scripts/chapters/Ch07.cs" id="1_ch07"]
 [ext_resource type="Texture2D" path="res://assets/art/backgrounds/day_lab_v1.png" id="2_lab"]
 [ext_resource type="Texture2D" path="res://assets/art/backgrounds/campus_dusk_v1.png" id="3_campus"]
 [ext_resource type="Texture2D" path="res://assets/art/backgrounds/lanting_rain_v1.png" id="4_lanting"]
 [ext_resource type="Texture2D" path="res://assets/art/backgrounds/dorm_night_v2.png" id="5_dorm"]
+[ext_resource type="Texture2D" path="res://assets/art/backgrounds/beach_day_v1.png" id="6_beach"]
 
 [sub_resource type="StyleBoxFlat" id="SB_hot_normal"]
 bg_color = Color(0, 0, 0, 0)
@@ -102,6 +103,18 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 texture = ExtResource("5_dorm")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="BeachDay" type="TextureRect" parent="."]
+modulate = Color(1, 1, 1, 0)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("6_beach")
 expand_mode = 1
 stretch_mode = 6
 
