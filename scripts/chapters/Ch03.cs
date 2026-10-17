@@ -683,8 +683,17 @@ public partial class Ch03 : ChapterBase
         {
             DialogueManager.Instance.PlaySequence(ChapterId, "outro", () =>
             {
-                finished = true;
-                GoToNextChapter("res://scenes/chapters/ch04/ch04.tscn", 4);
+                // 第三轮：心脏场景——她说完对不起，走出咖啡馆。
+                // 画面暗下来（像闭眼），黑暗里心脏在跳，她的话变成四把刀扎进来。
+                // 插满后玩家可以拔刀；无论拔不拔，它都还在跳。
+                AddChild(new HeartBlades(pulled =>
+                {
+                    DialogueManager.Instance.PlaySequence(ChapterId, "heart_lines", () =>
+                    {
+                        finished = true;
+                        GoToNextChapter("res://scenes/chapters/ch04/ch04.tscn", 4);
+                    });
+                }));
             });
         });
     }
