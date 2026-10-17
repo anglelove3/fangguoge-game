@@ -172,6 +172,10 @@ public partial class ChapterBase : Control
         // 绑定返回按钮
         if (backButton != null)
         {
+            // 第三轮反馈：所有章的返回主界面统一右下角（各章 tscn 原位置不一）
+            backButton.SetAnchorsPreset(LayoutPreset.BottomRight);
+            backButton.OffsetLeft = -190; backButton.OffsetRight = -36;
+            backButton.OffsetTop = -92; backButton.OffsetBottom = -36;
             backButton.Pressed += OnBackPressed;
             // 注册成"对话期间也能点"的白名单（试玩反馈 B2：对话中点返回没反应）
             DialogueManager.RegisterPriorityControl(backButton);

@@ -89,6 +89,14 @@ public partial class BalanceScale : Node2D
     /// <summary>左盘落点的全局坐标（给 Control 层的 Tween 用）</summary>
     public Vector2 LeftPanDropGlobal() => GetGlobalTransform() * LeftPanDropLocal();
 
+    public override void _Ready()
+    {
+        // 第三轮反馈：天平偏左——窗口比例不同时设计坐标 896 不再是"可见画布的中心"。
+        // 用实际视口宽度重新居中（Node2D 在 stretch 画布空间里，vp 即画布尺寸）
+        var vp = GetViewportRect().Size;
+        Position = new Vector2(vp.X / 2f, Position.Y);
+    }
+
     public override void _Process(double delta)
     {
         timeAcc += (float)delta;

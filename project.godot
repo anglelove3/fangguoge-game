@@ -23,6 +23,7 @@ DialogueManager="*res://scripts/autoload/DialogueManager.cs"
 ConfirmHost="*res://scripts/autoload/ConfirmHost.cs"
 AudioManager="*res://scripts/autoload/AudioManager.cs"
 DebugPanel="*res://scripts/autoload/DebugPanel.cs"
+GlobalClickFx="*res://scripts/autoload/GlobalClickFx.cs"
 
 [display]
 

@@ -30,6 +30,9 @@ public static class UiSounds
         if (btn.HasMeta("ui_sound_wired"))
             return; // 接过线了
         btn.SetMeta("ui_sound_wired", true);
+        // 第三轮反馈 3：所有可交互按钮统一手型光标（鼠标一上去就知道能点）
+        if (btn.MouseDefaultCursorShape == Control.CursorShape.Arrow)
+            btn.MouseDefaultCursorShape = Control.CursorShape.PointingHand;
 
         btn.Pressed += () => AudioManager.Instance?.PlaySfx(AudioManager.SfxClick, -12f);
 

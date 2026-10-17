@@ -18,7 +18,7 @@
     {
       "id": "baobao",
       "name": "宝宝",
-      "avatar": "res://assets/art/chat/her_avatar_v1.png",
+      "avatar": "res://assets/art/chat/avatar_ba.png",
       "chatFile": "ch02_phone",
       "sessionTime": "晚上 10:07"
     },
