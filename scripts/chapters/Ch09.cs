@@ -195,6 +195,9 @@ public partial class Ch09 : ChapterBase
 
     private void OnIntroFinished()
     {
+        // 第三轮：窗上下了一夜的雨（雨夜实验室的空间感）
+        AddChild(new RainWindow { Name = "RainWindowFx", ZIndex = 5 });
+
         hotspotsRoot.Visible = true;
         flavorDorm.Visible = true;
         flavorRmt.Visible = false;
