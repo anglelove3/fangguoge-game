@@ -19,7 +19,7 @@ using System.Collections.Generic;
 public partial class Ch04 : ChapterBase
 {
     private const string ChapterId = "ch04"; // 对应 data/dialogues/ch04.json
-    private Button fountainBtn, benchBtn, lampBtn, herBtn;
+    private Button fountainBtn, gateBtn, lampBtn, herBtn;
     private Label hintLabel;
     private Control hotspotsRoot;
     private readonly HashSet<string> foundItems = new();
@@ -36,44 +36,23 @@ public partial class Ch04 : ChapterBase
         hintLabel = GetNode<Label>("HintLabel");
         hotspotsRoot = GetNode<Control>("Hotspots");
         fountainBtn = GetNode<Button>("Hotspots/FountainBtn");
-        benchBtn = GetNode<Button>("Hotspots/BenchBtn");
+        gateBtn = GetNode<Button>("Hotspots/GateBtn");
         lampBtn = GetNode<Button>("Hotspots/LampBtn");
         herBtn = GetNode<Button>("Hotspots/HerBtn");
 
         fountainBtn.Pressed += () => OnHotspot("fountain", fountainBtn);
-        benchBtn.Pressed += () => OnHotspot("bench", benchBtn);
+        gateBtn.Pressed += () => OnHotspot("gate", gateBtn);
         lampBtn.Pressed += () => OnHotspot("lamp", lampBtn);
         herBtn.Pressed += OnHerPressed;
 
         // 热点按美术图钉住
-        ArtAnchor.TrackFraction(fountainBtn, new Rect2(0.30f, 0.45f, 0.40f, 0.32f));
-        ArtAnchor.TrackFraction(benchBtn, new Rect2(0.02f, 0.62f, 0.16f, 0.18f));
-        ArtAnchor.TrackFraction(lampBtn, new Rect2(0.78f, 0.18f, 0.16f, 0.40f));
-        ArtAnchor.TrackFraction(herBtn, new Rect2(0.44f, 0.42f, 0.12f, 0.20f));
-        herBtn.Visible = false; // 探索完她才「在那里」
-
+        ArtAnchor.TrackFraction(fountainBtn, new Rect2(0.22f, 0.18f, 0.45f, 0.58f));
+        ArtAnchor.TrackFraction(gateBtn, new Rect2(0.74f, 0.18f, 0.22f, 0.55f));
+        ArtAnchor.TrackFraction(lampBtn, new Rect2(0.02f, 0.22f, 0.16f, 0.45f));
+        ArtAnchor.TrackFraction(herBtn, new Rect2(0.52f, 0.53f, 0.13f, 0.24f));
+        
         UiSounds.WireAll(this);
 
-        // 第三轮 F6：她真的站在喷泉边（水彩背影剪影，冷蓝灰调贴夜色）——
-        // 从开场就在那里，和提示文案「喷泉边站着一个人」对得上。
-        // 比例锚点定位（58%~73% 宽、35%~84% 高 = 喷泉右侧），不依赖 ArtAnchor 的映射时机
-        var herSprite = new TextureRect
-        {
-            Texture = ResourceLoader.Exists("res://assets/art/props/her_figure_v1.png")
-                ? GD.Load<Texture2D>("res://assets/art/props/her_figure_v1.png") : null,
-            ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,
-            StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered,
-            MouseFilter = MouseFilterEnum.Ignore,
-            // 压暗一档，让她更像夜色里的剪影（原图偏亮）
-            Modulate = new Color(0.86f, 0.89f, 0.96f, 0.95f),
-        };
-        herSprite.AnchorLeft = 0.575f;
-        herSprite.AnchorRight = 0.715f;
-        herSprite.AnchorTop = 0.26f;
-        herSprite.AnchorBottom = 0.86f;
-        herSprite.OffsetLeft = 0; herSprite.OffsetRight = 0;
-        herSprite.OffsetTop = 0; herSprite.OffsetBottom = 0;
-        AddChild(herSprite);
 
         // 标题淡出
         var tween = CreateTween();
@@ -108,7 +87,6 @@ public partial class Ch04 : ChapterBase
         {
             if (foundItems.Count >= 3 && !meetDone)
             {
-                herBtn.Visible = true;
                 dm.PlaySequence(ChapterId, "all_found", null);
                 hintLabel.Text = "（她在喷泉边。点她走过去。）";
             }
