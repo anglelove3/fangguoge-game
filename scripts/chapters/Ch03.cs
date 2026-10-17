@@ -101,6 +101,7 @@ public partial class Ch03 : ChapterBase
     /// <summary>发呆 12 秒 → 还没放的东西轻轻呼吸</summary>
     public override void _Process(double delta)
     {
+        base._Process(delta);
         splitStage?.SetTilt(scale != null ? scale.CurrentTilt01 : 0f);
 
         var dm = DialogueManager.Instance;

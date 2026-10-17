@@ -94,9 +94,64 @@ public partial class AudioManager : Node
 			sfxPool.Add(p);
 		}
 
-		GD.Print("[音频] 已加载（双 BGM 播放器 + 音效池）");
+		// 环境音播放器（第三轮沉浸感 S2：常驻垫底循环，与 BGM 互不干扰）
+		ambPlayer = new AudioStreamPlayer { VolumeDb = -80f };
+		AddChild(ambPlayer);
+		ambPlayer.Finished += OnAmbienceFinished; // wav 循环靠重播实现，不依赖导入设置
+
+		GD.Print("[音频] 已加载（双 BGM 播放器 + 音效池 + 环境音层）");
 		PlayBgm(DefaultBgmPath);
 	}
+
+	// ==================== 环境音（第三轮 S2） ====================
+	// 每个场景都有自己的「空间声」：雨/风/深夜虫鸣/街道。
+	// 音量压得很低（-20dB 上下），叠在 BGM 底下垫底——你没有它不会注意，有了就回不去了。
+	private AudioStreamPlayer ambPlayer;
+	private Tween ambTween;
+	private string currentAmbience = "";
+
+	public const string AmbRain = "res://assets/audio/ambience/amb_rain_loop.wav";
+	public const string AmbWind = "res://assets/audio/ambience/amb_wind_loop.wav";
+	public const string AmbNight = "res://assets/audio/ambience/amb_night_loop.wav";
+	public const string AmbStreet = "res://assets/audio/ambience/amb_street_loop.wav";
+
+	/// <summary>切环境音（同一路径不重复切；fade 秒淡入淡出）</summary>
+	public void PlayAmbience(string path, float volumeDb = -20f, float fadeSeconds = 2.5f)
+	{
+		if (path == currentAmbience)
+			return;
+		currentAmbience = path;
+
+		ambTween?.Kill();
+		if (string.IsNullOrEmpty(path))
+		{
+			// 淡出后停
+			ambTween = CreateTween();
+			ambTween.TweenProperty(ambPlayer, "volume_db", -80f, fadeSeconds);
+			ambTween.TweenCallback(Callable.From(() => ambPlayer.Stop()));
+			return;
+		}
+
+		var stream = GD.Load<AudioStream>(path);
+		if (stream == null)
+		{
+			GD.PrintErr($"[音频] 找不到环境音：{path}");
+			return;
+		}
+		ambPlayer.Stream = stream;
+		ambPlayer.Play();
+		ambTween = CreateTween();
+		ambTween.TweenProperty(ambPlayer, "volume_db", volumeDb + SfxVolDb * 0.5f, fadeSeconds)
+			.SetTrans(Tween.TransitionType.Sine);
+	}
+
+	private void OnAmbienceFinished()
+	{
+		// 无缝循环（首尾已在生成时做了交叉淡化）
+		if (!string.IsNullOrEmpty(currentAmbience))
+			ambPlayer.Play();
+	}
+
 
 	/// <summary>玩家设置的音量（分贝偏移），设置没加载时用 0（不影响默认音量）</summary>
 	private static float MusicVolDb => GameSettings.Instance?.MusicDb(0f) ?? 0f;

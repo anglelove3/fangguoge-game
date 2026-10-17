@@ -92,6 +92,7 @@ public partial class Ch05 : ChapterBase
     /// <summary>发呆 12 秒 → 手机热点轻轻呼吸（引导去看旧聊天）</summary>
     public override void _Process(double delta)
     {
+        base._Process(delta);
         if (chatOpen)
         {
             lastActivityMsec = Time.GetTicksMsec();

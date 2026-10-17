@@ -88,6 +88,7 @@ public partial class Prologue : ChapterBase
     /// </summary>
     public override void _Process(double delta)
     {
+        base._Process(delta);
         var dm = DialogueManager.Instance;
         if (dm != null && dm.IsBusy)
         {

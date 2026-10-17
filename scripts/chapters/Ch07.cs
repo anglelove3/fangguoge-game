@@ -85,6 +85,7 @@ public partial class Ch07 : ChapterBase
     /// <summary>发呆 12 秒 → 酒瓶子轻轻呼吸一下（提醒还能倒酒）</summary>
     public override void _Process(double delta)
     {
+        base._Process(delta);
         if (chatOpen)
         {
             lastActivityMsec = Time.GetTicksMsec();

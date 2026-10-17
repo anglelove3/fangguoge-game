@@ -74,6 +74,7 @@ public partial class Ch04 : ChapterBase
 
     public override void _Process(double delta)
     {
+        base._Process(delta);
         var dm = DialogueManager.Instance;
         if (dm == null || dm.IsBusy)
         {
@@ -137,16 +138,30 @@ public partial class Ch04 : ChapterBase
         // 微勇气：发了 2（敢问出口）/ 删了 0（话咽回去了）/ 洗脸 1（至少起身做了点什么）
         int courage = index == 0 ? 2 : index == 1 ? 0 : 1;
         GameManager.Instance.AddCourage(courage);
-        dm.PlaySequence(ChapterId, $"choice_{index}", () =>
+
+        // 第三轮 A1：选「删了」→ 先播逐字删除演出（那句话在屏幕上自己消失），再进对白
+        System.Action playLines = () =>
         {
-            // 妈的消息：不管你选了哪条路，妈都会在这个点冒出来
-            dm.PlaySequence(ChapterId, "mom_msg", () =>
+            dm.PlaySequence(ChapterId, $"choice_{index}", () =>
             {
-                phoneDone = true;
-                bedBtn.Visible = true;
-                UpdateHint();
+                // 妈的消息：不管你选了哪条路，妈都会在这个点冒出来
+                dm.PlaySequence(ChapterId, "mom_msg", () =>
+                {
+                    phoneDone = true;
+                    bedBtn.Visible = true;
+                    UpdateHint();
+                });
             });
-        });
+        };
+
+        if (index == 1)
+        {
+            AddChild(new DraftErase("到家了吗", playLines));
+        }
+        else
+        {
+            playLines();
+        }
     }
 
     // ==================== 睡下：接《手滑》 ====================

@@ -157,6 +157,7 @@ public partial class Ch12 : ChapterBase
 
     public override void _Process(double delta)
     {
+        base._Process(delta);
         var dm = DialogueManager.Instance;
         if (dm == null || dm.IsBusy || dm.IsUiSuppressed)
         {
@@ -453,6 +454,19 @@ public partial class Ch12 : ChapterBase
 
         DialogueManager.Instance.PlaySequence(ChapterId, "outro", () =>
         {
+            // 第三轮 B1：送别长镜头——画面缓缓横移+推近，像谁在缓慢回头；
+            // 说完最后一句，镜头也慢慢走远，然后才是落幕。
+            var bg = GetNodeOrNull<TextureRect>("Background");
+            if (bg != null)
+            {
+                bg.PivotOffset = GetViewportRect().Size / 2f;
+                var drift = CreateTween();
+                drift.SetParallel(true);
+                drift.TweenProperty(bg, "position:x", bg.Position.X - 90f, 20.0)
+                    .SetTrans(Tween.TransitionType.Sine).SetEase(Tween.EaseType.Out);
+                drift.TweenProperty(bg, "scale", new Vector2(1.045f, 1.045f), 20.0)
+                    .SetTrans(Tween.TransitionType.Sine).SetEase(Tween.EaseType.Out);
+            }
             GoToNextChapter("res://scenes/ui/demo_end/demo_end.tscn", 99);
         });
     }

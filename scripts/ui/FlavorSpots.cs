@@ -117,6 +117,13 @@ public partial class FlavorSpots : Control
         HotspotGlow.Sparkle(spot.Btn);
         AudioManager.Instance?.PlaySfx(AudioManager.SfxConfirmSoft, -14f, 0.05f);
 
+        // 第三轮 B2：指尖涟漪——点击位置一圈水波散开，身体感（点下去是「碰」，不是「触发」）
+        var ripple = new RippleFx
+        {
+            Position = spot.Btn.GlobalPosition + spot.Btn.Size / 2f,
+        };
+        GetTree().CurrentScene?.AddChild(ripple);
+
         dm.PlayLines(spot.Lines);
     }
 

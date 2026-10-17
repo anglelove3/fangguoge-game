@@ -218,6 +218,7 @@ public partial class Ch10 : ChapterBase
     /// <summary>发呆 12 秒 → 当前这一幕"还没点的地方"轻轻呼吸</summary>
     public override void _Process(double delta)
     {
+        base._Process(delta);
         var dm = DialogueManager.Instance;
         if (dm == null || dm.IsBusy || dm.IsUiSuppressed)
         {

@@ -290,6 +290,8 @@ public partial class WeChatMainPage : Control
     /// </summary>
     private void WirePinHold(Button row, ContactData c)
     {
+        Tween holdTween = null;
+
         row.ButtonDown += () =>
         {
             pressToken++;
@@ -297,16 +299,38 @@ public partial class WeChatMainPage : Control
             var tree = GetTree();
             if (tree == null)
                 return;
+
+            // 第三轮 A2：长按的进度感——按住时行微微加深 + 轻轻缩一点，
+            // 玩家立刻知道「这个东西听我的了」（旧版按住 0.55 秒毫无反馈，像坏了）
+            row.PivotOffset = row.Size / 2f;
+            holdTween?.Kill();
+            holdTween = row.CreateTween();
+            holdTween.TweenProperty(row, "modulate", new Color(0.88f, 0.88f, 0.90f), 0.25);
+            holdTween.Parallel().TweenProperty(row, "scale", new Vector2(0.985f, 0.985f), 0.25);
+
             tree.CreateTimer(0.55).Timeout += () =>
             {
                 if (token != pressToken || !GodotObject.IsInstanceValid(row) || !row.IsVisibleInTree())
                     return;
+                holdTween?.Kill();
+                row.Modulate = Colors.White;
+                row.Scale = Vector2.One;
                 row.Disabled = true; // 吞掉这次松开，别让它变成"点进聊天"
                 pinMenuRowOwner = row;
                 OpenPinMenu(c, row.GetGlobalRect().Position + new Vector2(row.Size.X - 240f, 24f), row);
             };
         };
-        row.ButtonUp += () => pressToken++; // 提前松手 = 长按作废，照常触发点击
+        row.ButtonUp += () =>
+        {
+            pressToken++; // 提前松手 = 长按作废，照常触发点击
+            // 松手时反馈归零
+            holdTween?.Kill();
+            if (GodotObject.IsInstanceValid(row))
+            {
+                row.Modulate = Colors.White;
+                row.Scale = Vector2.One;
+            }
+        };
     }
 
     /// <summary>

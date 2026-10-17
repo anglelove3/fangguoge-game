@@ -47,6 +47,74 @@ public partial class ChapterBase : Control
         hint.Modulate = new Color(1f, 1f, 1f, 0.82f);
     }
 
+    // ==================== 镜头呼吸（第三轮沉浸感 S1） ====================
+    // 对白进行中背景缓慢推近 3%（Ken Burns 式呼吸），对话结束缓缓拉回——
+    // 静态画面立刻有「活着」的感觉。全章统一生效，不需要各章各写。
+    private TextureRect breathBg;      // 被呼吸的背景（场景里的 Background 节点）
+    private Tween breathTween;
+    private bool breathIn;
+
+    /// <summary>对白进行 → 缓缓推近；松开 → 拉回（基类统一每帧喂，子类不用管）</summary>
+    protected void TickBreath()
+    {
+        if (breathBg == null)
+        {
+            breathBg = GetNodeOrNull<TextureRect>("Background");
+            if (breathBg == null)
+                return;
+            // 以中心为缩放原点
+            breathBg.PivotOffset = GetViewportRect().Size / 2f;
+        }
+
+        bool talking = DialogueManager.Instance != null && DialogueManager.Instance.IsBusy;
+        if (talking != breathIn)
+        {
+            breathIn = talking;
+            breathTween?.Kill();
+            breathTween = CreateTween();
+            breathTween.SetEase(Tween.EaseType.InOut).SetTrans(Tween.TransitionType.Sine);
+            // 推近时慢（9 秒，不抢戏），拉回时更慢（12 秒）
+            breathTween.TweenProperty(breathBg, "scale",
+                talking ? new Vector2(1.03f, 1.03f) : Vector2.One,
+                talking ? 9.0 : 12.0);
+        }
+    }
+
+    // 第三轮沉浸感 S1：基类统一驱动镜头呼吸。
+    // 子类若 override _Process 记得 base._Process（各章早就是这么写的）。
+    public override void _Process(double delta)
+    {
+        TickBreath();
+    }
+
+    /// <summary>
+    /// 章节环境音映射（第三轮 S2）：这个房间的声音。
+    /// 深夜章=虫鸣低吟；白天章=街道人气；雨章=雨声；骑行/送别=风。
+    /// 音量统一压 -20dB 上下垫底（感受得到空间，不抢 BGM）。
+    /// </summary>
+    private void StartChapterAmbience()
+    {
+        string amb = ChapterIndex switch
+        {
+            0 => AudioManager.AmbStreet,   // 序章·那首歌：傍晚街道
+            1 => AudioManager.AmbStreet,   // 寄居蟹：白天校园外
+            2 => AudioManager.AmbStreet,   // 一千公里：白天→深夜章内切
+            3 => AudioManager.AmbNight,    // 天平：深夜
+            4 => AudioManager.AmbNight,    // 晚安：深夜
+            5 => AudioManager.AmbNight,    // 手滑：凌晨
+            6 => AudioManager.AmbWind,     // 碧蓝蓝天：海风
+            7 => AudioManager.AmbStreet,   // 放过自己：夜摊人声
+            8 => AudioManager.AmbRain,     // 三点水：雨夜实验室
+            9 => AudioManager.AmbNight,    // 还想再见：夜里
+            10 => AudioManager.AmbNight,   // 置顶：前夜
+            11 => AudioManager.AmbWind,    // 向南：骑行风声
+            12 => AudioManager.AmbWind,    // 十里长亭：风
+            _ => "",
+        };
+        if (!string.IsNullOrEmpty(amb))
+            AudioManager.Instance?.PlayAmbience(amb, -20f, 2.5f);
+    }
+
     /// <summary>
     /// _Ready：节点第一次出现时调用
     /// 这里做通用初始化，子类不需要重复写
@@ -78,6 +146,9 @@ public partial class ChapterBase : Control
 
         // 左上角的背包按钮（第十五轮：手机/捡到的东西随时能翻出来看）
         BuildBagButton();
+
+        // 第三轮沉浸感 S2：每章的「空间声」环境音垫底（雨/风/深夜/街道）
+        StartChapterAmbience();
 
         // 第三轮 F7：顶部交互提示统一降调（各章自己的字号设置完之后再覆盖——
         // 旧版 24 号白字带重描边直接飘在画面上，太抢戏）
