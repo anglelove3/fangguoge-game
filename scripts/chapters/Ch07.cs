@@ -1,12 +1,12 @@
 using Godot;
 
 /// <summary>
-/// 第七章：放过自己
+/// 第八章：放过自己
 ///
 /// 流程：深夜烧烤摊（金艮请你吃串）→ 自己动手倒酒，一杯一层往事（4 杯）
 ///      → 第四杯之后的三选一（怎么接住"你从来没放过自己"这句话）
 ///      → 金艮的回话 → 碰杯前的心声微选择 → 两只杯子碰在一起
-///      → 走回宿舍路上的尾声（那首歌又能听了）→ 第七章《三点水》
+///      → 走回宿舍路上的尾声（那首歌又能听了）→ 第八章《三点水》
 ///
 /// 【本章演出核心】
 ///   - 酒桌上的戏是真的：点热点倒酒，瓶身倾斜、酒线落进杯里、
@@ -16,7 +16,7 @@ using Godot;
 /// </summary>
 public partial class Ch07 : ChapterBase
 {
-    private const string ChapterId = "ch07";
+    private const string ChapterId = "ch08";
 
     private Control hotspotsRoot;
     private Label hintLabel;
@@ -37,7 +37,7 @@ public partial class Ch07 : ChapterBase
 
     protected override void OnChapterReady()
     {
-        GD.Print("第七章：放过自己 —— 酒过三巡，才敢说的话");
+        GD.Print("第八章：放过自己 —— 酒过三巡，才敢说的话");
 
         AudioManager.Instance?.PlayBgm(AudioManager.BgmGym3, -14f, 1.5f);
 
@@ -127,7 +127,7 @@ public partial class Ch07 : ChapterBase
         UpdateHint();
 
         // "手机活起来"：酒过三巡之前，妈发来一句"天凉了"
-        LiveEvents.Fire(this, ChapterId, "ch07_ma_cold");
+        LiveEvents.Fire(this, ChapterId, "ch08_ma_cold");
     }
 
     private void UpdateHint()
@@ -140,11 +140,11 @@ public partial class Ch07 : ChapterBase
 
         if (pourCount < 4)
         {
-            hintLabel.Text = DataStore.Text("hint.ch07", pourCount, 4);
+            hintLabel.Text = DataStore.Text("hint.ch08", pourCount, 4);
             return;
         }
 
-        hintLabel.Text = DataStore.Text("hint.ch07_done");
+        hintLabel.Text = DataStore.Text("hint.ch08_done");
     }
 
     // ==================== 倒酒 ====================
@@ -201,7 +201,7 @@ public partial class Ch07 : ChapterBase
             lastActivityMsec = Time.GetTicksMsec();
 
             // 引导：提示语换成"做个了断"，手机热点开始呼吸——把选择权完整交给玩家
-            hintLabel.Text = DataStore.Text("hint.ch07_delete");
+            hintLabel.Text = DataStore.Text("hint.ch08_delete");
             hintLabel.Visible = true;
             if (phoneGlow != null)
                 HotspotGlow.Pulse(phoneGlow, 0f);
@@ -244,10 +244,10 @@ public partial class Ch07 : ChapterBase
                 // 第十九轮保底（F16）：玩家跳过了删除引导也没关系——剧情上"回去的路上"这一刀照样落。
                 // 第 7 章起列表里不再有宝宝，第 9 章《置顶》时列表才是干净的。
                 // 已经亲手删过的话，DeleteFriend 幂等，不会重复落档。
-                GameManager.Instance?.DeleteFriend("baobao", "ch07_auto_delete");
+                GameManager.Instance?.DeleteFriend("baobao", "ch08_auto_delete");
 
                 AudioManager.Instance?.PlayBgm(AudioManager.BgmGym1, -14f, 2.5f);
-                GoToNextChapter("res://scenes/chapters/ch08/ch08.tscn", 7);
+                GoToNextChapter("res://scenes/chapters/ch09/ch09.tscn", 7);
             });
         });
     }
@@ -287,7 +287,7 @@ public partial class Ch07 : ChapterBase
                     {
                         deleteWaiting = true;
                         lastActivityMsec = Time.GetTicksMsec();
-                        hintLabel.Text = DataStore.Text("hint.ch07_delete");
+                        hintLabel.Text = DataStore.Text("hint.ch08_delete");
                         hintLabel.Visible = true;
                         if (phoneGlow != null)
                             HotspotGlow.Pulse(phoneGlow, 0f);

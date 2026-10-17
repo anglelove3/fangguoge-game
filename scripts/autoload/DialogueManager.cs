@@ -241,7 +241,7 @@ public partial class DialogueManager : CanvasLayer
 		heartChips.Name = "HeartChips";
 		AddChild(heartChips);
 
-		// 内心解读（第十八轮·第九章）：她的原话 + 三张解读纸片，和选项面板同层（不会同时出现）
+		// 内心解读（第十八轮·第十一章）：她的原话 + 三张解读纸片，和选项面板同层（不会同时出现）
 		readCard = new ReadCard();
 		readCard.Name = "ReadCard";
 		AddChild(readCard);
@@ -322,7 +322,7 @@ public partial class DialogueManager : CanvasLayer
 		dialogueBox.ShowLine(promptSpeaker, group.Prompt, instant: true, portraitId: group.PromptPortrait);
 		dialogueBox.SetContinueHintVisible(false); // 选项阶段不需要"点击继续"
 
-		// 内心解读（第九章）：带原话引用的选择走 ReadCard——
+		// 内心解读（第十一章）：带原话引用的选择走 ReadCard——
 		// 她的原话气泡浮出来，三张"读法"纸片跟在下面。同样是主线选择：记数值、记回顾。
 		if (!string.IsNullOrEmpty(group.Quote))
 		{
@@ -656,7 +656,7 @@ public class ChoiceGroupData
 	public string Prompt { get; set; } = "";        // 提示语（显示在对话框里）
 	public string PromptSpeaker { get; set; } = ""; // 提示语说话人
 	public string PromptPortrait { get; set; } = null; // 提示语立绘（不写 = 保持当前）
-	public string Quote { get; set; } = "";         // 原话引用（第九章「内心解读」；非空 = 走 ReadCard 演出）
+	public string Quote { get; set; } = "";         // 原话引用（第十一章「内心解读」；非空 = 走 ReadCard 演出）
 	public List<ChoiceOptionData> Options { get; set; } = new();
 }
 

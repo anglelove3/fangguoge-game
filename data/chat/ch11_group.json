@@ -1,0 +1,29 @@
+{
+  "title": "今天的局",
+  "readOnly": true,
+  "readOnlyHint": "（先看看大家在聊什么）",
+  "readOnlyToast": "群里聊得热闹，先不插话。",
+  "messages": [
+    { "type": "divider", "text": "周一 晚上 10:18" },
+    { "sender": "other", "senderName": "金艮", "text": "@我 师兄，进展汇报一下。全体起立那种。" },
+    { "sender": "other", "senderName": "小米师妹", "text": "对！第二次见面！说！" },
+    { "sender": "me", "type": "text", "text": "正常交流。" },
+    { "sender": "other", "senderName": "金艮", "text": "正常交流？？上周你也是这句。上上周也是。" },
+    { "sender": "other", "senderName": "小米师妹", "text": "师兄，你这个「正常」的定义是不是有点宽。" },
+    { "sender": "other", "senderName": "俊杰（师弟）", "text": "起立了半天，就这？我赌二十块。" },
+
+    { "type": "divider", "text": "周三 下午 4:40", "gateChoice": "ch12_gate_lab" },
+    { "sender": "other", "senderName": "三金师兄", "text": "凌晨三点的样品数据出来了。占离心机的自己认领。", "gateChoice": "ch12_gate_lab" },
+    { "sender": "other", "senderName": "金艮", "text": "师兄你头发还好吗。", "gateChoice": "ch12_gate_lab" },
+    { "sender": "other", "senderName": "三金师兄", "text": "头发没事，数据有事。重跑。", "gateChoice": "ch12_gate_lab" },
+    { "sender": "other", "senderName": "小米师妹", "text": "[蜡烛] 给数据上一个", "gateChoice": "ch12_gate_lab" },
+    { "sender": "other", "senderName": "小米师妹", "text": "@我 师兄今天怎么一条都不回，江洁都说你高冷。", "gateChoice": "ch12_gate_lab" },
+    { "sender": "other", "senderName": "金艮", "text": "高冷？？他？他昨天还问我奶茶三分糖是加多少来着。", "gateChoice": "ch12_gate_lab" },
+
+    { "type": "divider", "text": "周四 深夜 11:42", "gateChoice": "ch12_gate_night2" },
+    { "sender": "other", "senderName": "金艮", "text": "周六组局吗，台球？", "gateChoice": "ch12_gate_night2" },
+    { "sender": "other", "senderName": "小米师妹", "text": "师兄周六有空吗？", "gateChoice": "ch12_gate_night2" },
+    { "sender": "me", "type": "text", "text": "周六有事。", "gateChoice": "ch12_gate_night2" },
+    { "sender": "other", "senderName": "金艮", "text": "？？？行吧。", "gateChoice": "ch12_gate_night2" }
+  ]
+}

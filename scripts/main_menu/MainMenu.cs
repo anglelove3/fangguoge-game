@@ -25,7 +25,7 @@ public partial class MainMenu : Control
 
     public override void _Ready()
     {
-        // 回到标题画面：把音乐换回主题曲（第三章/第四章各有专属 BGM，不切就会一直响着）
+        // 回到标题画面：把音乐换回主题曲（第三章/第五章各有专属 BGM，不切就会一直响着）
         AudioManager.Instance?.PlayBgm(AudioManager.BgmGym1, -14f, 1.4f);
 
         // 获取按钮节点
@@ -85,15 +85,15 @@ public partial class MainMenu : Control
         "第一章 · 寄居蟹",
         "第二章 · 一千公里",
         "第三章 · 天平",
-        "第四章 · 晚安",
-        "第五章 · 手滑",
-        "第六章 · 碧蓝蓝天",
-        "第七章 · 放过自己",
-        "第八章 · 三点水",
-        "第九章 · 还想再见",
-        "第十章 · 置顶",
-        "第十一章 · 向南",
-        "第十二章 · 十里长亭",
+        "第五章 · 晚安",
+        "第六章 · 手滑",
+        "第七章 · 碧蓝蓝天",
+        "第八章 · 放过自己",
+        "第九章 · 三点水",
+        "第十章 · 还想再见",
+        "第十一章 · 置顶",
+        "第十二章 · 向南",
+        "第十三章 · 十里长亭",
     };
 
     /// <summary>章节直达面板：滚动列表，点哪章进哪章（演示与测试用）</summary>
@@ -425,7 +425,7 @@ public partial class MainMenu : Control
     /// 【第十一轮改动（试玩反馈 C2）】
     /// 存档里的章节号可能是 99（已经通关到结束页），直接跳过去只会看到"感谢试玩"，
     /// 相当于这一局再也续不上。现在把 99 翻译成"重玩最后一章"，至少还有东西可玩。
-    /// （r13：第四→第五→第六章接成链路；r14：第七章上线；r18：第九章《置顶》上线；r19：第十章《向南》上线；r20：第十一章《十里长亭》上线，重玩落点后移到第十一章）
+    /// （r13：第四→第五→第七章接成链路；r14：第八章上线；r18：第十章《置顶》上线；r19：第十一章《向南》上线；r20：第十二章《十里长亭》上线，重玩落点后移到第十二章）
     /// </summary>
     private void OnContinueGamePressed()
     {
@@ -437,7 +437,7 @@ public partial class MainMenu : Control
         int chapter = GameManager.Instance.CurrentChapter;
         if (chapter >= 99)
         {
-            GD.Print("[继续游戏] 上次已经玩到结束页，改为从第十一章继续");
+            GD.Print("[继续游戏] 上次已经玩到结束页，改为从第十二章继续");
             chapter = LastChapter;
             GameManager.Instance.CurrentChapter = chapter;
         }
@@ -446,7 +446,7 @@ public partial class MainMenu : Control
     }
 
     /// <summary>目前开发到的最后一章（通关档的"重玩落点"）</summary>
-    private const int LastChapter = 12;
+    private const int LastChapter = 13;
 
     /// <summary>
     /// 点击"设置"→ 打开设置界面
@@ -478,14 +478,14 @@ public partial class MainMenu : Control
             1 => "res://scenes/chapters/ch01/ch01.tscn",
             2 => "res://scenes/chapters/ch02/ch02.tscn",
             3 => "res://scenes/chapters/ch03/ch03.tscn",
-            4 => "res://scenes/chapters/ch05/ch05.tscn",
-            5 => "res://scenes/chapters/ch06/ch06.tscn",
-            6 => "res://scenes/chapters/ch07/ch07.tscn",
-            7 => "res://scenes/chapters/ch08/ch08.tscn",
-            8 => "res://scenes/chapters/ch09/ch09.tscn",
-            9 => "res://scenes/chapters/ch10/ch10.tscn",
-            10 => "res://scenes/chapters/ch11/ch11.tscn",
-            11 => "res://scenes/chapters/ch12/ch12.tscn",
+            4 => "res://scenes/chapters/ch06/ch06.tscn",
+            5 => "res://scenes/chapters/ch07/ch07.tscn",
+            6 => "res://scenes/chapters/ch08/ch08.tscn",
+            7 => "res://scenes/chapters/ch09/ch09.tscn",
+            8 => "res://scenes/chapters/ch10/ch10.tscn",
+            9 => "res://scenes/chapters/ch11/ch11.tscn",
+            10 => "res://scenes/chapters/ch12/ch12.tscn",
+            11 => "res://scenes/chapters/ch13/ch13.tscn",
             99 => "res://scenes/ui/demo_end/demo_end.tscn", // 试玩结束页
             // 后续章节在这里添加：
             _ => "res://scenes/chapters/prologue/prologue.tscn"

@@ -477,7 +477,7 @@
   ],
   "publishGroups": [
     {
-      "id": "pub_ch06",
+      "id": "pub_ch07",
       "afterChapter": 5,
       "options": [
         {
@@ -531,7 +531,7 @@
       ]
     },
     {
-      "id": "pub_ch08",
+      "id": "pub_ch09",
       "afterChapter": 7,
       "options": [
         {
@@ -585,7 +585,7 @@
       ]
     },
     {
-      "id": "pub_ch10",
+      "id": "pub_ch11",
       "afterChapter": 9,
       "options": [
         {

@@ -1,6 +1,6 @@
-[gd_scene load_steps=12 format=3 uid="uid://ch10scene001"]
+[gd_scene load_steps=12 format=3 uid="uid://ch11scene001"]
 
-[ext_resource type="Script" path="res://scripts/chapters/Ch10.cs" id="1_ch10"]
+[ext_resource type="Script" path="res://scripts/chapters/Ch11.cs" id="1_ch11"]
 [ext_resource type="Texture2D" path="res://assets/art/backgrounds/dorm_night_v2.png" id="2_dorm"]
 [ext_resource type="Texture2D" path="res://assets/art/backgrounds/day_lab_v1.png" id="3_lab"]
 [ext_resource type="Texture2D" path="res://assets/art/backgrounds/river_dusk_v1.png" id="4_river"]
@@ -45,15 +45,15 @@ corner_radius_bottom_right = 12
 corner_radius_bottom_left = 12
 corner_detail = 12
 
-[node name="Ch10" type="Control"]
+[node name="Ch11" type="Control"]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-script = ExtResource("1_ch10")
-ChapterTitle = "第十章：置顶"
+script = ExtResource("1_ch11")
+ChapterTitle = "第十一章：置顶"
 ChapterSubtitle = "一抬头就能看见"
 ChapterIndex = 10
 
@@ -223,7 +223,7 @@ theme_override_colors/font_color = Color(1, 0.97, 0.92, 1)
 theme_override_colors/font_outline_color = Color(0.05, 0.05, 0.1, 0.9)
 theme_override_constants/outline_size = 8
 theme_override_font_sizes/font_size = 76
-text = "第十章：置顶"
+text = "第十一章：置顶"
 horizontal_alignment = 1
 
 [node name="ChapterSubtitle" type="Label" parent="."]

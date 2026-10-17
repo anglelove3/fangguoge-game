@@ -2,7 +2,7 @@ using Godot;
 using System.Collections.Generic;
 
 /// <summary>
-/// 第十一章：向南
+/// 第十二章：向南
 ///
 /// 流程（五幕，一天 + 前夜）：
 ///   第 1 幕 周六夜·宿舍 —— 她那句「出门全靠走」→ why 三选（告知 / 套话 / 保密）
@@ -14,22 +14,22 @@ using System.Collections.Generic;
 ///
 /// 【两个机制】
 ///   1. 全程三线分层：why 的选择决定她"知不知道他要来"，之后每一段聊天消息
-///      都按 ch11_gate_{段落}_{线} 三份互斥钥匙放行——选哪条线，全程只看得见哪条线。
+///      都按 ch12_gate_{段落}_{线} 三份互斥钥匙放行——选哪条线，全程只看得见哪条线。
 ///   2. 电量跨章联动：charge1 的选择一路连锁到第三次充电（B 线排队只充到 80%），
-///      最终决定黄昏"骑到街口"还是"推着车走完最后 5 公里"——联动到第十一章开场。
+///      最终决定黄昏"骑到街口"还是"推着车走完最后 5 公里"——联动到第十二章开场。
 /// </summary>
 public partial class Ch11 : ChapterBase
 {
-    private const string ChapterId = "ch11";
+    private const string ChapterId = "ch12";
 
-    // ==================== 章节参数（data/chapters/ch11.json） ====================
+    // ==================== 章节参数（data/chapters/ch12.json） ====================
 
     private class ChapterConfig
     {
         public string JieContact { get; set; } = "";
         public string JieChat { get; set; } = "";
         public string ScooterSfx { get; set; } = "";
-        public string GatePrefix { get; set; } = "ch11_gate_";
+        public string GatePrefix { get; set; } = "ch12_gate_";
         public Dictionary<string, string> Gates { get; set; } = new();
     }
 
@@ -95,9 +95,9 @@ public partial class Ch11 : ChapterBase
 
     protected override void OnChapterReady()
     {
-        GD.Print("第十一章：向南 —— 389 公里");
+        GD.Print("第十二章：向南 —— 389 公里");
 
-        cfg = DataStore.LoadJson<ChapterConfig>("res://data/chapters/ch11.json") ?? new ChapterConfig();
+        cfg = DataStore.LoadJson<ChapterConfig>("res://data/chapters/ch12.json") ?? new ChapterConfig();
 
         AudioManager.Instance?.PlayBgm(AudioManager.BgmGym1, -16f, 1.5f);
 
@@ -138,8 +138,8 @@ public partial class Ch11 : ChapterBase
         ArtAnchor.TrackFraction(shopExitBtn, new Rect2(0.05f, 0.40f, 0.10f, 0.24f));  // 店门口的路
 
         // "点万物有回应"：宿舍 / 小店各一层
-        flavorDorm = MakeFlavorLayer("ch11_dorm");
-        flavorShop = MakeFlavorLayer("ch11_shop");
+        flavorDorm = MakeFlavorLayer("ch12_dorm");
+        flavorShop = MakeFlavorLayer("ch12_shop");
 
         // 骑行层：底图 + 电机声先备好（层默认隐藏）
         ride.SetBackground(GD.Load<Texture2D>("res://assets/art/backgrounds/road_v1.png"));
@@ -259,7 +259,7 @@ public partial class Ch11 : ChapterBase
         UnlockGate("eve");
         LiveEvents.GiveUnread(cfg.JieContact, 2);
 
-        // 为什么去 / 怎么回——第十章的第一个选择，直接摊开
+        // 为什么去 / 怎么回——第十一章的第一个选择，直接摊开
         DialogueManager.Instance.ShowChoice(ChapterId, "why", OnWhyChosen);
     }
 
@@ -275,15 +275,15 @@ public partial class Ch11 : ChapterBase
         {
             case Phase.Eve:
                 if (whyIndex < 0)
-                    ShowHint("hint.ch11_pack");
+                    ShowHint("hint.ch12_pack");
                 else if (packed < 2)
-                    ShowHint("hint.ch11_pack");
+                    ShowHint("hint.ch12_pack");
                 else
-                    ShowHint("hint.ch11_pack_done");
+                    ShowHint("hint.ch12_pack_done");
                 return;
 
             case Phase.Shop:
-                ShowHint(shopMsgDone ? "hint.ch11_shop_done" : "hint.ch11_shop");
+                ShowHint(shopMsgDone ? "hint.ch12_shop_done" : "hint.ch12_shop");
                 return;
 
             case Phase.Road1:
@@ -666,8 +666,8 @@ public partial class Ch11 : ChapterBase
 
         DialogueManager.Instance.PlaySequence(ChapterId, "outro", () =>
         {
-            // r20：第十章尾声改接第十一章《十里长亭》（demo_end 改由第十一章尾声进入）
-            GoToNextChapter("res://scenes/chapters/ch12/ch12.tscn", 11);
+            // r20：第十一章尾声改接第十二章《十里长亭》（demo_end 改由第十二章尾声进入）
+            GoToNextChapter("res://scenes/chapters/ch13/ch13.tscn", 11);
         });
     }
 

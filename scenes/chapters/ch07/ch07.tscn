@@ -1,6 +1,6 @@
-[gd_scene load_steps=11 format=3 uid="uid://ch07scene001"]
+[gd_scene load_steps=11 format=3 uid="uid://ch08scene001"]
 
-[ext_resource type="Script" path="res://scripts/chapters/Ch07.cs" id="1_ch07"]
+[ext_resource type="Script" path="res://scripts/chapters/Ch08.cs" id="1_ch08"]
 [ext_resource type="Texture2D" path="res://assets/art/backgrounds/night_stall_v1.png" id="2_stall"]
 [ext_resource type="Script" path="res://scripts/chapters/DrinkPour.cs" id="3_drink"]
 
@@ -44,15 +44,15 @@ corner_radius_bottom_right = 12
 corner_radius_bottom_left = 12
 corner_detail = 12
 
-[node name="Ch07" type="Control"]
+[node name="Ch08" type="Control"]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-script = ExtResource("1_ch07")
-ChapterTitle = "第七章：放过自己"
+script = ExtResource("1_ch08")
+ChapterTitle = "第八章：放过自己"
 ChapterSubtitle = "酒过三巡，才敢说的话"
 ChapterIndex = 7
 
@@ -153,7 +153,7 @@ theme_override_colors/font_color = Color(1, 0.97, 0.92, 1)
 theme_override_colors/font_outline_color = Color(0.05, 0.05, 0.1, 0.9)
 theme_override_constants/outline_size = 8
 theme_override_font_sizes/font_size = 76
-text = "第七章：放过自己"
+text = "第八章：放过自己"
 horizontal_alignment = 1
 
 [node name="ChapterSubtitle" type="Label" parent="."]

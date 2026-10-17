@@ -1,14 +1,14 @@
 {
-  "_comment": "第十章《向南》的接线参数。聊天三线分层的钥匙 = ch11_gate_{seg}_{line}，line 取 a/b/c（对应 why 选择 0/1/2），由 Ch11 在各幕开始时拼装解锁。老板进对白不进微信。",
+  "_comment": "第十一章《向南》的接线参数。聊天三线分层的钥匙 = ch12_gate_{seg}_{line}，line 取 a/b/c（对应 why 选择 0/1/2），由 Ch12 在各幕开始时拼装解锁。老板进对白不进微信。",
 
   "jieContact": "jie",
-  "jieChat": "ch11_jie",
+  "jieChat": "ch12_jie",
 
   "scooterSfx": "res://assets/audio/sfx/sfx_scooter_loop.wav",
 
   "gates": {
-    "eve": "ch11_gate_eve"
+    "eve": "ch12_gate_eve"
   },
 
-  "gatePrefix": "ch11_gate_"
+  "gatePrefix": "ch12_gate_"
 }

@@ -1,7 +1,7 @@
-[gd_scene load_steps=7 format=3 uid="uid://ch04night001"]
+[gd_scene load_steps=8 format=3 uid="uid://ch05plaza001"]
 
-[ext_resource type="Script" path="res://scripts/chapters/Ch04.cs" id="1_ch04"]
-[ext_resource type="Texture2D" path="res://assets/art/backgrounds/dorm_night_v2.png" id="2_dorm"]
+[ext_resource type="Script" path="res://scripts/chapters/Ch05.cs" id="1_ch05"]
+[ext_resource type="Texture2D" path="res://assets/art/backgrounds/plaza_night_v1.png" id="2_plaza"]
 
 [sub_resource type="StyleBoxFlat" id="SB_hot_normal"]
 bg_color = Color(0, 0, 0, 0)
@@ -19,16 +19,16 @@ border_color = Color(0, 0, 0, 0)
 bg_color = Color(0, 0, 0, 0)
 border_color = Color(0, 0, 0, 0)
 
-[node name="Ch04" type="Control"]
+[node name="Ch05" type="Control"]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-script = ExtResource("1_ch04")
-ChapterTitle = "第四章：晚安"
-ChapterSubtitle = "有些话打了又删，最后没发"
+script = ExtResource("1_ch05")
+ChapterTitle = "第五章：星月"
+ChapterSubtitle = "灯柱数到第七根，就到家了"
 ChapterIndex = 4
 
 [node name="Background" type="TextureRect" parent="."]
@@ -38,7 +38,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-texture = ExtResource("2_dorm")
+texture = ExtResource("2_plaza")
 expand_mode = 1
 stretch_mode = 6
 
@@ -49,7 +49,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.02, 0.02, 0.1, 0.3)
+color = Color(0.02, 0.02, 0.1, 0.25)
 
 [node name="ChapterTitle" type="Label" parent="."]
 layout_mode = 1
@@ -68,7 +68,7 @@ theme_override_colors/font_color = Color(1, 0.97, 0.92, 1)
 theme_override_colors/font_outline_color = Color(0.05, 0.05, 0.1, 0.9)
 theme_override_constants/outline_size = 8
 theme_override_font_sizes/font_size = 76
-text = "第四章：晚安"
+text = "第五章：星月"
 horizontal_alignment = 1
 
 [node name="ChapterSubtitle" type="Label" parent="."]
@@ -86,7 +86,7 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_colors/font_color = Color(0.35, 0.37, 0.45, 1)
 theme_override_font_sizes/font_size = 24
-text = "有些话打了又删，最后没发"
+text = "灯柱数到第七根，就到家了"
 horizontal_alignment = 1
 
 [node name="HintLabel" type="Label" parent="."]
@@ -103,7 +103,7 @@ theme_override_colors/font_color = Color(1, 0.95, 0.85, 1)
 theme_override_colors/font_outline_color = Color(0.05, 0.05, 0.1, 1)
 theme_override_constants/outline_size = 10
 theme_override_font_sizes/font_size = 24
-text = "（手机在桌上。夜还长。）"
+text = "（喷泉边站着一个人。夜风把她的外套吹得鼓起来。）"
 horizontal_alignment = 1
 
 [node name="Hotspots" type="Control" parent="."]
@@ -115,7 +115,7 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
-[node name="PhoneBtn" type="Button" parent="Hotspots"]
+[node name="FountainBtn" type="Button" parent="Hotspots"]
 layout_mode = 1
 mouse_filter = 0
 theme_override_styles/normal = SubResource("SB_hot_normal")
@@ -123,7 +123,23 @@ theme_override_styles/hover = SubResource("SB_hot_hover")
 theme_override_styles/pressed = SubResource("SB_hot_pressed")
 theme_override_styles/disabled = SubResource("SB_hot_disabled")
 
-[node name="BedBtn" type="Button" parent="Hotspots"]
+[node name="BenchBtn" type="Button" parent="Hotspots"]
+layout_mode = 1
+mouse_filter = 0
+theme_override_styles/normal = SubResource("SB_hot_normal")
+theme_override_styles/hover = SubResource("SB_hot_hover")
+theme_override_styles/pressed = SubResource("SB_hot_pressed")
+theme_override_styles/disabled = SubResource("SB_hot_disabled")
+
+[node name="LampBtn" type="Button" parent="Hotspots"]
+layout_mode = 1
+mouse_filter = 0
+theme_override_styles/normal = SubResource("SB_hot_normal")
+theme_override_styles/hover = SubResource("SB_hot_hover")
+theme_override_styles/pressed = SubResource("SB_hot_pressed")
+theme_override_styles/disabled = SubResource("SB_hot_disabled")
+
+[node name="HerBtn" type="Button" parent="Hotspots"]
 layout_mode = 1
 mouse_filter = 0
 theme_override_styles/normal = SubResource("SB_hot_normal")

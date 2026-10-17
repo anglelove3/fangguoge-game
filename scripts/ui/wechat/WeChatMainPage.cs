@@ -195,8 +195,8 @@ public partial class WeChatMainPage : Control
     }
 
     /// <summary>
-    /// 会话列表的显示顺序（第九章《置顶》）：被置顶的排前面，其余按 contacts.json 原序。
-    /// 列表顶部显示的就是第八章玩家起的那个备注名——置顶的是"人"，不是名字。
+    /// 会话列表的显示顺序（第十一章《置顶》）：被置顶的排前面，其余按 contacts.json 原序。
+    /// 列表顶部显示的就是第十章玩家起的那个备注名——置顶的是"人"，不是名字。
     /// </summary>
     private List<ContactData> OrderForList(ContactsData contacts)
     {
@@ -270,7 +270,7 @@ public partial class WeChatMainPage : Control
         time.SizeFlagsVertical = SizeFlags.ShrinkBegin;
         hbox.AddChild(time);
 
-        // 置顶角标（第九章）：被置顶的会话，时间左边挂一个淡淡的"置顶"
+        // 置顶角标（第十一章）：被置顶的会话，时间左边挂一个淡淡的"置顶"
         if (GameManager.Instance?.IsPinned(c.Id) == true)
         {
             var pin = MakeLabel(DataStore.Text("wx.pin_badge"), 20, new Color(0.62f, 0.62f, 0.66f));
@@ -284,7 +284,7 @@ public partial class WeChatMainPage : Control
     }
 
     /// <summary>
-    /// 长按 0.55 秒 → 弹微信式会话菜单（第九章《置顶》的主线演出）。
+    /// 长按 0.55 秒 → 弹微信式会话菜单（第十一章《置顶》的主线演出）。
     /// 菜单弹出的瞬间把行 Disabled 掉——不然手指一松，"松开"会被 Button 当成一次
     /// Pressed，菜单还没看清就直接点进聊天了。菜单合上再恢复。
     /// </summary>

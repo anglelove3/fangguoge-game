@@ -2,7 +2,7 @@ using Godot;
 using System.Collections.Generic;
 
 /// <summary>
-/// 第五章：手滑
+/// 第六章：手滑
 ///
 /// 流程：分手当夜凌晨的宿舍 → 打开旧聊天（只读 + 幽灵打字）
 ///      → 深夜三选一（出去走走 / 继续看手机 / 打电话给朋友）
@@ -14,7 +14,7 @@ using System.Collections.Generic;
 /// </summary>
 public partial class Ch05 : ChapterBase
 {
-    private const string ChapterId = "ch05"; // 对应 data/dialogues/ch05.json
+    private const string ChapterId = "ch06"; // 对应 data/dialogues/ch06.json
 
     private TextureRect background;
     private Control hotspotsRoot;
@@ -36,7 +36,7 @@ public partial class Ch05 : ChapterBase
 
     protected override void OnChapterReady()
     {
-        GD.Print("第五章：手滑 —— 凌晨一点半，手滑点开了旧聊天");
+        GD.Print("第六章：手滑 —— 凌晨一点半，手滑点开了旧聊天");
 
         // 第十一轮 B4：这一章是深夜，换第三首吉姆诺佩蒂（更慢、更空）
         // 第十一轮 B4：这一章是深夜，换第三首吉姆诺佩蒂（更慢、更空）
@@ -70,8 +70,8 @@ public partial class Ch05 : ChapterBase
         if (GameManager.Instance.HasHiddenItem("earphone"))
             earphonePatch.HideImmediately(); // 读档进来就已经收过了
 
-        // "点万物有回应"：窗外的灯、柜门上的照片、那两桶泡面（data/flavor/ch05.json）
-        AddChild(FlavorSpots.Create(hotspotsRoot, "ch05"));
+        // "点万物有回应"：窗外的灯、柜门上的照片、那两桶泡面（data/flavor/ch06.json）
+        AddChild(FlavorSpots.Create(hotspotsRoot, "ch06"));
 
         // "手机活起来"：手机热点右上角挂小红点（有未读消息时自己亮起来）
         LiveEvents.AttachPhoneDot(phoneBtn);
@@ -126,11 +126,11 @@ public partial class Ch05 : ChapterBase
         UpdateHint();
 
         // "手机活起来"：凌晨的宿舍里，li-lab 群有人还在报仪器空档
-        LiveEvents.Fire(this, "ch05", "ch05_sanjin_lab");
+        LiveEvents.Fire(this, "ch06", "ch06_sanjin_lab");
 
         // 分手之后，宝宝那头迟到的两句收尾（对不起 / 照顾好自己）
-        LiveEvents.Fire(this, "ch05", "ch05_baobao_sorry");
-        LiveEvents.Fire(this, "ch05", "ch05_baobao_care");
+        LiveEvents.Fire(this, "ch06", "ch06_baobao_sorry");
+        LiveEvents.Fire(this, "ch06", "ch06_baobao_care");
     }
 
     private void UpdateHint()
@@ -141,8 +141,8 @@ public partial class Ch05 : ChapterBase
             return;
         }
         hintLabel.Text = phoneSeenOnce
-            ? DataStore.Text("hint.ch05_done")
-            : DataStore.Text("hint.ch05", phoneSeenOnce ? 1 : 0, 1);
+            ? DataStore.Text("hint.ch06_done")
+            : DataStore.Text("hint.ch06", phoneSeenOnce ? 1 : 0, 1);
     }
 
     // ==================== 手机：打开旧聊天 ====================
@@ -170,7 +170,7 @@ public partial class Ch05 : ChapterBase
     }
 
     /// <summary>
-    /// 打开和她的旧聊天（只读 + 幽灵打字，内容在 data/chat/ch05_old_chat.json）。
+    /// 打开和她的旧聊天（只读 + 幽灵打字，内容在 data/chat/ch06_old_chat.json）。
     /// 第一次收起手机后会播"打了又删"的感想，然后进入深夜选择。
     /// </summary>
     private void OpenOldChat()
@@ -196,7 +196,7 @@ public partial class Ch05 : ChapterBase
                 });
             }
         };
-        overlay.Open("ch05_old_chat");
+        overlay.Open("ch06_old_chat");
     }
 
     // ==================== 彩蛋热点 ====================
@@ -271,8 +271,8 @@ public partial class Ch05 : ChapterBase
         {
             DialogueManager.Instance.PlaySequence(ChapterId, "outro", () =>
             {
-                // r13：第四章之后不再是"试玩结束"，接上正式剧情 第五章《碧蓝蓝天》
-                GoToNextChapter("res://scenes/chapters/ch06/ch06.tscn", 5);
+                // r13：第五章之后不再是"试玩结束"，接上正式剧情 第六章《碧蓝蓝天》
+                GoToNextChapter("res://scenes/chapters/ch07/ch07.tscn", 5);
             });
         }));
     }

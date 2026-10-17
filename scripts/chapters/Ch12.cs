@@ -2,16 +2,16 @@ using Godot;
 using System.Collections.Generic;
 
 /// <summary>
-/// 第十二章：十里长亭
+/// 第十三章：十里长亭
 ///
 /// 流程（五段，一个傍晚）：
-///   老街   —— 按 ch11 的电量选择分流开场（骑到街口 / 推车进城）→ 她的定位 → 出街
+///   老街   —— 按 ch12 的电量选择分流开场（骑到街口 / 推车进城）→ 她的定位 → 出街
 ///   长堤   —— 「长亭是送别用的，今天这条是迎接的」→ 缓慢推近 → approach 心声 → 路灯下的身影
 ///   见面   —— firstword：见面第一句话（全书最重的一句，三选一）→ 并肩走
 ///   小馆   —— 一碗热汤 + 翻相册（一张都没有）+ 导航记录 + 「回去坐高铁」「下次」→ nexttime 心声
 ///   夜堤   —— 沿堤走回去 → 「一千公里换了意思」→ 尾声 → 结束页
 ///
-/// 【与第十章的联动】开场形态由 ch11_charge1 的选择决定：稳充线骑到街口才下车；
+/// 【与第十一章的联动】开场形态由 ch12_charge1 的选择决定：稳充线骑到街口才下车；
 /// 赌线电量耗尽在坡下、推 5 公里进城——「越接近越慢」的物理版。
 ///
 /// 【BGM】老街 No.1 → 长堤 No.3（慢板）→ 小馆 No.1 → 夜堤 No.3，不再用公路曲——
@@ -19,9 +19,9 @@ using System.Collections.Generic;
 /// </summary>
 public partial class Ch12 : ChapterBase
 {
-    private const string ChapterId = "ch12";
+    private const string ChapterId = "ch13";
 
-    // ==================== 章节参数（data/chapters/ch12.json） ====================
+    // ==================== 章节参数（data/chapters/ch13.json） ====================
 
     private class ChapterConfig
     {
@@ -62,7 +62,7 @@ public partial class Ch12 : ChapterBase
     private enum Phase { Street, Walk, Meet, Supper, Night }
     private Phase phase = Phase.Street;
 
-    private int chargeIndex = 0;     // 第十章的电量选择（0 稳 / 1 赌）——开场分流用
+    private int chargeIndex = 0;     // 第十一章的电量选择（0 稳 / 1 赌）——开场分流用
     private bool phoneDone;          // 老街：定位看过了
     private bool finished;           // 尾声播放中
 
@@ -73,12 +73,12 @@ public partial class Ch12 : ChapterBase
 
     protected override void OnChapterReady()
     {
-        GD.Print("第十二章：十里长亭 —— 越接近，越慢");
+        GD.Print("第十三章：十里长亭 —— 越接近，越慢");
 
-        cfg = DataStore.LoadJson<ChapterConfig>("res://data/chapters/ch12.json") ?? new ChapterConfig();
+        cfg = DataStore.LoadJson<ChapterConfig>("res://data/chapters/ch13.json") ?? new ChapterConfig();
 
-        // 读第十章的电量选择：骑/推开场分流（没记录时按稳充 0 兜底）
-        if (GameManager.Instance.ChoiceHistory.TryGetValue("ch11_charge1", out var saved))
+        // 读第十一章的电量选择：骑/推开场分流（没记录时按稳充 0 兜底）
+        if (GameManager.Instance.ChoiceHistory.TryGetValue("ch12_charge1", out var saved))
             chargeIndex = saved == 1 ? 1 : 0;
 
         AudioManager.Instance?.PlayBgm(AudioManager.BgmGym1, -18f, 1.5f);
@@ -107,8 +107,8 @@ public partial class Ch12 : ChapterBase
         ArtAnchor.TrackFraction(gateBtn, new Rect2(0.05f, 0.38f, 0.10f, 0.24f));      // 老街路口，往堤去
         ArtAnchor.TrackFraction(shopExitBtn, new Rect2(0.05f, 0.38f, 0.10f, 0.24f));  // 小馆门口
 
-        flavorStreet = MakeFlavorLayer("ch12_street");
-        flavorBank = MakeFlavorLayer("ch12_bank");
+        flavorStreet = MakeFlavorLayer("ch13_street");
+        flavorBank = MakeFlavorLayer("ch13_bank");
 
         UiSounds.WireAll(this);
 
@@ -218,18 +218,18 @@ public partial class Ch12 : ChapterBase
         {
             case Phase.Street:
                 if (!phoneDone)
-                    ShowHint("hint.ch12_phone");
+                    ShowHint("hint.ch13_phone");
                 else
-                    ShowHint("hint.ch12_phone_done");
+                    ShowHint("hint.ch13_phone_done");
                 return;
 
             case Phase.Walk:
             case Phase.Meet:
-                ShowHint("hint.ch12_meet");
+                ShowHint("hint.ch13_meet");
                 return;
 
             case Phase.Supper:
-                ShowHint("hint.ch12_phone_done");
+                ShowHint("hint.ch13_phone_done");
                 return;
         }
 

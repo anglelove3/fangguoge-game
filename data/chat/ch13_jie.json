@@ -1,0 +1,20 @@
+{
+  "title": "江洁",
+  "_comment": "第十三章《十里长亭》私聊：量少而轻——老街的定位段 + 夜里的收束段，两把幕门。三线分层在第十二章已经演完，这一章她的心态是统一的：等他，心疼他，然后是「下次」。",
+  "messages": [
+    { "type": "divider", "text": "周日 傍晚 6:25", "gateChoice": "ch13_gate_street" },
+    { "sender": "other", "type": "text", "senderName": "江洁", "text": "你别动！！我打车过来！", "gateChoice": "ch13_gate_street" },
+    { "sender": "me", "type": "text", "text": "别。我来找你。", "gateChoice": "ch13_gate_street" },
+    { "sender": "other", "type": "text", "senderName": "江洁", "text": "[定位] 江堤 · 观景步道", "gateChoice": "ch13_gate_street" },
+    { "sender": "other", "type": "text", "senderName": "江洁", "text": "我在江堤等你。你顺路。", "gateChoice": "ch13_gate_street" },
+    { "sender": "me", "type": "text", "text": "好。十分钟。", "gateChoice": "ch13_gate_street" },
+
+    { "type": "divider", "text": "周日 夜里 10:47", "gateChoice": "ch13_gate_night" },
+    { "sender": "other", "type": "text", "senderName": "江洁", "text": "到了跟我说一声。", "gateChoice": "ch13_gate_night" },
+    { "sender": "me", "type": "text", "text": "到了。旅馆很近。", "gateChoice": "ch13_gate_night" },
+    { "sender": "other", "type": "text", "senderName": "江洁", "text": "嗯。明天……开学再说。早点睡。", "gateChoice": "ch13_gate_night" },
+    { "sender": "me", "type": "text", "text": "嗯。晚安。", "gateChoice": "ch13_gate_night" },
+    { "sender": "other", "type": "text", "senderName": "江洁", "text": "[月亮]", "gateChoice": "ch13_gate_night" },
+    { "sender": "other", "type": "sticker", "senderName": "江洁", "image": "res://assets/art/stickers/sticker_wanan.png" }
+  ]
+}

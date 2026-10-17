@@ -2,13 +2,13 @@ using Godot;
 using System.Collections.Generic;
 
 /// <summary>
-/// 第九章：还想再见
+/// 第十章：还想再见
 ///
 /// 流程（六幕，跨六天）：
 ///   第 1 幕 周一夜·宿舍 —— 群里 47 条消息 + 三条删掉的草稿（ghost typing）→ 发出去哪句（draft）
 ///   第 2 幕 周二·实验室 —— 小米师妹推名片 → 微信「新的朋友」真的加好友 → 第一句发什么（心声）
 ///                        → 第一次能真的打字（会话预设回复）
-///   第 3 幕 周三夜·宿舍 —— 给她的备注改成什么（remark，落档进存档，第九章《置顶》要用）
+///   第 3 幕 周三夜·宿舍 —— 给她的备注改成什么（remark，落档进存档，第十章《置顶》要用）
 ///   第 4 幕 周六·婚宴    —— 签到簿 / 婚纱照背景布 / 喜糖盒（隐藏物品：一枚没拉的礼花筒）
 ///                        → 被起哄"有没有情况"（toast）→ 散席门口的心声
 ///   第 5 幕 周六夜·宿舍 —— 第二次见面去哪儿（where）
@@ -22,14 +22,14 @@ using System.Collections.Generic;
 ///
 /// 【人物不写死在代码里】
 /// 谁要加好友、群聊叫什么、捡哪件隐藏物品、每一幕震一下的是哪条动态事件、
-/// 备注的三个候选文案——全部在 data/chapters/ch09.json。
+/// 备注的三个候选文案——全部在 data/chapters/ch10.json。
 /// 换人、改文案、调事件顺序都不用碰这个文件。
 /// </summary>
 public partial class Ch09 : ChapterBase
 {
-    private const string ChapterId = "ch09";
+    private const string ChapterId = "ch10";
 
-    // ==================== 章节参数（data/chapters/ch09.json） ====================
+    // ==================== 章节参数（data/chapters/ch10.json） ====================
 
     /// <summary>JSON 模型：字段一律写成 public 属性（DataStore 的解析器只认属性）</summary>
     private class ChapterConfig
@@ -118,9 +118,9 @@ public partial class Ch09 : ChapterBase
 
     protected override void OnChapterReady()
     {
-        GD.Print("第九章：还想再见 —— 有些话憋着会发酸");
+        GD.Print("第十章：还想再见 —— 有些话憋着会发酸");
 
-        cfg = DataStore.LoadJson<ChapterConfig>("res://data/chapters/ch09.json") ?? new ChapterConfig();
+        cfg = DataStore.LoadJson<ChapterConfig>("res://data/chapters/ch10.json") ?? new ChapterConfig();
 
         AudioManager.Instance?.PlayBgm(AudioManager.BgmGym2, -16f, 1.5f);
 
@@ -187,9 +187,9 @@ public partial class Ch09 : ChapterBase
             crackerPatch.HideImmediately(); // 读档进来就已经收过了
 
         // "点万物有回应"：三个场景各一套，跟着幕开关
-        flavorDorm = MakeFlavorLayer("ch09_dorm");
-        flavorLab = MakeFlavorLayer("ch09_lab");
-        flavorWedding = MakeFlavorLayer("ch09_wedding");
+        flavorDorm = MakeFlavorLayer("ch10_dorm");
+        flavorLab = MakeFlavorLayer("ch10_lab");
+        flavorWedding = MakeFlavorLayer("ch10_wedding");
 
         // "手机活起来"：三台手机都挂小红点
         LiveEvents.AttachPhoneDot(phoneBtn);
@@ -235,7 +235,7 @@ public partial class Ch09 : ChapterBase
         var layer = new Control { MouseFilter = Control.MouseFilterEnum.Ignore };
         layer.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
         hotspotsRoot.AddChild(layer);
-        // 风味层垫到最底下：剧情主热区永远优先接住点击（和第七章同一条规矩）
+        // 风味层垫到最底下：剧情主热区永远优先接住点击（和第八章同一条规矩）
         hotspotsRoot.MoveChild(layer, 0);
         AddChild(FlavorSpots.Create(layer, flavorId));
         return layer;
@@ -360,37 +360,37 @@ public partial class Ch09 : ChapterBase
         switch (phase)
         {
             case Phase.Dorm1:
-                ShowHint(draftChosen ? "hint.ch09_sleep1" : "hint.ch09_phone");
+                ShowHint(draftChosen ? "hint.ch10_sleep1" : "hint.ch10_phone");
                 return;
 
             case Phase.Lab:
                 if (labEndPlayed)
-                    ShowHint("hint.ch09_lab_done");
+                    ShowHint("hint.ch10_lab_done");
                 else if (GameManager.Instance.IsFriended(cfg.FriendContact))
-                    ShowHint("hint.ch09_jie");
+                    ShowHint("hint.ch10_jie");
                 else
-                    ShowHint("hint.ch09_card");
+                    ShowHint("hint.ch10_card");
                 return;
 
             case Phase.Dorm2:
                 if (remarkChosen)
-                    ShowHint("hint.ch09_sleep2");
+                    ShowHint("hint.ch10_sleep2");
                 else
                     hintLabel.Visible = false; // 备注那三张牌正摊在屏幕上，不用再提示
                 return;
 
             case Phase.Wedding:
                 if (toastChosen)
-                    ShowHint("hint.ch09_leave");
+                    ShowHint("hint.ch10_leave");
                 else if (candyTaken)
-                    ShowHint("hint.ch09_toast");
+                    ShowHint("hint.ch10_toast");
                 else
-                    ShowHintArg("hint.ch09_wedding", WeddingSpotsSeen(), 3);
+                    ShowHintArg("hint.ch10_wedding", WeddingSpotsSeen(), 3);
                 return;
 
             case Phase.Dorm3:
                 if (whereChosen)
-                    ShowHint("hint.ch09_sleep3");
+                    ShowHint("hint.ch10_sleep3");
                 else
                     hintLabel.Visible = false; // 去哪儿的三张牌正摊在屏幕上
                 return;
@@ -662,7 +662,7 @@ public partial class Ch09 : ChapterBase
         lastActivityMsec = Time.GetTicksMsec();
         UpdateHint();
 
-        // 备注：改完就落档，微信列表 / 聊天顶栏当场跟着变（第九章《置顶》直接读这个变量）
+        // 备注：改完就落档，微信列表 / 聊天顶栏当场跟着变（第十章《置顶》直接读这个变量）
         DialogueManager.Instance.ShowChoice(ChapterId, "remark", OnRemarkChosen);
     }
 
@@ -742,7 +742,7 @@ public partial class Ch09 : ChapterBase
         dm.PlaySequence(ChapterId, "photo_cloth");
     }
 
-    /// <summary>喜糖盒 → 叶冰玉塞过来一枚没拉的礼花筒（本章的隐藏物品，第九章的钩子）</summary>
+    /// <summary>喜糖盒 → 叶冰玉塞过来一枚没拉的礼花筒（本章的隐藏物品，第十章的钩子）</summary>
     private void OnCandyPressed()
     {
         var dm = DialogueManager.Instance;
@@ -872,7 +872,7 @@ public partial class Ch09 : ChapterBase
 
         DialogueManager.Instance.PlaySequence(ChapterId, "outro", () =>
         {
-            GoToNextChapter("res://scenes/chapters/ch10/ch10.tscn", 9);
+            GoToNextChapter("res://scenes/chapters/ch11/ch11.tscn", 9);
         });
     }
 

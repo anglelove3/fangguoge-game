@@ -24,7 +24,7 @@ public static class WeChatData
     /// <summary>
     /// 联系人列表：原始表只读一次，每次按当前章节过滤后再交付。
     /// （afterChapter 没到的联系人先不出现——比如「今天吃什么研讨组」，
-    ///   玩家进到第五章，这群朋友才会出现在会话列表里。）
+    ///   玩家进到第七章，这群朋友才会出现在会话列表里。）
     /// 注意：只换列表容器，联系人对象还是同一批引用，红点/新消息照样共用。
     /// </summary>
     public static ContactsData LoadContacts()
@@ -37,7 +37,7 @@ public static class WeChatData
             if (c.AfterChapter > chapter)
                 continue;
             // 已删除的联系人：微信原话"将同时删除与该联系人的聊天记录"——
-            // 列表里连名字都不该再有（第六章《放过自己》之后，宝宝就是这么消失的）。
+            // 列表里连名字都不该再有（第八章《放过自己》之后，宝宝就是这么消失的）。
             if (gm != null && gm.IsDeleted(c.Id))
                 continue;
             // requiresFriend：加了好友才出现在列表里（江洁走这条——她不是"到第几章就自动认识了"，
@@ -194,7 +194,7 @@ public class ContactData
 
     /// <summary>
     /// 同一份会话往后换剧本：键 = 从第几章起，值 = 那之后读 data/chat/{值}.json。
-    /// {"8":"ch09_group"} 的意思是"到了第八章，这个群聊的是 ch09_group.json"。
+    /// {"8":"ch10_group"} 的意思是"到了第十章，这个群聊的是 ch10_group.json"。
     /// 【为什么要它】群是活的：周六攒的局和周一夜里追问的局不该是同一份记录，
     /// 可联系人只有一个。往后第九、十章的群聊、和江洁的私聊，都走这条。
     /// </summary>
@@ -256,7 +256,7 @@ public class ContactData
     public List<string> GroupAvatars { get; set; } = new();
 
     /// <summary>
-    /// 这位联系人从第几章开始出现（0 = 一开始就在；5 = 玩家进到第五章才认识这群朋友）。
+    /// 这位联系人从第几章开始出现（0 = 一开始就在；5 = 玩家进到第七章才认识这群朋友）。
     /// 用来让联系人列表跟着剧情走——人不是凭空冒出来的。
     /// </summary>
     public int AfterChapter { get; set; }
@@ -276,7 +276,7 @@ public class ContactData
     /// <summary>加好友时顺手记进关系账的事件 id（留空 = 只记"加了好友"这一笔）</summary>
     public string FriendEvent { get; set; } = "";
 
-    /// <summary>加成功时给 ta 的会话挂几条未读（0 = 不挂红点；第八章江洁 = 1）</summary>
+    /// <summary>加成功时给 ta 的会话挂几条未读（0 = 不挂红点；第十章江洁 = 1）</summary>
     public int UnreadOnAdd { get; set; }
 
     /// <summary>点开的页面："subscriptions" = 订阅号文章列表，"steps" = 微信运动排行；留空 = 聊天页</summary>

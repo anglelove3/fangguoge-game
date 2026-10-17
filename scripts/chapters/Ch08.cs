@@ -1,14 +1,14 @@
 using Godot;
 
 /// <summary>
-/// 第八章：三点水
+/// 第九章：三点水
 ///
 /// 流程：周六傍晚的宿舍（群里在攒局「今天的局」）
 ///      → 收起手机出门 → 罗曼蒂克（台球房：第一次见到江洁）
 ///      → 上台真打一局台球（第十五轮：BilliardGame.cs 物理小游戏，三杆定胜负）
 ///      → 皖江宴包厢（选座位：挨着她坐 or 靠门坐）
 ///      → 开席（师妹桌子底下递话的心声微选择）→ 三选一：第一段话说什么
-///      → 散场的尾声（三点水三个字落地）→ 第八章《还想再见》
+///      → 散场的尾声（三点水三个字落地）→ 第九章《还想再见》
 ///
 /// 【本章演出核心】
 ///   - 台球桌是"真"的：第十五轮换成了能瞄准、能拉杆、能进袋的一局物理台球。
@@ -18,8 +18,8 @@ using Godot;
 /// </summary>
 public partial class Ch08 : ChapterBase
 {
-    private const string ChapterId = "ch08";
-    private const string GroupChatFile = "ch08_plan"; // 对应 data/chat/ch08_plan.json
+    private const string ChapterId = "ch09";
+    private const string GroupChatFile = "ch09_plan"; // 对应 data/chat/ch09_plan.json
 
     private TextureRect bgDorm;
     private TextureRect bgRmt;
@@ -60,7 +60,7 @@ public partial class Ch08 : ChapterBase
 
     protected override void OnChapterReady()
     {
-        GD.Print("第八章：三点水 —— 朋友攒的局，和一个名字里有水的姑娘");
+        GD.Print("第九章：三点水 —— 朋友攒的局，和一个名字里有水的姑娘");
 
         AudioManager.Instance?.PlayBgm(AudioManager.BgmGym1, -14f, 1.5f);
 
@@ -93,9 +93,9 @@ public partial class Ch08 : ChapterBase
         ArtAnchor.TrackFraction(seatFarBtn, new Rect2(0.15f, 0.43f, 0.18f, 0.29f));
 
         // "点万物有回应"：三个场景各一套，跟着阶段开关
-        flavorDorm = MakeFlavorLayer("ch08_dorm");
-        flavorRmt = MakeFlavorLayer("ch08_rmt");
-        flavorWjy = MakeFlavorLayer("ch08_wjy");
+        flavorDorm = MakeFlavorLayer("ch09_dorm");
+        flavorRmt = MakeFlavorLayer("ch09_rmt");
+        flavorWjy = MakeFlavorLayer("ch09_wjy");
 
         // "手机活起来"：手机热点右上角挂小红点
         LiveEvents.AttachPhoneDot(phoneBtn);
@@ -220,7 +220,7 @@ public partial class Ch08 : ChapterBase
                     hintLabel.Visible = false;
                     return;
                 }
-                hintLabel.Text = DataStore.Text("hint.ch08_phone");
+                hintLabel.Text = DataStore.Text("hint.ch09_phone");
                 return;
 
             case Phase.Rmt:
@@ -229,11 +229,11 @@ public partial class Ch08 : ChapterBase
                     hintLabel.Visible = false;
                     return;
                 }
-                hintLabel.Text = DataStore.Text("hint.ch08_cue");
+                hintLabel.Text = DataStore.Text("hint.ch09_cue");
                 return;
 
             case Phase.Wjy:
-                hintLabel.Text = DataStore.Text(seated ? "hint.ch08_done" : "hint.ch08_seat");
+                hintLabel.Text = DataStore.Text(seated ? "hint.ch09_done" : "hint.ch09_seat");
                 return;
         }
     }
@@ -265,7 +265,7 @@ public partial class Ch08 : ChapterBase
             OpenWechatMain();
     }
 
-    /// <summary>打开「今天的局」（内容在 data/chat/ch08_plan.json）。第一次收起手机会出门。</summary>
+    /// <summary>打开「今天的局」（内容在 data/chat/ch09_plan.json）。第一次收起手机会出门。</summary>
     private void OpenGroupChat()
     {
         chatOpen = true;
@@ -396,7 +396,7 @@ public partial class Ch08 : ChapterBase
         UpdateHint();
 
         // "手机活起来"：饭吃到一半，叶冰玉的婚礼请帖悄悄到
-        LiveEvents.Fire(this, ChapterId, "ch08_yebingyu_wedding");
+        LiveEvents.Fire(this, ChapterId, "ch09_yebingyu_wedding");
     }
 
     // ==================== 选座位 ====================
@@ -415,7 +415,7 @@ public partial class Ch08 : ChapterBase
         seatFarBtn.Visible = false;
 
         // 记一笔"坐哪儿"（结束页的选择回顾用；不加好感/勇气）
-        RecordChoice("ch08_seat", index);
+        RecordChoice("ch09_seat", index);
         UpdateHint();
 
         dm.PlaySequence(ChapterId, index == 0 ? "seat_near" : "seat_far", () =>
@@ -452,7 +452,7 @@ public partial class Ch08 : ChapterBase
 
         DialogueManager.Instance.PlaySequence(ChapterId, "outro", () =>
         {
-            GoToNextChapter("res://scenes/chapters/ch09/ch09.tscn", 8);
+            GoToNextChapter("res://scenes/chapters/ch10/ch10.tscn", 8);
         });
     }
 

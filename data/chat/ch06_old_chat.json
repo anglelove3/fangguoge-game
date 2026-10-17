@@ -1,0 +1,27 @@
+{
+  "title": "宝宝（前女友）",
+  "readOnly": true,
+  "readOnlyHint": "……",
+  "readOnlyToast": "你把手缩了回来。",
+  "ghostTyping": {
+    "text": "最近还好吗",
+    "startDelay": 1.8,
+    "typeSpeed": 0.16,
+    "hold": 1.2,
+    "deleteSpeed": 0.07,
+    "afterToast": "打了很久，你还是一个字一个字删掉了。"
+  },
+  "messages": [
+    { "type": "divider", "text": "昨天 15:12" },
+    { "sender": "her", "type": "text", "text": "我到了，明天下午三点，老地方。" },
+    { "sender": "me", "type": "text", "text": "好。" },
+    { "type": "divider", "text": "今天 15:02" },
+    { "sender": "me", "type": "text", "text": "我到了，靠窗那个位子。" },
+    { "type": "divider", "text": "今天 17:20" },
+    { "sender": "her", "type": "text", "text": "我回酒店了。今天……对不起。" },
+    { "sender": "me", "type": "text", "text": "没事。" },
+    { "type": "divider", "text": "今天 23:41" },
+    { "sender": "her", "type": "text", "text": "以后……照顾好自己。" },
+    { "type": "divider", "text": "从那以后，再也没有新消息" }
+  ]
+}

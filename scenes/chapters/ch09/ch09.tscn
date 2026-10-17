@@ -1,6 +1,6 @@
-[gd_scene load_steps=13 format=3 uid="uid://ch09scene001"]
+[gd_scene load_steps=13 format=3 uid="uid://ch10scene001"]
 
-[ext_resource type="Script" path="res://scripts/chapters/Ch09.cs" id="1_ch09"]
+[ext_resource type="Script" path="res://scripts/chapters/Ch10.cs" id="1_ch10"]
 [ext_resource type="Texture2D" path="res://assets/art/backgrounds/dorm_night_v2.png" id="2_dorm"]
 [ext_resource type="Texture2D" path="res://assets/art/backgrounds/day_lab_v1.png" id="3_lab"]
 [ext_resource type="Texture2D" path="res://assets/art/backgrounds/wedding_hall_v1.png" id="4_wedding"]
@@ -46,15 +46,15 @@ corner_radius_bottom_right = 12
 corner_radius_bottom_left = 12
 corner_detail = 12
 
-[node name="Ch09" type="Control"]
+[node name="Ch10" type="Control"]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-script = ExtResource("1_ch09")
-ChapterTitle = "第九章：还想再见"
+script = ExtResource("1_ch10")
+ChapterTitle = "第十章：还想再见"
 ChapterSubtitle = "憋着会发酸"
 ChapterIndex = 9
 
@@ -316,7 +316,7 @@ theme_override_colors/font_color = Color(1, 0.97, 0.92, 1)
 theme_override_colors/font_outline_color = Color(0.05, 0.05, 0.1, 0.9)
 theme_override_constants/outline_size = 8
 theme_override_font_sizes/font_size = 76
-text = "第九章：还想再见"
+text = "第十章：还想再见"
 horizontal_alignment = 1
 
 [node name="ChapterSubtitle" type="Label" parent="."]

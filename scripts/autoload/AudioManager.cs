@@ -16,7 +16,7 @@ using System.Collections.Generic;
 ///
 /// 【第十一轮新增】
 ///   1) 音量受设置页控制：玩家设置的 音乐/音效 音量会换算成分贝叠加上去；
-///   2) 换 BGM 支持交叉淡入淡出（双播放器轮流上），第三章/第四章不再共用一首；
+///   2) 换 BGM 支持交叉淡入淡出（双播放器轮流上），第三章/第六章不再共用一首；
 ///   3) 补了 6 个新音效（卡片飞入、放上天平、天平吱呀、金属轻碰、键盘、柔和确定）。
 /// </summary>
 public partial class AudioManager : Node
@@ -44,25 +44,25 @@ public partial class AudioManager : Node
 	public const string SfxMetalTap = "res://assets/audio/sfx/sfx_metal_tap.ogg";   // 金属轻碰（碰托盘）
 	public const string SfxKeyboard = "res://assets/audio/sfx/sfx_keyboard.ogg";    // 幽灵打字的键盘声
 	public const string SfxConfirmSoft = "res://assets/audio/sfx/sfx_confirm_soft.ogg"; // 轻一点的确认（放补偿物）
-	public const string SfxPour = "res://assets/audio/sfx/sfx_pour.wav";            // 倒酒（第六章）
-	public const string SfxClink = "res://assets/audio/sfx/sfx_clink.wav";          // 碰杯（第六章）
-	public const string SfxBallClack = "res://assets/audio/sfx/sfx_ball_clack.wav";     // 台球撞击（第七章）
-	public const string SfxPocketDrop = "res://assets/audio/sfx/sfx_pocket_drop.wav";   // 球落袋（第七章）
-	public const string SfxMahjongLoop = "res://assets/audio/sfx/sfx_mahjong_loop.wav"; // 麻将声无缝循环（第七章）
-	public const string SfxWeddingCrowdLoop = "res://assets/audio/sfx/sfx_wedding_crowd_loop.wav"; // 婚宴人声鼎沸无缝循环（第八章）
-	public const string SfxPartyPopper = "res://assets/audio/sfx/sfx_party_popper.wav"; // 礼花筒拉响（第九章）
-	public const string SfxRiverWindLoop = "res://assets/audio/sfx/sfx_river_wind_loop.wav"; // 河堤风声无缝循环（第九章）
+	public const string SfxPour = "res://assets/audio/sfx/sfx_pour.wav";            // 倒酒（第八章）
+	public const string SfxClink = "res://assets/audio/sfx/sfx_clink.wav";          // 碰杯（第八章）
+	public const string SfxBallClack = "res://assets/audio/sfx/sfx_ball_clack.wav";     // 台球撞击（第九章）
+	public const string SfxPocketDrop = "res://assets/audio/sfx/sfx_pocket_drop.wav";   // 球落袋（第九章）
+	public const string SfxMahjongLoop = "res://assets/audio/sfx/sfx_mahjong_loop.wav"; // 麻将声无缝循环（第九章）
+	public const string SfxWeddingCrowdLoop = "res://assets/audio/sfx/sfx_wedding_crowd_loop.wav"; // 婚宴人声鼎沸无缝循环（第十章）
+	public const string SfxPartyPopper = "res://assets/audio/sfx/sfx_party_popper.wav"; // 礼花筒拉响（第十一章）
+	public const string SfxRiverWindLoop = "res://assets/audio/sfx/sfx_river_wind_loop.wav"; // 河堤风声无缝循环（第十一章）
 
 	// 背景音乐（萨蒂《吉姆诺佩蒂》三部曲：公有领域 / CC BY 3.0 录音，详见 音乐说明.txt）
 	public const string BgmGym1 = "res://assets/audio/bgm/gymnopedie_no1.ogg"; // 序章 / 菜单 / 天亮
 	public const string BgmGym2 = "res://assets/audio/bgm/gymnopedie_no2.ogg"; // 第三章《天平》
-	public const string BgmGym3 = "res://assets/audio/bgm/gymnopedie_no3.ogg"; // 第四章《手滑》深夜
-	public const string BgmRoad = "res://assets/audio/bgm/bgm_road_v1.mp3";    // 第十章《向南》公路（Carefree, Kevin MacLeod, CC-BY）
+	public const string BgmGym3 = "res://assets/audio/bgm/gymnopedie_no3.ogg"; // 第六章《手滑》深夜
+	public const string BgmRoad = "res://assets/audio/bgm/bgm_road_v1.mp3";    // 第十二章《向南》公路（Carefree, Kevin MacLeod, CC-BY）
 
 	// 第二十四轮 F35 心情曲库（Kevin MacLeod, incompetech.com, CC-BY 4.0）
-	public const string BgmSadTrio = "res://assets/audio/bgm/bgm_sad_trio.mp3";           // 分手沉重（第三章《天平》后段 / 第四章《晚安》）
-	public const string BgmHeartbreaking = "res://assets/audio/bgm/bgm_heartbreaking.mp3"; // 深夜心碎（第五章《手滑》凌晨备选）
-	public const string BgmPianoBetween = "res://assets/audio/bgm/bgm_piano_between.mp3";  // 苦涩转释然（第七章《放过自己》碰杯后）
+	public const string BgmSadTrio = "res://assets/audio/bgm/bgm_sad_trio.mp3";           // 分手沉重（第三章《天平》后段 / 第六章《晚安》）
+	public const string BgmHeartbreaking = "res://assets/audio/bgm/bgm_heartbreaking.mp3"; // 深夜心碎（第七章《手滑》凌晨备选）
+	public const string BgmPianoBetween = "res://assets/audio/bgm/bgm_piano_between.mp3";  // 苦涩转释然（第九章《放过自己》碰杯后）
 
 	/// <summary>当前 BGM 的"基础音量"（不含设置页偏移），设置页改音量时要用它重算</summary>
 	private float bgmBaseDb = -14f;

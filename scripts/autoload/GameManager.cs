@@ -61,10 +61,10 @@ public partial class GameManager : Node
     // 键 = data/characters.json 里的角色 id（jie / jiegen…），不是显示名——所以改名字不会弄丢进度。
     private readonly System.Collections.Generic.Dictionary<string, RelationshipState> relationships = new();
 
-    // 微信里被置顶的联系人 id（第十八轮第九章：长按会话 → 置顶聊天；存档保留）
+    // 微信里被置顶的联系人 id（第十八轮第十章：长按会话 → 置顶聊天；存档保留）
     private readonly System.Collections.Generic.HashSet<string> pinnedContacts = new();
 
-    // 已经"用掉"的物品 id（第十八轮第九章：礼花筒拉响之后，背包里的描述要换成用过的说法）
+    // 已经"用掉"的物品 id（第十八轮第十章：礼花筒拉响之后，背包里的描述要换成用过的说法）
     private readonly System.Collections.Generic.HashSet<string> usedItems = new();
 
     /// <summary>做过的选择条数（调试面板显示用）</summary>
@@ -77,7 +77,7 @@ public partial class GameManager : Node
     private const int SaveVersion = 4;
 
     /// <summary>
-    /// 第二十二轮：分手章插入（新 ch04《晚安》），全库编号 +1 的那一版。
+    /// 第二十二轮：分手章插入（新 ch05《晚安》），全库编号 +1 的那一版。
     /// v3 及以前的存档：章节号与带章号前缀的记录 id 都要平移，判据绑在这个常量上。
     /// </summary>
     private const int ChapterShiftVersion = 4;
@@ -202,7 +202,7 @@ public partial class GameManager : Node
     public void RecordChoice(string choiceId, int optionIndex)
     {
         choiceHistory[choiceId] = optionIndex;
-        // 一按就落档：第八章有六幕，玩家在第二幕选完就强退的话，
+        // 一按就落档：第九章有六幕，玩家在第二幕选完就强退的话，
         // 结束页的「选择回顾」不该把这一步当成没发生过。
         // （顺手把同一刻的数值/关系一起带走了——存档是整份写的。）
         SaveGame();
@@ -215,7 +215,7 @@ public partial class GameManager : Node
 
     /// <summary>
     /// 章节号平移（第二十二轮编号手术的存档迁移用）：
-    /// "ch04_xxx" 及以后的章前缀 +1，"ch03" 及以前不动，无前缀的原样返回。
+    /// "ch05_xxx" 及以后的章前缀 +1，"ch03" 及以前不动，无前缀的原样返回。
     /// </summary>
     private static string ShiftChapterId(string id)
     {
@@ -246,7 +246,7 @@ public partial class GameManager : Node
         }
     }
 
-    // ========== 微信置顶（第十八轮第九章） ==========
+    // ========== 微信置顶（第十八轮第十章） ==========
 
     /// <summary>这个联系人被置顶了吗？（会话列表排序用）</summary>
     public bool IsPinned(string contactId) =>
@@ -255,9 +255,9 @@ public partial class GameManager : Node
     // ========== 手机电量（第二十轮 F4） ==========
     //
     // 电量是"故事时间的影子"：每进一章，按剧情走过的时间掉一档；
-    // 剧情里有明确充电机会的章（第五章清早宿舍、第九章开学季、第十章骑行前
+    // 剧情里有明确充电机会的章（第六章清早宿舍、第十章开学季、第十一章骑行前
     // 江洁那句"充电别糊弄"）直接回满。
-    // 第八章定 20% —— 分手当夜反复手滑看手机，低电量红色+提示一起上，
+    // 第九章定 20% —— 分手当夜反复手滑看手机，低电量红色+提示一起上，
     // 焦虑感是设计好的。
 
     /// <summary>手机当前电量（0-100；状态栏/锁屏都读它）</summary>
@@ -269,9 +269,9 @@ public partial class GameManager : Node
     /// <summary>每章开始的目标电量；100 = 剧情充电点（第二十二轮编号 +1 后的键位）</summary>
     private static readonly System.Collections.Generic.Dictionary<int, int> ChapterBattery = new()
     {
-        { 0, 100 }, { 1, 100 }, { 2, 88 }, { 3, 74 }, { 4, 64 },
-        { 5, 58 }, { 6, 100 }, { 7, 82 }, { 8, 64 }, { 9, 20 },
-        { 10, 100 }, { 11, 100 }, { 12, 82 },
+        { 0, 100 }, { 1, 100 }, { 2, 88 }, { 3, 74 }, { 4, 60 },
+        { 5, 64 }, { 6, 58 }, { 7, 100 }, { 8, 82 }, { 9, 64 },
+        { 10, 20 }, { 11, 100 }, { 12, 100 }, { 13, 82 },
     };
 
     /// <summary>
@@ -305,7 +305,7 @@ public partial class GameManager : Node
         }
     }
 
-    // ========== 物品"已用"标记（第十八轮第九章） ==========
+    // ========== 物品"已用"标记（第十八轮第十章） ==========
 
     /// <summary>这件物品用掉了吗？（礼花筒拉响之后，背包描述要换说法）</summary>
     public bool IsUsedItem(string itemId) =>
@@ -468,7 +468,7 @@ public partial class GameManager : Node
     public string StageOf(string characterId) => Relationship(characterId).stage;
 
     /// <summary>
-    /// 删除联系人（第十九轮第六章《放过自己》的 主线演出 + 玩家长按菜单 共用这一把刀）。
+    /// 删除联系人（第十九轮第七章《放过自己》的 主线演出 + 玩家长按菜单 共用这一把刀）。
     /// 删了就是删了：会话列表 / 通讯录 / 朋友圈都不再有 ta（微信原话：将同时删除与该联系人的聊天记录）。
     /// 返回 true 表示"这一刀是新捅的"——已经删过再删不会重复落档。
     /// </summary>
@@ -511,7 +511,7 @@ public partial class GameManager : Node
         GD.Print($"[关系] 阶段：{characterId} → {stage}");
     }
 
-    /// <summary>这个人身上是不是已经记过某个关键节点（第八章之后所有章节都靠它去重）</summary>
+    /// <summary>这个人身上是不是已经记过某个关键节点（第九章之后所有章节都靠它去重）</summary>
     public bool HasRelationshipEvent(string characterId, string eventId)
     {
         return !string.IsNullOrEmpty(characterId) && !string.IsNullOrEmpty(eventId)
@@ -727,14 +727,14 @@ public partial class GameManager : Node
             }
             SeedRelationships(); // 老档里没记下的"早就认识的人"补齐
 
-            // 第十九轮补账：删除系统上线之前，已经玩过《放过自己》（现在是第七章）的旧档，
+            // 第十九轮补账：删除系统上线之前，已经玩过《放过自己》（现在是第八章）的旧档，
             // 默认"那晚的酒没白喝"——宝宝已经在回宿舍的路上删掉了。
             // 不补的话，后面的列表里她还挂在上面，就是穿帮。
-            // （第二十二轮编号 +1：原第六章《放过自己》现在是第七章，阈值 7 → 8）
+            // （第二十二轮编号 +1：原第七章《放过自己》现在是第八章，阈值 7 → 8）
             if (CurrentChapter >= 8 && !IsDeleted("baobao"))
             {
-                DeleteFriend("baobao", "legacy_ch07_delete");
-                GD.Print("[读档] 旧档补账：第七章的删除已默认发生（baobao）");
+                DeleteFriend("baobao", "legacy_ch08_delete");
+                GD.Print("[读档] 旧档补账：第八章的删除已默认发生（baobao）");
             }
 
             // 置顶联系人 + 已用物品（第十八轮；老存档没有这两个字段 → 按空处理，不用升版本）
@@ -768,7 +768,7 @@ public partial class GameManager : Node
             }
 
             // ========== 第二十二轮：分手章插入，全库编号 +1（老档迁移） ==========
-            // v3 及以前的存档：currentChapter >= 4 的整体 +1（新 ch04《晚安》插在《天平》之后）；
+            // v3 及以前的存档：currentChapter >= 4 的整体 +1（新 ch05《晚安》插在《天平》之后）；
             // 带章号前缀的记录 id（动态事件 / 选择）一起平移，去重和回顾才不会错位。
             if (saveData.version < ChapterShiftVersion)
             {
@@ -964,7 +964,7 @@ public class SaveData
 /// </summary>
 public class RelationshipState
 {
-    /// <summary>加上好友了吗（第八章江洁靠这条决定她出不出现在会话列表）</summary>
+    /// <summary>加上好友了吗（第九章江洁靠这条决定她出不出现在会话列表）</summary>
     public bool friended { get; set; }
 
     /// <summary>玩家给他/她改的备注名；空串 = 没改过，显示时回落到联系人本名</summary>
@@ -973,11 +973,11 @@ public class RelationshipState
     /// <summary>关系阶段（just_met / friend / close / dating…）；空 = 用角色卡里的出厂值</summary>
     public string stage { get; set; } = "";
 
-    /// <summary>关键节点：这个人身上发生过的事（ch09_first_chat、ch09_remark…），用来去重和后续章节判定</summary>
+    /// <summary>关键节点：这个人身上发生过的事（ch10_first_chat、ch10_remark…），用来去重和后续章节判定</summary>
     public System.Collections.Generic.HashSet<string> keyEvents { get; set; } = new();
 
     /// <summary>
-    /// 已删除这位联系人（第十九轮第六章：酒过三巡亲手删掉的那一刀）。
+    /// 已删除这位联系人（第十九轮第七章：酒过三巡亲手删掉的那一刀）。
     /// 删了就是删了——会话列表 / 通讯录 / 朋友圈里都不再出现。
     /// 老存档没有这个字段 → 反序列化后是 false，正好等于"还没删"，不用升存档版本。
     /// </summary>

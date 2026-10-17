@@ -46,7 +46,7 @@
       "color": "#F0B9B9",
       "avatar": "res://assets/art/chat/her_avatar_v1.png",
       "portraits": [],
-      "relationship": "已分手（第三章）；第四章收到『对不起』『照顾好自己』两条收尾消息；她的城市少雨多风",
+      "relationship": "已分手（第三章）；第五章收到『对不起』『照顾好自己』两条收尾消息；她的城市少雨多风",
       "stage": "ex",
       "editable": [
         "她的城市气候设定",
@@ -56,7 +56,7 @@
       "editFiles": [
         "data/contacts.json",
         "data/chat/ch02_phone.json",
-        "data/chat/ch05_old_chat.json",
+        "data/chat/ch06_old_chat.json",
         "data/chat/live_events.json"
       ]
     },
@@ -68,8 +68,8 @@
         "江，洁"
       ],
       "line": "感情线·新",
-      "debut": "ch08",
-      "identity": "小米师妹的朋友（不是同门、不是实验室的人）；会不会打球＝第七章当场揭晓，她打得比主角稳",
+      "debut": "ch09",
+      "identity": "小米师妹的朋友（不是同门、不是实验室的人）；会不会打球＝第八章当场揭晓，她打得比主角稳",
       "look": "清爽邻家感：中长发、爱笑、素净（用户 2026-10-09 定调，以后所有立绘沿用）；三张表情 jie_smile / jie_laugh / jie_shy",
       "voice": "短句、句号收尾、几乎不用感叹号；懂球，夸人是『嗯，线走得正』；认错是『……手滑。白球摆回去。』；留钩子靠一句『下次，我可不让了』",
       "color": "#FA9EB3",
@@ -81,7 +81,7 @@
         "jie_surprise",
         "jie_winter_smile"
       ],
-      "relationship": "刚认识（第七章聚会）；第八章加好友、第一次私聊、被改备注；第九章《置顶》、第十二章《爱就梭哈》才确定关系",
+      "relationship": "刚认识（第八章聚会）；第九章加好友、第一次私聊、被改备注；第十章《置顶》、第十三章《爱就梭哈》才确定关系",
       "stage": "just_met",
       "editable": [
         "姓氏（当前『江』，换姓＝替换文本，见 md 文档的对照表）",
@@ -91,13 +91,13 @@
         "备注候选三项"
       ],
       "editFiles": [
-        "data/dialogues/ch08.json",
-        "data/dialogues/ch10.json（第九章起）",
+        "data/dialogues/ch09.json",
+        "data/dialogues/ch11.json（第十章起）",
         "data/billiard/billiard.json",
         "data/text/demo_review.json",
-        "data/contacts.json（第八章起）",
-        "data/chat/ch09_jie.json（第八章起）",
-        "data/chat/ch10_jie.json（第九章起）"
+        "data/contacts.json（第九章起）",
+        "data/chat/ch10_jie.json（第九章起）",
+        "data/chat/ch11_jie.json（第十章起）"
       ]
     },
     {
@@ -107,8 +107,8 @@
         "主理人"
       ],
       "line": "实验室",
-      "debut": "ch06",
-      "identity": "同门师妹；第七章这场局是她攒的，江洁是她带来的",
+      "debut": "ch07",
+      "identity": "同门师妹；第八章这场局是她攒的，江洁是她带来的",
       "look": "立绘 xiaomi_smile / xiaomi_laugh；头像 avatar_xiaomi.png",
       "voice": "话密、爱用『！』和表情；起哄但不越界；关键信息她都会漏一句出来",
       "color": "#FAC785",
@@ -117,7 +117,7 @@
         "xiaomi_smile",
         "xiaomi_laugh"
       ],
-      "relationship": "同门 + 红娘位；第八章负责把江洁的名片推给主角",
+      "relationship": "同门 + 红娘位；第九章负责把江洁的名片推给主角",
       "stage": "labmate",
       "editable": [
         "她和江洁的具体认识途径（未定：社团 / 老乡 / 前同事都行）",
@@ -125,9 +125,9 @@
       ],
       "editFiles": [
         "data/contacts.json",
-        "data/dialogues/ch06.json",
-        "data/dialogues/ch08.json",
-        "data/chat/ch08_plan.json"
+        "data/dialogues/ch07.json",
+        "data/dialogues/ch09.json",
+        "data/chat/ch09_plan.json"
       ]
     },
     {
@@ -136,7 +136,7 @@
       "aka": [],
       "line": "实验室",
       "debut": "ch01",
-      "identity": "同门，聚餐 / 小摊 / 球局的主力；第六章《放过自己》对面坐着的人",
+      "identity": "同门，聚餐 / 小摊 / 球局的主力；第七章《放过自己》对面坐着的人",
       "look": "立绘 jingen_smile / jingen_laugh；头像 avatar_jingen.png",
       "voice": "口头禅『就是说』，各话题池都带；热络、会替别人把话说出来",
       "color": "#E5CC94",
@@ -145,7 +145,7 @@
         "jingen_smile",
         "jingen_laugh"
       ],
-      "relationship": "最亲近的同门；第八章借主角二十块打车钱",
+      "relationship": "最亲近的同门；第九章借主角二十块打车钱",
       "stage": "close_friend",
       "editable": [
         "口头禅（改 data/chat/replies.json 全部话题池，别只改一处）",
@@ -155,8 +155,8 @@
         "data/contacts.json",
         "data/chat/replies.json",
         "data/dialogues/ch01.json",
-        "data/dialogues/ch07.json",
-        "data/dialogues/ch08.json"
+        "data/dialogues/ch08.json",
+        "data/dialogues/ch09.json"
       ]
     },
     {
@@ -164,8 +164,8 @@
       "name": "俊杰（师弟）",
       "aka": [],
       "line": "实验室",
-      "debut": "ch06",
-      "identity": "师弟，管仪器预约表；第七章『神秘嘉宾』的预告者",
+      "debut": "ch07",
+      "identity": "师弟，管仪器预约表；第八章『神秘嘉宾』的预告者",
       "look": "只有头像 avatar_junjie.png，不画立绘",
       "voice": "轻快、爱起哄，叫主角『师兄』",
       "color": "#99C7FA",
@@ -178,7 +178,7 @@
       ],
       "editFiles": [
         "data/contacts.json",
-        "data/dialogues/ch08.json",
+        "data/dialogues/ch09.json",
         "data/billiard/billiard.json"
       ]
     },
@@ -187,7 +187,7 @@
       "name": "三金师兄",
       "aka": [],
       "line": "实验室",
-      "debut": "ch05",
+      "debut": "ch06",
       "identity": "师兄，管离心机排期；开车送大家去球局（『酒我少喝』）",
       "look": "头像 avatar_sanjin.png（扁平风插画）",
       "voice": "务实、句子短，聊仪器多过聊人",
@@ -261,7 +261,7 @@
       "aka": [],
       "line": "宿舍",
       "debut": "prologue",
-      "identity": "宿舍室友，序章给主角起外号的人；第四章凌晨已经睡下",
+      "identity": "宿舍室友，序章给主角起外号的人；第五章凌晨已经睡下",
       "look": "立绘 roommate_smile / roommate_laugh / roommate_surprised",
       "voice": "日常、吵",
       "color": "#CBD3E0",
@@ -331,7 +331,7 @@
       "name": "阿良",
       "aka": [],
       "line": "老家",
-      "debut": "ch06（QQ 邮箱）",
+      "debut": "ch07（QQ 邮箱）",
       "identity": "老家一起长大的另一个；目前只在邮箱里出现过，还没进微信联系人",
       "look": "无头像（邮件署名出现）",
       "voice": "催得直：『这周末回来不』『别告诉我你没存我号』",
@@ -353,15 +353,15 @@
       "aka": [],
       "line": "高中",
       "debut": "ch02",
-      "identity": "高中同学；11 月 1 日（周六）结婚，请帖已寄到学校（第七章进背包）",
-      "look": "头像 avatar_yebingyu.png（扁平风插画）；第八章加一张立绘 yebingyu_smile",
+      "identity": "高中同学；11 月 1 日（周六）结婚，请帖已寄到学校（第八章进背包）",
+      "look": "头像 avatar_yebingyu.png（扁平风插画）；第九章加一张立绘 yebingyu_smile",
       "voice": "热、直接、带点当年那股劲儿：『到时候可不许说忙』",
       "color": "#F3B6C4",
       "avatar": "res://assets/art/chat/avatar_yebingyu.png",
       "portraits": [
         "yebingyu_smile"
       ],
-      "relationship": "高中同学，很久没见；她的婚礼是第八章的戏眼入口",
+      "relationship": "高中同学，很久没见；她的婚礼是第九章的戏眼入口",
       "stage": "old_classmate",
       "editable": [
         "新郎是否露面（默认露背不露脸）",
@@ -370,7 +370,7 @@
       "editFiles": [
         "data/contacts.json",
         "data/chat/live_events.json",
-        "data/dialogues/ch09.json（第八章起）"
+        "data/dialogues/ch10.json（第九章起）"
       ]
     },
     {
@@ -422,8 +422,8 @@
       "name": "老板",
       "aka": [],
       "line": "场景人物",
-      "debut": "ch11",
-      "identity": "国道边的充电店主，五十多岁（第十章《向南》第 3 幕；r19 拍板升级为正式场景人物卡）",
+      "debut": "ch12",
+      "identity": "国道边的充电店主，五十多岁（第十一章《向南》第 3 幕；r19 拍板升级为正式场景人物卡）",
       "look": "旧棉袄、围裙、手上全是老茧；立绘 laoban_smile.png",
       "voice": "话少、不追问；关心用行动不用嘴——往泡面里多丢一根火腿肠那种",
       "color": "#C9B896",
@@ -438,7 +438,7 @@
         "后续章节是否再出现（默认不复活）"
       ],
       "editFiles": [
-        "data/dialogues/ch11.json"
+        "data/dialogues/ch12.json"
       ]
     }
   ],

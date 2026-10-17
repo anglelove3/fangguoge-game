@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 
 /// <summary>
-/// 第六章《放过自己》——酒桌小演出（纯代码绘制）
+/// 第八章《放过自己》——酒桌小演出（纯代码绘制）
 ///
 /// 【摆在哪】
 /// 场景里是一个 Node2D，原点在"你的"玻璃杯杯底中心（由 ArtAnchor 钉在烧烤摊桌面上，

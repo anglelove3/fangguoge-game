@@ -99,7 +99,7 @@ public partial class ChatOverlay : Control
 
     private ContactData currentContact;
     private ChatScriptData currentChatData; // 当前会话的 JSON 剧本（只读 / 幽灵打字等标记都在这）
-    private Tween ghostTween;               // 幽灵打字动画（第四章"手滑"）
+    private Tween ghostTween;               // 幽灵打字动画（第六章"手滑"）
 
     // ---------- 幽灵打字的"可见性"（第十一轮 B3） ----------
     // 输入框平时的样式（幽灵态结束后要还原成它）
@@ -127,7 +127,7 @@ public partial class ChatOverlay : Control
     private static readonly HashSet<string> usedQuickReplies = new();
 
     /// <summary>
-    /// 本局内被点开过的会话（第十八轮：第八章要知道"他真的去翻她的聊天了吗"）。
+    /// 本局内被点开过的会话（第十八轮：第十章要知道"他真的去翻她的聊天了吗"）。
     /// 联系人 id 和会话文件名都记，章节脚本传哪个都能查到。
     /// </summary>
     private static readonly HashSet<string> openedChats = new();
@@ -547,7 +547,7 @@ public partial class ChatOverlay : Control
 
         foreach (var msg in messages)
         {
-            // 幕门控（第九章）：带 gateChoice 的消息要等章节把钥匙记进选择历史才渲染。
+            // 幕门控（第十一章）：带 gateChoice 的消息要等章节把钥匙记进选择历史才渲染。
             // 一份聊天剧本演五天，没到那幕的消息不能提前让玩家看见。
             if (!string.IsNullOrEmpty(msg.GateChoice) && GameManager.Instance?.HasChoice(msg.GateChoice) != true)
                 continue;
@@ -738,7 +738,7 @@ public partial class ChatOverlay : Control
         inputField.AddThemeColorOverride("caret_color", TextColor);
         inputField.AddThemeColorOverride("selection_color", new Color(0.585f, 0.925f, 0.41f, 0.35f));
         inputField.TextSubmitted += _ => SendFromInput();
-        // 只读会话里点输入框：不弹键盘，只轻轻提醒一句（第四章"手滑"用）
+        // 只读会话里点输入框：不弹键盘，只轻轻提醒一句（第六章"手滑"用）
         inputField.GuiInput += ev =>
         {
             if (ActiveReadOnly && ev is InputEventMouseButton mb && mb.Pressed
@@ -1144,7 +1144,7 @@ public partial class ChatOverlay : Control
         scroll.ScrollVertical = (int)scroll.GetVScrollBar().MaxValue;
     }
 
-    // ==================== 幽灵打字（第四章"手滑"） ====================
+    // ==================== 幽灵打字（第六章"手滑"） ====================
 
     /// <summary>已经表演过幽灵打字的会话（每个会话只演一次）</summary>
     private static readonly HashSet<string> ghostPlayedChats = new();
@@ -1176,7 +1176,7 @@ public partial class ChatOverlay : Control
 
     /// <summary>
     /// 把"打了又删"的剧本收成一张清单：
-    /// 单条 ghostTyping（第四章那份旧聊天）和多条 drafts（第八章的三条草稿）走同一条路。
+    /// 单条 ghostTyping（第六章那份旧聊天）和多条 drafts（第十章的三条草稿）走同一条路。
     /// </summary>
     private List<GhostTypingData> GhostDrafts()
     {
@@ -1435,7 +1435,7 @@ public partial class ChatOverlay : Control
     }
 
     /// <summary>
-    /// 只读会话（第九轮 / 第十轮扩展）：实验群围观、文件传输助手、第四章的旧聊天——
+    /// 只读会话（第九轮 / 第十轮扩展）：实验群围观、文件传输助手、第六章的旧聊天——
     /// 输入框禁言，发送和＋面板改成 toast，聊天记录保持纯观赏。
     /// 第十轮起剧本级 readOnly 时，占位文字和点按 toast 都可以从 JSON 取。
     /// </summary>
@@ -1481,7 +1481,7 @@ public partial class ChatOverlay : Control
         HidePlusPanel();
         AppendMessage(new ChatMessageData { Sender = "me", Text = text });
         // 第二十四轮 F20：自由打字也算"真的发出去过一句话"——
-        // 第八章的推进判定走 WasQuickReplyUsed，v1.2 加自由输入时漏了记账，
+        // 第十章的推进判定走 WasQuickReplyUsed，v1.2 加自由输入时漏了记账，
         // 结果玩家用键盘发的消息不算数，主线永远不推进。预设/自由从此同权。
         usedQuickReplies.Add(currentContact.Id);
         SchedulePersonaReply(currentContact.Id, text);
@@ -1600,8 +1600,8 @@ public partial class ChatOverlay : Control
     }
 
     /// <summary>
-    /// 这个会话在本局里被点开过吗（第十八轮：第八章要判断"他真的去翻她了吗"）。
-    /// 传联系人 id（jie）或会话文件名（ch09_jie）都算，章节脚本不用关心微信内部怎么匹配。
+    /// 这个会话在本局里被点开过吗（第十八轮：第十章要判断"他真的去翻她了吗"）。
+    /// 传联系人 id（jie）或会话文件名（ch10_jie）都算，章节脚本不用关心微信内部怎么匹配。
     /// </summary>
     public static bool WasChatOpened(string contactOrChatId) =>
         !string.IsNullOrEmpty(contactOrChatId) && openedChats.Contains(contactOrChatId);
@@ -2142,7 +2142,7 @@ public class ChatScriptData
     /// <summary>预设回复候选（浮在输入栏上方；选哪条加不同数值 → 影响结局）</summary>
     public List<QuickReplyData> QuickReplies { get; set; }
 
-    // ---------- 第四章：旧聊天的"只读 + 幽灵打字" ----------
+    // ---------- 第六章：旧聊天的"只读 + 幽灵打字" ----------
 
     /// <summary>剧本级只读：输入框禁言（与联系人级 ReadOnly 任一成立即生效）</summary>
     public bool ReadOnly { get; set; }
@@ -2157,7 +2157,7 @@ public class ChatScriptData
     public GhostTypingData GhostTyping { get; set; }
 
     /// <summary>
-    /// 多条草稿版幽灵打字（第八章）：打了删、删了再打、再删。
+    /// 多条草稿版幽灵打字（第十章）：打了删、删了再打、再删。
     /// 非空时优先于 ghostTyping，按数组顺序一条条演下来。
     /// </summary>
     public List<GhostTypingData> Drafts { get; set; }
@@ -2218,7 +2218,7 @@ public class ChatMessageData
     public string Time { get; set; } = "";
 
     /// <summary>
-    /// 幕门控钥匙（第九章）：非空时，这条消息要等 GameManager 里记下同名选择/钥匙才会渲染。
+    /// 幕门控钥匙（第十一章）：非空时，这条消息要等 GameManager 里记下同名选择/钥匙才会渲染。
     /// 章节脚本在合适的幕开始时 RecordChoice(钥匙, 0) 解锁。
     /// </summary>
     public string GateChoice { get; set; } = "";

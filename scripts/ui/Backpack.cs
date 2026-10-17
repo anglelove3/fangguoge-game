@@ -397,7 +397,7 @@ public partial class Backpack : Control
         if (detailTag.Visible)
             detailTag.Text = DataStore.Text("bag.tag_hidden");
 
-        // 已用物品描述覆盖（第九章）：礼花筒拉响之后，
+        // 已用物品描述覆盖（第十一章）：礼花筒拉响之后，
         // 背包里它的说法要换成"已经拉响了"——用过了的东西，故事往前走了一格。
         string descKey = def?.DescKey;
         if (def != null && !string.IsNullOrEmpty(def.DescKey)

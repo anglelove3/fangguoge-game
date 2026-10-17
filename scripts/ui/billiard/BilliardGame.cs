@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 
 /// <summary>
-/// 第七章：罗曼蒂克台球桌 —— 一局真能打的台球（第十五轮）
+/// 第九章：罗曼蒂克台球桌 —— 一局真能打的台球（第十五轮）
 ///
 /// 【为什么有它】
 /// 试玩反馈（第十五轮 #10）："台球要更有参与感，真的可以在游戏里打台球。"
@@ -21,7 +21,7 @@ using System.Collections.Generic;
 ///   - 物理：240Hz 定步长，球-球弹性碰撞（等质量）、库边反弹、摩擦衰减；
 ///     这是"手感"所在，参数都在下面常量区。
 ///   - 绘制：全部自绘（台框/台呢/袋口/球/瞄准线/力度条/杆法盘），不依赖新美术。
-///   - 台词：全在 data/billiard/billiard.json；结果记进"选择回顾"（ch08_billiard）。
+///   - 台词：全在 data/billiard/billiard.json；结果记进"选择回顾"（ch09_billiard）。
 ///   - 模态规矩和手机/电脑一样：打开时抑制对话输入，关闭时恢复 + 回调。
 /// </summary>
 public partial class BilliardGame : Control
@@ -838,7 +838,7 @@ public partial class BilliardGame : Control
         // 黑八判负/直胜优先于比分（result = 8 就是"黑八定生死"那一档）
         if (result == 8)
             result = meWin ? 0 : 1;
-        GameManager.Instance?.RecordChoice("ch08_billiard", result);
+        GameManager.Instance?.RecordChoice("ch09_billiard", result);
 
         string key = result == 0 ? "win" : (result == 1 ? "lose" : "tie");
         var line = PickComment(key);

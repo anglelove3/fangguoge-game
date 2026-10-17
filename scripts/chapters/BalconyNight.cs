@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 
 /// <summary>
-/// 阳台夜（第二十轮 F8）：第八章深夜，选了「去阳台吹十分钟风」之后的全屏演出。
+/// 阳台夜（第二十轮 F8）：第十章深夜，选了「去阳台吹十分钟风」之后的全屏演出。
 ///
 /// 【画面】夜空压底 → 远处宿舍楼一格格亮着的窗 → 阳台栏杆 → 男主剪影
 ///         （一手搭栏杆，一手夹烟）→ 烟头红点呼吸 → 烟雾一缕缕往上飘。
@@ -12,7 +12,7 @@ using System.Collections.Generic;
 /// 和 EmberDust / DrinkPour 同一套思路：剪影本来就是黑的，几何形+粒子最干净，
 /// 不用美术图，窗口怎么缩都不糊。烟雾粒子和主菜单咖啡蒸汽是同一套写法。
 ///
-/// 【用法】Ch09 在 draft_2 对白期间挂上（FadeIn），对白播完 FadeOut 后自毁。
+/// 【用法】Ch10 在 draft_2 对白期间挂上（FadeIn），对白播完 FadeOut 后自毁。
 /// 对话 UI 是 CanvasLayer(50)，永远盖在这一层上面——对白和夜风同屏。
 /// </summary>
 public partial class BalconyNight : Control

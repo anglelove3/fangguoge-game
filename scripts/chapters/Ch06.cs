@@ -2,13 +2,13 @@ using Godot;
 using System.Collections.Generic;
 
 /// <summary>
-/// 第六章：碧蓝蓝天
+/// 第七章：碧蓝蓝天
 ///
 /// 流程：傍晚的实验室（手机震个不停）→ 打开「今天吃什么研讨组」
 ///      → 收起手机后三选一（去 / 半推半就地去 / 让他们定）
 ///      → 骑车穿过黄昏的校园（换背景）→「兰亭雨水」的雨夜饭局
 ///      → 三个热点：看菜单（还记得第一章点过什么）/ 聊近况 / 听雨（心声微选择）
-///      → 宿舍开黑的尾声 → 第六章
+///      → 宿舍开黑的尾声 → 第七章
 ///
 /// 【本章演出核心】
 ///   - 手机里的群聊是"活"的：三个人轮番叫你，最后一条是「来了就行」。
@@ -17,8 +17,8 @@ using System.Collections.Generic;
 /// </summary>
 public partial class Ch06 : ChapterBase
 {
-    private const string ChapterId = "ch06";
-    private const string GroupChatFile = "ch06_group"; // 对应 data/chat/ch06_group.json
+    private const string ChapterId = "ch07";
+    private const string GroupChatFile = "ch07_group"; // 对应 data/chat/ch07_group.json
 
     private TextureRect bgDayLab;
     private TextureRect bgCampus;
@@ -53,7 +53,7 @@ public partial class Ch06 : ChapterBase
 
     protected override void OnChapterReady()
     {
-        GD.Print("第六章：碧蓝蓝天 —— 被朋友捞出来的那个傍晚");
+        GD.Print("第七章：碧蓝蓝天 —— 被朋友捞出来的那个傍晚");
 
         AudioManager.Instance?.PlayBgm(AudioManager.BgmGym1, -14f, 1.5f);
 
@@ -90,12 +90,12 @@ public partial class Ch06 : ChapterBase
         flavorLab = new Control { MouseFilter = Control.MouseFilterEnum.Ignore };
         flavorLab.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
         hotspotsRoot.AddChild(flavorLab);
-        AddChild(FlavorSpots.Create(flavorLab, "ch06_lab"));
+        AddChild(FlavorSpots.Create(flavorLab, "ch07_lab"));
 
         flavorLanting = new Control { MouseFilter = Control.MouseFilterEnum.Ignore };
         flavorLanting.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
         hotspotsRoot.AddChild(flavorLanting);
-        AddChild(FlavorSpots.Create(flavorLanting, "ch06_lanting"));
+        AddChild(FlavorSpots.Create(flavorLanting, "ch07_lanting"));
 
         // "手机活起来"：手机热点右上角挂小红点
         LiveEvents.AttachPhoneDot(phoneBtn);
@@ -203,17 +203,17 @@ public partial class Ch06 : ChapterBase
                 hintLabel.Visible = false;
                 return;
             }
-            hintLabel.Text = DataStore.Text("hint.ch06_phone");
+            hintLabel.Text = DataStore.Text("hint.ch07_phone");
             return;
         }
 
         if (doneSpots.Count >= 3)
         {
-            hintLabel.Text = DataStore.Text("hint.ch06_done");
+            hintLabel.Text = DataStore.Text("hint.ch07_done");
             return;
         }
 
-        hintLabel.Text = DataStore.Text("hint.ch06", doneSpots.Count, 3);
+        hintLabel.Text = DataStore.Text("hint.ch07", doneSpots.Count, 3);
     }
 
     // ==================== 手机：打开群聊 ====================
@@ -240,7 +240,7 @@ public partial class Ch06 : ChapterBase
     }
 
     /// <summary>
-    /// 打开「今天吃什么研讨组」（内容在 data/chat/ch06_group.json）。
+    /// 打开「今天吃什么研讨组」（内容在 data/chat/ch07_group.json）。
     /// 第一次收起手机后会播一段感想，然后进入傍晚的三选一。
     /// </summary>
     private void OpenGroupChat()
@@ -307,7 +307,7 @@ public partial class Ch06 : ChapterBase
         UpdateHint();
 
         // "手机活起来"：饭吃到一半，爸发来"最近忙不忙"
-        LiveEvents.Fire(this, ChapterId, "ch06_ba_ask");
+        LiveEvents.Fire(this, ChapterId, "ch07_ba_ask");
     }
 
     // ==================== 兰亭三个热点 ====================
@@ -352,7 +352,7 @@ public partial class Ch06 : ChapterBase
             PlayOutro();
     }
 
-    /// <summary>散场：最后一桌笑完 → 转到宿舍 → 尾声 → 第六章</summary>
+    /// <summary>散场：最后一桌笑完 → 转到宿舍 → 尾声 → 第七章</summary>
     private void PlayOutro()
     {
         if (finished)
@@ -367,7 +367,7 @@ public partial class Ch06 : ChapterBase
             FadeRain(-60f, 1.6f); // 散场的时候，雨停了
             DialogueManager.Instance.PlaySequence(ChapterId, "outro", () =>
             {
-                GoToNextChapter("res://scenes/chapters/ch07/ch07.tscn", 6);
+                GoToNextChapter("res://scenes/chapters/ch08/ch08.tscn", 6);
             });
         });
     }

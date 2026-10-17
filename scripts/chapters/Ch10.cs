@@ -2,7 +2,7 @@ using Godot;
 using System.Collections.Generic;
 
 /// <summary>
-/// 第十章：置顶
+/// 第十一章：置顶
 ///
 /// 流程（五幕，跨一周）：
 ///   第 1 幕 周一夜·宿舍 —— 群里催进展 → 长按她的会话【置顶】（玩家自己在微信里按）
@@ -11,7 +11,7 @@ using System.Collections.Generic;
 ///   第 3 幕 周四深夜      —— 她说「没事」→ 内心解读：这三个字怎么读（read，ReadCard 新机制）
 ///                          → 论文被否第三版 / 想见 → 心声 → 睡
 ///   第 4 幕 周六·河堤     —— 这一次他说了算（plan）→ 桥洞风铃 → 礼花筒终于拉响
-///                          （第八章塞过来的那枚，MarkItemUsed 落档）
+///                          （第九章塞过来的那枚，MarkItemUsed 落档）
 ///   第 5 幕 周六夜·宿舍   —— 「今天很好。」→ 滑到底又滑回来，置顶的她还在最上面 → 尾声
 ///
 /// 【这一章的两个"第一次"】
@@ -22,13 +22,13 @@ using System.Collections.Generic;
 ///      跟门控消息混排会在重载后乱序。"手机活了"用 GiveUnread 的小红点来演。
 ///
 /// 【人物不写死在代码里】
-/// 置顶谁、开哪份聊天剧本、礼花筒是哪件物品、每一幕解锁哪把幕门——全部在 data/chapters/ch10.json。
+/// 置顶谁、开哪份聊天剧本、礼花筒是哪件物品、每一幕解锁哪把幕门——全部在 data/chapters/ch11.json。
 /// </summary>
 public partial class Ch10 : ChapterBase
 {
-    private const string ChapterId = "ch10";
+    private const string ChapterId = "ch11";
 
-    // ==================== 章节参数（data/chapters/ch10.json） ====================
+    // ==================== 章节参数（data/chapters/ch11.json） ====================
 
     private class ChapterConfig
     {
@@ -105,9 +105,9 @@ public partial class Ch10 : ChapterBase
 
     protected override void OnChapterReady()
     {
-        GD.Print("第十章：置顶 —— 一抬头就能看见");
+        GD.Print("第十一章：置顶 —— 一抬头就能看见");
 
-        cfg = DataStore.LoadJson<ChapterConfig>("res://data/chapters/ch10.json") ?? new ChapterConfig();
+        cfg = DataStore.LoadJson<ChapterConfig>("res://data/chapters/ch11.json") ?? new ChapterConfig();
 
         AudioManager.Instance?.PlayBgm(AudioManager.BgmGym1, -16f, 1.5f);
 
@@ -144,9 +144,9 @@ public partial class Ch10 : ChapterBase
         ArtAnchor.TrackFraction(bridgeBtn, new Rect2(0.70f, 0.28f, 0.18f, 0.30f));     // 桥洞那边
 
         // "点万物有回应"：三个场景各一套，跟着幕开关
-        flavorDorm = MakeFlavorLayer("ch10_dorm");
-        flavorLab = MakeFlavorLayer("ch10_lab");
-        flavorRiver = MakeFlavorLayer("ch10_river");
+        flavorDorm = MakeFlavorLayer("ch11_dorm");
+        flavorLab = MakeFlavorLayer("ch11_lab");
+        flavorRiver = MakeFlavorLayer("ch11_river");
 
         // "手机活起来"：两台手机都挂小红点（本章没有动态事件，只有未读数）
         LiveEvents.AttachPhoneDot(phoneBtn);
@@ -308,28 +308,28 @@ public partial class Ch10 : ChapterBase
         switch (phase)
         {
             case Phase.Dorm1:
-                ShowHint(pinDone ? "hint.ch10_pin_done" : "hint.ch10_phone");
+                ShowHint(pinDone ? "hint.ch11_pin_done" : "hint.ch11_phone");
                 return;
 
             case Phase.Lab:
-                ShowHint(labDone ? "hint.ch10_lab_done" : "hint.ch10_lab");
+                ShowHint(labDone ? "hint.ch11_lab_done" : "hint.ch11_lab");
                 return;
 
             case Phase.Night2:
                 if (readChosen)
-                    ShowHint("hint.ch10_night_done");
+                    ShowHint("hint.ch11_night_done");
                 else if (night2OpenPlayed)
                     hintLabel.Visible = false; // 「没事」的三种读法正摆在屏幕上
                 else
-                    ShowHint("hint.ch10_night");
+                    ShowHint("hint.ch11_night");
                 return;
 
             case Phase.River:
-                ShowHint(planChosen && !popperDone ? "hint.ch10_river_done" : "hint.ch10_river");
+                ShowHint(planChosen && !popperDone ? "hint.ch11_river_done" : "hint.ch11_river");
                 return;
 
             case Phase.Night3:
-                ShowHint("hint.ch10_night3");
+                ShowHint("hint.ch11_night3");
                 return;
         }
 
@@ -677,7 +677,7 @@ public partial class Ch10 : ChapterBase
 
         dm.PlaySequence(ChapterId, "popper_draw", () =>
         {
-            // 拉响！第八章喜糖盒里那枚礼花筒，在这里用掉（背包描述当场换成"用过的"）
+            // 拉响！第九章喜糖盒里那枚礼花筒，在这里用掉（背包描述当场换成"用过的"）
             AudioManager.Instance?.PlaySfx(AudioManager.SfxPartyPopper, -6f, 0.05f);
             if (!string.IsNullOrEmpty(cfg.PopperItem))
                 GameManager.Instance.MarkItemUsed(cfg.PopperItem);
@@ -735,8 +735,8 @@ public partial class Ch10 : ChapterBase
         {
             DialogueManager.Instance.PlaySequence(ChapterId, "outro", () =>
             {
-                // r19：第九章出口改接第十章《向南》（demo_end 改由第十章尾声进入）
-                GoToNextChapter("res://scenes/chapters/ch11/ch11.tscn", 10);
+                // r19：第十章出口改接第十一章《向南》（demo_end 改由第十一章尾声进入）
+                GoToNextChapter("res://scenes/chapters/ch12/ch12.tscn", 10);
             });
         });
     }

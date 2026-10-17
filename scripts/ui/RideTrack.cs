@@ -16,7 +16,7 @@ using System.Collections.Generic;
 ///   4. F19 聊天外彩蛋：AddFlavor() 暖黄小卡掠过（服务区橘猫 / 货车标语 / 电台 FM）。
 ///   5. 入出场 0.8 秒音画过渡：FadeIn() / FadeOut()。
 ///
-/// 【与章节脚本的关系】Ch11 是导演，RideTrack 是舞台。
+/// 【与章节脚本的关系】Ch13 是导演，RideTrack 是舞台。
 /// 旧 API（Start/Stop/SetTint/SetRain/SetBattery/AddSign/AddMarker/PauseForChoice/Resume）
 /// 全部保留，章节脚本零破坏。
 /// </summary>

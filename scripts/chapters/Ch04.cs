@@ -1,185 +1,137 @@
 using Godot;
+using System.Collections.Generic;
 
 /// <summary>
-/// 第四章：晚安（第二十二轮新增——分手当夜）
+/// 第五章：星月（正式分手章，第三轮立项）
 ///
-/// 流程：咖啡馆出来（暮色）→ 摸黑回宿舍（室友不在，泡面碗还在）
-///      → 掏手机，对着那个聊天框三选一（发「到家了吗」/ 打了又删 / 扣下洗脸）
-///      → 妈的消息 → 关灯躺下，谁也没说晚安 → 凌晨，接第五章《手滑》
+/// 电话里那句「对不起」之后，他跑到星月广场。她站在喷泉边上，没回头。
+/// 以前分过一次又复合过——这次是真的。
 ///
-/// 【这一章是"空"的一章】没有数值起伏、没有新角色、甚至没有几句话——
-/// 分手当夜本来就是这样：世界照常运转，只有你停下来了。
-/// 三选一的正确答案不存在：发了没回、删了也好、洗脸也好，夜都得自己熬过去。
+/// 【流程】
+/// 开场独白 → 热点探索（喷泉/长椅/灯柱）→ 见她 → 拉扯演出（TugOfWar）→
+/// 心声三选一（再抱一下/问一个问题/看着她走）→ 放手长镜头 → 尾声 → 接《晚安》
 ///
-/// 【衔接】intro 紧接第三章咖啡馆分手（同一天深夜）；outro 的「睡不着」
-/// 直接喂给第五章《手滑》的「凌晨一点半」。
+/// 【拉扯演出】她说要走 → TugOfWar：按住=抓住手腕，追不上=滑脱，松开=主动放手。
+/// 两条路同一个结局，演出文本不同。主动松开勇气 +4，滑脱 +2。
+///
+/// 【放手长镜头】outro 前背景缓拉远（Scale 1.0→0.94），月亮变大，只剩喷泉声。
 /// </summary>
 public partial class Ch04 : ChapterBase
 {
-    private const string ChapterId = "ch04";
-
-    private Control hotspotsRoot;
+    private const string ChapterId = "ch04"; // 对应 data/dialogues/ch04.json
+    private Button fountainBtn, benchBtn, lampBtn, herBtn;
     private Label hintLabel;
-    private Button phoneBtn;
-    private Button bedBtn;
-    private Control phoneGlow;
+    private readonly HashSet<string> foundItems = new();
+    private bool meetDone;
+    private bool tugDone;
+    private bool finished;
 
-    private bool phoneDone;  // 三选一做完了（妈的消息也跟着演完）
-    private bool finished;   // 尾声播放中
-
-    private ulong lastActivityMsec;
-    private const ulong IdleHintDelayMsec = 12000;
-
-    protected override void OnChapterReady()
+    public override void _Ready()
     {
-        GD.Print("第四章：晚安 —— 分手当夜，谁也没说晚安");
+        base._Ready();
 
-        AudioManager.Instance?.PlayBgm(AudioManager.BgmSadTrio, -15f, 2.0f); // 分手当夜——沉重比孤独更贴（第二十四轮 F35）
-
-        hotspotsRoot = GetNode<Control>("Hotspots");
         hintLabel = GetNode<Label>("HintLabel");
-        phoneBtn = GetNode<Button>("Hotspots/PhoneBtn");
-        bedBtn = GetNode<Button>("Hotspots/BedBtn");
+        fountainBtn = GetNode<Button>("Hotspots/FountainBtn");
+        benchBtn = GetNode<Button>("Hotspots/BenchBtn");
+        lampBtn = GetNode<Button>("Hotspots/LampBtn");
+        herBtn = GetNode<Button>("Hotspots/HerBtn");
 
-        phoneBtn.Pressed += OnPhonePressed;
-        bedBtn.Pressed += OnBedPressed;
+        fountainBtn.Pressed += () => OnHotspot("fountain", fountainBtn);
+        benchBtn.Pressed += () => OnHotspot("bench", benchBtn);
+        lampBtn.Pressed += () => OnHotspot("lamp", lampBtn);
+        herBtn.Pressed += OnHerPressed;
 
-        phoneGlow = HotspotGlow.Attach(phoneBtn);
-        HotspotGlow.Attach(bedBtn);
-
-        // 热点按美术图坐标登记（背景 cover 缩放也不漂）
-        ArtAnchor.Track(phoneBtn, new Rect2(1616f, 880f, 168f, 88f));   // 桌上的手机
-        ArtAnchor.TrackFraction(bedBtn, new Rect2(0.44f, 0.10f, 0.26f, 0.10f)); // 上铺
-
-        // "点万物有回应"（沿用宿舍那套：泡面碗、走廊声控灯）
-        AddChild(FlavorSpots.Create(hotspotsRoot, "ch04"));
+        // 热点按美术图钉住
+        ArtAnchor.TrackFraction(fountainBtn, new Rect2(0.30f, 0.45f, 0.40f, 0.32f));
+        ArtAnchor.TrackFraction(benchBtn, new Rect2(0.02f, 0.62f, 0.16f, 0.18f));
+        ArtAnchor.TrackFraction(lampBtn, new Rect2(0.78f, 0.18f, 0.16f, 0.40f));
+        ArtAnchor.TrackFraction(herBtn, new Rect2(0.44f, 0.42f, 0.12f, 0.20f));
+        herBtn.Visible = false; // 探索完她才「在那里」
 
         UiSounds.WireAll(this);
 
-        // 开场先只有对白
-        hotspotsRoot.Visible = false;
-        hintLabel.Visible = false;
-        bedBtn.Visible = false;
-
+        // 标题淡出
         var tween = CreateTween();
         tween.SetParallel(true);
-        tween.TweenProperty(titleLabel, "modulate:a", 0.0f, 2.0f);
-        tween.TweenProperty(subtitleLabel, "modulate:a", 0.0f, 2.0f);
+        tween.TweenProperty(titleLabel, "modulate:a", 0.0f, 2.0);
+        tween.TweenProperty(subtitleLabel, "modulate:a", 0.0f, 2.0);
 
-        DialogueManager.Instance.PlaySequence(ChapterId, "intro", () =>
-        {
-            DialogueManager.Instance.PlaySequence(ChapterId, "arrive", OnArriveFinished);
-        });
+        DialogueManager.Instance.PlaySequence(ChapterId, "intro", null);
     }
 
-    public override void _Process(double delta)
-    {
-        base._Process(delta);
-        var dm = DialogueManager.Instance;
-        if (dm == null || dm.IsBusy)
-        {
-            lastActivityMsec = Time.GetTicksMsec();
-            return;
-        }
-
-        if (!hotspotsRoot.Visible || finished)
-            return;
-
-        if (Time.GetTicksMsec() - lastActivityMsec < IdleHintDelayMsec)
-            return;
-
-        lastActivityMsec = Time.GetTicksMsec();
-
-        // 发呆：没做选择时手机呼吸，做完了就提醒睡下
-        if (!phoneDone && phoneGlow != null)
-            HotspotGlow.Pulse(phoneGlow, 0f);
-    }
-
-    private void OnArriveFinished()
-    {
-        DialogueManager.Instance.PlaySequence(ChapterId, "phone_lead", () =>
-        {
-            hotspotsRoot.Visible = true;
-            phoneBtn.Visible = true;
-            lastActivityMsec = Time.GetTicksMsec();
-            UpdateHint();
-        });
-    }
-
-    private void UpdateHint()
-    {
-        if (finished)
-        {
-            hintLabel.Visible = false;
-            return;
-        }
-        hintLabel.Visible = true;
-        hintLabel.Text = DataStore.Text(phoneDone ? "hint.ch04_sleep" : "hint.ch04");
-    }
-
-    // ==================== 手机：三选一 ====================
-
-    private void OnPhonePressed()
+    private void OnHotspot(string id, Button btn)
     {
         var dm = DialogueManager.Instance;
-        if (dm == null || dm.IsBusy || finished || phoneDone)
+        if (dm == null || dm.IsBusy || foundItems.Contains(id))
             return;
-
-        lastActivityMsec = Time.GetTicksMsec();
-        HotspotGlow.Sparkle(phoneBtn);
-        hintLabel.Visible = false;
-
-        DialogueManager.Instance.ShowChoice(ChapterId, "goodnight", OnGoodnightChosen);
-    }
-
-    private void OnGoodnightChosen(int index)
-    {
-        var dm = DialogueManager.Instance;
-        // 微勇气：发了 2（敢问出口）/ 删了 0（话咽回去了）/ 洗脸 1（至少起身做了点什么）
-        int courage = index == 0 ? 2 : index == 1 ? 0 : 1;
-        GameManager.Instance.AddCourage(courage);
-
-        // 第三轮 A1：选「删了」→ 先播逐字删除演出（那句话在屏幕上自己消失），再进对白
-        System.Action playLines = () =>
+        foundItems.Add(id);
+        HotspotGlow.Sparkle(btn);
+        btn.Disabled = true;
+        dm.PlaySequence(ChapterId, $"explore_{id}", () =>
         {
-            dm.PlaySequence(ChapterId, $"choice_{index}", () =>
+            if (foundItems.Count >= 3 && !meetDone)
             {
-                // 妈的消息：不管你选了哪条路，妈都会在这个点冒出来
-                dm.PlaySequence(ChapterId, "mom_msg", () =>
-                {
-                    phoneDone = true;
-                    bedBtn.Visible = true;
-                    UpdateHint();
-                });
-            });
-        };
-
-        if (index == 1)
-        {
-            AddChild(new DraftErase("到家了吗", playLines));
-        }
-        else
-        {
-            playLines();
-        }
+                herBtn.Visible = true;
+                dm.PlaySequence(ChapterId, "all_found", null);
+                hintLabel.Text = "（她站在喷泉边上。过去吧。）";
+            }
+        });
     }
 
-    // ==================== 睡下：接《手滑》 ====================
-
-    private void OnBedPressed()
+    /// <summary>见她 → 拉扯演出</summary>
+    private void OnHerPressed()
     {
         var dm = DialogueManager.Instance;
-        if (dm == null || dm.IsBusy || finished || !phoneDone)
+        if (dm == null || dm.IsBusy || meetDone)
             return;
+        meetDone = true;
+        herBtn.Visible = false;
+        HotspotGlow.Sparkle(herBtn);
 
-        finished = true;
-        hotspotsRoot.Visible = false;
-        hintLabel.Visible = false;
-
-        dm.PlaySequence(ChapterId, "outro", () =>
+        dm.PlaySequence(ChapterId, "meet", () =>
         {
-            // 凌晨的宿舍——下一章《手滑》开场就是"凌晨一点半，手滑点开了旧聊天"
-            GoToNextChapter("res://scenes/chapters/ch05/ch05.tscn", 5);
+            // 拉扯演出：抓住她的手腕
+            AddChild(new TugOfWar(released =>
+            {
+                tugDone = true;
+                // 主动松开勇气 +4（放手的人更勇敢），滑脱 +2
+                GameManager.Instance.AddCourage(released ? 4 : 2);
+                string seq = released ? "tug_release" : "tug_slip";
+                DialogueManager.Instance.PlaySequence(ChapterId, seq, OnTugResolved);
+            }));
+        });
+    }
+
+    /// <summary>拉扯落幕 → 余波 → 心声三选一 → 放手长镜头 → 尾声</summary>
+    private void OnTugResolved()
+    {
+        var dm = DialogueManager.Instance;
+        dm.PlaySequence(ChapterId, "aftermath", () =>
+        {
+            dm.PlaySequence(ChapterId, "outro", () =>
+            {
+                if (finished)
+                    return;
+                finished = true;
+
+                // 放手长镜头：背景缓缓拉远，月亮变大——他越来越小，广场越来越大
+                var bg = GetNodeOrNull<TextureRect>("Background");
+                if (bg != null)
+                {
+                    bg.PivotOffset = GetViewportRect().Size / 2f;
+                    var drift = CreateTween();
+                    drift.SetParallel(true);
+                    drift.TweenProperty(bg, "scale", new Vector2(0.94f, 0.94f), 18.0)
+                        .SetTrans(Tween.TransitionType.Sine).SetEase(Tween.EaseType.Out);
+                }
+                // BGM 停 3 秒（只剩喷泉的环境音），再接下一章
+                AudioManager.Instance?.PlayBgm("", 0f, 3.0f);
+
+                GetTree().CreateTimer(5.0).Timeout += () =>
+                {
+                    GoToNextChapter("res://scenes/chapters/ch05/ch05.tscn", 5);
+                };
+            });
         });
     }
 }

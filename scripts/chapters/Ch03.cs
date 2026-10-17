@@ -7,7 +7,7 @@ using System.Collections.Generic;
 ///
 /// 流程：咖啡馆的转折（抽象化）→ 三张记忆卡片放上左盘
 ///      → 【天平的失败互动】把"还能给的"一样一样补上去，它反而越歪越厉害
-///      → 天平失衡的揭示 → 分手台词（选择）→ 尾声 → 第四章
+///      → 天平失衡的揭示 → 分手台词（选择）→ 尾声 → 第六章
 ///
 /// 【本章演出核心】全程序化绘制的天平（BalanceScale），
 /// 卡片点击后自己"飞"进左盘、变成纸片；横梁随重量倾斜，
@@ -597,7 +597,7 @@ public partial class Ch03 : ChapterBase
             DialogueManager.Instance.PlaySequence(ChapterId, "outro", () =>
             {
                 finished = true;
-                GoToNextChapter("res://scenes/chapters/ch04/ch04.tscn", 4);
+                GoToNextChapter("res://scenes/chapters/ch05/ch05.tscn", 4);
             });
         });
     }
