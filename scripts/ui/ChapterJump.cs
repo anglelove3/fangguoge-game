@@ -15,6 +15,7 @@ public static class ChapterJump
         "第一章 · 寄居蟹",
         "第二章 · 一千公里",
         "第三章 · 天平",
+        "第四章 · 星月",
         "第五章 · 晚安",
         "第六章 · 手滑",
         "第七章 · 碧蓝蓝天",
@@ -34,7 +35,10 @@ public static class ChapterJump
     };
 
     /// <summary>在 host 上弹章节选择面板，点选即跳章</summary>
-    public static void ShowPanel(Control host)
+    public static void ShowPanel(Control host) => ShowPanel(host, LastChapter);
+
+    /// <summary>只列出 0~maxChapter（第三轮：继续游戏里只给已玩到的章）</summary>
+    public static void ShowPanel(Control host, int maxChapter)
     {
         var layer = new Control { MouseFilter = Control.MouseFilterEnum.Stop };
         layer.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
@@ -91,7 +95,8 @@ public static class ChapterJump
         list.AddThemeConstantOverride("separation", 2);
         scroll.AddChild(list);
 
-        for (int i = 0; i <= LastChapter; i++)
+        int showMax = Mathf.Clamp(maxChapter, 0, LastChapter);
+        for (int i = 0; i <= showMax; i++)
         {
             int chapter = i;
             var btn = new Button

@@ -429,20 +429,15 @@ public partial class MainMenu : Control
     /// </summary>
     private void OnContinueGamePressed()
     {
-        GD.Print("→ 继续游戏");
+        GD.Print("→ 继续游戏（先弹章节选择）");
         bool loaded = GameManager.Instance.LoadGame();
         if (!loaded)
             return;
 
-        int chapter = GameManager.Instance.CurrentChapter;
-        if (chapter >= 99)
-        {
-            GD.Print("[继续游戏] 上次已经玩到结束页，改为从第十二章继续");
-            chapter = LastChapter;
-            GameManager.Instance.CurrentChapter = chapter;
-        }
-
-        GameManager.Instance.ChangeSceneWithTransition(GetChapterScenePath(chapter));
+        // 第三轮反馈 9：点继续游戏 → 在已经玩过的章节里自己选（不用只从存档那一章续）
+        int current = GameManager.Instance.CurrentChapter;
+        int maxChapter = current >= 99 ? LastChapter : Mathf.Clamp(current, 0, LastChapter);
+        ChapterJump.ShowPanel(this, maxChapter);
     }
 
     /// <summary>目前开发到的最后一章（通关档的"重玩落点"）</summary>

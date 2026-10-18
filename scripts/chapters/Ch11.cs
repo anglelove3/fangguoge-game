@@ -420,8 +420,12 @@ public partial class Ch11 : ChapterBase
             // pin_intro 里挂着心声微选择（heartChoice），选完分支对白播完才会走到这里
             dm.PlaySequence(ChapterId, "pin_intro", () =>
             {
-                bedBtn.Visible = true;
-                UpdateHint();
+                // 第三轮反馈 12：置顶完往上一划，前女友的会话还躺在列表里——
+                // 删不删，玩家自己决定（删了现女友心里踏实，自己心里空一块）
+                dm.PlaySequence(ChapterId, "ex_wechat", () =>
+                {
+                    dm.ShowChoice(ChapterId, "ex_wechat", OnExWechatChosen);
+                });
             });
         });
     }
@@ -451,6 +455,26 @@ public partial class Ch11 : ChapterBase
                 PlayOutro();
                 break;
         }
+    }
+
+    /// <summary>删不删前女友微信（第三轮反馈 12）</summary>
+    private void OnExWechatChosen(int index)
+    {
+        if (index == 0)
+        {
+            GameManager.Instance.AddAffection(5);
+            GameManager.Instance.RecordChoice("ex_wechat_deleted", 0);
+        }
+        else
+        {
+            GameManager.Instance.AddAffection(-2);
+        }
+        string seq = index == 0 ? "ex_delete" : "ex_keep";
+        DialogueManager.Instance.PlaySequence(ChapterId, seq, () =>
+        {
+            bedBtn.Visible = true;
+            UpdateHint();
+        });
     }
 
     // ==================== 第 2 幕：周三，实验室 ====================
