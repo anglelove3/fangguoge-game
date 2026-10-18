@@ -94,7 +94,13 @@ public partial class Ch08 : ChapterBase
         {
             stallBg = bg.Texture;
             if (ResourceLoader.Exists("res://assets/art/backgrounds/river_dusk_v1.png"))
+            {
                 bg.Texture = GD.Load<Texture2D>("res://assets/art/backgrounds/river_dusk_v1.png");
+                // 【第三轮回归抓到】河边开场时酒瓶和两只杯子还挂在河面上——
+                // 倒酒道具要到 BackToNightStall() 回到夜摊才该出现。
+                if (drink != null)
+                    drink.Visible = false;
+            }
         }
         DialogueManager.Instance.PlaySequence(ChapterId, "river_intro", () =>
         {

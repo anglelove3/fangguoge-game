@@ -39,8 +39,14 @@ public static class ArtAnchor
         ah = ArtH;
         for (var n = node; n != null; n = n.GetParent())
         {
-            var bg = n.GetNodeOrNull<TextureRect>("Background") ?? n as TextureRect;
-            var tex = (bg as TextureRect)?.Texture;
+            // 先看"这个节点下面有没有 Background"（热点/贴片通常挂在场景根或 Hotspots 下）
+            TextureRect bg = null;
+            if (n.Name.ToString() != "Background")
+                bg = n.GetNodeOrNull<TextureRect>("Background");
+            else
+                bg = n as TextureRect;   // 自己就是背景层（贴片挂在 Background 下面时走到这一步）
+
+            var tex = bg?.Texture;
             if (tex == null)
                 continue;
             int w = tex.GetWidth(), h = tex.GetHeight();

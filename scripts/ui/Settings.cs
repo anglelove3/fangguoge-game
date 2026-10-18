@@ -104,6 +104,42 @@ public partial class Settings : Control
         };
         box.AddChild(fullscreen);
 
+        // ---- 开发者选项：章节直达（第三轮试玩请求）----
+        // 只在这里放一个入口，真正的章表复用 ChapterJump（它和主菜单共用同一份章名/路径，
+        // 避免又出现"两份表对不上"的老问题）。跳章只切场景，不带存档数值——
+        // 拿来验收某一章的演出/美术足够，不用从头再打一遍。
+        box.AddChild(MakeLine());
+        var devTitle = new Label { Text = "开发者选项" };
+        devTitle.AddThemeFontSizeOverride("font_size", 20);
+        devTitle.AddThemeColorOverride("font_color", new Color(0.62f, 0.42f, 0.22f, 0.9f));
+        box.AddChild(devTitle);
+
+        var jump = new Button
+        {
+            Text = "章节直达 · 选一章开始测试",
+            CustomMinimumSize = new Vector2(320, 52),
+            FocusMode = FocusModeEnum.None,
+            MouseDefaultCursorShape = CursorShape.PointingHand,
+        };
+        jump.AddThemeFontSizeOverride("font_size", 21);
+        jump.AddThemeColorOverride("font_color", InkNormal);
+        jump.AddThemeColorOverride("font_hover_color", new Color(0.2f, 0.12f, 0.05f));
+        jump.AddThemeStyleboxOverride("normal", MakeButtonPaper(new Color(0.90f, 0.82f, 0.68f), 5));
+        jump.AddThemeStyleboxOverride("hover", MakeButtonPaper(new Color(0.97f, 0.88f, 0.72f), 10));
+        jump.AddThemeStyleboxOverride("pressed", MakeButtonPaper(new Color(0.80f, 0.65f, 0.46f), 2));
+        jump.AddThemeStyleboxOverride("focus", new StyleBoxEmpty());
+        jump.Pressed += () => ChapterJump.ShowPanel(this, ChapterJump.LastChapter);
+        box.AddChild(jump);
+
+        var devTip = new Label
+        {
+            Text = "跳章只切换场景，不读取存档进度（好感/物品沿用当前内存）。",
+            AutowrapMode = TextServer.AutowrapMode.WordSmart,
+        };
+        devTip.AddThemeFontSizeOverride("font_size", 16);
+        devTip.AddThemeColorOverride("font_color", InkFaint);
+        box.AddChild(devTip);
+
         // ---- 小提示 + 返回 ----
         var tip = new Label
         {
