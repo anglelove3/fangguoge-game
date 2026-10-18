@@ -65,7 +65,15 @@ public partial class FlavorSpots : Control
         var host = new FlavorSpots();
         host.Name = "FlavorSpots";
 
-        var file = DataStore.LoadJson<FlavorFile>($"res://data/flavor/{chapterId}.json");
+        // 【第三轮】先看一眼文件在不在：缺表是"这一幕没配点位"，不是故障——
+        // 以前直接走 LoadJson 会打出"[数据] 找不到文件"，看着像 bug，其实只是这一幕没写。
+        string path = $"res://data/flavor/{chapterId}.json";
+        if (!FileAccess.FileExists(path))
+        {
+            GD.Print($"[风味] 本场景没有点位表，跳过：{chapterId}");
+            return host;
+        }
+        var file = DataStore.LoadJson<FlavorFile>(path);
         if (file == null || file.Spots.Count == 0)
             return host; // 没配数据就静静地什么都不做
 

@@ -125,6 +125,8 @@ public partial class AudioManager : Node
 	public const string AmbWind = "res://assets/audio/ambience/amb_wind_loop.wav";
 	public const string AmbNight = "res://assets/audio/ambience/amb_night_loop.wav";
 	public const string AmbStreet = "res://assets/audio/ambience/amb_street_loop.wav";
+	// 夜市：街道底噪 + 远处人声 + 零星碗碟碰撞（第八章《放过自己》专用）
+	public const string AmbMarket = "res://assets/audio/ambience/amb_market_loop.wav";
 
 	/// <summary>切环境音（同一路径不重复切；fade 秒淡入淡出）</summary>
 	public void PlayAmbience(string path, float volumeDb = -20f, float fadeSeconds = 2.5f)

@@ -136,7 +136,7 @@ public partial class ChapterBase : Control
             5 => AudioManager.AmbNight,    // 晚安：深夜
             6 => AudioManager.AmbNight,    // 手滑：凌晨
             7 => AudioManager.AmbWind,     // 碧蓝蓝天：海风
-            8 => AudioManager.AmbStreet,   // 放过自己：夜摊人声
+            8 => AudioManager.AmbMarket,   // 放过自己：夜市（人声+街道，2026-10-18 新增）
             9 => AudioManager.AmbRain,     // 三点水：雨夜实验室
             10 => AudioManager.AmbNight,   // 还想再见：夜里
             11 => AudioManager.AmbNight,   // 置顶：前夜
