@@ -67,7 +67,9 @@ def main():
     # 2) 压包
     dist = os.path.join(root, "dist")
     os.makedirs(dist, exist_ok=True)
-    zip_path = os.path.join(dist, f"fangguoge-demo-{args.version}-win64.zip")
+    # 【固定包名】不带版本号：README/简历里的直链
+    # .../releases/latest/download/fangguoge-demo-win64.zip 永远指向最新一版
+    zip_path = os.path.join(dist, "fangguoge-demo-win64.zip")
     with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED, compresslevel=6) as z:
         z.write(exe_path, "fangguoge-demo.exe")
         if os.path.exists(readme_path):
@@ -102,6 +104,24 @@ def main():
                 run(["gh", "release", "delete", tag, "--repo", args.repo,
                      "--yes", "--cleanup-tag"])
 
+    # 5) 把 CHANGELOG 同步到试玩仓（两边的更新日志别越走越偏）
+    try:
+        import base64, json
+        with open(os.path.join(root, "CHANGELOG.md"), "rb") as f:
+            content = base64.b64encode(f.read()).decode()
+        api_path = f"repos/{args.repo}/contents/CHANGELOG.md"
+        sha = subprocess.run(["gh", "api", api_path, "--jq", ".sha"],
+                             capture_output=True, text=True).stdout.strip()
+        payload = {"message": f"同步 CHANGELOG（{args.version}）", "content": content, "branch": "main"}
+        if sha:
+            payload["sha"] = sha
+        subprocess.run(["gh", "api", "--method", "PUT", api_path, "--input", "-"],
+                       input=json.dumps(payload), check=True, capture_output=True, text=True)
+        print("CHANGELOG 已同步到试玩仓")
+    except Exception as e:
+        print(f"⚠ CHANGELOG 同步失败（不影响发版）：{e}")
+
+    print(f"直链：https://github.com/{args.repo}/releases/latest/download/fangguoge-demo-win64.zip")
     print("完成。")
 
 

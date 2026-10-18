@@ -1377,3 +1377,12 @@
 ```
 python tools/release.py --version v1.4.1
 ```
+
+### 发版体验三处小改（2026-10-18 深夜）
+
+1. **包名固定为 `fangguoge-demo-win64.zip`**（去掉版本号）——
+   直链永远是 `.../releases/latest/download/fangguoge-demo-win64.zip`，
+   以后发新版，简历/邮件里那条链接**不用改**。v1.4.0 已按新名重挂（旧的带版本号资产已删）。
+2. **试玩仓 README 顶部改成"直接下载"**，并加了一个折叠块「第一次运行被 Windows 拦住了？点这里」
+   ——未签名 exe 会被 SmartScreen 拦，写清"更多信息 → 仍要运行"，HR 自己就能过。
+3. **`tools/release.py` 发版后自动把 CHANGELOG 同步到试玩仓**，两边的更新日志不会再走偏。
