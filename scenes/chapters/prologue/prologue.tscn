@@ -161,7 +161,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.03, 0.03, 0.08, 0.9)
+color = Color(0.03, 0.03, 0.08, 0.72)
 
 [node name="StartHint" type="Label" parent="TitleCard"]
 layout_mode = 1
