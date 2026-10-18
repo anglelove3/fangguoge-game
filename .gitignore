@@ -5,7 +5,6 @@
 # C#/Godot specific
 .vs/
 .vscode/
-*.sln
 *.suo
 *.user
 *.pidb
@@ -55,3 +54,6 @@ test/
 
 # playwright-cli 工具临时目录（求职打印链路用）
 .playwright-cli/
+
+# 试玩版导出物（不要入库）
+dist/
