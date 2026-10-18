@@ -592,6 +592,7 @@ public partial class RideTrack : Control
         public RideTrack G;
 
         private float scrollT;      // 路面滚动相位（0~1 循环）
+        private float tSec;         // 内部时间（骑手颠簸、草叶摇摆）
         private bool moving;
         private float steer;        // -1..1 骑手横向位置（缓动）
         private float steerInput;   // 按键输入
@@ -609,6 +610,7 @@ public partial class RideTrack : Control
         public override void _Process(double delta)
         {
             float dt = (float)delta;
+            tSec += dt;
 
             // 轻操控：←→ / A D；松手缓缓回中
             steerInput = 0f;
@@ -663,6 +665,73 @@ public partial class RideTrack : Control
 
             // ---- 路肩大地（草/路肩色，接住底图和路面的过渡） ----
             DrawRect(new Rect2(0, horizon, w, h - horizon), RoadSide);
+
+            // 【第四轮反馈4】路肩不再是纯色块：远景树影 → 田垄条带 → 草丛 → 护栏，
+            // 四层由远到近叠出来，和背景那半截水彩公路接得上。
+            float Hash(int i) => Mathf.Abs(Mathf.Sin(i * 12.9898f) * 43758.5453f) % 1f;
+            float RoadEdgeAt(float y, int side)
+            {
+                float k = Mathf.Clamp((y - horizon) / Mathf.Max(1f, h - horizon), 0f, 1f);
+                return Mathf.Lerp(vanishX + side * roadHalfFar, w * 0.5f + side * roadHalfNear, k);
+            }
+
+            // 远处天际：贴地平线的一层雾 + 一排小树团（极慢视差）
+            DrawRect(new Rect2(0, horizon - h * 0.06f, w, h * 0.06f), new Color(0.46f, 0.47f, 0.44f, 0.45f));
+            for (int i = 0; i < 30; i++)
+            {
+                float t = (i / 30f + scrollT * 0.30f) % 1f;
+                float th = h * 0.020f * (0.65f + 0.7f * Hash(i));
+                DrawCircle(new Vector2(t * w, horizon - th * 0.35f), th,
+                    new Color(0.27f, 0.31f, 0.26f, 0.5f));
+            }
+
+            // 田垄：几条横向色带，越近越宽越实
+            for (int i = 0; i < 7; i++)
+            {
+                float t = (i / 7f + scrollT * 0.5f) % 1f;
+                float y = Mathf.Lerp(horizon + h * 0.008f, h, t * t * (3f - 2f * t));
+                DrawRect(new Rect2(0, y, w, Mathf.Lerp(2f, 22f, t)),
+                    new Color(0.35f, 0.37f, 0.30f, 0.08f + 0.10f * t));
+            }
+
+            // 草丛：贴着两侧路缘撒，远小近大，风一过轻轻摇
+            for (int side = -1; side <= 1; side += 2)
+            {
+                for (int i = 0; i < 46; i++)
+                {
+                    float t = (Hash(i * 7 + (side > 0 ? 91 : 17)) + scrollT * 0.78f) % 1f;
+                    float y = Mathf.Lerp(horizon + h * 0.02f, h * 1.01f, t * t * (3f - 2f * t));
+                    float edge = RoadEdgeAt(y, side);
+                    float off = (6f + 46f * Hash(i * 13 + (side > 0 ? 7 : 3))) * (0.25f + t * 1.3f);
+                    float x = edge + side * off;
+                    if (x < -20f || x > w + 20f)
+                        continue;
+                    float len = Mathf.Lerp(3f, 26f, t) * (0.7f + 0.6f * Hash(i + 41));
+                    float sway = Mathf.Sin(tSec * 2.2f + i) * len * 0.16f;
+                    var gc = new Color(0.30f, 0.35f, 0.26f, 0.30f + 0.45f * t);
+                    for (int b = -1; b <= 1; b++)
+                        DrawLine(new Vector2(x + b * len * 0.22f, y),
+                            new Vector2(x + b * len * 0.30f + sway, y - len * (0.8f + 0.25f * b)),
+                            gc, Mathf.Lerp(1f, 3.2f, t));
+                }
+            }
+
+            // 右侧护栏：立柱 + 一条横梁，随路面一起涌近
+            for (int i = 0; i < 9; i++)
+            {
+                float t = (i / 9f + scrollT * 0.95f) % 1f;
+                float y = Mathf.Lerp(horizon + h * 0.03f, h * 1.04f, t * t * (3f - 2f * t));
+                float x = RoadEdgeAt(y, 1) + Mathf.Lerp(6f, 52f, t);
+                float ph = Mathf.Lerp(6f, 92f, t * t);
+                var pc = new Color(0.62f, 0.62f, 0.58f, 0.18f + 0.42f * t);
+                DrawLine(new Vector2(x, y), new Vector2(x, y - ph), pc, Mathf.Lerp(1f, 4f, t));
+                // 横梁：连到下一根（远处那根的位置）
+                float t2 = (t + 1f / 9f) % 1f;
+                float y2 = Mathf.Lerp(horizon + h * 0.03f, h * 1.04f, t2 * t2 * (3f - 2f * t2));
+                float x2 = RoadEdgeAt(y2, 1) + Mathf.Lerp(6f, 52f, t2);
+                DrawLine(new Vector2(x, y - ph * 0.82f), new Vector2(x2, y2 - ph * 0.82f),
+                    new Color(0.66f, 0.66f, 0.62f, 0.16f + 0.34f * t), Mathf.Lerp(1f, 3.4f, t));
+            }
 
             // ---- 路面梯形 ----
             DrawColoredPolygon(new[]
@@ -759,41 +828,128 @@ public partial class RideTrack : Control
                 }
             }
 
-            // ---- 骑手剪影（人 + 电动车，面朝右） ----
+            // ---- 骑手 + 踏板摩托（第四轮反馈4：从"程序小剪影"改成有体积的侧背影） ----
+            // 全部依旧是程序绘制（AI 生图这条路暂时不通），但把该有的东西补齐：
+            // 接地阴影 / 车灯 / 双轮与轮毂 / 车身双色 + 边光 / 头盔与面罩 / 背包 / 被风吹起的外套下摆。
             float baseY = h * 0.90f;
-            float s = h / 1080f; // 剪影尺寸按 1080p 基准
-            var ink = RiderCol;
+            float s = h / 1080f;
+            float bob = moving ? Mathf.Sin(tSec * 8.5f) * 2.2f * s : 0f;
             float rx = riderX;
+            baseY += bob;
 
-            // 车身
+            var ink = RiderCol;                                   // 主体墨色
+            var inkHi = new Color(0.24f, 0.26f, 0.30f);            // 受光面（灰蓝）
+            var rim = new Color(0.86f, 0.82f, 0.70f, 0.55f);       // 天光边线
+
+            // 接地阴影（两层扁椭圆，柔一点）
+            DrawSetTransform(new Vector2(rx, baseY + 4f * s), 0f, new Vector2(1f, 0.26f));
+            DrawCircle(Vector2.Zero, 96f * s, new Color(0.04f, 0.04f, 0.05f, 0.30f));
+            DrawCircle(Vector2.Zero, 64f * s, new Color(0.04f, 0.04f, 0.05f, 0.26f));
+            DrawSetTransform(Vector2.Zero, 0f, Vector2.One);
+
             DrawSetTransform(new Vector2(rx, baseY), steer * -0.05f, Vector2.One);
-            var body = new Rect2(-46 * s, -34 * s, 92 * s, 20 * s);
+
+            // 前灯光锥（只在骑行时亮）
+            if (moving)
+            {
+                DrawColoredPolygon(new[]
+                {
+                    new Vector2(44f * s, -58f * s),
+                    new Vector2(190f * s, -96f * s),
+                    new Vector2(196f * s, -22f * s),
+                }, new Color(0.98f, 0.93f, 0.72f, 0.10f));
+                DrawCircle(new Vector2(45f * s, -58f * s), 7f * s, new Color(1f, 0.96f, 0.80f, 0.85f));
+            }
+
+            // 双轮：外胎 + 轮毂 + 轴心
+            foreach (float wx in new[] { -34f, 36f })
+            {
+                DrawCircle(new Vector2(wx * s, -8f * s), 17f * s, ink);
+                DrawCircle(new Vector2(wx * s, -8f * s), 10f * s, new Color(0.30f, 0.29f, 0.27f));
+                DrawCircle(new Vector2(wx * s, -8f * s), 3.6f * s, new Color(0.14f, 0.13f, 0.12f));
+            }
+
+            // 车身：下摆深色 + 上半受光（挡风板 + 座垫 + 后货架）
             DrawStyleBox(new StyleBoxFlat
             {
                 BgColor = ink,
-                CornerRadiusTopLeft = 10, CornerRadiusTopRight = 14,
-                CornerRadiusBottomLeft = 6, CornerRadiusBottomRight = 6,
-            }, body);
-            // 轮子（前后）
-            DrawCircle(new Vector2(-32 * s, -6 * s), 15 * s, ink);
-            DrawCircle(new Vector2(34 * s, -6 * s), 15 * s, ink);
-            DrawCircle(new Vector2(-32 * s, -6 * s), 6 * s, new Color(0.35f, 0.33f, 0.32f));
-            DrawCircle(new Vector2(34 * s, -6 * s), 6 * s, new Color(0.35f, 0.33f, 0.32f));
-            // 车头把手
-            DrawLine(new Vector2(34 * s, -30 * s), new Vector2(46 * s, -58 * s), ink, 5 * s);
-            // 人：身体前倾 + 头
-            DrawCircle(new Vector2(-6 * s, -96 * s), 15 * s, ink);
+                CornerRadiusTopLeft = 12, CornerRadiusTopRight = 16,
+                CornerRadiusBottomLeft = 7, CornerRadiusBottomRight = 7,
+            }, new Rect2(-50 * s, -40 * s, 100 * s, 26 * s));
+            DrawStyleBox(new StyleBoxFlat
+            {
+                BgColor = inkHi,
+                CornerRadiusTopLeft = 10, CornerRadiusTopRight = 12,
+                CornerRadiusBottomLeft = 5, CornerRadiusBottomRight = 5,
+            }, new Rect2(-46 * s, -58 * s, 52 * s, 16 * s));
+            // 挡风板（车头那块，略透明）
             DrawColoredPolygon(new[]
             {
-                new Vector2(-20 * s, -34 * s),
-                new Vector2(10 * s, -34 * s),
-                new Vector2(4 * s, -84 * s),
-                new Vector2(-16 * s, -84 * s),
-            }, ink);
+                new Vector2(30f * s, -58f * s),
+                new Vector2(48f * s, -84f * s),
+                new Vector2(56f * s, -58f * s),
+            }, new Color(0.72f, 0.78f, 0.82f, 0.45f));
+            // 后排气管 + 尾灯
+            DrawLine(new Vector2(-30f * s, -14f * s), new Vector2(-62f * s, -18f * s),
+                new Color(0.34f, 0.33f, 0.31f), 5f * s);
+            if (moving)
+                DrawCircle(new Vector2(-50f * s, -34f * s), 5f * s, new Color(0.92f, 0.30f, 0.24f, 0.85f));
+
+            // 车把
+            DrawLine(new Vector2(36f * s, -58f * s), new Vector2(48f * s, -72f * s), ink, 5 * s);
+
+            // 骑手：腿（屈膝）→ 躯干（前倾）→ 手臂 → 背包 → 头盔
+            DrawLine(new Vector2(-4f * s, -40f * s), new Vector2(14f * s, -26f * s), ink, 11 * s);
+            DrawLine(new Vector2(14f * s, -26f * s), new Vector2(6f * s, -10f * s), ink, 9 * s);
+
+            DrawColoredPolygon(new[]
+            {
+                new Vector2(-24f * s, -38f * s),
+                new Vector2(12f * s, -40f * s),
+                new Vector2(20f * s, -88f * s),
+                new Vector2(-10f * s, -96f * s),
+            }, inkHi);                                    // 躯干（浅一档，有体积）
+
+            // 背包（在背上，稍稍外凸）
+            DrawStyleBox(new StyleBoxFlat
+            {
+                BgColor = new Color(0.20f, 0.22f, 0.26f),
+                CornerRadiusTopLeft = 8, CornerRadiusTopRight = 8,
+                CornerRadiusBottomLeft = 8, CornerRadiusBottomRight = 8,
+            }, new Rect2(-34 * s, -92 * s, 30 * s, 34 * s));
+
             // 手臂伸向把手
-            DrawLine(new Vector2(-2 * s, -80 * s), new Vector2(42 * s, -56 * s), ink, 7 * s);
-            // 腿
-            DrawLine(new Vector2(-10 * s, -36 * s), new Vector2(-4 * s, -6 * s), ink, 8 * s);
+            DrawLine(new Vector2(6f * s, -84f * s), new Vector2(46f * s, -70f * s), ink, 8 * s);
+
+            // 外套下摆：被风掀起的三片布
+            float flap = Mathf.Sin(tSec * 7f) * 6f * s;
+            DrawColoredPolygon(new[]
+            {
+                new Vector2(-22f * s, -74f * s),
+                new Vector2(-58f * s, -66f * s + flap),
+                new Vector2(-30f * s, -52f * s),
+            }, new Color(0.18f, 0.19f, 0.22f, 0.95f));
+            DrawColoredPolygon(new[]
+            {
+                new Vector2(-24f * s, -62f * s),
+                new Vector2(-52f * s, -50f * s - flap * 0.6f),
+                new Vector2(-26f * s, -44f * s),
+            }, new Color(0.14f, 0.15f, 0.18f, 0.9f));
+
+            // 头盔 + 面罩
+            DrawCircle(new Vector2(2f * s, -104f * s), 17f * s, ink);
+            DrawArc(new Vector2(2f * s, -104f * s), 17f * s, Mathf.DegToRad(-40), Mathf.DegToRad(70),
+                18, new Color(0.80f, 0.84f, 0.88f, 0.35f), 3f * s);
+            DrawColoredPolygon(new[]
+            {
+                new Vector2(12f * s, -110f * s),
+                new Vector2(20f * s, -104f * s),
+                new Vector2(12f * s, -96f * s),
+            }, new Color(0.55f, 0.62f, 0.70f, 0.55f));
+
+            // 顶边一道天光（和背景同一套冷调）
+            DrawLine(new Vector2(-30f * s, -46f * s), new Vector2(26f * s, -46f * s), rim, 2f * s);
+
             DrawSetTransform(Vector2.Zero, 0, Vector2.One);
 
             // ---- 操作提示（第一次） ----

@@ -18,6 +18,10 @@ public partial class DebugPanel : CanvasLayer
     private Label debugLabel;
     private bool panelVisible; // 默认 false：不显示
 
+    private Label statsLabel;      // F3：帧耗时/节点数叠层（第四轮反馈 5）
+    private bool statsVisible;
+    private float statsAcc;
+
     public override void _Ready()
     {
         Layer = 99; // 在过渡层之下，普通场景之上
@@ -51,8 +55,34 @@ public partial class DebugPanel : CanvasLayer
         debugLabel.AddThemeColorOverride("font_color", new Color(1, 1, 1, 0.9f));
         panel.AddChild(debugLabel);
 
+        // ---- F3 性能叠层（第四轮反馈 5）：常驻左上角，随时看帧耗时 ----
+        statsLabel = new Label { Visible = false, MouseFilter = Control.MouseFilterEnum.Ignore };
+        statsLabel.SetAnchorsPreset(Control.LayoutPreset.TopLeft);
+        statsLabel.Position = new Vector2(14, 84);
+        statsLabel.AddThemeFontSizeOverride("font_size", 15);
+        statsLabel.AddThemeColorOverride("font_color", new Color(0.95f, 0.98f, 1.0f, 0.92f));
+        statsLabel.AddThemeColorOverride("font_outline_color", new Color(0f, 0f, 0f, 0.9f));
+        statsLabel.AddThemeConstantOverride("outline_size", 6);
+        AddChild(statsLabel);
+
         Visible = false; // ← 关键：默认不显示
-        GD.Print("[调试面板] 已加载（默认隐藏，按 F12 显示 / 隐藏）");
+        GD.Print("[调试面板] 已加载（默认隐藏，按 F12 显示 / 隐藏；F3 帧耗时叠层）");
+    }
+
+    /// <summary>F3 叠层：帧耗时/节点/绘制，每 0.25 秒刷一次</summary>
+    private void TickStats(double delta)
+    {
+        if (!statsVisible || statsLabel == null)
+            return;
+        statsAcc += (float)delta;
+        if (statsAcc < 0.25f)
+            return;
+        statsAcc = 0f;
+        float ms = (float)Performance.GetMonitor(Performance.Monitor.TimeProcess) * 1000f;
+        float fps = (float)Performance.GetMonitor(Performance.Monitor.TimeFps);
+        int nodes = (int)Performance.GetMonitor(Performance.Monitor.ObjectNodeCount);
+        int draws = (int)Performance.GetMonitor(Performance.Monitor.RenderTotalDrawCallsInFrame);
+        statsLabel.Text = $"FPS {fps:F0}   帧 {ms:F2} ms   节点 {nodes}   绘制 {draws}";
     }
 
     /// <summary>F12 切换显示/隐藏</summary>
@@ -72,6 +102,12 @@ public partial class DebugPanel : CanvasLayer
                 Visible = panelVisible;
                 GD.Print($"[调试面板] {(panelVisible ? "显示" : "隐藏")}");
             }
+            else if (key.Keycode == Key.F3)
+            {
+                statsVisible = !statsVisible;
+                statsLabel.Visible = statsVisible;
+                GD.Print($"[调试面板] 帧耗时叠层：{(statsVisible ? "开" : "关")}");
+            }
             else if (key.Keycode == Key.F11)
             {
                 // 数值飘字开关（第十八轮拍板点③）：玩家侧默认不飘，
@@ -87,6 +123,8 @@ public partial class DebugPanel : CanvasLayer
     /// </summary>
     public override void _Process(double delta)
     {
+        // F3 叠层独立于 F12 面板：只开叠层时也要刷新
+        TickStats(delta);
         if (!panelVisible || GameManager.Instance == null)
             return;
 
@@ -112,5 +150,6 @@ public partial class DebugPanel : CanvasLayer
             $"选择记录: {gm.ChoiceCount} 条\n" +
             $"好友: {friended} 人 / 备注: {remarked} 条\n" +
             $"飘字: {(StatToast.DeveloperToasts ? "开(F11)" : "关(F11)")}";
+
     }
 }

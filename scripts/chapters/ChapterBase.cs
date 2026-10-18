@@ -31,6 +31,7 @@ public partial class ChapterBase : Control
     // ========== 节点引用（子类可以访问） ==========
     protected Label titleLabel;    // 标题文字
     protected Label subtitleLabel; // 副标题
+    protected CanvasLayer hudLayer; // 常驻 HUD 层（返回/背包）——压在所有全屏模态之上
     protected Button backButton;   // 返回菜单按钮
     protected Button bagButton;    // 背包按钮（第十五轮：左上角常驻）
 
@@ -159,6 +160,11 @@ public partial class ChapterBase : Control
         subtitleLabel = GetNodeOrNull<Label>("ChapterSubtitle");
         backButton = GetNodeOrNull<Button>("BackButton");
 
+        // 【第四轮反馈 2】第四、第五章的 .tscn 里压根没有 BackButton 节点，
+        // 这两章永远回不了主界面。场景里没有就现造一个，样式和别章一致。
+        if (backButton == null)
+            backButton = BuildFallbackBackButton();
+
         // 设置标题文字
         if (titleLabel != null && !string.IsNullOrEmpty(ChapterTitle))
         {
@@ -183,6 +189,11 @@ public partial class ChapterBase : Control
 
         // 左上角的背包按钮（第十五轮：手机/捡到的东西随时能翻出来看）
         BuildBagButton();
+
+        // 【第三轮反馈 2】返回/背包抬到独立的 CanvasLayer(85)。
+        // 以前台球、手机这类全屏模态会把整个画面盖住，按钮"画得上去、点不进去"——
+        // ZIndex 管不了跨层级的命中，只有换到更靠上的 CanvasLayer 才真正收得到点击。
+        BuildHudLayer();
 
         // 第三轮：章节主题 BGM（七首轮换）+ 环境音垫底
         StartChapterBgm();
@@ -235,6 +246,53 @@ public partial class ChapterBase : Control
     /// 对话播到一半也应该能翻背包（试玩反馈：手机要随时能拿出来）。
     /// 按钮右上角挂一个小红点：背包里有没看过的新东西时自己亮起来。
     /// </summary>
+    /// <summary>场景里没配返回按钮时，按别章的样式现造一个（琥珀色圆角纸片）</summary>
+    private Button BuildFallbackBackButton()
+    {
+        var btn = new Button
+        {
+            Name = "BackButton",
+            Text = "返回菜单",
+            FocusMode = FocusModeEnum.None,
+            MouseDefaultCursorShape = CursorShape.PointingHand,
+        };
+        btn.AddThemeFontSizeOverride("font_size", 18);
+        btn.AddThemeColorOverride("font_color", new Color(0.24f, 0.16f, 0.08f));
+        btn.AddThemeStyleboxOverride("normal", HudButtonStyle(new Color(0.831f, 0.647f, 0.455f)));
+        btn.AddThemeStyleboxOverride("hover", HudButtonStyle(new Color(0.910f, 0.769f, 0.604f)));
+        btn.AddThemeStyleboxOverride("pressed", HudButtonStyle(new Color(0.722f, 0.537f, 0.306f)));
+        btn.AddThemeStyleboxOverride("focus", new StyleBoxEmpty());
+        AddChild(btn);
+        GD.Print("[章节] 场景里没有返回按钮，已自动补一个");
+        return btn;
+    }
+
+    /// <summary>
+    /// 常驻 HUD 层（第三轮反馈 2）：返回菜单 / 背包挂在 CanvasLayer(85) 上，
+    /// 高于所有全屏模态（台球台面、手机、背包本身），低于确认弹窗（90）。
+    /// 这样"任何时候都能回主界面"才是真的能点。
+    /// </summary>
+    private void BuildHudLayer()
+    {
+        hudLayer = new CanvasLayer { Name = "HudLayer", Layer = 85 };
+        AddChild(hudLayer);
+
+        if (backButton != null && IsInstanceValid(backButton))
+        {
+            backButton.Reparent(hudLayer, false);
+            backButton.SetAnchorsPreset(LayoutPreset.BottomRight);
+            backButton.OffsetLeft = -190; backButton.OffsetRight = -36;
+            backButton.OffsetTop = -92; backButton.OffsetBottom = -36;
+        }
+        if (bagButton != null && IsInstanceValid(bagButton))
+        {
+            bagButton.Reparent(hudLayer, false);
+            bagButton.SetAnchorsPreset(LayoutPreset.TopLeft);
+            bagButton.OffsetLeft = 24; bagButton.OffsetTop = 24;
+            bagButton.OffsetRight = 132; bagButton.OffsetBottom = 68;
+        }
+    }
+
     private void BuildBagButton()
     {
         bagButton = new Button

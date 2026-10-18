@@ -228,5 +228,7 @@
   "phone.fallback_mail": "QQ邮箱",
   "phone.ai_initial": "深",
   "pc.led_label": "电源",
-  "settings.text_scale": "文字大小"
+  "settings.text_scale": "文字大小",
+  "billiard_resign_title": "这局就算了？",
+  "billiard_resign_body": "认输会直接按这一局输掉结算，剧情照常往下走。"
 }

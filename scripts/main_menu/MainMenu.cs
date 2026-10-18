@@ -31,30 +31,6 @@ public partial class MainMenu : Control
         // 获取按钮节点
         var startButton = GetNode<Button>("VBoxContainer/StartButton");
 
-        // 【第三轮反馈 13】二周目入口：只有"通关过"才出现（老存档按章节号 99 补标记）。
-        // 开发构建（编辑器里跑）额外放开，方便我们自己测章节——正式发行包里不会出现。
-        bool secondRunUnlocked = GameManager.Instance.Cleared || OS.IsDebugBuild();
-
-        // 第三轮：跳过序章（二周目）——旧存档自动备份，不怕覆盖
-        if (secondRunUnlocked)
-        {
-            var skipPrologueBtn = new Button
-            {
-                Text = "从第一章开始（跳过序章）",
-                FocusMode = FocusModeEnum.None,
-                MouseDefaultCursorShape = CursorShape.PointingHand,
-            };
-            skipPrologueBtn.AddThemeFontSizeOverride("font_size", 19);
-            skipPrologueBtn.Pressed += () =>
-            {
-                GD.Print("→ 跳过序章，从第一章开始");
-                GameManager.Instance.BeginNewGame();
-                GameManager.Instance.ChangeSceneWithTransition(
-                    "res://scenes/chapters/ch01/ch01.tscn", chapterIndex: 1);
-            };
-            startButton.GetParent().AddChild(skipPrologueBtn);
-            startButton.GetParent().MoveChild(skipPrologueBtn, startButton.GetIndex() + 1);
-        }
         var settingsButton = GetNode<Button>("VBoxContainer/SettingsButton");
         var quitButton = GetNode<Button>("VBoxContainer/QuitButton");
 
@@ -78,25 +54,6 @@ public partial class MainMenu : Control
         settingsButton.Pressed += OnSettingsPressed;
         quitButton.Pressed += OnQuitPressed;
 
-        // 章节直达（第三轮反馈 13：改成通关后开放，不再一上来就给）
-        if (secondRunUnlocked)
-        {
-            var chapterButton = new Button
-            {
-                Text = "章节选择",
-                FocusMode = FocusModeEnum.None,
-                MouseDefaultCursorShape = CursorShape.PointingHand,
-            };
-            chapterButton.AddThemeFontSizeOverride("font_size", 26);
-            var vb = GetNodeOrNull<VBoxContainer>("VBoxContainer");
-            if (vb != null)
-            {
-                vb.AddChild(chapterButton);
-                chapterButton.Pressed += OnChapterSelectPressed;
-                UiSounds.Wire(chapterButton);
-            }
-        }
-
         // 给所有按钮挂上"悬停/点击"音效
         UiSounds.WireAll(this);
 
@@ -106,16 +63,6 @@ public partial class MainMenu : Control
         GD.Print("主菜单已加载");
     }
 
-    /// <summary>
-    /// 章节直达面板（第三轮反馈 8 / 13）：列表统一交给 ChapterJump 生成。
-    /// 旧实现在主菜单里另抄了一份章名表，**漏了"第四章 · 星月"**——选第五章会跳进第四章；
-    /// 面板本身又没给 VBox 设锚点，列表高度为 0，点开是一片空白。
-    /// 现在只有一份真相，布局也修好了。
-    /// </summary>
-    private void OnChapterSelectPressed()
-    {
-        ChapterJump.ShowPanel(this, ChapterJump.LastChapter);
-    }
 
     // ==================== 氛围层（纯代码生成） ====================
 

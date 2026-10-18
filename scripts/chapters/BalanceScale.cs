@@ -97,12 +97,24 @@ public partial class BalanceScale : Node2D
         Position = new Vector2(vp.X / 2f, Position.Y);
     }
 
+    private float redrawAcc;
+
     public override void _Process(double delta)
     {
         timeAcc += (float)delta;
         // 指数趋近目标角：任何帧率下都稳定，转向过程中自然经过"平衡点"
+        float prev = currentAngle;
         currentAngle = Mathf.Lerp(currentAngle, targetAngle, 1f - Mathf.Exp(-2.6f * (float)delta));
-        QueueRedraw();
+
+        // 【第四轮反馈 5】天平是逐帧整幅重绘的大件：倾斜在变时保持满帧，
+        // 静止时（只剩那点极轻的呼吸摆动）降到 30fps——肉眼几乎看不出，省一半绘制。
+        redrawAcc += (float)delta;
+        bool tilting = Mathf.Abs(currentAngle - prev) > 0.01f;
+        if (tilting || redrawAcc >= 1f / 30f)
+        {
+            redrawAcc = 0f;
+            QueueRedraw();
+        }
     }
 
     private Texture2D scaleTex;

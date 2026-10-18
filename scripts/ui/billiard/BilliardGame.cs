@@ -176,6 +176,8 @@ public partial class BilliardGame : Control
     private Label commentText;
     private Tween barTween;
 
+    private Button resignBtn;   // 认输（第三轮反馈：不想打完时能直接结算）
+
     private bool opened;
     private bool closing;
     private bool suppressing;
@@ -211,7 +213,61 @@ public partial class BilliardGame : Control
         spinLabel.HorizontalAlignment = HorizontalAlignment.Center;
 
         BuildCommentBar();
+        BuildResignButton();
         SetupTable();
+    }
+
+    /// <summary>
+    /// 认输按钮（第三轮反馈）：放在右下角"返回菜单"左边，低调一点。
+    /// 点一下先确认，再按"输"结算——不改变剧情分支，只是别让玩家被迫打完。
+    /// </summary>
+    private void BuildResignButton()
+    {
+        resignBtn = new Button
+        {
+            Name = "ResignButton",
+            Text = "认输",
+            FocusMode = FocusModeEnum.None,
+            MouseDefaultCursorShape = CursorShape.PointingHand,
+        };
+        resignBtn.SetAnchorsPreset(LayoutPreset.BottomRight);
+        resignBtn.OffsetLeft = -320; resignBtn.OffsetRight = -206;
+        resignBtn.OffsetTop = -78; resignBtn.OffsetBottom = -38;
+        resignBtn.AddThemeFontSizeOverride("font_size", 19);
+        resignBtn.AddThemeColorOverride("font_color", new Color(0.99f, 0.96f, 0.88f, 0.92f));
+        resignBtn.AddThemeColorOverride("font_hover_color", Colors.White);
+        var normal = new StyleBoxFlat
+        {
+            BgColor = new Color(0.16f, 0.13f, 0.10f, 0.55f),
+            BorderColor = new Color(0.85f, 0.72f, 0.45f, 0.35f),
+            BorderWidthLeft = 1, BorderWidthRight = 1, BorderWidthTop = 1, BorderWidthBottom = 1,
+        };
+        normal.SetCornerRadiusAll(12);
+        var hover = (StyleBoxFlat)normal.Duplicate();
+        hover.BgColor = new Color(0.24f, 0.19f, 0.13f, 0.75f);
+        resignBtn.AddThemeStyleboxOverride("normal", normal);
+        resignBtn.AddThemeStyleboxOverride("hover", hover);
+        resignBtn.AddThemeStyleboxOverride("pressed", normal);
+        resignBtn.AddThemeStyleboxOverride("focus", new StyleBoxEmpty());
+        resignBtn.Pressed += OnResignPressed;
+        AddChild(resignBtn);
+    }
+
+    private void OnResignPressed()
+    {
+        if (closing || gs == GState.Outro)
+            return;
+        ConfirmHost.Ask("billiard_resign_title", "billiard_resign_body", DoResign);
+    }
+
+    /// <summary>确认认输 → 走输的结算（点评 + 记选择 + 关台面 → 章节继续）</summary>
+    private void DoResign()
+    {
+        if (closing || !GodotObject.IsInstanceValid(this))
+            return;
+        gs = GState.Comment;
+        var lines = BilliardData.Comments("resign");
+        ShowComments(lines, () => EndGame(1, false));
     }
 
     private Label MakeHudLabel(float top, float bottom, int fontSize, Color col)
@@ -478,7 +534,12 @@ public partial class BilliardGame : Control
             }
         }
 
-        board.QueueRedraw();
+        // 【第四轮反馈 5】以前这里每帧无条件重画整张台面（16 球 + 阴影 + 瞄准线）。
+        // 现在只在"确实有东西在动"时重画：物理模拟、拖杆、摆自由球、她的瞄准线、
+        // 落袋特效、点评条出现。静止时台球界面几乎不耗绘制。
+        if (gs == GState.Sim || dragging || spinDragging || gs == GState.Placing
+            || herAimShow || pocketFx.Count > 0 || commentActive)
+            board.QueueRedraw();
     }
 
     // ==================== 物理 ====================
@@ -912,6 +973,15 @@ public partial class BilliardGame : Control
             result = meWin ? 0 : 1;
         GameManager.Instance?.RecordChoice("ch09_billiard", result);
 
+        // 【第三轮 B1】赢一局给点勇气，平局一半——只加数值，不改任何剧情分支。
+        if (result == 0)
+            GameManager.Instance?.AddCourage(2);
+        else if (result == 2)
+            GameManager.Instance?.AddCourage(1);
+
+        if (resignBtn != null && GodotObject.IsInstanceValid(resignBtn))
+            resignBtn.Visible = false;
+
         string key = result == 0 ? "win" : (result == 1 ? "lose" : "tie");
         var line = PickComment(key);
 
@@ -1231,8 +1301,8 @@ public partial class BilliardGame : Control
                 UpdateSpinFromPos(mm.Position);
                 board.QueueRedraw();
             }
-            if (dragging || gs == GState.Placing)
-                board.QueueRedraw();
+            // 鼠标一动就重画（瞄准线跟着鼠标走）——配合 _Process 的空闲跳过
+            board.QueueRedraw();
         }
     }
 
@@ -1249,6 +1319,11 @@ public partial class BilliardGame : Control
             else if (commentActive)
             {
                 SkipComment();
+            }
+            else
+            {
+                // 【第三轮反馈 2】没在拖杆也没在播点评时按 Esc = 想走：和"认输"同一个出口。
+                OnResignPressed();
             }
         }
     }
