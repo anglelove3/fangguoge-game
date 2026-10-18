@@ -8,6 +8,8 @@
 |---|---|---|
 | **demo v1.3.0** | 序章 + 第一~十三章（完整可玩） | [Windows x64 单文件 exe（双击即玩，已内嵌 .NET 运行时）](https://github.com/anglelove3/fangguoge-game/releases/latest) |
 
+> 设计文档：[`docs/设计总案_v1.3.md`](docs/设计总案_v1.3.md)（以实装为准的章节对齐表 + 玩法全景）
+
 - 不需要安装 Godot 或任何运行库，解压即玩（约 25~40 分钟流程）
 - 存档位于 `%APPDATA%\Godot\app_userdata\` 下，删档重开：删除 `savegame.json`
 - 键盘 `Tab` 切换自动播放 / `Ctrl` 按住快进对话 / `Esc` 关闭手机
