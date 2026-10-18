@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cf68cnqoahsb1"
-path="res://.godot/imported/dorm_late_night_v1.png-92fc093e752b03b8b4142595a07c2324.ctex"
+uid="uid://sxb6yfaxc1ij"
+path="res://.godot/imported/_ch05_fix.png-d78c2f0a3fc3a6b68a0908485b57fe34.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/art/backgrounds/dorm_late_night_v1.png"
-dest_files=["res://.godot/imported/dorm_late_night_v1.png-92fc093e752b03b8b4142595a07c2324.ctex"]
+source_file="res://_ch05_fix.png"
+dest_files=["res://.godot/imported/_ch05_fix.png-d78c2f0a3fc3a6b68a0908485b57fe34.ctex"]
 
 [params]
 

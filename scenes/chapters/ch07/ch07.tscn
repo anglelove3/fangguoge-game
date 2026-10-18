@@ -4,7 +4,7 @@
 [ext_resource type="Texture2D" path="res://assets/art/backgrounds/day_lab_v1.png" id="2_lab"]
 [ext_resource type="Texture2D" path="res://assets/art/backgrounds/campus_dusk_v1.png" id="3_campus"]
 [ext_resource type="Texture2D" path="res://assets/art/backgrounds/lanting_rain_v1.png" id="4_lanting"]
-[ext_resource type="Texture2D" path="res://assets/art/backgrounds/dorm_night_v2.png" id="5_dorm"]
+[ext_resource type="Texture2D" path="res://assets/art/backgrounds/dorm_night_v3.png" id="5_dorm"]
 [ext_resource type="Texture2D" path="res://assets/art/backgrounds/beach_day_v1.png" id="6_beach"]
 
 [sub_resource type="StyleBoxFlat" id="SB_hot_normal"]
