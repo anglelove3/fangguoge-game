@@ -553,17 +553,41 @@ public partial class AppIcon : Control
         btn.Pressed += () => Chosen?.Invoke(def.Id);
         column.AddChild(btn);
 
-        var glyph = new Label
+        // 第三轮反馈 1：优先用拟真图标（AI 生成切图，assets/art/ui/app_{id}.png），
+        // 没有图的（音乐/支付等）保留原来的圆角色块 + 一个字
+        string iconPath = $"res://assets/art/ui/app_{def.Id}.png";
+        if (ResourceLoader.Exists(iconPath))
         {
-            Text = def.Glyph,
-            HorizontalAlignment = HorizontalAlignment.Center,
-            VerticalAlignment = VerticalAlignment.Center,
-            MouseFilter = MouseFilterEnum.Ignore,
-        };
-        glyph.AddThemeFontSizeOverride("font_size", 58);
-        glyph.AddThemeColorOverride("font_color", glyphColor);
-        glyph.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
-        btn.AddChild(glyph);
+            var pic = new TextureRect
+            {
+                Texture = GD.Load<Texture2D>(iconPath),
+                ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,
+                StretchMode = TextureRect.StretchModeEnum.KeepAspectCovered,
+                MouseFilter = MouseFilterEnum.Ignore,
+            };
+            pic.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
+            btn.AddChild(pic);
+            // 图标自带圆角底，按钮底色透出来会露边——压成透明
+            foreach (var st in new[] { "normal", "hover", "pressed", "focus" })
+            {
+                var empty = new StyleBoxEmpty();
+                btn.AddThemeStyleboxOverride(st, empty);
+            }
+        }
+        else
+        {
+            var glyph = new Label
+            {
+                Text = def.Glyph,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center,
+                MouseFilter = MouseFilterEnum.Ignore,
+            };
+            glyph.AddThemeFontSizeOverride("font_size", 58);
+            glyph.AddThemeColorOverride("font_color", glyphColor);
+            glyph.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
+            btn.AddChild(glyph);
+        }
 
         // 未读角标（微信专用，SetBadge 控制）
         badge = new PanelContainer { Visible = false, MouseFilter = MouseFilterEnum.Ignore };

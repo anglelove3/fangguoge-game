@@ -127,7 +127,8 @@ public partial class BalanceScale : Node2D
             const float drawW = 660f;
             float k = drawW / scaleTex.GetWidth();
             var size = scaleTex.GetSize() * k;
-            var topLeft = new Vector2(-0.50f, -0.10f) * size;
+            // 第三轮反馈 3：视觉重心略偏左——整体右移 26px 贴住中缝
+            var topLeft = new Vector2(-0.50f, -0.10f) * size + new Vector2(26f, 0f);
             DrawSetTransform(Vector2.Zero, Mathf.DegToRad(shown), Vector2.One);
             DrawTextureRect(scaleTex, new Rect2(topLeft, size), false);
             DrawSetTransform(Vector2.Zero, 0f, Vector2.One);

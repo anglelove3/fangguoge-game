@@ -62,7 +62,7 @@ public partial class Ch02 : ChapterBase
         // 第三轮：底图换 dorm_night_v3（AI 重绘横版，窗台干净无补丁）——
         // 三件道具（打火机/烟灰缸/耳机）+ 手机都改为「道具块 + 同图干净补片」双层贴片：
         // 收集后上层淡出，露出同一张图裁的干净底，纹理一致零色差。
-        ArtAnchor.Track(phoneBtn, new Rect2(1500f, 828f, 168f, 92f));   // 桌上手机（贴片位置）
+        ArtAnchor.Track(phoneBtn, new Rect2(210f, 690f, 168f, 92f));    // 窗台上的手机（第三轮反馈 21）
         ArtAnchor.TrackFraction(windowBtn, new Rect2(0f, 0.02f, 0.28f, 0.64f));
         ArtAnchor.Track(ashtrayBtn, new Rect2(502f, 582f, 161f, 93f));  // 烟灰缸（新图实测换算）
         ArtAnchor.Track(lighterBtn, new Rect2(88f, 711f, 128f, 77f));   // 窗台打火机
@@ -107,7 +107,7 @@ public partial class Ch02 : ChapterBase
             MouseFilter = MouseFilterEnum.Ignore,
         };
         GetNode("Background").AddSibling(phoneSprite);
-        ArtAnchor.Track(phoneSprite, new Rect2(1500f, 828f, 168f, 92f));
+        ArtAnchor.Track(phoneSprite, new Rect2(210f, 690f, 168f, 92f));
 
         // "点万物有回应"：柜门上的照片、便利贴、货架上的泡面（data/flavor/ch02.json）
         AddChild(FlavorSpots.Create(hotspotsRoot, "ch02"));

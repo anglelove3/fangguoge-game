@@ -46,10 +46,10 @@ public partial class Ch04 : ChapterBase
         herBtn.Pressed += OnHerPressed;
 
         // 热点按美术图钉住
-        ArtAnchor.TrackFraction(fountainBtn, new Rect2(0.22f, 0.18f, 0.45f, 0.58f));
-        ArtAnchor.TrackFraction(gateBtn, new Rect2(0.74f, 0.18f, 0.22f, 0.55f));
-        ArtAnchor.TrackFraction(lampBtn, new Rect2(0.02f, 0.22f, 0.16f, 0.45f));
-        ArtAnchor.TrackFraction(herBtn, new Rect2(0.52f, 0.53f, 0.13f, 0.24f));
+        ArtAnchor.TrackFraction(fountainBtn, new Rect2(0.14f, 0.32f, 0.58f, 0.52f));
+        ArtAnchor.TrackFraction(gateBtn, new Rect2(0.0f, 0.10f, 0.30f, 0.48f));
+        ArtAnchor.TrackFraction(lampBtn, new Rect2(0.76f, 0.42f, 0.16f, 0.38f));
+        ArtAnchor.TrackFraction(herBtn, new Rect2(0.47f, 0.68f, 0.09f, 0.18f));
         
         UiSounds.WireAll(this);
 
