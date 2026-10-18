@@ -464,23 +464,39 @@ public partial class Ch13 : ChapterBase
 
     private void PlayEndingOutro()
     {
-        DialogueManager.Instance.PlaySequence(ChapterId, "outro", () =>
+        DialogueManager.Instance.PlaySequence(ChapterId, "outro", PlayEpilogueVariant);
+    }
+
+    /// <summary>
+    /// 第三轮：结局按好感分三版尾声——同一场告别，往后的日子不一样。
+    /// 高好感：她主动了（他终于接住）；低好感：谁都没再开口（尊重沉默）。
+    /// </summary>
+    private void PlayEpilogueVariant()
+    {
+        int aff = GameManager.Instance.Affection;
+        string epi = aff >= 62 ? "epilogue_warm" : (aff < 40 ? "epilogue_cold" : "");
+        if (string.IsNullOrEmpty(epi))
         {
-            // 第三轮 B1：送别长镜头——画面缓缓横移+推近，像谁在缓慢回头；
-            // 说完最后一句，镜头也慢慢走远，然后才是落幕。
-            var bg = GetNodeOrNull<TextureRect>("Background");
-            if (bg != null)
-            {
-                bg.PivotOffset = GetViewportRect().Size / 2f;
-                var drift = CreateTween();
-                drift.SetParallel(true);
-                drift.TweenProperty(bg, "position:x", bg.Position.X - 90f, 20.0)
-                    .SetTrans(Tween.TransitionType.Sine).SetEase(Tween.EaseType.Out);
-                drift.TweenProperty(bg, "scale", new Vector2(1.045f, 1.045f), 20.0)
-                    .SetTrans(Tween.TransitionType.Sine).SetEase(Tween.EaseType.Out);
-            }
-            GoToNextChapter("res://scenes/ui/demo_end/demo_end.tscn", 99);
-        });
+            FinishEnding();
+            return;
+        }
+        DialogueManager.Instance.PlaySequence(ChapterId, epi, FinishEnding);
+    }
+
+    private void FinishEnding()
+    {
+        var bg = GetNodeOrNull<TextureRect>("Background");
+        if (bg != null)
+        {
+            bg.PivotOffset = GetViewportRect().Size / 2f;
+            var drift = CreateTween();
+            drift.SetParallel(true);
+            drift.TweenProperty(bg, "position:x", bg.Position.X - 90f, 20.0)
+                .SetTrans(Tween.TransitionType.Sine).SetEase(Tween.EaseType.Out);
+            drift.TweenProperty(bg, "scale", new Vector2(1.045f, 1.045f), 20.0)
+                .SetTrans(Tween.TransitionType.Sine).SetEase(Tween.EaseType.Out);
+        }
+        GoToNextChapter("res://scenes/ui/demo_end/demo_end.tscn", 99);
     }
 
     // ==================== 小工具 ====================

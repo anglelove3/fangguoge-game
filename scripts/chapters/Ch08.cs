@@ -99,6 +99,7 @@ public partial class Ch08 : ChapterBase
     private void OnRiverTimeout()
     {
         GameManager.Instance.AddCourage(4); // 沉默也是勇气
+        GameManager.Instance.RecordChoice("river_wait", 1);
         DialogueManager.Instance.PlaySequence(ChapterId, "river_wait", BackToNightStall);
     }
 

@@ -30,6 +30,24 @@ public partial class MainMenu : Control
 
         // 获取按钮节点
         var startButton = GetNode<Button>("VBoxContainer/StartButton");
+
+        // 第三轮：跳过序章（二周目）——旧存档自动备份，不怕覆盖
+        var skipPrologueBtn = new Button
+        {
+            Text = "从第一章开始（跳过序章）",
+            FocusMode = FocusModeEnum.None,
+            MouseDefaultCursorShape = CursorShape.PointingHand,
+        };
+        skipPrologueBtn.AddThemeFontSizeOverride("font_size", 19);
+        skipPrologueBtn.Pressed += () =>
+        {
+            GD.Print("→ 跳过序章，从第一章开始");
+            GameManager.Instance.BeginNewGame();
+            GameManager.Instance.ChangeSceneWithTransition(
+                "res://scenes/chapters/ch01/ch01.tscn", chapterIndex: 1);
+        };
+        startButton.GetParent().AddChild(skipPrologueBtn);
+        startButton.GetParent().MoveChild(skipPrologueBtn, startButton.GetIndex() + 1);
         var settingsButton = GetNode<Button>("VBoxContainer/SettingsButton");
         var quitButton = GetNode<Button>("VBoxContainer/QuitButton");
 

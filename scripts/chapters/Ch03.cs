@@ -171,6 +171,7 @@ public partial class Ch03 : ChapterBase
         AddChild(new KeyOffer(back =>
         {
             keyTakenBack = back;
+            GameManager.Instance.RecordChoice("key_taken_back", back ? 1 : 0);
             string seq = back ? "key_back" : "key_give";
             DialogueManager.Instance.PlaySequence(ChapterId, seq, ContinueAfterKeys);
         }));
@@ -703,6 +704,7 @@ public partial class Ch03 : ChapterBase
                 // 收回过钥匙 → 最狠那句她说不出口（少一把刀）
                 AddChild(new HeartBlades(pulled =>
                 {
+                    GameManager.Instance.RecordChoice("heart_pulled", pulled);
                     DialogueManager.Instance.PlaySequence(ChapterId, "heart_lines", () =>
                     {
                         finished = true;

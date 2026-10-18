@@ -463,11 +463,12 @@ public partial class Ch11 : ChapterBase
         if (index == 0)
         {
             GameManager.Instance.AddAffection(5);
-            GameManager.Instance.RecordChoice("ex_wechat_deleted", 0);
+            GameManager.Instance.RecordChoice("ex_wechat", 0); // 0 = 删了
         }
         else
         {
             GameManager.Instance.AddAffection(-2);
+            GameManager.Instance.RecordChoice("ex_wechat", 1); // 1 = 留着
         }
         string seq = index == 0 ? "ex_delete" : "ex_keep";
         DialogueManager.Instance.PlaySequence(ChapterId, seq, () =>

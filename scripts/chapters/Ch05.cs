@@ -178,6 +178,7 @@ public partial class Ch05 : ChapterBase
             lastActivityMsec = Time.GetTicksMsec();
             var dm = DialogueManager.Instance;
             string seq = QqSpaceView.DiscoveredOnce ? "qq_reveal" : "qq_skip";
+            GameManager.Instance.RecordChoice("qq_discovered", QqSpaceView.DiscoveredOnce ? 1 : 0);
             dm.PlaySequence(ChapterId, seq, () =>
             {
                 phoneDone = true;

@@ -62,6 +62,9 @@ public partial class AudioManager : Node
 	// 第二十四轮 F35 心情曲库（Kevin MacLeod, incompetech.com, CC-BY 4.0）
 	public const string BgmSadTrio = "res://assets/audio/bgm/bgm_sad_trio.mp3";           // 分手沉重（第三章《天平》后段 / 第六章《晚安》）
 	public const string BgmHeartbreaking = "res://assets/audio/bgm/bgm_heartbreaking.mp3"; // 深夜心碎（第七章《手滑》凌晨备选）
+	// 第三轮：两首变奏（同源重新调律——温暖版 / 释然版），版权安全、音色统一
+	public const string BgmWarm = "res://assets/audio/bgm/bgm_warm_v1.ogg";      // 温暖回忆
+	public const string BgmRelease = "res://assets/audio/bgm/bgm_release_v1.mp3"; // 释然收尾
 	public const string BgmPianoBetween = "res://assets/audio/bgm/bgm_piano_between.mp3";  // 苦涩转释然（第九章《放过自己》碰杯后）
 
 	/// <summary>当前 BGM 的"基础音量"（不含设置页偏移），设置页改音量时要用它重算</summary>

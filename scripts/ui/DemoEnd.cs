@@ -34,6 +34,9 @@ public partial class DemoEnd : Control
         var box = GetNode<VBoxContainer>("Center/VBox/ReviewScroll/ReviewBox");
         BuildReview(box);
 
+        // 第三轮：那些「没有选项的选择」——钥匙/刀/照片/前女友/河水
+        BuildHiddenChoices(box);
+
         var backBtn = GetNode<Button>("Center/VBox/BackButton");
         backBtn.Pressed += OnBackPressed;
         backBtn.Text = DataStore.Text("demo_end.back");
@@ -77,6 +80,45 @@ public partial class DemoEnd : Control
                 : "";
 
             box.AddChild(MakeRow(item.Where, item.Label, answer));
+        }
+    }
+
+    /// <summary>
+    /// 结局页第二块：没有选项框的选择。
+    /// 它们从来没让玩家点过——但玩家做过的每个动作都被记下来了。
+    /// </summary>
+    private void BuildHiddenChoices(VBoxContainer box)
+    {
+        var h = GameManager.Instance.ChoiceHistory;
+        var lines = new System.Collections.Generic.List<string>();
+
+        if (h.TryGetValue("key_taken_back", out var key))
+            lines.Add(key == 1 ? "那把钥匙，你在最后一秒收了回来。" : "那把钥匙，你留在了她那边。");
+        if (h.TryGetValue("heart_pulled", out var pulled))
+            lines.Add(pulled >= 4 ? "四把刀，你全拔了出来。" : pulled > 0 ? $"那些刀，你拔出来了 {pulled} 把。" : "那些刀，你一把都没拔。");
+        if (h.TryGetValue("qq_discovered", out var qq) && qq == 1)
+            lines.Add("那张照片，是你自己翻到的。");
+        if (h.TryGetValue("ex_wechat", out var ex))
+            lines.Add(ex == 0 ? "她的微信，你删了。" : "她的微信，你还留着。");
+        if (h.TryGetValue("river_wait", out var wait) && wait == 1)
+            lines.Add("在河边，你什么都没选，只看了很久的河水。");
+
+        if (lines.Count == 0)
+            return;
+
+        box.AddChild(new Control { CustomMinimumSize = new Vector2(0, 14) });
+
+        var head = new Label { Text = "有些选择，没有选项" };
+        head.AddThemeFontSizeOverride("font_size", 20);
+        head.AddThemeColorOverride("font_color", new Color(0.62f, 0.55f, 0.42f));
+        box.AddChild(head);
+
+        foreach (var line in lines)
+        {
+            var l = new Label { Text = "· " + line, AutowrapMode = TextServer.AutowrapMode.WordSmart };
+            l.AddThemeFontSizeOverride("font_size", 19);
+            l.AddThemeColorOverride("font_color", new Color(0.78f, 0.74f, 0.66f));
+            box.AddChild(l);
         }
     }
 

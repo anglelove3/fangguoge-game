@@ -100,19 +100,19 @@ public partial class ChapterBase : Control
         string bgm = ChapterIndex switch
         {
             0 => AudioManager.BgmGym1,          // 序章·那首歌（主旋律）
-            1 => AudioManager.BgmGym2,          // 寄居蟹：白天轻快
+            1 => AudioManager.BgmWarm,          // 寄居蟹：白天轻快（温暖变奏）
             2 => AudioManager.BgmHeartbreaking, // 一千公里：深夜等消息
             3 => AudioManager.BgmGym2,          // 天平：开场平静，后段切 SadTrio（章内自己切）
             4 => AudioManager.BgmSadTrio,       // 星月：告别
             5 => AudioManager.BgmHeartbreaking, // 晚安：分手当夜（换成更痛的）
             6 => AudioManager.BgmGym3,          // 手滑：凌晨
-            7 => AudioManager.BgmGym2,          // 碧蓝蓝天：白天海边（换掉 Gym1）
-            8 => AudioManager.BgmPianoBetween,  // 放过自己：夜摊
+            7 => AudioManager.BgmWarm,          // 碧蓝蓝天：白天海边（温暖变奏）
+            8 => AudioManager.BgmRelease,       // 放过自己：夜摊（释然变奏）
             9 => AudioManager.BgmHeartbreaking, // 三点水：雨夜心碎（换掉 Gym1）
             10 => AudioManager.BgmGym3,         // 还想再见：夜里回忆（换掉 Gym1）
             11 => AudioManager.BgmPianoBetween, // 置顶：前夜苦涩转释然（换掉 Gym1）
             12 => AudioManager.BgmRoad,         // 向南：公路
-            13 => AudioManager.BgmPianoBetween, // 十里长亭：释然收尾（换掉 Gym1）
+            13 => AudioManager.BgmRelease,      // 十里长亭：释然收尾（释然变奏）
             _ => "",
         };
         if (!string.IsNullOrEmpty(bgm))

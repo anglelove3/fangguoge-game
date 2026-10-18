@@ -279,7 +279,8 @@ public partial class LockScreen : Control
         if (pct != lastBatteryPct)
         {
             lastBatteryPct = pct;
-            batteryPct.Text = pct;
+            // 第三轮反馈：低电量要让人「感觉到」——数字变红 + 后面跟一句提醒
+            batteryPct.Text = lv <= GameManager.BatteryLowThreshold ? pct + "  电量不足" : pct;
             batteryPct.AddThemeColorOverride("font_color",
                 lv <= GameManager.BatteryLowThreshold
                     ? new Color(1f, 0.45f, 0.4f)
