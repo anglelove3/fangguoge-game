@@ -113,6 +113,7 @@ public partial class Ch08 : ChapterBase
     /// <summary>想完了 → 背景淡切回夜摊 → 接原 intro</summary>
     private void BackToNightStall()
     {
+        if (drink != null) drink.Visible = true;
         var bg = GetNodeOrNull<TextureRect>("Background");
         if (bg == null || stallBg == null)
         {

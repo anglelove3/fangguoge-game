@@ -156,6 +156,10 @@ public partial class BalanceScale : Node2D
         DrawPanWithStrings(leftEnd, leftPan);
         DrawPanWithStrings(rightEnd, rightPan);
 
+        // 第三轮反馈 5：托盘里要真的留下东西——放上去的卡片/物件在盘点成小堆
+        DrawPanPile(leftPan, MemoryChips, new Color(0.88f, 0.82f, 0.68f), true);
+        DrawPanPile(rightPan, CompensationChips, new Color(0.72f, 0.78f, 0.86f), false);
+
         // 3) 左盘的纸片堆：先是三张回忆（暖白纸），再是"补偿物"（冷灰纸）
         //    每一张都比上一张歪得更厉害，像随手码上去、越码越不稳
         int total = MemoryChips + CompensationChips;
@@ -195,6 +199,26 @@ public partial class BalanceScale : Node2D
     }
 
     /// <summary>画一个托盘：两根八字吊绳 + 浅浅的梯形盘面</summary>
+    /// <summary>盘里的小堆：卡片像一叠纸片，补偿物像小石头——数量多了自然压弯天平</summary>
+    private void DrawPanPile(Vector2 pan, int count, Color col, bool cards)
+    {
+        for (int i = 0; i < Mathf.Min(count, 8); i++)
+        {
+            var p = pan + new Vector2((i % 3 - 1) * 22f, -8f - (i / 3) * 7f);
+            if (cards)
+            {
+                DrawRect(new Rect2(p - new Vector2(16, 3), new Vector2(32, 6)), col);
+                DrawRect(new Rect2(p - new Vector2(16, 3), new Vector2(32, 6)),
+                    new Color(0, 0, 0, 0.22f), false, 1f);
+            }
+            else
+            {
+                DrawCircle(p, 7f, col);
+                DrawArc(p, 7f, 0, Mathf.Tau, 14, new Color(0, 0, 0, 0.25f), 1.2f);
+            }
+        }
+    }
+
     private void DrawPanWithStrings(Vector2 end, Vector2 pan)
     {
         float spread = PanWidth * 0.38f;

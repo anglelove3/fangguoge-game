@@ -42,10 +42,11 @@ public partial class DragProp : TextureRect
         StretchMode = StretchModeEnum.Scale;
         homeLeft = Position.X;
         homeTop = Position.Y;
-        // 平时半透明（不抢画面），鼠标扫过才亮起来——「这件东西可以拿」
-        Modulate = new Color(1f, 1f, 1f, 0.55f);
+        // 第三轮反馈 4：默认几乎完全融进画面（alpha 0.0），鼠标扫过才浮现——
+        // 玩家自己「摸」到这些能拿的东西，而不是被框提示
+        Modulate = new Color(1f, 1f, 1f, 0f);
         MouseEntered += () => { if (!dragging && !done) Modulate = Colors.White; };
-        MouseExited += () => { if (!dragging && !done) Modulate = new Color(1f, 1f, 1f, 0.55f); };
+        MouseExited += () => { if (!dragging && !done) Modulate = new Color(1f, 1f, 1f, 0f); };
     }
 
     public override void _GuiInput(InputEvent @event)

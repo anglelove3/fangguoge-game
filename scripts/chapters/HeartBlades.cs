@@ -273,6 +273,42 @@ public partial class HeartBlades : Control
         if (heart == null)
             return;
 
+        // 第三轮反馈 6：背景里几条极淡的血管线（缓慢流动的曲线）
+        for (int i = 0; i < 5; i++)
+        {
+            float ph = t * 0.15f + i * 1.3f;
+            var a0 = heartCenter + new Vector2(-size.X * 0.45f, (i - 2) * 90f + Mathf.Sin(ph) * 30f);
+            var a1 = heartCenter + new Vector2(0, (i - 2) * 60f + Mathf.Cos(ph * 1.2f) * 40f);
+            var a2 = heartCenter + new Vector2(size.X * 0.45f, (i - 2) * 80f + Mathf.Sin(ph * 0.8f) * 34f);
+            DrawPolyline(new[] { a0, a1, a2 }, new Color(0.35f, 0.14f, 0.12f, 0.10f), 1.4f);
+        }
+
+        // 心跳波纹：每一次搏动从心脏向外扩一圈
+        if (t > DarkIn + 0.4f)
+        {
+            float period = 0.84f;
+            float ph2 = (t % period) / period;
+            if (ph2 < 0.45f)
+            {
+                float k = ph2 / 0.45f;
+                float rr = (heartScale * 983f * 0.34f) * (0.6f + k * 1.1f);
+                DrawArc(heartCenter + shake, rr, 0, Mathf.Tau, 48,
+                    new Color(0.55f, 0.22f, 0.18f, (1f - k) * 0.16f), 2.2f);
+            }
+        }
+
+        // 漂浮的细小尘屑（慢慢往上飘，像水里的杂质）
+        for (int i = 0; i < 26; i++)
+        {
+            float seed = i * 53.7f;
+            float px = heartCenter.X + Mathf.Sin(seed + t * 0.3f) * (size.X * 0.30f + (seed % 7) * 18f);
+            float py = heartCenter.Y + Mathf.Cos(seed * 1.7f + t * 0.22f) * (size.Y * 0.26f + (seed % 5) * 22f)
+                       - ((t * 8f + seed) % 40f);
+            float aa = 0.05f + 0.06f * (0.5f + 0.5f * Mathf.Sin(seed + t));
+            DrawCircle(new Vector2(px, py), 1.4f + (seed % 3) * 0.5f,
+                new Color(0.62f, 0.55f, 0.48f, aa));
+        }
+
         // 心脏：搏动（72bpm 左右；漏拍时停一下）
         float beat = 1f;
         if (t > DarkIn + 0.4f)
@@ -324,25 +360,18 @@ public partial class HeartBlades : Control
 
             DrawSetTransform(pos, b.Angle, Vector2.One);
             // 刀身（细长冷青灰）
-            var bladeCol = new Color(0.64f, 0.70f, 0.75f, alpha);
-            var edgeCol = new Color(0.90f, 0.94f, 0.97f, alpha);
+            // 第三轮反馈 6：刀改极简剪影——一整片深灰，只在刃口留一道细高光，
+            // 和心脏的水彩质感不再打架
             DrawColoredPolygon(new[]
             {
-                new Vector2(0, 0),
-                new Vector2(-24, -92),
-                new Vector2(24, -92),
-            }, new Color(0.16f, 0.18f, 0.20f, alpha * 0.55f)); // 阴影
-            DrawColoredPolygon(new[]
-            {
-                new Vector2(0, 5),
-                new Vector2(-17, -88),
-                new Vector2(17, -88),
-            }, bladeCol);
-            DrawLine(new Vector2(0, 2), new Vector2(0, -84), edgeCol, 2.4f); // 中脊
-            // 刀格 + 刀柄
-            DrawRect(new Rect2(-30, -100, 60, 12), new Color(0.30f, 0.23f, 0.18f, alpha));
-            DrawRect(new Rect2(-11, -158, 22, 58), new Color(0.24f, 0.18f, 0.14f, alpha));
-            DrawRect(new Rect2(-15, -166, 30, 9), new Color(0.32f, 0.25f, 0.19f, alpha));
+                new Vector2(0, 8),
+                new Vector2(-16, -90),
+                new Vector2(0, -98),
+                new Vector2(16, -90),
+            }, new Color(0.10f, 0.11f, 0.13f, alpha * 0.92f));
+            DrawLine(new Vector2(1, 4), new Vector2(11, -84), new Color(0.72f, 0.76f, 0.82f, alpha * 0.55f), 1.4f);
+            // 刀柄（一段深色，简单）
+            DrawRect(new Rect2(-9, -160, 18, 62), new Color(0.14f, 0.12f, 0.11f, alpha));
             DrawSetTransform(Vector2.Zero, 0f, Vector2.One);
 
             // 台词（刀柄旁边）
