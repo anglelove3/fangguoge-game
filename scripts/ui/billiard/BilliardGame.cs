@@ -371,9 +371,10 @@ public partial class BilliardGame : Control
         }
         // 第三排中央 index（0-based 累积）：row0:0 / row1:1-2 / row2:3-5 → 中央 = 4
         int centerIdx = 4;
-        // 三角里的位置 6、14 = 两个底角（row4 的第一个和最后一个：累积 10..14 → 首尾 10 与 14）
+        // 三角里的两个底角：Insert 8 之前只有 14 颗（索引 0..13），
+        // row4 首尾 = 累积 10 与 13（原来写 14 会越界 → 整个摆球流程抛异常只剩白球）
         (order[cornerA], order[10]) = (order[10], order[cornerA]);
-        (order[cornerB], order[14]) = (order[14], order[cornerB]);
+        (order[cornerB], order[13]) = (order[13], order[cornerB]);
         order.Insert(centerIdx, 8); // 现在是 15 颗，index 4 = 8 号
 
         float apexX = FeltRect.Position.X + FeltRect.Size.X * 0.70f;
@@ -394,6 +395,7 @@ public partial class BilliardGame : Control
                 number++;
             }
         }
+        GD.Print($"[台球] 摆球完成：{balls.Count} 颗（含白球），BallR={BallR}");
     }
 
     // ==================== 每帧 ====================

@@ -316,6 +316,8 @@ public partial class Ch09 : ChapterBase
         hotspotsRoot.Visible = false;
         hintLabel.Visible = false;
         CrossfadeTo(bgRmt, 1.1f);
+        // 第三轮反馈 16：台球室是室内——窗外的雨不该跟进屋
+        GetNodeOrNull<Control>("RainWindowFx")?.Hide();
         FadeMahjong(-22f, 2.2f);
         // 第二十四轮 F35：离开工位进会场——那点柔软收起来，理性冷静的《Gym2》回岗
         AudioManager.Instance?.PlayBgm(AudioManager.BgmGym2, -15f, 2.5f);
