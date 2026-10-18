@@ -34,15 +34,19 @@ public partial class DrinkPour : Node2D
     private const float GlassOuterW = 50f;     // 杯壁外沿半宽
 
     // ==================== 酒瓶几何 ====================
-    private const float BottleDx = -190f;      // 酒瓶立在这个 x（杯底中心为 0）
-    private const float BottleH = 400f;        // 瓶高（瓶口到瓶底）
+    private const float BottleDx = -226f;      // 酒瓶立在这个 x（杯底中心为 0）——对准底图里那瓶酒
+    private const float BottleH = 330f;        // 瓶高（瓶口到瓶底）——和底图那瓶等高
+    // 第三轮反馈 6：底图画的是矮胖啤酒瓶/宽口杯，程序道具原来又瘦又高，叠上去像两个东西。
+    // 这两个横向系数把贴片"压宽/收窄"，跟底图的形状对齐，看起来才是同一件东西。
+    private const float BottleWidthMul = 0.55f;
+    private const float GlassWidthMul = 1.42f;
     private const float PourAngle = 0.56f;     // 倒酒时倾斜的角度（弧度，约 32°）
 
     // ==================== 金艮的小杯子 ====================
-    private static readonly Vector2 FriendHome = new(240f, -80f); // 原位
-    private static readonly Vector2 FriendClink = new(199f, -40f); // 碰杯点
-    private static readonly Vector2 MineClink = new(95f, 2f);      // 我这边挪过去的位置
-    private const float FriendScale = 0.8f;
+    private static readonly Vector2 FriendHome = new(111f, 58f);   // 原位（对准底图右边那只杯）
+    private static readonly Vector2 FriendClink = new(66f, 52f);   // 碰杯点
+    private static readonly Vector2 MineClink = new(36f, 4f);      // 我这边挪过去的位置
+    private const float FriendScale = 0.92f;
 
     // ==================== 倒酒节奏 ====================
     private const float TiltIn = 0.4f;
@@ -79,7 +83,8 @@ public partial class DrinkPour : Node2D
     // （assets/art/props/），倒酒/碰杯动画不变；酒面、泡沫、影子仍是程序画
     // （液体是动态的，色块叠在水彩杯上不违和）。
     private Texture2D bottleTex, glassTex;
-    private const string BottleTexPath = "res://assets/art/props/bottle_v1.png";
+    // 第三轮反馈 6：bottle_v1 是亮绿色，在暗棕夜摊里像荧光棒；改用压暗去饱和的 v2
+    private const string BottleTexPath = "res://assets/art/props/bottle_v2.png";
     private const string GlassTexPath = "res://assets/art/props/glass_v1.png";
 
     public override void _Ready()
@@ -222,8 +227,8 @@ public partial class DrinkPour : Node2D
         AudioManager.Instance?.PlaySfx(AudioManager.SfxClink, -8f);
 
         // 接触点：我这边右杯口和金艮左杯口的正中间
-        var mineRim = myOffset + new Vector2(GlassTopW, GlassRimY);
-        var friendRim = friendPos + new Vector2(-GlassTopW * FriendScale, GlassRimY * FriendScale);
+        var mineRim = myOffset + new Vector2(GlassTopW * GlassWidthMul, GlassRimY);
+        var friendRim = friendPos + new Vector2(-GlassTopW * GlassWidthMul * FriendScale, GlassRimY * FriendScale);
         var contact = (mineRim + friendRim) * 0.5f;
 
         var burst = new ClinkBurst { Position = contact };
@@ -235,9 +240,9 @@ public partial class DrinkPour : Node2D
     public override void _Draw()
     {
         // ---- 桌面上的影子（第二十四轮 F27：加深加扁，让瓶杯「坐」在桌布上而不是悬浮） ----
-        DrawEllipseLocal(myOffset + new Vector2(0f, 3f), 74f, 11f, new Color(0f, 0f, 0f, 0.26f));
-        DrawEllipseLocal(friendPos + new Vector2(0f, 2f), 58f, 9f, new Color(0f, 0f, 0f, 0.22f));
-        DrawEllipseLocal(new Vector2(BottleDx + 8f, 3f), 46f, 9f, new Color(0f, 0f, 0f, 0.25f));
+        DrawEllipseLocal(myOffset + new Vector2(0f, 3f), 74f * GlassWidthMul, 11f, new Color(0f, 0f, 0f, 0.26f));
+        DrawEllipseLocal(friendPos + new Vector2(0f, 2f), 58f * GlassWidthMul * FriendScale, 9f, new Color(0f, 0f, 0f, 0.22f));
+        DrawEllipseLocal(new Vector2(BottleDx + 8f, 3f), 46f * BottleWidthMul, 9f, new Color(0f, 0f, 0f, 0.25f));
 
         // ---- 酒瓶（倒酒时绕瓶底旋转、并朝杯子挪一点） ----
         float angle = 0f;
@@ -285,7 +290,8 @@ public partial class DrinkPour : Node2D
         // ---- 水彩杯贴片（301x716 → 高 176px，杯底对齐原点） ----
         if (glassTex != null)
         {
-            float gh = 176f, gw = gh * (glassTex.GetWidth() / (float)glassTex.GetHeight());
+            float gh = 176f;
+            float gw = gh * (glassTex.GetWidth() / (float)glassTex.GetHeight()) * GlassWidthMul;
             DrawTextureRect(glassTex, new Rect2(-gw / 2f, -gh + 6f, gw, gh), false);
         }
 
@@ -293,11 +299,11 @@ public partial class DrinkPour : Node2D
         float surfY = GsurfaceY(level);
         if (level > 0.005f)
         {
-            float hw = GhalfWidth(surfY);
+            float hw = GhalfWidth(surfY) * GlassWidthMul;
             var beer = new[]
             {
-                new Vector2(-GlassBaseW + 1.5f, GlassBottomY),
-                new Vector2(GlassBaseW - 1.5f, GlassBottomY),
+                new Vector2((-GlassBaseW + 1.5f) * GlassWidthMul, GlassBottomY),
+                new Vector2((GlassBaseW - 1.5f) * GlassWidthMul, GlassBottomY),
                 new Vector2(hw, surfY),
                 new Vector2(-hw, surfY),
             };
@@ -311,7 +317,7 @@ public partial class DrinkPour : Node2D
                 if (span < 12f)
                     break;
                 float by = surfY - ((time * 14f + seed * 29f) % span);
-                float bx = Mathf.Sin(seed * 9.1f) * (hw - 9f) * 0.8f;
+                float bx = Mathf.Sin(seed * 9.1f) * Mathf.Max(2f, hw - 9f) * 0.8f;
                 DrawCircle(new Vector2(bx, by), 1.6f + (i % 3) * 0.5f, new Color(1f, 0.94f, 0.78f, 0.3f));
             }
 
@@ -331,7 +337,8 @@ public partial class DrinkPour : Node2D
     {
         if (bottleTex != null)
         {
-            float bh = BottleH + 8f, bw = bh * (bottleTex.GetWidth() / (float)bottleTex.GetHeight());
+            float bh = BottleH + 8f;
+            float bw = bh * (bottleTex.GetWidth() / (float)bottleTex.GetHeight()) * BottleWidthMul;
             DrawTextureRect(bottleTex, new Rect2(-bw / 2f, -bh, bw, bh), false);
             return;
         }

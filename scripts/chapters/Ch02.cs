@@ -62,7 +62,7 @@ public partial class Ch02 : ChapterBase
         // 第三轮：底图换 dorm_night_v3（AI 重绘横版，窗台干净无补丁）——
         // 三件道具（打火机/烟灰缸/耳机）+ 手机都改为「道具块 + 同图干净补片」双层贴片：
         // 收集后上层淡出，露出同一张图裁的干净底，纹理一致零色差。
-        ArtAnchor.Track(phoneBtn, new Rect2(210f, 690f, 168f, 92f));    // 窗台上的手机（第三轮反馈 21）
+        ArtAnchor.Track(phoneBtn, new Rect2(200f, 701f, 175f, 98f));    // 窗台上的手机（第三轮反馈 1：跟着新贴片走）
         ArtAnchor.TrackFraction(windowBtn, new Rect2(0f, 0.02f, 0.28f, 0.64f));
         ArtAnchor.Track(ashtrayBtn, new Rect2(502f, 582f, 161f, 93f));  // 烟灰缸（新图实测换算）
         ArtAnchor.Track(lighterBtn, new Rect2(88f, 711f, 128f, 77f));   // 窗台打火机
@@ -97,17 +97,20 @@ public partial class Ch02 : ChapterBase
         if (GameManager.Instance.HasHiddenItem("earphone"))
             earphonePatch.HideImmediately();
 
-        // 手机贴片（新图没画手机——从旧图裁出来单独挂）
+        // 手机贴片（新图没画手机——单独挂一张）
+        // 第三轮反馈 1：旧贴片是从旧背景里连窗台木纹一起裁的方块图（左边一条橙木、右下角一块阴影），
+        // 硬边+高饱和，贴在夜色水彩上像贴纸。换成重画的 phone_prop_v2（暗机身+微光屏+接触阴影），
+        // 边缘自带羽化，直接落在窗台上。
         var phoneSprite = new TextureRect
         {
-            Texture = ResourceLoader.Exists("res://assets/art/props/patch/phone_prop.png")
-                ? GD.Load<Texture2D>("res://assets/art/props/patch/phone_prop.png") : null,
+            Texture = ResourceLoader.Exists("res://assets/art/props/patch/phone_prop_v2.png")
+                ? GD.Load<Texture2D>("res://assets/art/props/patch/phone_prop_v2.png") : null,
             ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,
             StretchMode = TextureRect.StretchModeEnum.Scale,
             MouseFilter = MouseFilterEnum.Ignore,
         };
         GetNode("Background").AddSibling(phoneSprite);
-        ArtAnchor.Track(phoneSprite, new Rect2(210f, 690f, 168f, 92f));
+        ArtAnchor.Track(phoneSprite, new Rect2(200f, 701f, 175f, 98f));
 
         // "点万物有回应"：柜门上的照片、便利贴、货架上的泡面（data/flavor/ch02.json）
         AddChild(FlavorSpots.Create(hotspotsRoot, "ch02"));

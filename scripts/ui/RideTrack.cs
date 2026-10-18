@@ -616,7 +616,9 @@ public partial class RideTrack : Control
                 steerInput = -1f;
             else if (Input.IsKeyPressed(Key.Right) || Input.IsKeyPressed(Key.D))
                 steerInput = 1f;
-            steer = Mathf.MoveToward(steer, steerInput, dt * (steerInput != 0f ? 1.6f : 0.9f));
+            // 【第三轮反馈 12】原来转向响应慢、回正更慢，手感像在冰面上推箱子：
+            // 打方向 1.6/s、松手回正 0.9/s → 现在 2.4 / 1.8，跟手很多，又不至于抖。
+            steer = Mathf.MoveToward(steer, steerInput, dt * (steerInput != 0f ? 2.4f : 1.8f));
             steer = Mathf.Clamp(steer, -1f, 1f);
 
             if (moving)

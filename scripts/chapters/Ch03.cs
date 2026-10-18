@@ -317,11 +317,20 @@ public partial class Ch03 : ChapterBase
 
     private static StyleBoxFlat MakePaper(Color color, int shadow)
     {
-        var sb = new StyleBoxFlat { BgColor = color };
-        sb.SetCornerRadiusAll(16);
-        sb.ShadowColor = new Color(0f, 0f, 0f, 0.35f);
-        sb.ShadowSize = shadow;
-        sb.ShadowOffset = new Vector2(0, shadow * 0.5f);
+        // 【第三轮反馈 2】原来是"奶油底 + 16px 大圆角 + 硬投影"的 UI 卡片，贴在两幅水彩画上像后贴的便签。
+        // 现在按"压在桌面上的老纸片"做：颜色更暖更暗一点、带一点透、圆角收小、
+        // 投影放宽放软（ShadowOffset 下移当接地阴影），再加一圈极淡的暖色边。
+        var tint = new Color(color.R * 0.95f, color.G * 0.94f, color.B * 0.90f, 0.96f);
+        var sb = new StyleBoxFlat { BgColor = tint };
+        sb.SetCornerRadiusAll(7);
+        sb.BorderColor = new Color(0.42f, 0.34f, 0.24f, 0.35f);
+        sb.BorderWidthLeft = 1;
+        sb.BorderWidthRight = 1;
+        sb.BorderWidthTop = 1;
+        sb.BorderWidthBottom = 1;
+        sb.ShadowColor = new Color(0.05f, 0.04f, 0.03f, 0.42f);
+        sb.ShadowSize = shadow + 8;
+        sb.ShadowOffset = new Vector2(0, shadow * 0.55f + 4f);
         return sb;
     }
 

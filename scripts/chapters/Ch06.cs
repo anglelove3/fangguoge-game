@@ -56,19 +56,36 @@ public partial class Ch06 : ChapterBase
         glows["phone"] = HotspotGlow.Attach(phoneBtn);
 
         // 第十五轮：热点按"美术图坐标"登记（手机 = 美术实测位置），窗口不成 16:9 也不漂
-        ArtAnchor.Track(phoneBtn, new Rect2(1616f, 880f, 168f, 88f));
+        // 第三轮反馈 5/7/9：手机热点原来登记在 (1616,880)——换算后正好压在右下角"返回菜单"上，
+        // 而且这一章画面里根本没画手机，玩家点到的是桌上的烟盒。现在手机贴片挂回窗台，
+        // 热点跟着贴片走，离开 HUD 安全区。
+        ArtAnchor.Track(phoneBtn, new Rect2(200f, 701f, 175f, 98f));
         ArtAnchor.TrackFraction(ashtrayBtn, new Rect2(0.565f, 0.7f, 0.14f, 0.13f));
-        ArtAnchor.TrackFraction(earphoneBtn, new Rect2(0.615f, 0.595f, 0.085f, 0.095f));
+        // 耳机：直接挂在底图里画好的那副头戴耳机上（和第二章同一处、同一套贴片）
+        ArtAnchor.Track(earphoneBtn, new Rect2(1085f, 473f, 231f, 149f));
 
-        // 第二十轮 F1：旧耳机拆成贴片（底图上本来没画物件，耳机贴片摆在桌面上）——
-        // 收走之后从桌上消失。挂在宿舍背景层下面，跟着场景一起显隐。
-        earphonePatch = HiddenPatch.CreateAtFraction(
-            "res://assets/art/props/patch_earphone.png",
-            null,
-            new Rect2(0.60f, 0.615f, 0.10f, 0.075f));
+        // 第三轮反馈 3：原来桌面中央凭空摆着一卷白耳机线（抠图边缘硬、比周围亮一档），
+        // 和背景完全不在一个次元。改成复用底图里画好的头戴耳机——
+        // 贴片 = 同图裁的原物、净底 = 抹净版，收起耳机时露出干净桌面，纹理零色差。
+        earphonePatch = HiddenPatch.Create(
+            "res://assets/art/props/patch/earphone_prop.png",
+            "res://assets/art/props/patch/clean_desk_b.png",
+            new Rect2(1085f, 473f, 231f, 149f), exactFill: true);
         background.AddChild(earphonePatch);
         if (GameManager.Instance.HasHiddenItem("earphone"))
             earphonePatch.HideImmediately(); // 读档进来就已经收过了
+
+        // 手机贴片（第三轮反馈 5/9：这一章剧情说"只有手机屏幕还亮着"，画面里却没有手机）
+        var phoneSprite = new TextureRect
+        {
+            Texture = ResourceLoader.Exists("res://assets/art/props/patch/phone_prop_v2.png")
+                ? GD.Load<Texture2D>("res://assets/art/props/patch/phone_prop_v2.png") : null,
+            ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,
+            StretchMode = TextureRect.StretchModeEnum.Scale,
+            MouseFilter = MouseFilterEnum.Ignore,
+        };
+        background.AddChild(phoneSprite);
+        ArtAnchor.Track(phoneSprite, new Rect2(200f, 701f, 175f, 98f));
 
         // "点万物有回应"：窗外的灯、柜门上的照片、那两桶泡面（data/flavor/ch06.json）
         AddChild(FlavorSpots.Create(hotspotsRoot, "ch06"));

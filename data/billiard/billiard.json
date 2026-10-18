@@ -230,6 +230,86 @@
         "text": "……手滑。白球摆回去。",
         "hold": 2.6
       }
+    ],
+    "playerSoftMiss": [
+      {
+        "speaker": "江洁",
+        "text": "……你这是在推，不是打。",
+        "hold": 2.6
+      },
+      {
+        "speaker": "金艮",
+        "text": "他怕碰坏人家球。",
+        "hold": 2.2
+      },
+      {
+        "speaker": "俊杰（师弟）",
+        "text": "师兄，力小得像我交作业。",
+        "hold": 2.2
+      }
+    ],
+    "playerHardMiss": [
+      {
+        "speaker": "金艮",
+        "text": "哟——这是打球还是拆台？",
+        "hold": 2.4
+      },
+      {
+        "speaker": "江洁",
+        "text": "力道有了，准头没跟上。",
+        "hold": 2.4
+      },
+      {
+        "speaker": "三金师兄",
+        "text": "这声音，隔壁实验室都听见了。",
+        "hold": 2.4
+      }
+    ],
+    "herTurnPraise": [
+      {
+        "speaker": "江洁",
+        "text": "这杆不错。",
+        "hold": 2.0
+      },
+      {
+        "speaker": "金艮",
+        "text": "哎哟，被他蒙进去一个。",
+        "hold": 2.2
+      },
+      {
+        "speaker": "江洁",
+        "text": "蒙也是进。换我了。",
+        "hold": 2.2
+      }
+    ],
+    "herTurnTease": [
+      {
+        "speaker": "江洁",
+        "text": "就这？",
+        "hold": 1.8
+      },
+      {
+        "speaker": "金艮",
+        "text": "他今天手是凉的。",
+        "hold": 2.0
+      },
+      {
+        "speaker": "江洁",
+        "text": "别急，我让着你点。",
+        "hold": 2.2
+      }
+    ],
+    "herTurnSoft": [
+      {
+        "speaker": "江洁",
+        "text": "你这么轻，球都懒得动。",
+        "hold": 2.4
+      },
+      {
+        "speaker": "俊杰（师弟）",
+        "text": "师兄在跟球讲道理。",
+        "hold": 2.2
+      }
     ]
   }
 }

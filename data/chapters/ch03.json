@@ -5,8 +5,8 @@
       "image": "res://assets/art/cards/card_ticket.png",
       "titleKey": "ch03.card_ticket",
       "subKey": "ch03.card_ticket_sub",
-      "x": 150,
-      "y": 240,
+      "x": 118,
+      "y": 206,
       "tilt": -0.032
     },
     {
@@ -14,8 +14,8 @@
       "image": "res://assets/art/cards/card_notes.png",
       "titleKey": "ch03.card_notes",
       "subKey": "ch03.card_notes_sub",
-      "x": 110,
-      "y": 490,
+      "x": 96,
+      "y": 452,
       "tilt": 0.026
     },
     {
@@ -23,8 +23,8 @@
       "image": "res://assets/art/cards/card_scarf.png",
       "titleKey": "ch03.card_scarf",
       "subKey": "ch03.card_scarf_sub",
-      "x": 1430,
-      "y": 250,
+      "x": 1450,
+      "y": 222,
       "tilt": -0.024
     }
   ],
@@ -52,8 +52,8 @@
     }
   ],
   "cardSize": {
-    "w": 360,
-    "h": 240
+    "w": 320,
+    "h": 212
   },
   "chipSize": {
     "w": 340,

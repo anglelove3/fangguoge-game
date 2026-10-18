@@ -2058,6 +2058,11 @@ public partial class ChatOverlay : Control
         }
         else if (c != null)
         {
+            // 【第三轮反馈 10】联系人没配头像时，先去角色卡找同一张脸（"小米师妹"这类只在
+            // 角色卡里配了头像），再退系统图标 / 首字色块——少一个紫方块就是少一次出戏。
+            string fromCard = DataStore.CharacterBySpeaker(WeChatData.DisplayName(c))?.Avatar ?? "";
+            if (!string.IsNullOrEmpty(fromCard) && ResourceLoader.Exists(fromCard))
+                return MakePhotoAvatar(fromCard, size);
             GD.PrintErr($"[头像] 联系人 {c.Id} 没配 avatar 字段——回退字块");
         }
         if (c != null && !string.IsNullOrEmpty(c.Icon))
@@ -2100,6 +2105,11 @@ public partial class ChatOverlay : Control
         var chat = LoadChatData(chatId);
         if (chat != null)
         {
+            // 【第三轮反馈 4】先认聊天自己的标题——ch06_old_chat.json 里写着"宝宝（前女友）"，
+            // 旧代码却不看它，标题栏直接显示 ch06_old_chat，头像退化成首字母 "c"。
+            if (!string.IsNullOrEmpty(chat.Title))
+                fallback.Name = chat.Title;
+
             foreach (var m in chat.Messages)
             {
                 if (m.Sender != "me" && !string.IsNullOrEmpty(m.SenderName))
@@ -2108,7 +2118,39 @@ public partial class ChatOverlay : Control
         }
         if (string.IsNullOrEmpty(fallback.Name))
             fallback.Name = chatId;
+
+        // 【第三轮反馈 4/10】头像四级兜底：标题里含哪个联系人 → 用它的头像；再退到角色卡；
+        // 都没有才交给首字色块（不再一上来就是紫色方块）。
+        fallback.Avatar = ResolveAvatarByName(fallback.Name);
         return fallback;
+    }
+
+    /// <summary>
+    /// 按"显示名"找头像：先用联系人（"宝宝（前女友）"里含"宝宝"），
+    /// 再用角色卡 data/characters.json 的 avatar。找不到返回空串（调用方退回色块）。
+    /// </summary>
+    private static string ResolveAvatarByName(string name)
+    {
+        if (string.IsNullOrEmpty(name))
+            return "";
+
+        ContactData best = null;
+        foreach (var c in WeChatData.LoadContacts().Contacts)
+        {
+            if (string.IsNullOrEmpty(c.Avatar) || string.IsNullOrEmpty(c.Name))
+                continue;
+            // 只认"名字被标题包含"（"宝宝（前女友）"→"宝宝"），且名字至少两个字，避免"妈""爸"乱配
+            bool hit = c.Name == name || (c.Name.Length >= 2 && name.Contains(c.Name));
+            if (!hit)
+                continue;
+            if (best == null || c.Name.Length > best.Name.Length)
+                best = c;
+        }
+        if (best != null)
+            return best.Avatar;
+
+        var card = DataStore.CharacterBySpeaker(name);
+        return card?.Avatar ?? "";
     }
 
     /// <summary>读取 data/chat/{chatId}.json（和对话系统同一套 JSON 流派）</summary>

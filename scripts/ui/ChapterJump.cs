@@ -70,6 +70,10 @@ public static class ChapterJump
         var col = new VBoxContainer { MouseFilter = Control.MouseFilterEnum.Ignore };
         col.AddThemeConstantOverride("separation", 4);
         panel.AddChild(col);
+        // 【第三轮反馈 8】必须撑满面板：以前这里没设锚点，VBox 取的是"最小尺寸"，
+        // 而里面唯一的 ScrollContainer 是 ExpandFill——父节点没有高度 → 列表高度 0，
+        // 面板点开只剩标题和一片空白，一章也点不到。
+        col.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
 
         var title = new Label
         {

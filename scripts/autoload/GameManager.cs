@@ -33,6 +33,12 @@ public partial class GameManager : Node
     // 当前章节编号（0=序章，1-15=各章）
     public int CurrentChapter { get; set; } = 0;
 
+    /// <summary>
+    /// 是否通关过（第三轮反馈 13）：二周目入口（跳过序章 / 章节选择）只对通关过的玩家开放。
+    /// 老存档按"章节号 99"补齐；新周目一开始仍然是 false，所以新玩家看不到那两项。
+    /// </summary>
+    public bool Cleared { get; set; } = false;
+
     // 隐藏物品收集（清单在 data/hidden_items.json，总数由清单决定）
     public int HiddenItemsFound { get; private set; } = 0;
 
@@ -601,6 +607,10 @@ public partial class GameManager : Node
     /// </summary>
     public void SaveGame()
     {
+        // 【第三轮反馈 13】章节号 99 = 已经走到结束页，从此算通关过
+        if (CurrentChapter >= 99)
+            Cleared = true;
+
         // 创建一个存档数据对象
         var saveData = new SaveData
         {
@@ -608,6 +618,7 @@ public partial class GameManager : Node
             affection = Affection,
             courage = Courage,
             currentChapter = CurrentChapter,
+            cleared = Cleared,
             hiddenItemsFound = HiddenItemsFound,
             hiddenItemIds = new System.Collections.Generic.List<string>(hiddenItemIds),
             choiceHistory = choiceHistory,
@@ -680,6 +691,9 @@ public partial class GameManager : Node
             Affection = saveData.affection;
             Courage = saveData.courage;
             CurrentChapter = saveData.currentChapter;
+            // 【第三轮反馈 13】通关标记：老存档没有 cleared 字段，但章节号 99 本身就是"通关过"，
+            // 按它补一份，免得老玩家二周目入口反而被藏起来。
+            Cleared = saveData.cleared || saveData.currentChapter >= 99;
             HiddenItemsFound = saveData.hiddenItemsFound;
             choiceHistory = saveData.choiceHistory ?? new();
             hiddenItemIds.Clear();
@@ -932,6 +946,8 @@ public class SaveData
     public int affection { get; set; }
     public int courage { get; set; }
     public int currentChapter { get; set; }
+    /// <summary>是否通关过（第三轮；老存档没有这个字段 → false，但 currentChapter>=99 会补齐）</summary>
+    public bool cleared { get; set; }
     public int hiddenItemsFound { get; set; }
     public System.Collections.Generic.List<string> hiddenItemIds { get; set; }
     public System.Collections.Generic.Dictionary<string, int> choiceHistory { get; set; }

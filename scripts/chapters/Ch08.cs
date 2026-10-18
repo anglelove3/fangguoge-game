@@ -54,8 +54,15 @@ public partial class Ch08 : ChapterBase
         phoneGlow = HotspotGlow.Attach(phoneBtn);
 
         // 第十五轮：热点按"美术图坐标"登记——窗口不成 16:9 时背景会整体偏移，热点跟着走
-        ArtAnchor.Track(pourBtn, new Rect2(205f, 675f, 260f, 275f));  // 酒瓶 + 两只杯子那一带
-        ArtAnchor.Track(phoneBtn, new Rect2(485f, 812f, 152f, 100f)); // 桌上的手机（已贴进夜摊图）
+        // 第三轮反馈 6：倒酒的点位从画面左下角（那组又亮又突兀的程序瓶杯）挪到桌前
+        // 底图里画好的两只酒杯上——蓝框那两只。热点跟着杯子走。
+        ArtAnchor.Track(pourBtn, new Rect2(630f, 528f, 132f, 182f));
+
+        // 第三轮反馈 7/9：夜摊这张底图里其实没画手机，旧热点 (485,812) 换算后正好压在桌上烟盒上，
+        // "点烟弹出微信"就是这么来的。这一章不再给场景手机热点：要看手机走背包（背包里点手机），
+        // 删完人回来这里会自动接着推进（见 _Process 里的轮询）。
+        phoneBtn.Visible = false;
+        phoneBtn.Disabled = true;
 
         // "点万物有回应"：灯串、烤炉的白烟、一把空着的红塑料凳
         AddChild(FlavorSpots.Create(hotspotsRoot, ChapterId));
@@ -66,7 +73,8 @@ public partial class Ch08 : ChapterBase
         // 烤炉上空的火星子（挂在烤炉中上方的位置）——也跟着美术图钉住
         var embers = new EmberDust();
         AddChild(embers);
-        ArtAnchor.Track2D(drink, new Vector2(332f, 892f), 0.38f); // 杯底中心钉在夜摊桌面上（第二十四轮 F27：下移坐进桌布前缘，略缩小减少顶视违和）
+        // 第三轮反馈 6：杯底中心钉到桌前那两只杯子的位置（原来在最左下角，孤零零地亮着）
+        ArtAnchor.Track2D(drink, new Vector2(665f, 648f), 0.53f);
         ArtAnchor.Track2D(embers, new Vector2(723f, 652f));
 
         UiSounds.WireAll(this);
@@ -147,6 +155,16 @@ public partial class Ch08 : ChapterBase
         if (dm != null && dm.IsBusy)
         {
             lastActivityMsec = Time.GetTicksMsec();
+            return;
+        }
+
+        // 第三轮反馈 9：手机现在可能从背包里打开（场景没有手机热点了），
+        // 收手机时不会走 OnPhonePressed 的回调——这里每帧看一眼：人删掉了就接着演。
+        if (deleteWaiting && GameManager.Instance?.IsDeleted("baobao") == true)
+        {
+            deleteWaiting = false;
+            lastActivityMsec = Time.GetTicksMsec();
+            DialogueManager.Instance.PlaySequence(ChapterId, "delete_done", StartReplyChoice);
             return;
         }
 

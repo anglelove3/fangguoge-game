@@ -71,6 +71,14 @@ public partial class AudioManager : Node
 	private float bgmBaseDb = -14f;
 
 	/// <summary>
+	/// 【第三轮试玩反馈 · 混音配比】全局微调：BGM 抬 2dB、环境音压 5dB。
+	/// 各章自己写的 -14/-15/-16（BGM）、-27（环境音）一个有调，只在这里统一校正——
+	/// 想再调手感就动这两个常数，不用回去改十几处调用。
+	/// </summary>
+	private const float BgmTrimDb = 2f;
+	private const float AmbTrimDb = -5f;
+
+	/// <summary>
 	/// BGM 让位偏移（第十五轮）：手机里的音乐 App 放歌时压到 -60dB（听不见），
 	/// 暂停 / 收起手机再调回 0——不用记住章节 BGM 是哪首，还的时候自然还原。
 	/// </summary>
@@ -144,7 +152,7 @@ public partial class AudioManager : Node
 		ambPlayer.Stream = stream;
 		ambPlayer.Play();
 		ambTween = CreateTween();
-		ambTween.TweenProperty(ambPlayer, "volume_db", volumeDb + SfxVolDb * 0.5f, fadeSeconds)
+		ambTween.TweenProperty(ambPlayer, "volume_db", volumeDb + AmbTrimDb + SfxVolDb * 0.5f, fadeSeconds)
 			.SetTrans(Tween.TransitionType.Sine);
 	}
 
@@ -178,7 +186,7 @@ public partial class AudioManager : Node
 		if (bgmActive?.Stream == stream && bgmActive?.Playing == true)
 		{
 			bgmBaseDb = volumeDb;
-			bgmActive.VolumeDb = volumeDb + MusicVolDb + bgmDuckDb;
+			bgmActive.VolumeDb = volumeDb + MusicVolDb + bgmDuckDb + BgmTrimDb;
 			return;
 		}
 
@@ -188,7 +196,7 @@ public partial class AudioManager : Node
 		else if (stream is AudioStreamMP3 mp3)
 			mp3.Loop = true;
 
-		float targetDb = volumeDb + MusicVolDb + bgmDuckDb;
+		float targetDb = volumeDb + MusicVolDb + bgmDuckDb + BgmTrimDb;
 		bgmBaseDb = volumeDb;
 
 		// 不淡入淡出：直接换
@@ -237,7 +245,7 @@ public partial class AudioManager : Node
 	public void RefreshVolumes()
 	{
 		if (bgmActive != null && bgmActive.Playing)
-			bgmActive.VolumeDb = bgmBaseDb + MusicVolDb + bgmDuckDb;
+			bgmActive.VolumeDb = bgmBaseDb + MusicVolDb + bgmDuckDb + BgmTrimDb;
 	}
 
 	/// <summary>

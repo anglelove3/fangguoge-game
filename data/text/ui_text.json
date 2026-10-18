@@ -78,7 +78,7 @@
   "wx.delete_body": "将「{0}」删除，同时删除与该联系人的聊天记录？",
   "wx.delete_ok": "删除",
   "wx.delete_cancel": "取消",
-  "hint.ch08_delete": "（手机在桌上亮着。有些事，该做个了断了——点手机；或者点酒瓶，先把这口酒喝完。）",
+  "hint.ch08_delete": "（手机在背包里亮着。有些事该做个了断了——打开背包点手机；或者点桌上那两杯酒，先把这口喝完。）",
   "moments.publish_title": "说点什么",
   "moments.group_hint": "（选一句，发出去）",
   "moments.camera_toast": "今天好像没什么想说的。",

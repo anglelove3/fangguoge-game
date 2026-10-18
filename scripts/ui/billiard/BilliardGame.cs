@@ -124,6 +124,11 @@ public partial class BilliardGame : Control
     private bool lastKeepTurn;               // 本杆是否连杆（进了自己花色且没犯规）
     private int stalemate;                   // 连续无进球杆数（防死循环保险）
 
+    // 【第三轮反馈 11】杆法/力度 → 江洁不同的反应：
+    // 记下玩家这一杆用了多大力、结果是什么，下一回合她的台词据此挑。
+    private float lastPower;                 // 0~1
+    private string lastPlayerResult = "";    // pot / miss / softMiss / hardMiss / scratch / wrong
+
     private readonly List<BilliardData.CommentLine> commentQueue = new();
     private Action afterComments;
     private bool commentActive;
@@ -151,6 +156,12 @@ public partial class BilliardGame : Control
     // ==================== 物理积累 ====================
 
     private float physAcc;
+
+    // 【第三轮 F-台球看门狗】Sim 态已经跑了多久。超过 SimTimeout 就强制停球结算，
+    // 无论物理出什么幺蛾子都不会再把玩家锁在台面上。
+    private float simElapsed;
+    // 满力 2000px/s 的球按 1.05/s 衰减到 7px/s 约 5.4 秒，留足余量取 10 秒
+    private const float SimTimeout = 10f;
 
     // ==================== 节点 ====================
 
@@ -407,6 +418,7 @@ public partial class BilliardGame : Control
         // 物理推进（定步长 + 防死循环上限）
         if (gs == GState.Sim)
         {
+            simElapsed += dt;
             physAcc += dt;
             int guard = 0;
             while (physAcc >= PhysStep && guard < 16)
@@ -419,7 +431,23 @@ public partial class BilliardGame : Control
                 physAcc = 0;
 
             if (AllStopped())
+            {
                 ResolveShot();
+            }
+            else if (simElapsed > SimTimeout)
+            {
+                // 兜底：物理没收敛（球在互相卡着抖、或某个速度永远降不下来）
+                // 直接把台面按住、照常结算这一杆——宁可少一点真实感，也不能让玩家卡死。
+                GD.Print("[台球] 看门狗触发：10 秒仍未停稳，强制结算本杆");
+                foreach (var b in balls)
+                {
+                    if (!b.Pocketed)
+                        GD.Print($"   球{b.Number} 速度={(b.Vel.Length()):F2} 位置={b.Pos}");
+                }
+                foreach (var b in balls)
+                    b.Vel = Vector2.Zero;
+                ResolveShot();
+            }
         }
 
         // 落袋小特效
@@ -469,10 +497,14 @@ public partial class BilliardGame : Control
 
             b.Pos += b.Vel * dt;
 
-            if (b.Vel.LengthSquared() > 1f)
+            // 【第三轮 F-台球死锁】摩擦必须每帧都加，不能只在速度 > 1 时才加——
+            // 旧写法把整段包在 if (LengthSquared() > 1f) 里，速度落进 (0,1] px/s 的球
+            // 既不再减速、也不会被清零，于是永远以 1px/s 以内漂移，
+            // AllStopped() 永远为 false → 卡在 Sim 态、点什么都没反应（轻推/贴库必中）。
+            if (b.Vel != Vector2.Zero)
             {
                 b.Vel *= Mathf.Exp(-Friction * dt);
-                if (b.Vel.Length() < StopV)
+                if (b.Vel.LengthSquared() < StopV * StopV)
                     b.Vel = Vector2.Zero;
             }
 
@@ -567,7 +599,9 @@ public partial class BilliardGame : Control
     {
         foreach (var b in balls)
         {
-            if (!b.Pocketed && b.Vel != Vector2.Zero)
+            // 【第三轮】别指望浮点精确等于零：用速度阈值判断"停稳"，
+            // 否则任何 0.0x px/s 的残余都会让回合永远结算不了。
+            if (!b.Pocketed && b.Vel.LengthSquared() > 0.01f)
                 return false;
         }
         return true;
@@ -586,7 +620,10 @@ public partial class BilliardGame : Control
 
         lastShooterMe = isMe;
         if (isMe)
+        {
             myShots++;
+            lastPower = power;
+        }
         else
             herShots++;
 
@@ -594,6 +631,7 @@ public partial class BilliardGame : Control
         shotPocketCount = 0;
         shotPotted.Clear();
         physAcc = 0f;
+        simElapsed = 0f;
         gs = GState.Sim;
 
         AudioManager.Instance?.PlaySfx(AudioManager.SfxBallClack, -6f, 0.03f);
@@ -685,13 +723,31 @@ public partial class BilliardGame : Control
         // ---- 点评键 ----
         string key;
         if (foul)
+        {
             key = lastShooterMe ? "playerScratch" : "herScratch";
+            if (lastShooterMe) lastPlayerResult = "scratch";
+        }
         else if (gifted > 0 && gained == 0)
+        {
             key = lastShooterMe ? "playerWrongSuit" : "herWrongSuit";
+            if (lastShooterMe) lastPlayerResult = "wrong";
+        }
         else if (shotPocketCount > 0)
+        {
             key = lastShooterMe ? "playerPocket" : "herPocket";
+            if (lastShooterMe) lastPlayerResult = "pot";
+        }
+        else if (lastShooterMe)
+        {
+            // 【第三轮反馈 11】同样没进，轻推和抡大杆该被说不一样的话
+            if (lastPower < 0.3f) { key = "playerSoftMiss"; lastPlayerResult = "softMiss"; }
+            else if (lastPower > 0.78f) { key = "playerHardMiss"; lastPlayerResult = "hardMiss"; }
+            else { key = "playerMiss"; lastPlayerResult = "miss"; }
+        }
         else
-            key = lastShooterMe ? "playerMiss" : "herMiss";
+        {
+            key = "herMiss";
+        }
 
         var line = PickComment(key);
         gs = GState.Comment;
@@ -809,7 +865,21 @@ public partial class BilliardGame : Control
     {
         gs = GState.Comment;
         turnIsMine = false;
-        ShowComments(BilliardData.Comments("herTurn"), BeginHerThink);
+
+        // 【第三轮反馈 11】她不只是"换我了"——你打得好她夸，打飞了她逗你，
+        // 轻推没进她会说"你这是推，不是打"。台词在 data/billiard/billiard.json 里，可随时改。
+        string key = lastPlayerResult switch
+        {
+            "pot" => "herTurnPraise",
+            "scratch" => "herTurnTease",
+            "hardMiss" => "herTurnTease",
+            "softMiss" => "herTurnSoft",
+            _ => "herTurn",
+        };
+        var lines = BilliardData.Comments(key);
+        if (lines.Count == 0)
+            lines = BilliardData.Comments("herTurn");
+        ShowComments(lines, BeginHerThink);
     }
 
     private void BeginHerThink()

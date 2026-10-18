@@ -31,23 +31,30 @@ public partial class MainMenu : Control
         // 获取按钮节点
         var startButton = GetNode<Button>("VBoxContainer/StartButton");
 
+        // 【第三轮反馈 13】二周目入口：只有"通关过"才出现（老存档按章节号 99 补标记）。
+        // 开发构建（编辑器里跑）额外放开，方便我们自己测章节——正式发行包里不会出现。
+        bool secondRunUnlocked = GameManager.Instance.Cleared || OS.IsDebugBuild();
+
         // 第三轮：跳过序章（二周目）——旧存档自动备份，不怕覆盖
-        var skipPrologueBtn = new Button
+        if (secondRunUnlocked)
         {
-            Text = "从第一章开始（跳过序章）",
-            FocusMode = FocusModeEnum.None,
-            MouseDefaultCursorShape = CursorShape.PointingHand,
-        };
-        skipPrologueBtn.AddThemeFontSizeOverride("font_size", 19);
-        skipPrologueBtn.Pressed += () =>
-        {
-            GD.Print("→ 跳过序章，从第一章开始");
-            GameManager.Instance.BeginNewGame();
-            GameManager.Instance.ChangeSceneWithTransition(
-                "res://scenes/chapters/ch01/ch01.tscn", chapterIndex: 1);
-        };
-        startButton.GetParent().AddChild(skipPrologueBtn);
-        startButton.GetParent().MoveChild(skipPrologueBtn, startButton.GetIndex() + 1);
+            var skipPrologueBtn = new Button
+            {
+                Text = "从第一章开始（跳过序章）",
+                FocusMode = FocusModeEnum.None,
+                MouseDefaultCursorShape = CursorShape.PointingHand,
+            };
+            skipPrologueBtn.AddThemeFontSizeOverride("font_size", 19);
+            skipPrologueBtn.Pressed += () =>
+            {
+                GD.Print("→ 跳过序章，从第一章开始");
+                GameManager.Instance.BeginNewGame();
+                GameManager.Instance.ChangeSceneWithTransition(
+                    "res://scenes/chapters/ch01/ch01.tscn", chapterIndex: 1);
+            };
+            startButton.GetParent().AddChild(skipPrologueBtn);
+            startButton.GetParent().MoveChild(skipPrologueBtn, startButton.GetIndex() + 1);
+        }
         var settingsButton = GetNode<Button>("VBoxContainer/SettingsButton");
         var quitButton = GetNode<Button>("VBoxContainer/QuitButton");
 
@@ -71,20 +78,23 @@ public partial class MainMenu : Control
         settingsButton.Pressed += OnSettingsPressed;
         quitButton.Pressed += OnQuitPressed;
 
-        // 章节直达（第二十四轮：演示/测试用——点按钮弹出章表，选哪章进哪章）
-        var chapterButton = new Button
+        // 章节直达（第三轮反馈 13：改成通关后开放，不再一上来就给）
+        if (secondRunUnlocked)
         {
-            Text = "章节选择",
-            FocusMode = FocusModeEnum.None,
-            MouseDefaultCursorShape = CursorShape.PointingHand,
-        };
-        chapterButton.AddThemeFontSizeOverride("font_size", 26);
-        var vb = GetNodeOrNull<VBoxContainer>("VBoxContainer");
-        if (vb != null)
-        {
-            vb.AddChild(chapterButton);
-            chapterButton.Pressed += OnChapterSelectPressed;
-            UiSounds.Wire(chapterButton);
+            var chapterButton = new Button
+            {
+                Text = "章节选择",
+                FocusMode = FocusModeEnum.None,
+                MouseDefaultCursorShape = CursorShape.PointingHand,
+            };
+            chapterButton.AddThemeFontSizeOverride("font_size", 26);
+            var vb = GetNodeOrNull<VBoxContainer>("VBoxContainer");
+            if (vb != null)
+            {
+                vb.AddChild(chapterButton);
+                chapterButton.Pressed += OnChapterSelectPressed;
+                UiSounds.Wire(chapterButton);
+            }
         }
 
         // 给所有按钮挂上"悬停/点击"音效
@@ -96,101 +106,15 @@ public partial class MainMenu : Control
         GD.Print("主菜单已加载");
     }
 
-    /// <summary>章节名表（第二十四轮：与各章 tscn 的 ChapterTitle 一致）</summary>
-    private static readonly string[] ChapterNames =
-    {
-        "序章 · 那首歌",
-        "第一章 · 寄居蟹",
-        "第二章 · 一千公里",
-        "第三章 · 天平",
-        "第五章 · 晚安",
-        "第六章 · 手滑",
-        "第七章 · 碧蓝蓝天",
-        "第八章 · 放过自己",
-        "第九章 · 三点水",
-        "第十章 · 还想再见",
-        "第十一章 · 置顶",
-        "第十二章 · 向南",
-        "第十三章 · 十里长亭",
-    };
-
-    /// <summary>章节直达面板：滚动列表，点哪章进哪章（演示与测试用）</summary>
+    /// <summary>
+    /// 章节直达面板（第三轮反馈 8 / 13）：列表统一交给 ChapterJump 生成。
+    /// 旧实现在主菜单里另抄了一份章名表，**漏了"第四章 · 星月"**——选第五章会跳进第四章；
+    /// 面板本身又没给 VBox 设锚点，列表高度为 0，点开是一片空白。
+    /// 现在只有一份真相，布局也修好了。
+    /// </summary>
     private void OnChapterSelectPressed()
     {
-        var layer = new Control { MouseFilter = MouseFilterEnum.Stop };
-        layer.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
-        AddChild(layer);
-
-        // 半透明垫：点外面关闭
-        layer.Draw += () => layer.DrawRect(layer.GetRect(), new Color(0.04f, 0.05f, 0.08f, 0.72f));
-        layer.GuiInput += e =>
-        {
-            if (e is InputEventMouseButton mb && mb.Pressed)
-                layer.QueueFree();
-        };
-
-        var panel = new Panel { MouseFilter = MouseFilterEnum.Stop };
-        var style = new StyleBoxFlat
-        {
-            BgColor = new Color(0.10f, 0.11f, 0.14f, 0.96f),
-            BorderColor = new Color(0.90f, 0.80f, 0.55f, 0.5f),
-            BorderWidthLeft = 1, BorderWidthRight = 1, BorderWidthTop = 1, BorderWidthBottom = 1,
-        };
-        style.SetCornerRadiusAll(14);
-        style.ContentMarginLeft = 22; style.ContentMarginRight = 22;
-        style.ContentMarginTop = 18; style.ContentMarginBottom = 18;
-        panel.AddThemeStyleboxOverride("panel", style);
-        panel.CustomMinimumSize = new Vector2(430, 0);
-        layer.AddChild(panel);
-        panel.SetAnchorsAndOffsetsPreset(LayoutPreset.Center);
-        panel.OffsetLeft = -215; panel.OffsetRight = 215;
-        panel.OffsetTop = -300; panel.OffsetBottom = 300;
-
-        var col = new VBoxContainer { MouseFilter = MouseFilterEnum.Ignore };
-        col.AddThemeConstantOverride("separation", 4);
-        panel.AddChild(col);
-
-        var title = new Label
-        {
-            Text = "选择章节",
-            HorizontalAlignment = HorizontalAlignment.Center,
-            MouseFilter = MouseFilterEnum.Ignore,
-        };
-        title.AddThemeFontSizeOverride("font_size", 28);
-        title.AddThemeColorOverride("font_color", new Color(0.95f, 0.93f, 0.85f));
-        col.AddChild(title);
-        col.AddChild(new Control { CustomMinimumSize = new Vector2(0, 8), MouseFilter = MouseFilterEnum.Ignore });
-
-        var scroll = new ScrollContainer { MouseFilter = MouseFilterEnum.Stop };
-        scroll.SizeFlagsVertical = SizeFlags.ExpandFill;
-        scroll.HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled;
-        col.AddChild(scroll);
-
-        var list = new VBoxContainer { MouseFilter = MouseFilterEnum.Ignore, SizeFlagsHorizontal = SizeFlags.ExpandFill };
-        list.AddThemeConstantOverride("separation", 2);
-        scroll.AddChild(list);
-
-        for (int i = 0; i <= LastChapter; i++)
-        {
-            int chapter = i;
-            var btn = new Button
-            {
-                Text = i < ChapterNames.Length ? ChapterNames[i] : $"第 {i} 章",
-                Alignment = HorizontalAlignment.Left,
-                FocusMode = FocusModeEnum.None,
-                MouseDefaultCursorShape = CursorShape.PointingHand,
-                SizeFlagsHorizontal = SizeFlags.ExpandFill,
-            };
-            btn.AddThemeFontSizeOverride("font_size", 21);
-            btn.AddThemeStyleboxOverride("normal", new StyleBoxFlat { BgColor = new Color(1, 1, 1, 0.04f) });
-            btn.AddThemeStyleboxOverride("hover", new StyleBoxFlat { BgColor = new Color(0.90f, 0.80f, 0.55f, 0.16f) });
-            btn.Pressed += () =>
-            {
-                layer.QueueFree();
-                GameManager.Instance.ChangeSceneWithTransition(GetChapterScenePath(chapter));
-            };
-            list.AddChild(btn);
-        }
+        ChapterJump.ShowPanel(this, ChapterJump.LastChapter);
     }
 
     // ==================== 氛围层（纯代码生成） ====================
@@ -479,29 +403,4 @@ public partial class MainMenu : Control
         GetTree().Quit();
     }
 
-    /// <summary>
-    /// 根据章节编号返回对应的场景路径
-    /// 后续添加新章节时在这里加一行就行
-    /// </summary>
-    private string GetChapterScenePath(int chapter)
-    {
-        return chapter switch
-        {
-            0 => "res://scenes/chapters/prologue/prologue.tscn",
-            1 => "res://scenes/chapters/ch01/ch01.tscn",
-            2 => "res://scenes/chapters/ch02/ch02.tscn",
-            3 => "res://scenes/chapters/ch03/ch03.tscn",
-            4 => "res://scenes/chapters/ch06/ch06.tscn",
-            5 => "res://scenes/chapters/ch07/ch07.tscn",
-            6 => "res://scenes/chapters/ch08/ch08.tscn",
-            7 => "res://scenes/chapters/ch09/ch09.tscn",
-            8 => "res://scenes/chapters/ch10/ch10.tscn",
-            9 => "res://scenes/chapters/ch11/ch11.tscn",
-            10 => "res://scenes/chapters/ch12/ch12.tscn",
-            11 => "res://scenes/chapters/ch13/ch13.tscn",
-            99 => "res://scenes/ui/demo_end/demo_end.tscn", // 试玩结束页
-            // 后续章节在这里添加：
-            _ => "res://scenes/chapters/prologue/prologue.tscn"
-        };
-    }
 }

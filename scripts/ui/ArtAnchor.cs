@@ -21,6 +21,55 @@ public static class ArtAnchor
     public const float DesignScale = 1920f / ArtW;
 
     /// <summary>
+    /// 【第三轮试玩反馈 · 根因 A】取出这个场景背景美术的"真实像素尺寸"。
+    ///
+    /// 以前这里写死 1792×1024，但项目里其实有 11 张背景是 **1536×1024**
+    /// （宿舍 dorm_night_v3、夜摊 night_stall_v1、河边 river_dusk_v1、海边 beach_day_v1、
+    ///   plaza_night 1~3、balcony/dorm_bed/dorm_building/dorm_late_night…）。
+    /// 1536 的图按 cover 铺满视口时缩放／裁切都和 1792 那张不一样，
+    /// 于是写死的热点、贴片在这几张图上整体"飘"到旁边的东西上——
+    /// 表现就是"点烟弹出手机""互动区和返回菜单重叠""手机和窗台对不齐"。
+    ///
+    /// 现在统一从场景里的 Background.Texture 读真实尺寸：1792 的图数值完全不变，
+    /// 1536 的图自动换算，窗口任意比例都对得上。
+    /// </summary>
+    private static void ResolveArtSize(Node node, out float aw, out float ah)
+    {
+        aw = ArtW;
+        ah = ArtH;
+        for (var n = node; n != null; n = n.GetParent())
+        {
+            var bg = n.GetNodeOrNull<TextureRect>("Background") ?? n as TextureRect;
+            var tex = (bg as TextureRect)?.Texture;
+            if (tex == null)
+                continue;
+            int w = tex.GetWidth(), h = tex.GetHeight();
+            if (w <= 0 || h <= 0)
+                continue;
+            aw = w;
+            ah = h;
+            return;
+        }
+    }
+
+    /// <summary>
+    /// 把"按 1792 设计稿写的矩形"换算到背景图的真实像素空间。
+    /// 1792×1024 的图原样返回（老数值零变化）；1536×1024 的图按 16:9 设计稿
+    /// 保持屏幕上的位置不变（0.857 倍 + 纵向补 73px，详见 ArtW/ArtH 注释）。
+    /// </summary>
+    private static Rect2 ToRealArt(Node node, Rect2 r)
+    {
+        ResolveArtSize(node, out float aw, out float ah);
+        if (Mathf.IsEqualApprox(aw, ArtW) && Mathf.IsEqualApprox(ah, ArtH))
+            return r;
+
+        float k = aw / ArtW;
+        // 纵向：设计稿 1080 高在两种宽度下被裁掉的量不同，实测折算约 (1792-aw)*0.285
+        float dy = (ArtW - aw) * 0.2852f;
+        return new Rect2(r.Position.X * k, r.Position.Y * k + dy, r.Size.X * k, r.Size.Y * k);
+    }
+
+    /// <summary>
     /// 把"1920×1080 设计稿里的比例矩形"换算成美术图坐标
     /// （老的锚点数字直接搬过来就是零跳动——16:9 时两者恰好一一对应，
     ///   换算只在窗口变成别的比例时才起作用）。
@@ -47,9 +96,11 @@ public static class ArtAnchor
         var vp = node.GetViewport();
         if (vp == null)
             return false;
+        ResolveArtSize(node, out float aw, out float ah);
         var size = vp.GetVisibleRect().Size;
-        scale = Mathf.Max(size.X / ArtW, size.Y / ArtH);
-        offset = (size - new Vector2(ArtW, ArtH) * scale) * 0.5f;
+        // cover 铺满：按背景图的真实尺寸算缩放与裁切偏移（不再假设 1792×1024）
+        scale = Mathf.Max(size.X / aw, size.Y / ah);
+        offset = (size - new Vector2(aw, ah) * scale) * 0.5f;
         return true;
     }
 
@@ -63,9 +114,10 @@ public static class ArtAnchor
         {
             if (!GodotObject.IsInstanceValid(node) || !TryGetMapping(node, out float s, out var off))
                 return;
+            var r = ToRealArt(node, artRect);
             node.SetAnchorsPreset(Control.LayoutPreset.TopLeft);
-            node.Position = off + artRect.Position * s;
-            node.Size = artRect.Size * s;
+            node.Position = off + r.Position * s;
+            node.Size = r.Size * s;
         }
 
         var vp = node.GetViewport();
@@ -84,7 +136,8 @@ public static class ArtAnchor
         {
             if (!GodotObject.IsInstanceValid(node) || !TryGetMapping(node, out float s, out var off))
                 return;
-            node.Position = off + artPoint * s;
+            var pt = ToRealArt(node, new Rect2(artPoint, Vector2.Zero));
+            node.Position = off + pt.Position * s;
             node.Scale = Vector2.One * (s / DesignScale) * propScale;
         }
 
