@@ -39,7 +39,7 @@ public partial class DrinkPour : Node2D
     // 第三轮反馈 6：底图画的是矮胖啤酒瓶/宽口杯，程序道具原来又瘦又高，叠上去像两个东西。
     // 这两个横向系数把贴片"压宽/收窄"，跟底图的形状对齐，看起来才是同一件东西。
     private const float BottleWidthMul = 0.55f;
-    private const float GlassWidthMul = 1.42f;
+    private const float GlassWidthMul = 1.52f;
     private const float PourAngle = 0.56f;     // 倒酒时倾斜的角度（弧度，约 32°）
 
     // ==================== 金艮的小杯子 ====================

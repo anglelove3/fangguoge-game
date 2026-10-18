@@ -74,7 +74,7 @@ public partial class Ch08 : ChapterBase
         var embers = new EmberDust();
         AddChild(embers);
         // 第三轮反馈 6：杯底中心钉到桌前那两只杯子的位置（原来在最左下角，孤零零地亮着）
-        ArtAnchor.Track2D(drink, new Vector2(665f, 648f), 0.53f);
+        ArtAnchor.Track2D(drink, new Vector2(665f, 648f), 0.57f);
         ArtAnchor.Track2D(embers, new Vector2(723f, 652f));
 
         UiSounds.WireAll(this);
