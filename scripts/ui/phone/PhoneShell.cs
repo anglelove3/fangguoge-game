@@ -23,8 +23,22 @@ public static class PhoneWallpaper
 {
     public const string Day = "res://assets/art/backgrounds/wallpaper_day_v1.png";
     public const string Night = "res://assets/art/backgrounds/campus_dusk_v1.png";
+    // 第三轮：按故事进度换壁纸——分手后是雨窗，认识江洁之后是向日葵
+    public const string Cold = "res://assets/art/backgrounds/wallpaper_cold_v1.png";
+    public const string Warm = "res://assets/art/backgrounds/wallpaper_warm_v1.png";
 
-    public static string Current => StoryClock.IsDaytime() ? Day : Night;
+    public static string Current
+    {
+        get
+        {
+            int ch = GameManager.Instance?.CurrentChapter ?? 0;
+            // 第三章分手 → 第八章放过自己的低谷期：雨窗
+            if (ch >= 4 && ch <= 8) return Cold;
+            // 第九章三点水（认识江洁）之后：向日葵暖阳——她是个 sunshine girl
+            if (ch >= 9) return Warm;
+            return StoryClock.IsDaytime() ? Day : Night;
+        }
+    }
 }
 
 public partial class LockScreen : Control
