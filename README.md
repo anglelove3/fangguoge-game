@@ -6,7 +6,10 @@
 
 | 版本 | 内容 | 下载 |
 |---|---|---|
-| **demo v1.3.0** | 序章 + 第一~十三章（完整可玩） | [Windows x64 单文件 exe（双击即玩，已内嵌 .NET 运行时）](https://github.com/anglelove3/fangguoge-game/releases/latest) |
+| **demo v1.4.0** | 序章 + 第一~十三章（完整可玩） | [Windows x64（zip 解压即玩，已内嵌 .NET 运行时）](https://github.com/anglelove3/fangguoge-demo/releases/latest) |
+
+> 试玩版单独放在 **[fangguoge-demo](https://github.com/anglelove3/fangguoge-demo)**（只放发布物，秋招期间给这一个链接）；
+> 本仓库是开发仓，源码/美术/测试脚本都在这里。
 
 > 设计文档：[`docs/设计总案_v1.3.md`](docs/设计总案_v1.3.md)（以实装为准的章节对齐表 + 玩法全景）
 
