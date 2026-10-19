@@ -17,6 +17,15 @@
 - 存档位于 `%APPDATA%\Godot\app_userdata\` 下，删档重开：删除 `savegame.json`
 - 键盘 `Tab` 切换自动播放 / `Ctrl` 按住快进对话 / `Esc` 关闭手机
 
+## ▶ 演示视频（B 站）
+
+| 视频 | 时长 | 直接看 |
+|---|---|---|
+| 《开始懂了》2D 半开放叙事 · 实机演示 | 28:30 | [BV1ghnE64EoG](https://www.bilibili.com/video/BV1ghnE64EoG/) |
+| 《葛行舟》Godot.NET 叙事游戏 · 实机演示 | 6:46 | [BV1ghnE64EEu](https://www.bilibili.com/video/BV1ghnE64EEu/) |
+
+更多内容见 B 站空间：[土狗-318](https://space.bilibili.com/411053613)。
+
 ## 📖 这是个什么游戏
 
 改编自个人短篇小说《放过哥》的 16 章互动叙事：一个研二男生从"放过自己"到"开始懂了"的感情与成长故事。
