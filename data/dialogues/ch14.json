@@ -1,0 +1,666 @@
+{
+  "_comment": "第十四章《爱就梭哈》。时间：2026 年 3 月 7 日周六（开学第二周），17:00~21:40。地点：他的学校——这一次是江洁把 389 公里走完的。四段：校门 / 校园（三处闲笔，顺序随意） / 小馆 / 实验楼下。核心选择 heartbeat（她说「你的心跳得好快」：承认 / 嘴硬 / 递耳机），收尾是「不算里程」的梭哈，钩子指向第十五章《那束光》的网咖。",
+
+  "sequences": {
+    "gate_wait": [
+      {
+        "speaker": "",
+        "text": "三月七日，周六。开学第二周。"
+      },
+      {
+        "speaker": "",
+        "text": "风还带着冬天的硬劲儿。校门口那两排梧桐，一棵都没发芽，枝子黑黢黢地伸在天上。"
+      },
+      {
+        "speaker": "我",
+        "text": "（她说十点半上车，下午五点到。）"
+      },
+      {
+        "speaker": "我",
+        "text": "（我四点二十就站在门里了。不是接。是下楼买酱油。）"
+      },
+      {
+        "speaker": "我",
+        "text": "（买了一个小时。）"
+      }
+    ],
+
+    "gate_meet": [
+      {
+        "speaker": "",
+        "text": "大巴在马路对面停了一下，又开走了。她从站台那边过来，拖着一个鼓鼓囊囊的帆布袋。"
+      },
+      {
+        "speaker": "江洁",
+        "text": "说了别接。",
+        "portrait": "jie_smile"
+      },
+      {
+        "speaker": "我",
+        "text": "「没接。买酱油。」"
+      },
+      {
+        "speaker": "江洁",
+        "text": "酱油呢。",
+        "portrait": "jie_smile"
+      },
+      {
+        "speaker": "我",
+        "text": "「……店关门了。」"
+      },
+      {
+        "speaker": "",
+        "text": "她笑了一下，没揭穿。她笑起来是先弯眼睛，嘴才跟上——这个顺序我记下来了。"
+      },
+      {
+        "speaker": "江洁",
+        "text": "手给我。",
+        "portrait": "jie_smile"
+      },
+      {
+        "speaker": "",
+        "text": "袋子很沉。一截腊肠，一袋橘子，还有两盒她那边才有的酸奶。"
+      },
+      {
+        "speaker": "江洁",
+        "text": "我妈塞的。她说第一次上门，不能空手。",
+        "portrait": "jie_smile"
+      },
+      {
+        "speaker": "我",
+        "text": "（「上门」这两个字，她用得比我还自然。）"
+      }
+    ],
+
+    "campus_intro": [
+      {
+        "speaker": "",
+        "text": "校门里那条路，两边全是梧桐。三月，枝子还是秃的。"
+      },
+      {
+        "speaker": "江洁",
+        "text": "你们学校的树好高。",
+        "portrait": "jie_smile"
+      },
+      {
+        "speaker": "我",
+        "text": "「夏天全是绿的。从这头走到那头，晒不着。」"
+      },
+      {
+        "speaker": "江洁",
+        "text": "那夏天我再来。",
+        "portrait": "jie_smile"
+      },
+      {
+        "speaker": "我",
+        "text": "（她说这句话的时候在看树，没有看我。）"
+      }
+    ],
+
+    "spot_park": [
+      {
+        "speaker": "",
+        "text": "路灯一盏一盏亮起来。光是暖的，照在光秃的枝子上，像给树描了道边。"
+      },
+      {
+        "speaker": "江洁",
+        "text": "我们那边没有这么宽的校园。",
+        "portrait": "jie_smile"
+      },
+      {
+        "speaker": "我",
+        "text": "「多大。」"
+      },
+      {
+        "speaker": "江洁",
+        "text": "一眼就看完。",
+        "portrait": "jie_smile"
+      },
+      {
+        "speaker": "我",
+        "text": "（她说这话的语气，像在说别人的事。）"
+      }
+    ],
+
+    "spot_stand": [
+      {
+        "speaker": "",
+        "text": "走累了，靠着树坐下。树底下有个水泥台子，凉。她把橘子剥了，一瓣一瓣递过来。"
+      },
+      {
+        "speaker": "江洁",
+        "text": "论文第几遍了。",
+        "portrait": "jie_smile"
+      },
+      {
+        "speaker": "我",
+        "text": "「十七。」"
+      },
+      {
+        "speaker": "江洁",
+        "text": "改完呢。",
+        "portrait": "jie_smile"
+      },
+      {
+        "speaker": "我",
+        "text": "「不知道。改完还有下一遍。」"
+      },
+      {
+        "speaker": "江洁",
+        "text": "……那你还改。",
+        "portrait": "jie_smile"
+      },
+      {
+        "speaker": "我",
+        "text": "「不改就毕不了业。」"
+      },
+      {
+        "speaker": "",
+        "text": "她把最后一瓣塞进自己嘴里，没再问。橘子皮摊在水泥台上，摆得很整齐。"
+      }
+    ],
+
+    "spot_lab_window": [
+      {
+        "speaker": "",
+        "text": "教学楼一整排窗户亮着，白得发冷。"
+      },
+      {
+        "speaker": "江洁",
+        "text": "你们实验室在哪一层。",
+        "portrait": "jie_smile"
+      },
+      {
+        "speaker": "我",
+        "text": "「三楼。最里面那间。」"
+      },
+      {
+        "speaker": "江洁",
+        "text": "灯亮着吗。",
+        "portrait": "jie_smile"
+      },
+      {
+        "speaker": "我",
+        "text": "「不知道。我走的时候没关。」"
+      },
+      {
+        "speaker": "江洁",
+        "text": "那肯定亮着。",
+        "portrait": "jie_smile"
+      }
+    ],
+
+    "campus_go": [
+      {
+        "speaker": "",
+        "text": "她把袋子往我怀里一塞，说饿了。"
+      },
+      {
+        "speaker": "江洁",
+        "text": "带我吃点热的。你们食堂我不去。",
+        "portrait": "jie_smile"
+      },
+      {
+        "speaker": "我",
+        "text": "「食堂怎么了。」"
+      },
+      {
+        "speaker": "江洁",
+        "text": "第一次来就吃食堂，显得你不上心。",
+        "portrait": "jie_laugh"
+      }
+    ],
+
+    "supper_arrive": [
+      {
+        "speaker": "",
+        "text": "校门外那家小馆，二楼靠窗。圆桌太大，两个人坐着显得空。"
+      },
+      {
+        "speaker": "",
+        "text": "她点了两个菜，又让老板把腊肠蒸一盘。"
+      },
+      {
+        "speaker": "江洁",
+        "text": "别点多。浪费。",
+        "portrait": "jie_smile"
+      },
+      {
+        "speaker": "",
+        "text": "菜上来，热气把窗玻璃糊了一层。窗外是河，河对岸一排灯。"
+      }
+    ],
+
+    "supper_talk": [
+      {
+        "speaker": "江洁",
+        "text": "你上次骑车过来，我一直在想一件事。",
+        "portrait": "jie_smile"
+      },
+      {
+        "speaker": "我",
+        "text": "「什么。」"
+      },
+      {
+        "speaker": "江洁",
+        "text": "你算得太细了。",
+        "portrait": "jie_smile"
+      },
+      {
+        "speaker": "江洁",
+        "text": "里程、电量、充几次电、几点到。你连我几点下班都算过。",
+        "portrait": "jie_smile"
+      },
+      {
+        "speaker": "我",
+        "text": "「……习惯了。」"
+      },
+      {
+        "speaker": "江洁",
+        "text": "那你算过我们要怎么办吗。",
+        "portrait": "jie_smile"
+      }
+    ],
+
+    "supper_heart": [
+      {
+        "heartChoice": "supper_heart"
+      }
+    ],
+
+    "supper_end": [
+      {
+        "speaker": "",
+        "text": "我没答上来。她也没等。"
+      },
+      {
+        "speaker": "江洁",
+        "text": "想不出来就别想。吃菜。",
+        "portrait": "jie_smile"
+      },
+      {
+        "speaker": "",
+        "text": "腊肠蒸得很咸，咸得刚好下饭。"
+      },
+      {
+        "speaker": "",
+        "text": "结账的时候她抢着付，被我按住。她说「那下次我付」。"
+      },
+      {
+        "speaker": "江洁",
+        "text": "带我去看看你天天待的地方。",
+        "portrait": "jie_smile"
+      },
+      {
+        "speaker": "我",
+        "text": "「实验室进不去。」"
+      },
+      {
+        "speaker": "江洁",
+        "text": "楼下看看。",
+        "portrait": "jie_smile"
+      }
+    ],
+
+    "lab_arrive": [
+      {
+        "speaker": "",
+        "text": "实验楼的玻璃门里亮着冷白的灯。走廊空着，尽头那扇门虚掩。"
+      },
+      {
+        "speaker": "",
+        "text": "她把脸贴在玻璃上看了一会儿，呼出的气在门上蒙了一小块白。"
+      },
+      {
+        "speaker": "江洁",
+        "text": "就这儿。",
+        "portrait": "jie_smile"
+      },
+      {
+        "speaker": "我",
+        "text": "「嗯。三楼。每天从这扇门进去。」"
+      },
+      {
+        "speaker": "江洁",
+        "text": "晚上几点走。",
+        "portrait": "jie_smile"
+      },
+      {
+        "speaker": "我",
+        "text": "「十一点。有时候更晚。」"
+      },
+      {
+        "speaker": "江洁",
+        "text": "那我以后九点给你发消息。",
+        "portrait": "jie_smile"
+      },
+      {
+        "speaker": "我",
+        "text": "「为什么。」"
+      },
+      {
+        "speaker": "江洁",
+        "text": "这样你能早点走。",
+        "portrait": "jie_smile"
+      }
+    ],
+
+    "lab_door": [
+      {
+        "speaker": "",
+        "text": "她把手从玻璃上拿下来，转身，站在台阶下面，比我矮一级。"
+      },
+      {
+        "speaker": "",
+        "text": "三月的风从楼后面绕过来。她的手伸过来，按在我手腕上。"
+      },
+      {
+        "speaker": "江洁",
+        "text": "别动。",
+        "portrait": "jie_shy"
+      },
+      {
+        "speaker": "",
+        "text": "……"
+      },
+      {
+        "speaker": "江洁",
+        "text": "你的心跳得好快。",
+        "portrait": "jie_shy"
+      }
+    ],
+
+    "beat_0": [
+      {
+        "speaker": "我",
+        "text": "「嗯。从你走过来那会儿就没慢下来。」"
+      },
+      {
+        "speaker": "",
+        "text": "她愣了一下。"
+      },
+      {
+        "speaker": "江洁",
+        "text": "……哦。",
+        "portrait": "jie_shy"
+      },
+      {
+        "speaker": "",
+        "text": "按在手腕上的那只手，挪进了我手心里，握住了。"
+      },
+      {
+        "speaker": "江洁",
+        "text": "我也是。",
+        "portrait": "jie_shy"
+      },
+      {
+        "speaker": "",
+        "text": "风还在吹。她的手很凉，握得挺紧。"
+      }
+    ],
+
+    "beat_1": [
+      {
+        "speaker": "我",
+        "text": "「骑车骑的。」"
+      },
+      {
+        "speaker": "江洁",
+        "text": "你今天没骑车。",
+        "portrait": "jie_smile"
+      },
+      {
+        "speaker": "我",
+        "text": "「……走路走的。」"
+      },
+      {
+        "speaker": "",
+        "text": "她看着我，看了三秒，笑了一声，退开半步。"
+      },
+      {
+        "speaker": "江洁",
+        "text": "行。走路走的。",
+        "portrait": "jie_laugh"
+      },
+      {
+        "speaker": "我",
+        "text": "（我这辈子最会说的一句话，就是「没事」。）"
+      },
+      {
+        "speaker": "我",
+        "text": "（然后我用它，把最该说的话堵回去了。）"
+      }
+    ],
+
+    "beat_2": [
+      {
+        "speaker": "",
+        "text": "我没说话。从兜里摸出耳机，把右边那只塞给她。"
+      },
+      {
+        "speaker": "江洁",
+        "text": "……干什么。",
+        "portrait": "jie_shy"
+      },
+      {
+        "speaker": "我",
+        "text": "「听歌。」"
+      },
+      {
+        "speaker": "",
+        "text": "她愣了一下，戴上了。耳机里正好放到副歌。"
+      },
+      {
+        "speaker": "江洁",
+        "text": "……这歌我听过。",
+        "portrait": "jie_smile"
+      },
+      {
+        "speaker": "我",
+        "text": "「谁唱的。」"
+      },
+      {
+        "speaker": "江洁",
+        "text": "不知道。就这一句听过。",
+        "portrait": "jie_smile"
+      },
+      {
+        "speaker": "",
+        "text": "「开始懂了」——她跟着哼了半句，跑调了。"
+      },
+      {
+        "speaker": "我",
+        "text": "（她跑调的时候，比原唱好听。）"
+      }
+    ],
+
+    "allin": [
+      {
+        "speaker": "江洁",
+        "text": "我明天下午走。",
+        "portrait": "jie_smile"
+      },
+      {
+        "speaker": "我",
+        "text": "「嗯。」"
+      },
+      {
+        "speaker": "",
+        "text": "沉默了一会儿。楼上有人关灯——三楼最里面那间，灭了。"
+      },
+      {
+        "speaker": "江洁",
+        "text": "你就没别的要说。",
+        "portrait": "jie_smile"
+      },
+      {
+        "speaker": "我",
+        "text": "（该说的全在肚子里，一件一件排着队，谁都不肯先出来。）"
+      },
+      {
+        "speaker": "我",
+        "text": "（里程、电量、车票、论文第十七遍、毕业还剩四个月、我配不配。）"
+      },
+      {
+        "speaker": "我",
+        "text": "（这些账我算了两年。）"
+      },
+      {
+        "speaker": "我",
+        "text": "「下周末，我还去。」"
+      },
+      {
+        "speaker": "江洁",
+        "text": "骑车。",
+        "portrait": "jie_smile"
+      },
+      {
+        "speaker": "我",
+        "text": "「骑车。」"
+      },
+      {
+        "speaker": "江洁",
+        "text": "……你不是说，回去坐高铁。",
+        "portrait": "jie_smile"
+      },
+      {
+        "speaker": "我",
+        "text": "「高铁要算时间。骑车不用算。」"
+      },
+      {
+        "speaker": "",
+        "text": "她低着头，好一会儿没出声。再抬起来的时候，眼睛是亮的。"
+      },
+      {
+        "speaker": "江洁",
+        "text": "你这人。",
+        "portrait": "jie_shy"
+      },
+      {
+        "speaker": "江洁",
+        "text": "行。那你别算了。",
+        "portrait": "jie_shy"
+      },
+      {
+        "speaker": "江洁",
+        "text": "我也不算了。",
+        "portrait": "jie_shy"
+      },
+      {
+        "speaker": "我",
+        "text": "（梭哈是把牌全推出去，不看底牌。）"
+      },
+      {
+        "speaker": "我",
+        "text": "（我这辈子只梭过一次。就是现在。）"
+      }
+    ],
+
+    "outro": [
+      {
+        "speaker": "",
+        "text": "三月七日，周六，夜里九点四十。实验楼的灯还亮着，玻璃门里那条走廊空着。"
+      },
+      {
+        "speaker": "江洁",
+        "text": "今晚别回去了。",
+        "portrait": "jie_smile"
+      },
+      {
+        "speaker": "我",
+        "text": "「你明天还要坐车。」"
+      },
+      {
+        "speaker": "江洁",
+        "text": "坐车能睡。",
+        "portrait": "jie_smile"
+      },
+      {
+        "speaker": "江洁",
+        "text": "带我去你们这儿的网吧。看看你以前通宵的地方长什么样。",
+        "portrait": "jie_laugh"
+      },
+      {
+        "speaker": "我",
+        "text": "（我算了两年的账，今天第一次没算。）"
+      },
+      {
+        "speaker": "",
+        "text": "（第十五章《那束光》——下一轮。）"
+      }
+    ]
+  },
+
+  "choices": {
+    "heartbeat": {
+      "prompt": "（她的手按在我手腕上，一直没有拿开。）",
+      "promptSpeaker": "我",
+      "promptPortrait": "",
+      "options": [
+        {
+          "text": "「嗯。从你走过来那会儿就没慢下来。」——承认",
+          "affection": 4,
+          "courage": 3
+        },
+        {
+          "text": "「骑车骑的。」——嘴硬",
+          "affection": 0,
+          "courage": 2
+        },
+        {
+          "text": "不说话，把耳机分给她一半",
+          "affection": 5,
+          "courage": 2
+        }
+      ]
+    }
+  },
+
+  "hearts": {
+    "supper_heart": {
+      "prompt": "（她问「我们要怎么办」的时候在夹菜，没抬头。）",
+      "promptSpeaker": "我",
+      "options": [
+        {
+          "text": "（算了。算了一路，一个数都对不上。）",
+          "lines": [
+            {
+              "speaker": "我",
+              "text": "（车票、房租、毕业还剩几个月。每一样都能算。）"
+            },
+            {
+              "speaker": "我",
+              "text": "（每一样加起来，都算不出「怎么办」。）"
+            }
+          ]
+        },
+        {
+          "text": "（她问的是我，不是距离。）",
+          "lines": [
+            {
+              "speaker": "我",
+              "text": "（三百八十九公里是她今天坐过来的。她连问都没问我要不要去接。）"
+            },
+            {
+              "speaker": "我",
+              "text": "（我却还坐在这儿算。）"
+            }
+          ]
+        },
+        {
+          "text": "（我想说「我养你」。太假了。）",
+          "lines": [
+            {
+              "speaker": "我",
+              "text": "（一个月补助一千二。这句话说出去，我自己都不信。）"
+            },
+            {
+              "speaker": "我",
+              "text": "（但我确实想过。）"
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

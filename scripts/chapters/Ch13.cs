@@ -496,7 +496,8 @@ public partial class Ch13 : ChapterBase
             drift.TweenProperty(bg, "scale", new Vector2(1.045f, 1.045f), 20.0)
                 .SetTrans(Tween.TransitionType.Sine).SetEase(Tween.EaseType.Out);
         }
-        GoToNextChapter("res://scenes/ui/demo_end/demo_end.tscn", 99);
+        // 2026-10-19：第十四章《爱就梭哈》上线，这里不再直接进结束页
+        GoToNextChapter("res://scenes/chapters/ch14/ch14.tscn", 14);
     }
 
     // ==================== 小工具 ====================

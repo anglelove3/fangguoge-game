@@ -67,8 +67,8 @@ public partial class ChapterBase : Control
             breathBg.PivotOffset = GetViewportRect().Size / 2f;
         }
 
-        // 第三轮反馈：呼吸感只在关键章（天平/星月/还想再见/十里长亭）——所有章都晃会腻
-        bool breathChapter = ChapterIndex is 3 or 4 or 9 or 13;
+        // 第三轮反馈：呼吸感只在关键章（天平/星月/还想再见/十里长亭/爱就梭哈）——所有章都晃会腻
+        bool breathChapter = ChapterIndex is 3 or 4 or 9 or 13 or 14;
         bool talking = breathChapter && DialogueManager.Instance != null && DialogueManager.Instance.IsBusy;
         if (talking != breathIn)
         {
@@ -114,6 +114,7 @@ public partial class ChapterBase : Control
             11 => AudioManager.BgmPianoBetween, // 置顶：前夜苦涩转释然（换掉 Gym1）
             12 => AudioManager.BgmRoad,         // 向南：公路
             13 => AudioManager.BgmRelease,      // 十里长亭：释然收尾（释然变奏）
+            14 => AudioManager.BgmWarm,         // 爱就梭哈：她第一次来他的学校（温暖变奏，章内自己切）
             _ => "",
         };
         if (!string.IsNullOrEmpty(bgm))
@@ -143,6 +144,7 @@ public partial class ChapterBase : Control
             11 => AudioManager.AmbNight,   // 置顶：前夜
             12 => AudioManager.AmbWind,    // 向南：骑行风声
             13 => AudioManager.AmbWind,    // 十里长亭：风
+            14 => AudioManager.AmbStreet,  // 爱就梭哈：校门口/校园/小馆（三月傍晚的人气）
             _ => "",
         };
         if (!string.IsNullOrEmpty(amb))

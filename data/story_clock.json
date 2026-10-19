@@ -181,6 +181,32 @@
       }
     }
   },
+  "ch14": {
+    "time": "17:00",
+    "month": 3,
+    "day": 7,
+    "weekday": 6,
+    "segments": {
+      "campus": {
+        "time": "17:50",
+        "month": 3,
+        "day": 7,
+        "weekday": 6
+      },
+      "supper": {
+        "time": "19:10",
+        "month": 3,
+        "day": 7,
+        "weekday": 6
+      },
+      "lab": {
+        "time": "21:30",
+        "month": 3,
+        "day": 7,
+        "weekday": 6
+      }
+    }
+  },
   "ch04": {
     "time": "23:40",
     "month": 3,

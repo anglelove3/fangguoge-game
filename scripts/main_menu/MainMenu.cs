@@ -330,7 +330,7 @@ public partial class MainMenu : Control
     }
 
     /// <summary>目前开发到的最后一章（通关档的"重玩落点"）</summary>
-    private const int LastChapter = 13;
+    private const int LastChapter = 14;
 
     /// <summary>
     /// 点击"设置"→ 打开设置界面

@@ -1,0 +1,11 @@
+{
+  "_comment": "第十四章《爱就梭哈》的接线参数。这一章她第一次来他的学校（三月七日周六），没有幕门分流——私聊只做两段：上午说来、傍晚说到了。",
+
+  "jieContact": "jie",
+  "jieChat": "ch14_jie",
+
+  "gates": {
+    "morning": "ch14_gate_morning",
+    "arrive": "ch14_gate_arrive"
+  }
+}

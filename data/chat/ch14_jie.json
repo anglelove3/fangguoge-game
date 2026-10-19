@@ -1,0 +1,22 @@
+{
+  "title": "江洁",
+  "_comment": "第十四章私聊。上午报行程（她不许接，理由是他一接她就要走——嘴硬式的撒娇），傍晚到门口。第二段里「买酱油」是正片第一句的回声，先看手机再接话，顺序刚好。",
+  "messages": [
+    { "type": "divider", "text": "周六 上午 9:12", "gateChoice": "ch14_gate_morning" },
+    { "sender": "other", "type": "text", "senderName": "江洁", "text": "我今天过来。", "gateChoice": "ch14_gate_morning" },
+    { "sender": "me", "type": "text", "text": "几点到。我去接。", "gateChoice": "ch14_gate_morning" },
+    { "sender": "other", "type": "text", "senderName": "江洁", "text": "不用。十点半的车，下午五点到。", "gateChoice": "ch14_gate_morning" },
+    { "sender": "me", "type": "text", "text": "我去接。", "gateChoice": "ch14_gate_morning" },
+    { "sender": "other", "type": "text", "senderName": "江洁", "text": "你接了我就当场走。", "gateChoice": "ch14_gate_morning" },
+    { "sender": "me", "type": "text", "text": "……", "gateChoice": "ch14_gate_morning" },
+    { "sender": "other", "type": "text", "senderName": "江洁", "text": "校门口等着就行。别举牌子。", "gateChoice": "ch14_gate_morning" },
+    { "sender": "other", "type": "text", "senderName": "江洁", "text": "带个袋子。我妈塞的东西，我一个人拎不动。", "gateChoice": "ch14_gate_morning" },
+
+    { "type": "divider", "text": "周六 傍晚 5:03", "gateChoice": "ch14_gate_arrive" },
+    { "sender": "other", "type": "text", "senderName": "江洁", "text": "到了。在门口。", "gateChoice": "ch14_gate_arrive" },
+    { "sender": "other", "type": "text", "senderName": "江洁", "text": "你在哪。", "gateChoice": "ch14_gate_arrive" },
+    { "sender": "me", "type": "text", "text": "买酱油。", "gateChoice": "ch14_gate_arrive" },
+    { "sender": "other", "type": "text", "senderName": "江洁", "text": "……", "gateChoice": "ch14_gate_arrive" },
+    { "sender": "other", "type": "text", "senderName": "江洁", "text": "快点。袋子要破了。", "gateChoice": "ch14_gate_arrive" }
+  ]
+}
