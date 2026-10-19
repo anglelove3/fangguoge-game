@@ -6,15 +6,14 @@
 
 | 版本 | 内容 | 下载 |
 |---|---|---|
-| **demo v1.4.0** | 序章 + 第一~十三章（完整可玩） | [Windows x64（zip 解压即玩，已内嵌 .NET 运行时）](https://github.com/anglelove3/fangguoge-demo/releases/latest) |
-| 开发仓（v1.5.0 筹备中） | **第十四章《爱就梭哈》已实装**，尚未打包 | — |
+| **demo v1.5.0** | 序章 + 第一~十四章（完整可玩） | [Windows x64（zip 解压即玩，已内嵌 .NET 运行时）](https://github.com/anglelove3/fangguoge-demo/releases/latest) |
 
 > 试玩版单独放在 **[fangguoge-demo](https://github.com/anglelove3/fangguoge-demo)**（只放发布物，秋招期间给这一个链接）；
 > 本仓库是开发仓，源码/美术/测试脚本都在这里。
 
 > 设计文档：[`docs/设计总案_v1.3.md`](docs/设计总案_v1.3.md)（以实装为准的章节对齐表 + 玩法全景，已更新到 v1.4.0 口径）
 
-- 不需要安装 Godot 或任何运行库，解压即玩（约 25~40 分钟流程）
+- 不需要安装 Godot 或任何运行库，解压即玩（约 30~45 分钟流程）
 - 存档位于 `%APPDATA%\Godot\app_userdata\` 下，删档重开：删除 `savegame.json`
 - 键盘 `Tab` 切换自动播放 / `Ctrl` 按住快进对话 / `Esc` 关闭手机
 
@@ -44,7 +43,7 @@ Godot 4.7.2（Mono/.NET 8）· C# 3.07 万行（77 个文件）· GDScript 测�
 - `data/` — 剧情/聊天/角色卡/数值等 JSON（93 份）
 - `scenes/` — 场景文件（各章 + UI）
 - `CHANGELOG.md` — 每轮发布说明（日期 + 改动明细 + 回归数字）
-- Releases — 轮次版本 r9~r20 + 试玩包下载
+- Releases — 试玩包下载（v1.5.0，固定直链 `releases/latest/download/fangguoge-demo-win64.zip`）
 
 ## 📜 素材说明
 
