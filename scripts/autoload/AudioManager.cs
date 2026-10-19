@@ -128,6 +128,23 @@ public partial class AudioManager : Node
 	// 夜市：街道底噪 + 远处人声 + 零星碗碟碰撞（第八章《放过自己》专用）
 	public const string AmbMarket = "res://assets/audio/ambience/amb_market_loop.wav";
 
+	/// <summary>
+	/// 把音频丢到后台线程解（2026-10-19 切章卡顿）：下一章的 BGM / 环境音提前热起来，
+	/// 真到那一章 PlayBgm 时 GD.Load 命中缓存，不再在主线程读整首 mp3。
+	/// 传空串或加载失败的路径会被安静跳过，不影响正常播放。
+	/// </summary>
+	public void PrefetchStreams(params string[] paths)
+	{
+		foreach (var p in paths)
+		{
+			if (string.IsNullOrEmpty(p))
+				continue;
+			if (ResourceLoader.LoadThreadedGetStatus(p) == ResourceLoader.ThreadLoadStatus.InProgress)
+				continue;
+			ResourceLoader.LoadThreadedRequest(p);
+		}
+	}
+
 	/// <summary>切环境音（同一路径不重复切；fade 秒淡入淡出）</summary>
 	public void PlayAmbience(string path, float volumeDb = -20f, float fadeSeconds = 2.5f)
 	{

@@ -98,28 +98,31 @@ public partial class ChapterBase : Control
     /// </summary>
     private void StartChapterBgm()
     {
-        string bgm = ChapterIndex switch
-        {
-            0 => AudioManager.BgmGym1,          // 序章·那首歌（主旋律）
-            1 => AudioManager.BgmWarm,          // 寄居蟹：白天轻快（温暖变奏）
-            2 => AudioManager.BgmHeartbreaking, // 一千公里：深夜等消息
-            3 => AudioManager.BgmGym2,          // 天平：开场平静，后段切 SadTrio（章内自己切）
-            4 => AudioManager.BgmSadTrio,       // 星月：告别
-            5 => AudioManager.BgmHeartbreaking, // 晚安：分手当夜（换成更痛的）
-            6 => AudioManager.BgmGym3,          // 手滑：凌晨
-            7 => AudioManager.BgmWarm,          // 碧蓝蓝天：白天海边（温暖变奏）
-            8 => AudioManager.BgmRelease,       // 放过自己：夜摊（释然变奏）
-            9 => AudioManager.BgmHeartbreaking, // 三点水：雨夜心碎（换掉 Gym1）
-            10 => AudioManager.BgmGym3,         // 还想再见：夜里回忆（换掉 Gym1）
-            11 => AudioManager.BgmPianoBetween, // 置顶：前夜苦涩转释然（换掉 Gym1）
-            12 => AudioManager.BgmRoad,         // 向南：公路
-            13 => AudioManager.BgmRelease,      // 十里长亭：释然收尾（释然变奏）
-            14 => AudioManager.BgmWarm,         // 爱就梭哈：她第一次来他的学校（温暖变奏，章内自己切）
-            _ => "",
-        };
+        string bgm = BgmFor(ChapterIndex);
         if (!string.IsNullOrEmpty(bgm))
             AudioManager.Instance?.PlayBgm(bgm, -16f, 2.2f);
     }
+
+    /// <summary>章号 → 进章时的底曲（抽成 static：预载下一章时也要用同一张表）</summary>
+    public static string BgmFor(int chapterIndex) => chapterIndex switch
+    {
+        0 => AudioManager.BgmGym1,          // 序章·那首歌（主旋律）
+        1 => AudioManager.BgmWarm,          // 寄居蟹：白天轻快（温暖变奏）
+        2 => AudioManager.BgmHeartbreaking, // 一千公里：深夜等消息
+        3 => AudioManager.BgmGym2,          // 天平：开场平静，后段切 SadTrio（章内自己切）
+        4 => AudioManager.BgmSadTrio,       // 星月：告别
+        5 => AudioManager.BgmHeartbreaking, // 晚安：分手当夜（换成更痛的）
+        6 => AudioManager.BgmGym3,          // 手滑：凌晨
+        7 => AudioManager.BgmWarm,          // 碧蓝蓝天：白天海边（温暖变奏）
+        8 => AudioManager.BgmRelease,       // 放过自己：夜摊（释然变奏）
+        9 => AudioManager.BgmHeartbreaking, // 三点水：雨夜心碎（换掉 Gym1）
+        10 => AudioManager.BgmGym3,         // 还想再见：夜里回忆（换掉 Gym1）
+        11 => AudioManager.BgmPianoBetween, // 置顶：前夜苦涩转释然（换掉 Gym1）
+        12 => AudioManager.BgmRoad,         // 向南：公路
+        13 => AudioManager.BgmRelease,      // 十里长亭：释然收尾（释然变奏）
+        14 => AudioManager.BgmWarm,         // 爱就梭哈：她第一次来他的学校（温暖变奏，章内自己切）
+        _ => "",
+    };
 
     /// <summary>
     /// 章节环境音映射（第三轮 S2）：这个房间的声音。
@@ -128,27 +131,65 @@ public partial class ChapterBase : Control
     /// </summary>
     private void StartChapterAmbience()
     {
-        string amb = ChapterIndex switch
-        {
-            0 => AudioManager.AmbStreet,   // 序章·那首歌：傍晚街道
-            1 => AudioManager.AmbStreet,   // 寄居蟹：白天校园外
-            2 => AudioManager.AmbStreet,   // 一千公里：白天→深夜章内切
-            3 => AudioManager.AmbNight,    // 天平：深夜
-            4 => AudioManager.AmbStreet,   // 星月：广场深夜（喷泉+街道底噪）
-            5 => AudioManager.AmbNight,    // 晚安：深夜
-            6 => AudioManager.AmbNight,    // 手滑：凌晨
-            7 => AudioManager.AmbWind,     // 碧蓝蓝天：海风
-            8 => AudioManager.AmbMarket,   // 放过自己：夜市（人声+街道，2026-10-18 新增）
-            9 => AudioManager.AmbRain,     // 三点水：雨夜实验室
-            10 => AudioManager.AmbNight,   // 还想再见：夜里
-            11 => AudioManager.AmbNight,   // 置顶：前夜
-            12 => AudioManager.AmbWind,    // 向南：骑行风声
-            13 => AudioManager.AmbWind,    // 十里长亭：风
-            14 => AudioManager.AmbStreet,  // 爱就梭哈：校门口/校园/小馆（三月傍晚的人气）
-            _ => "",
-        };
+        string amb = AmbienceFor(ChapterIndex);
         if (!string.IsNullOrEmpty(amb))
             AudioManager.Instance?.PlayAmbience(amb, -27f, 2.5f);
+    }
+
+    /// <summary>章号 → 环境音（同样抽成 static 给预载用）</summary>
+    public static string AmbienceFor(int chapterIndex) => chapterIndex switch
+    {
+        0 => AudioManager.AmbStreet,   // 序章·那首歌：傍晚街道
+        1 => AudioManager.AmbStreet,   // 寄居蟹：白天校园外
+        2 => AudioManager.AmbStreet,   // 一千公里：白天→深夜章内切
+        3 => AudioManager.AmbNight,    // 天平：深夜
+        4 => AudioManager.AmbStreet,   // 星月：广场深夜（喷泉+街道底噪）
+        5 => AudioManager.AmbNight,    // 晚安：深夜
+        6 => AudioManager.AmbNight,    // 手滑：凌晨
+        7 => AudioManager.AmbWind,     // 碧蓝蓝天：海风
+        8 => AudioManager.AmbMarket,   // 放过自己：夜市（人声+街道，2026-10-18 新增）
+        9 => AudioManager.AmbRain,     // 三点水：雨夜实验室
+        10 => AudioManager.AmbNight,   // 还想再见：夜里
+        11 => AudioManager.AmbNight,   // 置顶：前夜
+        12 => AudioManager.AmbWind,    // 向南：骑行风声
+        13 => AudioManager.AmbWind,    // 十里长亭：风
+        14 => AudioManager.AmbStreet,  // 爱就梭哈：校门口/校园/小馆（三月傍晚的人气）
+        _ => "",
+    };
+
+    // ==================== 下一章预载（2026-10-19 切章卡顿） ====================
+
+    /// <summary>下一章该去哪个场景：最后一章之后是结束页</summary>
+    public static string NextScenePath(int chapterIndex)
+    {
+        int next = chapterIndex + 1;
+        return next <= ChapterJump.LastChapter
+            ? ChapterJump.ScenePath(next)
+            : "res://scenes/ui/demo_end/demo_end.tscn";
+    }
+
+    /// <summary>
+    /// 进章 2.5 秒后，把"下一章"的场景 + 背景贴图 + BGM/环境音丢到后台线程解码。
+    /// 这样玩家还在看本章剧情的时候，下一章已经热好了——切章那一刀就不会再卡。
+    /// 用 CallDeferred 起 coroutine，避免和本章首帧的加载抢主线程。
+    /// </summary>
+    private async void PrefetchNextChapter()
+    {
+        try
+        {
+            await ToSignal(GetTree().CreateTimer(2.5), SceneTreeTimer.SignalName.Timeout);
+        }
+        catch (Exception)
+        {
+            return; // 等的时候本章已经被切走了（节点释放）——什么都不用做
+        }
+
+        if (!GodotObject.IsInstanceValid(this) || !IsInsideTree())
+            return;
+
+        int next = ChapterIndex + 1;
+        TransitionManager.Prefetch(NextScenePath(ChapterIndex));
+        AudioManager.Instance?.PrefetchStreams(BgmFor(next), AmbienceFor(next));
     }
 
     /// <summary>
@@ -200,6 +241,9 @@ public partial class ChapterBase : Control
         // 第三轮：章节主题 BGM（七首轮换）+ 环境音垫底
         StartChapterBgm();
         StartChapterAmbience();
+
+        // 2026-10-19：进章 2.5 秒后把"下一章"的场景与音频预热——切章那一刀不再卡
+        PrefetchNextChapter();
 
         // 第三轮 F7：顶部交互提示统一降调（各章自己的字号设置完之后再覆盖——
         // 旧版 24 号白字带重描边直接飘在画面上，太抢戏）

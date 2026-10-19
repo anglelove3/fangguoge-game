@@ -147,12 +147,15 @@ public partial class GameManager : Node
 
     /// <summary>
     /// 返回主菜单（重置章节编号）
+    ///
+    /// 2026-10-19：原来是直接 ChangeSceneToFile——硬切，画面"啪"一下跳走。
+    /// 现在跟切章走同一套过渡，顺便吃上预载（主菜单已在缓存里就是瞬间）。
     /// </summary>
     public void ReturnToMainMenu()
     {
         GD.Print("[场景切换] → 主菜单");
         CurrentChapter = 0;
-        GetTree().ChangeSceneToFile("res://scenes/main_menu/main_menu.tscn");
+        TransitionManager.FadeToScene("res://scenes/main_menu/main_menu.tscn");
     }
 
     // ========== 属性修改 ==========
