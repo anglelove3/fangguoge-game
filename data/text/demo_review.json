@@ -257,6 +257,18 @@
       "chapter": "ch14",
       "where": "第十四章《爱就梭哈》",
       "label": "她说「你的心跳得好快」，你"
+    },
+    {
+      "choice": "ch15_shoulder",
+      "chapter": "ch15",
+      "where": "第十五章《那束光》",
+      "label": "她靠在你肩上睡着，你"
+    },
+    {
+      "choice": "ch15_heart_heart_deep",
+      "chapter": "ch15",
+      "where": "第十五章《那束光》",
+      "label": "她说「我眯一会儿」，你心里"
     }
   ]
 }

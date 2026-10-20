@@ -552,7 +552,8 @@ public partial class Ch14 : ChapterBase
         GameManager.Instance.SetStage(cfg.JieContact, "together");
         GameManager.Instance.RecordRelationshipEvent(cfg.JieContact, "ch14_allin");
 
-        GoToNextChapter("res://scenes/ui/demo_end/demo_end.tscn", 99);
+        // 2026-10-20：第十五章《那束光》上线，这里不再直接进结束页
+        GoToNextChapter("res://scenes/chapters/ch15/ch15.tscn", 15);
     }
 
     // ==================== 小工具 ====================

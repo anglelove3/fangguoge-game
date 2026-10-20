@@ -212,5 +212,37 @@
     "month": 3,
     "day": 21,
     "weekday": 5
+  },
+  "ch15": {
+    "time": "21:45",
+    "month": 3,
+    "day": 7,
+    "weekday": 6,
+    "segments": {
+      "hall": {
+        "time": "22:05",
+        "month": 3,
+        "day": 7,
+        "weekday": 6
+      },
+      "booth": {
+        "time": "22:20",
+        "month": 3,
+        "day": 7,
+        "weekday": 6
+      },
+      "deep": {
+        "time": "02:10",
+        "month": 3,
+        "day": 8,
+        "weekday": 0
+      },
+      "dawn": {
+        "time": "03:20",
+        "month": 3,
+        "day": 8,
+        "weekday": 0
+      }
+    }
   }
 }

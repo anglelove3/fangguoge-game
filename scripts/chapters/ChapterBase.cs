@@ -68,7 +68,7 @@ public partial class ChapterBase : Control
         }
 
         // 第三轮反馈：呼吸感只在关键章（天平/星月/还想再见/十里长亭/爱就梭哈）——所有章都晃会腻
-        bool breathChapter = ChapterIndex is 3 or 4 or 9 or 13 or 14;
+        bool breathChapter = ChapterIndex is 3 or 4 or 9 or 13 or 14 or 15;
         bool talking = breathChapter && DialogueManager.Instance != null && DialogueManager.Instance.IsBusy;
         if (talking != breathIn)
         {
@@ -121,6 +121,7 @@ public partial class ChapterBase : Control
         12 => AudioManager.BgmRoad,         // 向南：公路
         13 => AudioManager.BgmRelease,      // 十里长亭：释然收尾（释然变奏）
         14 => AudioManager.BgmWarm,         // 爱就梭哈：她第一次来他的学校（温暖变奏，章内自己切）
+        15 => AudioManager.BgmGym3,         // 那束光：网咖通宵（夜里最静的那首）
         _ => "",
     };
 
@@ -154,6 +155,7 @@ public partial class ChapterBase : Control
         12 => AudioManager.AmbWind,    // 向南：骑行风声
         13 => AudioManager.AmbWind,    // 十里长亭：风
         14 => AudioManager.AmbStreet,  // 爱就梭哈：校门口/校园/小馆（三月傍晚的人气）
+        15 => AudioManager.AmbNight,   // 那束光：网咖通宵（夜里空调与键盘的底噪）
         _ => "",
     };
 

@@ -1,0 +1,495 @@
+{
+  "_comment": "第十五章《那束光》。时间：2026 年 3 月 7 日 21:45 → 3 月 8 日 03:20（跨夜）。地点：学校东门外的「极速网咖」——大厅 → 包间 → 深夜。互动：开黑节奏小游戏（三拍）+ 三处闲笔 + 核心选择 shoulder（她靠在你肩上睡着后做什么）。收束是「那束光」：把她的屏幕调暗、用自己的背挡住。钩子指向第十六章《今天天气晴》。",
+  "sequences": {
+    "street": [
+      {
+        "speaker": "",
+        "text": "三月七日，晚上九点四十五。出校门往东，过两个红绿灯。"
+      },
+      {
+        "speaker": "",
+        "text": "这条街白天是打印店、奶茶店、修手机的。这个点还开着的，只剩招牌。"
+      },
+      {
+        "speaker": "江洁",
+        "text": "你们这儿网吧叫什么？",
+        "portrait": "jie_smile"
+      },
+      {
+        "speaker": "我",
+        "text": "「极速。老破，但键盘好用。」"
+      },
+      {
+        "speaker": "江洁",
+        "text": "「键盘好用」也能当推荐理由？",
+        "portrait": "jie_laugh"
+      },
+      {
+        "speaker": "我",
+        "text": "「通宵的时候键盘不好用，会想砸东西。」"
+      },
+      {
+        "speaker": "",
+        "text": "她笑了两声，把手插进外套口袋，往前迈半步，跟我并排。"
+      },
+      {
+        "speaker": "",
+        "text": "招牌在二楼，蓝底白字。有一个笔画不亮了，看上去像「极 网 巴」。"
+      },
+      {
+        "speaker": "江洁",
+        "text": "就这个？",
+        "portrait": "jie_surprise"
+      },
+      {
+        "speaker": "我",
+        "text": "「就这个。」"
+      }
+    ],
+    "hall": [
+      {
+        "speaker": "",
+        "text": "推门进去，一股味道先扑出来：烟、空调，还有一点消毒水。"
+      },
+      {
+        "speaker": "",
+        "text": "三排机器，靠墙那排坐满了。键盘声连成一片，像下大雨。"
+      },
+      {
+        "speaker": "",
+        "text": "前台在左手边，玻璃柜里摆着泡面、红牛、一次性拖鞋。"
+      },
+      {
+        "speaker": "服务员",
+        "text": "「两位？」"
+      },
+      {
+        "speaker": "我",
+        "text": "「两位。」"
+      },
+      {
+        "speaker": "服务员",
+        "text": "「开卡。身份证。」"
+      },
+      {
+        "speaker": "",
+        "text": "她比我快，两张身份证一起拍在台面上。"
+      },
+      {
+        "speaker": "我",
+        "text": "（我还没伸手。）"
+      },
+      {
+        "speaker": "服务员",
+        "text": "「包间加二十。」"
+      },
+      {
+        "speaker": "江洁",
+        "text": "「加。」",
+        "portrait": "jie_smile"
+      },
+      {
+        "speaker": "我",
+        "text": "「大厅就行——」"
+      },
+      {
+        "speaker": "江洁",
+        "text": "「加。我请。」",
+        "portrait": "jie_laugh"
+      },
+      {
+        "speaker": "",
+        "text": "她说这话的时候没看我，正低头扫码。"
+      },
+      {
+        "speaker": "",
+        "text": "（昨天在实验楼下，她说「那我们怎么办」。今天她连二十块都不让我付。）"
+      },
+      {
+        "speaker": "服务员",
+        "text": "「三号包间，往里走到底。」"
+      }
+    ],
+    "booth": [
+      {
+        "speaker": "",
+        "text": "包间很小，两台机器并排，一台挨着墙。"
+      },
+      {
+        "speaker": "",
+        "text": "椅子是那种旧沙发椅，扶手磨得起了皮。"
+      },
+      {
+        "speaker": "江洁",
+        "text": "你以前坐哪个位置？",
+        "portrait": "jie_smile"
+      },
+      {
+        "speaker": "我",
+        "text": "「最里面那个。背对门，谁也看不见我在干什么。」"
+      },
+      {
+        "speaker": "江洁",
+        "text": "「那你现在坐外面。」",
+        "portrait": "jie_laugh"
+      },
+      {
+        "speaker": "我",
+        "text": "「为什么？」"
+      },
+      {
+        "speaker": "江洁",
+        "text": "「我坐里面。有人进来，我先看见。」",
+        "portrait": "jie_smile"
+      },
+      {
+        "speaker": "",
+        "text": "她把外套脱下来搭在椅背上，坐下，耳机往头上一扣，扣完又摘下来一只。"
+      },
+      {
+        "speaker": "江洁",
+        "text": "「你玩什么？」",
+        "portrait": "jie_surprise"
+      },
+      {
+        "speaker": "我",
+        "text": "「都行。你呢？」"
+      },
+      {
+        "speaker": "江洁",
+        "text": "「我菜。但我敢冲。」",
+        "portrait": "jie_laugh"
+      },
+      {
+        "speaker": "",
+        "text": "屏幕亮起来。蓝光打在两个人脸上，谁都不太像平时那个样子。"
+      }
+    ],
+    "qte_intro": [
+      {
+        "speaker": "",
+        "text": "开机，登号，组队。"
+      },
+      {
+        "speaker": "江洁",
+        "text": "「说好了，输了不许让我。」",
+        "portrait": "jie_smile"
+      },
+      {
+        "speaker": "我",
+        "text": "（她说这句的时候眼睛在屏幕上，没看我。）"
+      },
+      {
+        "speaker": "",
+        "text": "（——开一局。）"
+      }
+    ],
+    "qte_win": [
+      {
+        "speaker": "",
+        "text": "赢了。三比一。"
+      },
+      {
+        "speaker": "江洁",
+        "text": "「你手真快。」",
+        "portrait": "jie_laugh"
+      },
+      {
+        "speaker": "我",
+        "text": "「练出来的。」"
+      },
+      {
+        "speaker": "江洁",
+        "text": "「通宵练的？」",
+        "portrait": "jie_smile"
+      },
+      {
+        "speaker": "我",
+        "text": "「通宵练的。」"
+      },
+      {
+        "speaker": "",
+        "text": "她笑，笑到一半忽然不笑了，低头去够桌上的纸杯。"
+      }
+    ],
+    "qte_lose": [
+      {
+        "speaker": "",
+        "text": "输了。一比三。"
+      },
+      {
+        "speaker": "江洁",
+        "text": "「你别让我啊。」",
+        "portrait": "jie_surprise"
+      },
+      {
+        "speaker": "我",
+        "text": "「没让。」"
+      },
+      {
+        "speaker": "江洁",
+        "text": "「那你刚才那个技能为什么不用？」",
+        "portrait": "jie_laugh"
+      },
+      {
+        "speaker": "我",
+        "text": "（她看出来了。）"
+      },
+      {
+        "speaker": "我",
+        "text": "「……下把用。」"
+      },
+      {
+        "speaker": "",
+        "text": "她把纸杯推到我手边，杯底在桌面上磨出一声。"
+      }
+    ],
+    "deep": [
+      {
+        "speaker": "",
+        "text": "两点十分。"
+      },
+      {
+        "speaker": "",
+        "text": "外面那条街连招牌都熄了，只剩便利店的白光。"
+      },
+      {
+        "speaker": "",
+        "text": "她说话开始变慢，一句说完要停半秒才接下一句。"
+      },
+      {
+        "speaker": "江洁",
+        "text": "「你们这儿……通宵到几点？」",
+        "portrait": "jie_winter_smile"
+      },
+      {
+        "speaker": "我",
+        "text": "「早上七点。老板娘六点半开始拖地，赶人。」"
+      },
+      {
+        "speaker": "江洁",
+        "text": "「那还有五个小时。」",
+        "portrait": "jie_smile"
+      },
+      {
+        "speaker": "",
+        "text": "她把耳机摘了，挂在脖子上。"
+      },
+      {
+        "speaker": "江洁",
+        "text": "「我眯一会儿。就一会儿。」"
+      },
+      {
+        "speaker": "",
+        "text": "说完不到三分钟，她的头就慢慢歪过来。"
+      },
+      {
+        "speaker": "",
+        "text": "先是肩膀碰到肩膀，然后整个重量压上来。"
+      }
+    ],
+    "deep_heart": [
+      {
+        "heartChoice": "heart_deep"
+      }
+    ],
+    "beat_0": [
+      {
+        "speaker": "",
+        "text": "我把外套从椅背上拿下来，抖开，盖到她肩上。"
+      },
+      {
+        "speaker": "",
+        "text": "动作很慢。慢到自己都觉得可笑。"
+      },
+      {
+        "speaker": "江洁",
+        "text": "「……嗯。」"
+      },
+      {
+        "speaker": "",
+        "text": "她没醒，只是往外套里缩了一点。"
+      },
+      {
+        "speaker": "我",
+        "text": "（外套是昨天刚洗的。这算不算作弊。）"
+      }
+    ],
+    "beat_1": [
+      {
+        "speaker": "",
+        "text": "她的屏幕还亮着，那束光正打在她眼睛上。"
+      },
+      {
+        "speaker": "",
+        "text": "我把她那台的亮度调到最低，屏幕暗下去，最后只剩一层灰。"
+      },
+      {
+        "speaker": "",
+        "text": "然后把自己的椅子往右挪了半米，用背和屏幕，把剩下的光挡住。"
+      },
+      {
+        "speaker": "",
+        "text": "她的眉头松开了。"
+      },
+      {
+        "speaker": "我",
+        "text": "（原来「挡光」是个体力活。）"
+      }
+    ],
+    "beat_2": [
+      {
+        "speaker": "",
+        "text": "我拍了拍她的胳膊。"
+      },
+      {
+        "speaker": "我",
+        "text": "「回去睡。宿舍还能进。」"
+      },
+      {
+        "speaker": "江洁",
+        "text": "「……不回。」",
+        "portrait": "jie_winter_smile"
+      },
+      {
+        "speaker": "",
+        "text": "她眼睛都没睁，就说了两个字，然后把头又靠回来。"
+      },
+      {
+        "speaker": "我",
+        "text": "（行吧。）"
+      }
+    ],
+    "dawn": [
+      {
+        "speaker": "",
+        "text": "三点二十。"
+      },
+      {
+        "speaker": "",
+        "text": "她醒的时候，我先醒的。"
+      },
+      {
+        "speaker": "江洁",
+        "text": "「你怎么不睡？」",
+        "portrait": "jie_shy"
+      },
+      {
+        "speaker": "我",
+        "text": "「睡了。」"
+      },
+      {
+        "speaker": "江洁",
+        "text": "「骗人。」",
+        "portrait": "jie_smile"
+      },
+      {
+        "speaker": "我",
+        "text": "「睡了。刚才。」"
+      },
+      {
+        "speaker": "",
+        "text": "她愣了一下，笑出来，笑完低头看自己的肩。"
+      },
+      {
+        "speaker": "江洁",
+        "text": "「你外套……」",
+        "portrait": "jie_shy"
+      },
+      {
+        "speaker": "我",
+        "text": "「脏了。回去洗。」"
+      },
+      {
+        "speaker": "江洁",
+        "text": "「我是说，谢谢。」",
+        "portrait": "jie_smile"
+      },
+      {
+        "speaker": "",
+        "text": "窗外的天还是黑的。但那种黑已经开始变薄了。"
+      }
+    ],
+    "outro": [
+      {
+        "speaker": "",
+        "text": "（天亮之前，她又靠回来睡着了。这次没找借口。）"
+      },
+      {
+        "speaker": "",
+        "text": "（第十六章《今天天气晴》——下一轮。）"
+      },
+      {
+        "speaker": "",
+        "text": "—— 第十五章 完 ——"
+      }
+    ]
+  },
+  "choices": {
+    "shoulder": {
+      "prompt": "（她的呼吸落在我的袖子上。屏幕上那局还在跑，光是蓝的。）",
+      "promptSpeaker": "我",
+      "promptPortrait": "",
+      "options": [
+        {
+          "text": "不动。把外套轻轻盖上去",
+          "affection": 5,
+          "courage": 2
+        },
+        {
+          "text": "把她的屏幕调暗，再挪过去挡住那束光",
+          "affection": 4,
+          "courage": 3
+        },
+        {
+          "text": "叫醒她，让她回去睡",
+          "affection": 1,
+          "courage": 1
+        }
+      ]
+    }
+  },
+  "hearts": {
+    "heart_deep": {
+      "prompt": "（她说「我眯一会儿」的时候，声音已经不对了。）",
+      "promptSpeaker": "我",
+      "options": [
+        {
+          "text": "（她困成这样，还惦记着陪我坐到几点。）",
+          "lines": [
+            {
+              "speaker": "我",
+              "text": "（我该说「睡吧」。）"
+            },
+            {
+              "speaker": "我",
+              "text": "（可我想让她多靠一会儿。）"
+            }
+          ]
+        },
+        {
+          "text": "（五个小时。够我把这一夜记得很清楚了。）",
+          "lines": [
+            {
+              "speaker": "我",
+              "text": "（五点、四点、三点。她睡着的时候，时间反而走得慢。）"
+            }
+          ]
+        },
+        {
+          "text": "（通宵这事儿，一个人做叫熬夜，两个人做叫什么。）",
+          "lines": [
+            {
+              "speaker": "我",
+              "text": "（叫什么，我一时想不出来。）"
+            },
+            {
+              "speaker": "我",
+              "text": "（但肯定不叫熬夜了。）"
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

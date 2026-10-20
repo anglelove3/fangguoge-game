@@ -7,7 +7,7 @@ using Godot;
 public static class ChapterJump
 {
     /// <summary>目前开发到的最后一章</summary>
-    public const int LastChapter = 14;
+    public const int LastChapter = 15;
 
     public static readonly string[] ChapterNames =
     {
@@ -26,6 +26,7 @@ public static class ChapterJump
         "第十二章 · 向南",
         "第十三章 · 十里长亭",
         "第十四章 · 爱就梭哈",
+        "第十五章 · 那束光",
     };
 
     /// <summary>章号 → 场景路径（0 = 序章）</summary>
