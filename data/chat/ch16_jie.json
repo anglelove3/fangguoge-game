@@ -1,0 +1,26 @@
+{
+  "_comment": "第十六章《今天天气晴》私聊。台风天她发来三条，中间有两分钟的「输入中」。final 三分支的回声各埋各的幕门钥匙（ch16_gate_sent / soft / deleted）。",
+  "title": "江洁",
+  "messages": [
+    { "type": "divider", "text": "周日 傍晚 6:42", "gateChoice": "ch16_gate_storm" },
+    { "sender": "other", "type": "text", "senderName": "江洁", "text": "台风了，我们这边树都刮歪了", "gateChoice": "ch16_gate_storm" },
+    { "sender": "other", "type": "text", "senderName": "江洁", "text": "我妈问我什么时候回来", "gateChoice": "ch16_gate_storm" },
+    { "type": "divider", "text": "两分钟后", "gateChoice": "ch16_gate_storm" },
+    { "sender": "other", "type": "text", "senderName": "江洁", "text": "没事。你实验顺利吗", "gateChoice": "ch16_gate_storm" },
+
+    { "type": "divider", "text": "周日 晚 7:26", "gateChoice": "ch16_gate_sent" },
+    { "sender": "me", "type": "text", "text": "今天天气晴", "gateChoice": "ch16_gate_sent" },
+    { "sender": "other", "type": "text", "senderName": "江洁", "text": "你们那里明明是台风。", "gateChoice": "ch16_gate_sent" },
+    { "sender": "me", "type": "text", "text": "我这里晴了。", "gateChoice": "ch16_gate_sent" },
+    { "sender": "other", "type": "text", "senderName": "江洁", "text": "……油嘴。", "gateChoice": "ch16_gate_sent" },
+    { "sender": "other", "type": "text", "senderName": "江洁", "text": "那说好的。晴天了，告诉你。", "gateChoice": "ch16_gate_sent" },
+
+    { "type": "divider", "text": "周日 晚 7:31", "gateChoice": "ch16_gate_soft" },
+    { "sender": "me", "type": "text", "text": "多穿点。妈那边……我下次再去说。", "gateChoice": "ch16_gate_soft" },
+    { "sender": "other", "type": "text", "senderName": "江洁", "text": "知道了。", "gateChoice": "ch16_gate_soft" },
+
+    { "type": "divider", "text": "周日 晚 8:05", "gateChoice": "ch16_gate_deleted" },
+    { "sender": "other", "type": "text", "senderName": "江洁", "text": "还在忙？", "gateChoice": "ch16_gate_deleted" },
+    { "type": "divider", "text": "（没有回复）", "gateChoice": "ch16_gate_deleted" }
+  ]
+}

@@ -76,6 +76,7 @@ public partial class ChatOverlay : Control
     private AlbumAppPage albumPage;     // 相册
     private MailAppPage mailPage;       // QQ邮箱
     private AiChatPage aiPage;          // DeepSeek
+    private NotesAppPage notesPage;     // 备忘录（第十六章新增）
     private DemoAppPage demoPage;       // 抖音等七个演示 App 共用的页
     private Button homeChip;            // 底部横条左侧的"主屏"小钮
 
@@ -456,9 +457,10 @@ public partial class ChatOverlay : Control
         albumPage = new AlbumAppPage();
         mailPage = new MailAppPage();
         aiPage = new AiChatPage();
+        notesPage = new NotesAppPage();
         demoPage = new DemoAppPage();
 
-        Control[] pages = { lockPage, desktopPage, musicPage, albumPage, mailPage, aiPage, demoPage, qqPage };
+        Control[] pages = { lockPage, desktopPage, musicPage, albumPage, mailPage, aiPage, notesPage, demoPage, qqPage };
         foreach (var page in pages)
         {
             page.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
@@ -472,7 +474,7 @@ public partial class ChatOverlay : Control
         desktopPage.AppLaunched += LaunchApp;
 
         // App 的返回键回桌面；小提示接进手机统一的 toast
-        PhoneAppPage[] apps = { musicPage, albumPage, mailPage, aiPage, demoPage, qqPage };
+        PhoneAppPage[] apps = { musicPage, albumPage, mailPage, aiPage, notesPage, demoPage, qqPage };
         foreach (var app in apps)
         {
             app.BackRequested += ShowDesktop;
@@ -520,6 +522,10 @@ public partial class ChatOverlay : Control
             case "ai":
                 SetPage(aiPage);
                 aiPage.OnShown();
+                break;
+            case "notes":
+                SetPage(notesPage);
+                notesPage.OnShown();
                 break;
             case "qq":
                 SetPage(qqPage);

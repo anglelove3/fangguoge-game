@@ -269,6 +269,18 @@
       "chapter": "ch15",
       "where": "第十五章《那束光》",
       "label": "她说「我眯一会儿」，你心里"
+    },
+    {
+      "choice": "ch16_final",
+      "chapter": "ch16",
+      "where": "第十六章《今天天气晴》",
+      "label": "台风天，备忘录里那句「今天天气晴」，你"
+    },
+    {
+      "choice": "ch16_heart_heart_storm",
+      "chapter": "ch16",
+      "where": "第十六章《今天天气晴》",
+      "label": "她说「没事。你实验顺利吗」，你心里"
     }
   ]
 }

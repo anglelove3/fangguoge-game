@@ -457,15 +457,20 @@ public partial class PhoneDesktop : Control
         };
         bar.AddChild(battery);
 
-        // ---- App 图标板（居中摆放，12 个图标 4×3）----
+        // ---- App 图标板（居中摆放，4 列；第十六章起 13 个图标 = 4 行）----
+        // 2026-10-21：原来 OffsetBottom=806 的写法在 13 个图标（4 行 794px）时会把最后一行
+        // 顶到面板边缘。改成显式上下锚点：状态栏下 96 → 面板底留 12，4 行稳放得下。
         var center = new CenterContainer { MouseFilter = MouseFilterEnum.Ignore };
         center.AnchorLeft = 0f;
         center.AnchorRight = 1f;
         center.AnchorTop = 0f;
-        center.AnchorBottom = 0f;
-        center.OffsetTop = 100;
-        center.OffsetBottom = 806;
+        center.AnchorBottom = 1f;
+        center.OffsetLeft = 0f;
+        center.OffsetRight = 0f;
+        center.OffsetTop = 96f;
+        center.OffsetBottom = -12f;
         center.GrowHorizontal = GrowDirection.Both;
+        center.GrowVertical = GrowDirection.Both;
         AddChild(center);
 
         var grid = new GridContainer { Columns = 4, MouseFilter = MouseFilterEnum.Ignore };

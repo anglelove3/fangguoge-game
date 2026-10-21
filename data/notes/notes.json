@@ -1,0 +1,31 @@
+{
+  "_comment": "备忘录（第十六章新增的 App，data/notes/ 新目录）。本章写入『今天天气晴』。三种态由 NotesApp 运行时按 GameManager.HasChoice(\"ch16_final\") 的选项序号渲染，不写盘：sent = 已发出 / soft = 改成了别的 / deleted = 灰色草稿。结局章（第十七章）在此基础上按结局 key 追加回收文案。",
+
+  "notes": [
+    {
+      "id": "ch16_weather",
+      "chapter": 16,
+      "date": "7 月 19 日 · 台风",
+      "title": "今天天气晴",
+      "body": [
+        "窗外台风『海鸥』。她那边树都刮歪了。",
+        "她五月说：晴天了我告诉你。",
+        "今天她那里台风。我这里，晴。"
+      ],
+      "states": {
+        "sent": {
+          "footer": "已发送 · 她回：你们那里明明是台风。",
+          "tint": "warm"
+        },
+        "soft": {
+          "footer": "已改成别的发出。这条留在草稿箱。",
+          "tint": "grey"
+        },
+        "deleted": {
+          "footer": "草稿 · 未发送",
+          "tint": "grey"
+        }
+      }
+    }
+  ]
+}

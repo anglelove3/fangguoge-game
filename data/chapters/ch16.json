@@ -1,0 +1,13 @@
+{
+  "_comment": "第十六章《今天天气晴》的接线参数。台风天三条消息按剧情时刻幕门可见；final 三分支的回声各埋各的钥匙。备忘录内容见 data/notes/notes.json。",
+
+  "jieContact": "jie",
+  "jieChat": "ch16_jie",
+
+  "gates": {
+    "storm": "ch16_gate_storm",
+    "sent": "ch16_gate_sent",
+    "soft": "ch16_gate_soft",
+    "deleted": "ch16_gate_deleted"
+  }
+}

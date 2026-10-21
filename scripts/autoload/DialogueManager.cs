@@ -120,6 +120,20 @@ public partial class DialogueManager : CanvasLayer
 	/// <summary>是否有对话/选择正在进行（章节脚本用它防止重复触发）</summary>
 	public bool IsBusy => state != State.Idle;
 
+	/// <summary>调试/自检用：当前状态名（Idle / Typing / WaitingAdvance / WaitingChoice）</summary>
+	public string DebugState => state.ToString();
+
+	/// <summary>自检/无障碍用：推进一句（等价于点一下屏幕）</summary>
+	public void AdvanceFromDebug()
+	{
+		if (uiSuppressed)
+			return;
+		if (state == State.Typing)
+			dialogueBox?.CompleteTyping();
+		else if (state == State.WaitingAdvance)
+			ShowNextLine();
+	}
+
 	// ==================== 第十一轮：快进 / 自动播放 / 优先点击 ====================
 
 	/// <summary>

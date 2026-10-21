@@ -342,6 +342,6 @@ public partial class Ch15 : ChapterBase
 
         GameManager.Instance.RecordRelationshipEvent("jie", "ch15_shoulder");
 
-        GoToNextChapter("res://scenes/ui/demo_end/demo_end.tscn", 99);
+        GoToNextChapter("res://scenes/chapters/ch16/ch16.tscn", 16);
     }
 }

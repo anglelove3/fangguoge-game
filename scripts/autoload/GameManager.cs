@@ -222,6 +222,10 @@ public partial class GameManager : Node
     public bool HasChoice(string choiceId) =>
         !string.IsNullOrEmpty(choiceId) && choiceHistory.ContainsKey(choiceId);
 
+    /// <summary>取某个选择记录的选项序号；没选过返回 -1（备忘录三态、结局判定要读它）</summary>
+    public int GetChoice(string choiceId) =>
+        !string.IsNullOrEmpty(choiceId) && choiceHistory.TryGetValue(choiceId, out int idx) ? idx : -1;
+
     /// <summary>
     /// 章节号平移（第二十二轮编号手术的存档迁移用）：
     /// "ch05_xxx" 及以后的章前缀 +1，"ch03" 及以前不动，无前缀的原样返回。
@@ -281,6 +285,7 @@ public partial class GameManager : Node
         { 0, 100 }, { 1, 100 }, { 2, 88 }, { 3, 74 }, { 4, 60 },
         { 5, 64 }, { 6, 58 }, { 7, 100 }, { 8, 82 }, { 9, 64 },
         { 10, 20 }, { 11, 100 }, { 12, 100 }, { 13, 82 },
+        { 14, 100 }, { 15, 60 }, { 16, 100 },
     };
 
     /// <summary>
