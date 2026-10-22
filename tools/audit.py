@@ -134,6 +134,67 @@ for dirpath, _, files in os.walk("data/dialogues"):
                 problems.append(f"[CARD] {p} 章末卡写的是「第{got}章」，应为「第{want}章」")
         card_checked += 1
 
+# ---------- 5. 节点契约（2026-10-22 新增）：代码 GetNode 路径必须存在于 tscn ----------
+# 血泪：ch16 漏了 ChapterTitle 节点 → titleLabel=null → TweenProperty 报 rp_target null。
+# 做法：把本章 tscn 的节点树解析成路径集合，再核对 .cs 里所有 GetNode<...>("A/B") 的路径。
+import glob as _glob
+
+tscn_re = re.compile(r'\[node name="([^"]+)" type="[^"]*"(?: parent="([^"]+)")?')
+getnode_re = re.compile(r'GetNode(?:OrNull)?<[^>]+>\(\s*"([^"]+)"')
+
+def tscn_paths(path):
+    """返回 tscn 里所有节点的路径集合（相对根），如 Hotspots/QteBtn"""
+    nodes = {}   # 节点名 -> 父路径
+    for line in open(path, encoding='utf-8'):
+        m = tscn_re.match(line.strip())
+        if not m:
+            continue
+        name, parent = m.group(1), m.group(2)
+        if parent is None:
+            nodes[name] = ""          # 根
+        elif parent == ".":
+            nodes[name] = ""          # 直接挂在根下
+        else:
+            nodes[name] = parent
+    # 组装完整路径
+    full = set()
+    for name, parent in nodes.items():
+        if parent == "":
+            full.add(name)
+        else:
+            # 父路径可能本身是嵌套（Panel/VBox）
+            full.add(f"{parent}/{name}")
+    # 逐层补全（把 parent 的祖先也拼出来）
+    out = set()
+    for f in full:
+        parts = f.split("/")
+        for i in range(1, len(parts) + 1):
+            out.add("/".join(parts[:i]))
+    return out
+
+node_checked = 0
+for cs in sorted(_glob.glob("scripts/chapters/Ch*.cs")):
+    m = re.search(r"Ch(\d+)\.cs$", cs)
+    if not m:
+        continue
+    tscn = f"scenes/chapters/ch{m.group(1)}/ch{m.group(1)}.tscn"
+    if not os.path.exists(tscn):
+        problems.append(f"[NODE] {cs} 找不到对应场景 {tscn}")
+        continue
+    paths = tscn_paths(tscn)
+    src = open(cs, encoding="utf-8").read()
+    # 代码里 new 出来并命名过的节点（如 new RainWindow { Name = "RainWindowFx" }）——
+    # 这类节点不在 tscn 里，是运行时自建的，不算契约缺失
+    self_built = set(re.findall(r'Name\s*=\s*"([^"]+)"', src))
+    for ref in getnode_re.findall(src):
+        if "{" in ref:
+            continue  # 动态路径跳过
+        node_checked += 1
+        if ref not in paths and ref not in self_built:
+            problems.append(f"[NODE] {cs} 找不到节点「{ref}」（场景 {tscn}）")
+
+print(f"节点契约：{node_checked} 处 GetNode 已核对")
+
 # ---------- 汇总 ----------
 print("=" * 56)
 print(f"JSON 文件：{len(json_files)} 个")
