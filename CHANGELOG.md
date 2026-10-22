@@ -22,10 +22,23 @@
 - **⚠️ asset 上传失败**：本机网络对大文件上传反复中断（`Connection was reset` / `TLS handshake failed` / `RemoteDisconnected`），urllib 与 curl（HTTP/1.1 + chunked）都试过。**待网络恢复后补传**
 - 新工具 `tools/publish_release.py`：不依赖 gh cli（本机没装），用 `git credential` 的 GCM token 走 GitHub API 建 Release + 上传
 
-### 体积备忘
+### 体积备忘（已评估，不做）
 
 368MB = assets 230MB（art 145 / audio 43 / **fonts 36**）+ 运行时 138MB。
-字体（霞鹜文楷 25.6MB + 思源宋体 Bold 12MB）是唯二的大头，子集化最多省 ~30MB——**收益有限，暂不做**。
+
+- **孤儿资源**：扫出 18 个 / 31.7MB，但核对后 `balance/` 四张（10MB）是**动态拼接路径**在用的，
+  真孤儿只有 `*_backup.png` + `bottle_v1` + `patch_earphone` ≈ **7MB（占 2%）**
+- **字体子集化**（霞鹜文楷 25.6MB + 思源宋体 Bold 12MB）最多省 ~30MB
+- 两条加起来勉强 10%——**收益有限，暂不做**；等网络条件改善或换分发方式再说
+
+### 补传机制（网络限制的兜底）
+
+- 新增 `tools/upload_asset.py`：**幂等**补传（已有同名 asset 就跳过），可反复执行
+- 建了**定时重试**（每 2 小时一次，持续到 10-25）：网络一恢复就自动补上，并把 Release 说明里的「待补」标注删掉
+- 手动补传（网络好时）：
+  ```
+  python tools/upload_asset.py --version v1.6.0 --file ../fangguoge-export/fangguoge-demo-v1.6.0.exe
+  ```
 
 ---
 
