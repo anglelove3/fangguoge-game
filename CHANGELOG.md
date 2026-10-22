@@ -5,6 +5,30 @@
 
 ---
 
+## 2026-10-22 上午（续）· v1.6.0 试玩包
+
+### 打包
+
+- `dotnet build -c Release`（942KB 程序集）+ Godot **4.7.2** `--export-release "Windows Desktop"`
+- 产物：**368MB 单文件 exe**（内嵌 pck + mono .NET 运行时，零依赖）
+- 路径：`../fangguoge-export/fangguoge-demo-v1.6.0.exe`
+- **启动验证通过**：4.7.2.stable.mono，各系统初始化 + 主菜单加载正常（`--headless --quit-after 120`）
+- 比 v1.3.0（287MB）大 81MB = 第十五/十六章新增资源
+
+### GitHub Release v1.6.0
+
+- Release 已建（prerelease 试玩版）：https://github.com/anglelove3/fangguoge-game/releases/tag/v1.6.0
+- 更新说明完整（两章内容 + 玩法提示 + 已知问题 + 运行说明）
+- **⚠️ asset 上传失败**：本机网络对大文件上传反复中断（`Connection was reset` / `TLS handshake failed` / `RemoteDisconnected`），urllib 与 curl（HTTP/1.1 + chunked）都试过。**待网络恢复后补传**
+- 新工具 `tools/publish_release.py`：不依赖 gh cli（本机没装），用 `git credential` 的 GCM token 走 GitHub API 建 Release + 上传
+
+### 体积备忘
+
+368MB = assets 230MB（art 145 / audio 43 / **fonts 36**）+ 运行时 138MB。
+字体（霞鹜文楷 25.6MB + 思源宋体 Bold 12MB）是唯二的大头，子集化最多省 ~30MB——**收益有限，暂不做**。
+
+---
+
 ## 2026-10-22 上午 · 打磨第一轮：性能体检 + 审计加节点契约
 
 > 葛大爷 10-21 定调"继续打磨"（正式版押后，先修 bug / 磨美术 / 改音乐）。
