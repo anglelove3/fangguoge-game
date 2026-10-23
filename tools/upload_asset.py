@@ -30,11 +30,16 @@ def token() -> str:
     raise RuntimeError("GCM 里没有 github.com 的 token")
 
 
+# 本机 2026-10-22 实测：走 http_proxy 上传 GitHub 大文件必失败（137KB/s 且连接被掐），
+# 直连 267KB/s 反而能通 —— 所以这里一律绕开代理。
+OPENER = urllib.request.build_opener(urllib.request.ProxyHandler({}))
+
+
 def get(url, tok, timeout=60):
     req = urllib.request.Request(url)
     req.add_header("Authorization", "token " + tok)
     req.add_header("Accept", "application/vnd.github+json")
-    with urllib.request.urlopen(req, timeout=timeout) as r:
+    with OPENER.open(req, timeout=timeout) as r:
         return json.loads(r.read().decode())
 
 
@@ -66,7 +71,7 @@ def main():
     with open(args.file, "rb") as f:
         req.data = f.read()
     try:
-        with urllib.request.urlopen(req, timeout=1800) as r:
+        with OPENER.open(req, timeout=1800) as r:
             a = json.loads(r.read().decode())
         print(f"✓ 完成 {a['name']}  {a['size'] / 1048576:.0f} MB")
         print(a["browser_download_url"])
