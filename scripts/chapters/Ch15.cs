@@ -318,6 +318,10 @@ public partial class Ch15 : ChapterBase
         dm.PlaySequence(ChapterId, $"beat_{index}", () =>
         {
             StoryClock.UseSegment("dawn");
+
+            // 天亮：切主旋律（序章那首歌在这里回来一次，给第十六章的尾声做呼应）
+            AudioManager.Instance?.PlayBgm(AudioManager.BgmGym1, -19f, 4.0f);
+
             var tw = CreateTween();
             tw.TweenProperty(art, "Dim", 0.45f, 2.5f)
               .SetTrans(Tween.TransitionType.Sine).SetEase(Tween.EaseType.InOut);

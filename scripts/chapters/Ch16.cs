@@ -71,8 +71,6 @@ public partial class Ch16 : ChapterBase
 
         cfg = DataStore.LoadJson<ChapterConfig>("res://data/chapters/ch16.json") ?? new ChapterConfig();
 
-        AudioManager.Instance?.PlayBgm(AudioManager.BgmPianoBetween, -18f, 2.0f);
-
         art = GetNode<TyphoonLabArt>("Lab");
         montage = GetNode<MontageReel>("Montage");
         hintLabel = GetNode<Label>("HintLabel");
@@ -318,6 +316,10 @@ public partial class Ch16 : ChapterBase
     private void StartOutro()
     {
         StoryClock.UseSegment("dawn");
+
+        // 音乐跟着天晴走：苦涩转释然（PianoBetween）→ 主旋律回归（Gym1，序章那首歌）
+        // 整章的情绪出口在这里——画面放晴、雨停，那首歌回来了。
+        AudioManager.Instance?.PlayBgm(AudioManager.BgmGym1, -19f, 4.0f);
 
         // 雨停、天放晴、屋里亮起来（2.8 秒，慢，但看得见）
         var tw = CreateTween();
