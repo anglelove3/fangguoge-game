@@ -82,12 +82,12 @@
       },
       {
         "speaker": "小米师妹",
-        "text": "哦对，隆重介绍一下——江洁，我朋友。江河的江，洁白的洁，名字里带三点水。",
+        "text": "哦对，隆重介绍一下——江晚萤，我朋友。江河的江，洁白的洁，名字里带三点水。",
         "portrait": "xiaomi_smile"
       },
       {
-        "speaker": "江洁",
-        "text": "介绍这么长，你不渴我都渴了。……你好，江洁。会打台球吗？",
+        "speaker": "江晚萤",
+        "text": "介绍这么长，你不渴我都渴了。……你好，江晚萤。会打台球吗？",
         "portrait": "jie_smile"
       },
       {
@@ -98,10 +98,10 @@
     "table_intro": [
       {
         "speaker": "俊杰（师弟）",
-        "text": "来，球分好了。江洁跟师兄一边一个，我跟金艮各领一个。"
+        "text": "来，球分好了。江晚萤跟师兄一边一个，我跟金艮各领一个。"
       },
       {
-        "speaker": "江洁",
+        "speaker": "江晚萤",
         "text": "你先来。我看看你的路数。",
         "portrait": "jie_smile"
       },
@@ -118,7 +118,7 @@
         "text": "（手心有点潮。不就是一杆球吗，怕什么。）"
       },
       {
-        "speaker": "江洁",
+        "speaker": "江晚萤",
         "text": "紧张啊？要不，先摆个架势我瞧瞧？",
         "portrait": "jie_laugh"
       },
@@ -147,7 +147,7 @@
         "text": "出了罗曼蒂克的门，晚风比想象中凉。街灯一盏一盏亮着。"
       },
       {
-        "speaker": "江洁",
+        "speaker": "江晚萤",
         "text": "你走快点啊。晚了我可不帮你占位子。",
         "portrait": "jie_laugh"
       },
@@ -182,7 +182,7 @@
         "portrait": "xiaomi_laugh"
       },
       {
-        "speaker": "江洁",
+        "speaker": "江晚萤",
         "text": "坐都坐了，可别指望我给你递菜。",
         "portrait": "jie_laugh"
       },
@@ -206,7 +206,7 @@
         "portrait": "xiaomi_laugh"
       },
       {
-        "speaker": "江洁",
+        "speaker": "江晚萤",
         "text": "隔这么远，那一会儿想问点什么，可得用喊的。",
         "portrait": "jie_smile"
       },
@@ -234,10 +234,10 @@
       },
       {
         "speaker": "俊杰（师弟）",
-        "text": "师兄今天台球打得可以啊。江洁，你说是不是？"
+        "text": "师兄今天台球打得可以啊。江晚萤，你说是不是？"
       },
       {
-        "speaker": "江洁",
+        "speaker": "江晚萤",
         "text": "还凑合。手没抖——就是话有点少。",
         "portrait": "jie_smile"
       },
@@ -261,7 +261,7 @@
         "text": "转盘又转了一圈，停在半路。桌上安静了半秒。"
       },
       {
-        "speaker": "江洁",
+        "speaker": "江晚萤",
         "text": "他们都让我听你讲。行啊，那你说——说点什么吧。",
         "portrait": "jie_smile"
       },
@@ -280,12 +280,12 @@
         "text": "「但数据跑通那一下——比什么都痛快。」"
       },
       {
-        "speaker": "江洁",
+        "speaker": "江晚萤",
         "text": "嗯。听得出来，你是真喜欢。",
         "portrait": "jie_smile"
       },
       {
-        "speaker": "江洁",
+        "speaker": "江晚萤",
         "text": "我爸也这样。说起车间里的事就两眼放光，谁拦都不听。",
         "portrait": "jie_laugh"
       },
@@ -304,12 +304,12 @@
         "text": "就是说，这规矩好！我们当年怎么没赶上。"
       },
       {
-        "speaker": "江洁",
+        "speaker": "江晚萤",
         "text": "哈哈，你们还带望风的？",
         "portrait": "jie_laugh"
       },
       {
-        "speaker": "江洁",
+        "speaker": "江晚萤",
         "text": "那下次跟你们打，我可得把零花钱看紧点。",
         "portrait": "jie_smile"
       },
@@ -324,12 +324,12 @@
         "text": "「我先不急着讲。你先说——你平时周末都干点什么？」"
       },
       {
-        "speaker": "江洁",
+        "speaker": "江晚萤",
         "text": "打球，爬山，偶尔去公司楼下喂猫。",
         "portrait": "jie_smile"
       },
       {
-        "speaker": "江洁",
+        "speaker": "江晚萤",
         "text": "有只橘猫特别认人。我一蹲下，它就跑过来，跟个小领导似的。",
         "portrait": "jie_laugh"
       },
@@ -338,7 +338,7 @@
         "text": "「下次喂猫，叫我一个？」"
       },
       {
-        "speaker": "江洁",
+        "speaker": "江晚萤",
         "text": "……行啊。看你打球什么时候赢我一次。",
         "portrait": "jie_smile"
       }
@@ -369,13 +369,13 @@
         "portrait": "xiaomi_laugh"
       },
       {
-        "speaker": "江洁",
+        "speaker": "江晚萤",
         "text": "走了。回去路上，小心点。",
         "portrait": "jie_smile"
       },
       {
         "speaker": "我",
-        "text": "（江洁。江，洁。）"
+        "text": "（江晚萤。江，洁。）"
       },
       {
         "speaker": "我",
@@ -494,7 +494,7 @@
               "text": "师兄你还带讲规则的，来真的了哈哈。"
             },
             {
-              "speaker": "江洁",
+              "speaker": "江晚萤",
               "text": "行啊。那你可别输。",
               "portrait": "jie_laugh"
             }
@@ -504,7 +504,7 @@
           "text": "把杆递回去——「你来，我学学」",
           "lines": [
             {
-              "speaker": "江洁",
+              "speaker": "江晚萤",
               "text": "真的？那我可不让你。",
               "portrait": "jie_smile"
             },
@@ -532,7 +532,7 @@
               "text": "「听师妹说你在公司上班。累不累啊？」"
             },
             {
-              "speaker": "江洁",
+              "speaker": "江晚萤",
               "text": "写代码的，天天跟 bug 打架。……你呢，研究生平时都干嘛？",
               "portrait": "jie_smile"
             },
@@ -541,7 +541,7 @@
               "text": "「做实验，跑数据。也差不多——跟不收敛的数字打架。」"
             },
             {
-              "speaker": "江洁",
+              "speaker": "江晚萤",
               "text": "那我们算半个同行。",
               "portrait": "jie_laugh"
             }
@@ -555,12 +555,12 @@
               "text": "「你球打得这么好，在哪儿学的？」"
             },
             {
-              "speaker": "江洁",
+              "speaker": "江晚萤",
               "text": "我爸单位老厂房里有个台子。我小时候够不着，就踩着凳子打。",
               "portrait": "jie_smile"
             },
             {
-              "speaker": "江洁",
+              "speaker": "江晚萤",
               "text": "后来凳子也用不上了。人总会长高的嘛。",
               "portrait": "jie_laugh"
             },
@@ -578,12 +578,12 @@
               "text": "「那你今天——玩得开心吗？」"
             },
             {
-              "speaker": "江洁",
+              "speaker": "江晚萤",
               "text": "嗯？……还没结束呢，就问这个。",
               "portrait": "jie_smile"
             },
             {
-              "speaker": "江洁",
+              "speaker": "江晚萤",
               "text": "不过，还行。比我平时过周末强。",
               "portrait": "jie_shy"
             }

@@ -1,0 +1,106 @@
+[gd_scene load_steps=4 format=3 uid="uid://ch17scene001"]
+
+[ext_resource type="Script" path="res://scripts/chapters/Ch17.cs" id="1_ch17"]
+[ext_resource type="Texture2D" path="res://assets/art/backgrounds/ch17_meet_v1.jpg" id="2_meet"]
+[ext_resource type="Texture2D" path="res://assets/art/backgrounds/ch17_home_v1.jpg" id="3_home"]
+
+[node name="Ch17" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_ch17")
+ChapterTitle = "第十七章：后来"
+ChapterSubtitle = "谁也不用放下自己的事"
+ChapterIndex = 17
+
+[node name="Background" type="TextureRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("2_meet")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="Home" type="TextureRect" parent="."]
+modulate = Color(1, 1, 1, 0)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("3_home")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="Hotspots" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="ChapterTitle" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.5
+anchor_top = 0.42
+anchor_right = 0.5
+anchor_bottom = 0.42
+offset_left = -520.0
+offset_top = -130.0
+offset_right = 520.0
+offset_bottom = -40.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.29, 0.22, 0.16, 1)
+theme_override_colors/font_outline_color = Color(0.96, 0.92, 0.84, 0.75)
+theme_override_constants/outline_size = 8
+theme_override_font_sizes/font_size = 72
+text = "第十七章：后来"
+horizontal_alignment = 1
+
+[node name="ChapterSubtitle" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.5
+anchor_top = 0.42
+anchor_right = 0.5
+anchor_bottom = 0.42
+offset_left = -520.0
+offset_top = 70.0
+offset_right = 520.0
+offset_bottom = 120.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.45, 0.34, 0.24, 1)
+theme_override_font_sizes/font_size = 26
+text = "谁也不用放下自己的事"
+horizontal_alignment = 1
+
+[node name="HintLabel" type="Label" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -340.0
+offset_top = 24.0
+offset_right = 340.0
+offset_bottom = 64.0
+grow_horizontal = 2
+theme_override_colors/font_color = Color(1, 0.97, 0.92, 1)
+theme_override_colors/font_outline_color = Color(0.1, 0.08, 0.06, 0.8)
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 22
+horizontal_alignment = 1

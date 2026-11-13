@@ -32,7 +32,7 @@ public partial class FlashbackMemory : Control
         SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
 
         topPhoto = MakePhoto("res://assets/art/backgrounds/dorm_night_v2.png", true);
-        bottomPhoto = MakePhoto("res://assets/art/backgrounds/day_lab_v1.png", false);
+        bottomPhoto = MakePhoto("res://assets/art/backgrounds/day_lab_v3.jpg", false);
     }
 
     /// <summary>老照片层：半屏高、暖旧色调、中间留白边（像翻相册）</summary>

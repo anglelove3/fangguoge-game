@@ -27,10 +27,10 @@ public partial class SplitBalanceScene : Control
         MouseFilter = MouseFilterEnum.Ignore;
         SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
 
-        leftV1 = MakeHalf(Dir + "left_v1_dorm.png", true);
-        rightV1 = MakeHalf(Dir + "right_v1_office.png", false);
-        leftV2 = MakeHalf(Dir + "left_v2_dorm_late.png", true, startAlpha: 0f);
-        rightV2 = MakeHalf(Dir + "right_v2_office_late.png", false, startAlpha: 0f);
+        leftV1 = MakeHalf(Dir + "left_v3_dorm.jpg", true);
+        rightV1 = MakeHalf(Dir + "right_v3_office.jpg", false);
+        leftV2 = MakeHalf(Dir + "left_v3_dorm_late.jpg", true, startAlpha: 0f);
+        rightV2 = MakeHalf(Dir + "right_v3_office_late.jpg", false, startAlpha: 0f);
 
         // 诊断：四层状态一行打清（左右图加载失败时一眼定位）
         GD.Print($"[分屏] L1={(leftV1.Texture != null)} R1={(rightV1.Texture != null)} "

@@ -2,7 +2,7 @@ using Godot;
 using System.Collections.Generic;
 
 /// <summary>
-/// 第七章：碧蓝蓝天
+/// 第七章：来了就行
 ///
 /// 流程：傍晚的实验室（手机震个不停）→ 打开「今天吃什么研讨组」
 ///      → 收起手机后三选一（去 / 半推半就地去 / 让他们定）
@@ -80,11 +80,11 @@ public partial class Ch07 : ChapterBase
         glows["friends"] = HotspotGlow.Attach(friendsBtn);
         glows["rain"] = HotspotGlow.Attach(rainBtn);
 
-        // 第十五轮：热点按"美术图坐标"登记——窗口不成 16:9 时背景会偏移，热点跟着走
-        ArtAnchor.Track(phoneBtn, new Rect2(975f, 790f, 170f, 100f)); // 桌上的手机（等贴进 day_lab 图里）
-        ArtAnchor.TrackFraction(menuBtn, new Rect2(0.11f, 0.8f, 0.33f, 0.195f));
-        ArtAnchor.TrackFraction(friendsBtn, new Rect2(0.53f, 0.42f, 0.27f, 0.38f));
-        ArtAnchor.TrackFraction(rainBtn, new Rect2(0.03f, 0.1f, 0.39f, 0.48f));
+        // 热点按美术图比例登记。实验室是第一人称书桌，兰亭是雨窗边的一桌。
+        ArtAnchor.TrackFraction(phoneBtn, new Rect2(0.44f, 0.73f, 0.13f, 0.12f)); // 记录本上的手机
+        ArtAnchor.TrackFraction(menuBtn, new Rect2(0.04f, 0.64f, 0.12f, 0.24f)); // 左下空白菜单
+        ArtAnchor.TrackFraction(friendsBtn, new Rect2(0.08f, 0.16f, 0.88f, 0.46f)); // 陆洵、金艮、俊杰、三金
+        ArtAnchor.TrackFraction(rainBtn, new Rect2(0.00f, 0.12f, 0.40f, 0.26f)); // 左侧雨窗
 
         // "点万物有回应"：实验室的和兰亭的各一套，跟着阶段开关
         flavorLab = new Control { MouseFilter = Control.MouseFilterEnum.Ignore };
@@ -96,6 +96,11 @@ public partial class Ch07 : ChapterBase
         flavorLanting.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
         hotspotsRoot.AddChild(flavorLanting);
         AddChild(FlavorSpots.Create(flavorLanting, "ch07_lanting"));
+        // 风味点后加，会盖住主线。主线按钮挪到最前，重叠处仍点到手机、菜单、朋友和雨。
+        friendsBtn.MoveToFront();
+        rainBtn.MoveToFront();
+        menuBtn.MoveToFront();
+        phoneBtn.MoveToFront();
 
         // "手机活起来"：手机热点右上角挂小红点
         LiveEvents.AttachPhoneDot(phoneBtn);

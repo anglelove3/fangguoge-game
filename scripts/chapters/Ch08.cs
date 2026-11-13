@@ -56,7 +56,7 @@ public partial class Ch08 : ChapterBase
         // 第十五轮：热点按"美术图坐标"登记——窗口不成 16:9 时背景会整体偏移，热点跟着走
         // 第三轮反馈 6：倒酒的点位从画面左下角（那组又亮又突兀的程序瓶杯）挪到桌前
         // 底图里画好的两只酒杯上——蓝框那两只。热点跟着杯子走。
-        ArtAnchor.Track(pourBtn, new Rect2(630f, 528f, 132f, 182f));
+        ArtAnchor.TrackFraction(pourBtn, new Rect2(0.28f, 0.66f, 0.26f, 0.28f)); // 陆洵、金艮面前两只酒杯
 
         // 第三轮反馈 7/9：夜摊这张底图里其实没画手机，旧热点 (485,812) 换算后正好压在桌上烟盒上，
         // "点烟弹出微信"就是这么来的。这一章不再给场景手机热点：要看手机走背包（背包里点手机），
@@ -74,8 +74,9 @@ public partial class Ch08 : ChapterBase
         var embers = new EmberDust();
         AddChild(embers);
         // 第三轮反馈 6：杯底中心钉到桌前那两只杯子的位置（原来在最左下角，孤零零地亮着）
-        ArtAnchor.Track2D(drink, new Vector2(665f, 648f), 0.57f);
-        ArtAnchor.Track2D(embers, new Vector2(723f, 652f));
+        // 杯底钉在陆洵这边这只杯子上；金艮那只在 DrinkPour 里按新构图偏到右边
+        ArtAnchor.Track2D(drink, new Vector2(588f, 848f), 0.85f);
+        ArtAnchor.Track2D(embers, new Vector2(924f, 600f));
 
         UiSounds.WireAll(this);
 

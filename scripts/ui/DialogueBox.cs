@@ -84,6 +84,43 @@ public partial class DialogueBox : Control
         Hide(); // 默认隐藏，需要时再显示
     }
 
+    /// <summary>
+    /// 序章试看用的信纸对话框。只改这一层的颜色，不换场景。关掉后回到原来的深色面板。
+    /// </summary>
+    public void SetPaperStyle(bool on)
+    {
+        if (panel is not PanelContainer paperPanel)
+            return;
+
+        if (!on)
+        {
+            paperPanel.RemoveThemeStyleboxOverride("panel");
+            nameLabel.RemoveThemeColorOverride("font_color");
+            textLabel.RemoveThemeColorOverride("default_color");
+            continueHint.RemoveThemeColorOverride("font_color");
+            return;
+        }
+
+        var paper = new StyleBoxFlat
+        {
+            BgColor = new Color(0.96f, 0.93f, 0.86f, 0.94f),
+            BorderColor = new Color(0.42f, 0.32f, 0.22f, 0.55f),
+            ShadowColor = new Color(0.28f, 0.18f, 0.1f, 0.16f),
+            ShadowSize = 10,
+            ShadowOffset = new Vector2(0, 4),
+            ContentMarginLeft = 40,
+            ContentMarginTop = 24,
+            ContentMarginRight = 40,
+            ContentMarginBottom = 18,
+        };
+        paper.SetBorderWidthAll(1);
+        paper.SetCornerRadiusAll(6);
+        paperPanel.AddThemeStyleboxOverride("panel", paper);
+        nameLabel.AddThemeColorOverride("font_color", new Color(0.45f, 0.32f, 0.18f));
+        textLabel.AddThemeColorOverride("default_color", new Color(0.24f, 0.18f, 0.13f));
+        continueHint.AddThemeColorOverride("font_color", new Color(0.45f, 0.34f, 0.24f, 0.85f));
+    }
+
     /// <summary>按当前内容收紧/放宽面板高度（底边不动，向上长）</summary>
     private void FitPanel()
     {

@@ -46,10 +46,10 @@ public partial class Ch04 : ChapterBase
         herBtn.Pressed += OnHerPressed;
 
         // 热点按美术图钉住
-        ArtAnchor.TrackFraction(fountainBtn, new Rect2(0.14f, 0.32f, 0.58f, 0.52f));
-        ArtAnchor.TrackFraction(gateBtn, new Rect2(0.0f, 0.10f, 0.30f, 0.48f));
-        ArtAnchor.TrackFraction(lampBtn, new Rect2(0.76f, 0.42f, 0.16f, 0.38f));
-        ArtAnchor.TrackFraction(herBtn, new Rect2(0.47f, 0.68f, 0.09f, 0.18f));
+        ArtAnchor.TrackFraction(fountainBtn, new Rect2(0.30f, 0.42f, 0.36f, 0.38f)); // 喷泉
+        ArtAnchor.TrackFraction(gateBtn, new Rect2(0.02f, 0.28f, 0.24f, 0.42f));      // 左侧石拱门
+        ArtAnchor.TrackFraction(lampBtn, new Rect2(0.74f, 0.36f, 0.10f, 0.36f));      // 右侧近处路灯
+        ArtAnchor.TrackFraction(herBtn, new Rect2(0.22f, 0.48f, 0.12f, 0.34f));       // 背对喷泉的她
         
         UiSounds.WireAll(this);
 

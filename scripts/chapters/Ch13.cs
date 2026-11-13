@@ -8,7 +8,7 @@ using System.Collections.Generic;
 ///   老街   —— 按 ch12 的电量选择分流开场（骑到街口 / 推车进城）→ 她的定位 → 出街
 ///   长堤   —— 「长亭是送别用的，今天这条是迎接的」→ 缓慢推近 → approach 心声 → 路灯下的身影
 ///   见面   —— firstword：见面第一句话（全书最重的一句，三选一）→ 并肩走
-///   小馆   —— 一碗热汤 + 翻相册（一张都没有）+ 导航记录 + 「回去坐高铁」「下次」→ nexttime 心声
+///   盛鲜生杀猪粉 —— 两碗杀猪粉 + 翻相册（一张都没有）+ 导航记录 + 「回去坐高铁」「下次」→ nexttime 心声
 ///   夜堤   —— 沿堤走回去 → 「一千公里换了意思」→ 尾声 → 结束页
 ///
 /// 【与第十一章的联动】开场形态由 ch12_charge1 的选择决定：稳充线骑到街口才下车；
@@ -89,6 +89,7 @@ public partial class Ch13 : ChapterBase
 
         hotspotsRoot = GetNode<Control>("Hotspots");
         hintLabel = GetNode<Label>("HintLabel");
+        GetNode<Label>("Xiaoguan/ShopName").Text = DataStore.Text("ch13.shop_name");
 
         phoneBtn = GetNode<Button>("Hotspots/PhoneBtn");
         gateBtn = GetNode<Button>("Hotspots/GateBtn");
@@ -104,8 +105,8 @@ public partial class Ch13 : ChapterBase
 
         // 热点位置按"美术图比例"登记
         ArtAnchor.TrackFraction(phoneBtn, new Rect2(0.902f, 0.859f, 0.094f, 0.086f)); // 兜里的手机
-        ArtAnchor.TrackFraction(gateBtn, new Rect2(0.05f, 0.38f, 0.10f, 0.24f));      // 老街路口，往堤去
-        ArtAnchor.TrackFraction(shopExitBtn, new Rect2(0.05f, 0.38f, 0.10f, 0.24f));  // 小馆门口
+        ArtAnchor.TrackFraction(gateBtn, new Rect2(0.45f, 0.24f, 0.16f, 0.38f));      // 老街尽头，往堤去
+        ArtAnchor.TrackFraction(shopExitBtn, new Rect2(0.00f, 0.14f, 0.13f, 0.62f));  // 小馆左侧门口
 
         flavorStreet = MakeFlavorLayer("ch13_street");
         flavorBank = MakeFlavorLayer("ch13_bank");
@@ -229,7 +230,7 @@ public partial class Ch13 : ChapterBase
                 return;
 
             case Phase.Supper:
-                ShowHint("hint.ch13_phone_done");
+                ShowHint("hint.ch13_shop");
                 return;
         }
 
@@ -372,7 +373,7 @@ public partial class Ch13 : ChapterBase
         });
     }
 
-    // ==================== 第 4 段：小馆（一碗热汤） ====================
+    // ==================== 第 4 段：盛鲜生杀猪粉（两碗粉） ====================
 
     private void StartSupper()
     {
@@ -426,9 +427,13 @@ public partial class Ch13 : ChapterBase
         hotspotsRoot.Visible = false;
         hintLabel.Visible = false;
 
-        // 回到长堤：夜色调（画面压暗偏蓝，Modulate 直调）
-        CrossfadeTo(bgBank, 1.4f);
-        bgBank.Modulate = new Color(0.78f, 0.80f, 0.95f, 1f);
+        // 长堤本来就在粉店下面。只淡出粉店，并把长堤压成夜色；店名挂在粉店图层上，会一起消失。
+        var night = CreateTween();
+        night.SetParallel(true);
+        night.TweenProperty(bgBank, "modulate", new Color(0.78f, 0.80f, 0.95f, 1f), 1.4f)
+            .SetTrans(Tween.TransitionType.Sine).SetEase(Tween.EaseType.InOut);
+        night.TweenProperty(bgXiaoguan, "modulate:a", 0.0f, 1.4f)
+            .SetTrans(Tween.TransitionType.Sine).SetEase(Tween.EaseType.InOut);
         AudioManager.Instance?.PlayBgm(AudioManager.BgmGym3, -15f, 2.5f);
 
         // 解锁夜段聊天

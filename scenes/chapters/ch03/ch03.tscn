@@ -1,7 +1,7 @@
 [gd_scene load_steps=11 format=3 uid="uid://ch03scene001"]
 
 [ext_resource type="Script" path="res://scripts/chapters/Ch03.cs" id="1_ch03"]
-[ext_resource type="Texture2D" path="res://assets/art/backgrounds/ch03_void_v1.png" id="2_void"]
+[ext_resource type="Texture2D" path="res://assets/art/backgrounds/ch03_void_v2.jpg" id="2_void"]
 [ext_resource type="Script" path="res://scripts/chapters/BalanceScale.cs" id="3_scale"]
 [ext_resource type="Script" path="res://scripts/chapters/SplitBalanceScene.cs" id="4_split"]
 

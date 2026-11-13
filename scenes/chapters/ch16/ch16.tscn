@@ -3,6 +3,8 @@
 [ext_resource type="Script" path="res://scripts/chapters/Ch16.cs" id="1_ch16"]
 [ext_resource type="Script" path="res://scripts/chapters/TyphoonLabArt.cs" id="2_art"]
 [ext_resource type="Script" path="res://scripts/ui/MontageReel.cs" id="3_montage"]
+[ext_resource type="Texture2D" path="res://assets/art/backgrounds/ch16_lab_storm_v1.jpg" id="4_storm"]
+[ext_resource type="Texture2D" path="res://assets/art/backgrounds/ch16_lab_clear_v1.jpg" id="5_clear"]
 
 [sub_resource type="StyleBoxFlat" id="SB_hot_normal"]
 bg_color = Color(0, 0, 0, 0)
@@ -34,7 +36,33 @@ ChapterTitle = "第十六章：今天天气晴"
 ChapterSubtitle = "台风会过。话要说出去，才算数。"
 ChapterIndex = 16
 
+[node name="Storm" type="TextureRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("4_storm")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="ClearSky" type="TextureRect" parent="."]
+modulate = Color(1, 1, 1, 0)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("5_clear")
+expand_mode = 1
+stretch_mode = 6
+
 [node name="Lab" type="Control" parent="."]
+visible = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -85,10 +113,10 @@ mouse_filter = 2
 visible = false
 layout_mode = 1
 anchors_preset = -1
-anchor_left = 0.205
-anchor_top = 0.575
-anchor_right = 0.300
-anchor_bottom = 0.740
+anchor_left = 0.08
+anchor_top = 0.62
+anchor_right = 0.24
+anchor_bottom = 0.80
 grow_horizontal = 2
 grow_vertical = 2
 mouse_default_cursor_shape = 2
@@ -102,10 +130,10 @@ theme_override_styles/focus = SubResource("SB_empty")
 visible = false
 layout_mode = 1
 anchors_preset = -1
-anchor_left = 0.615
-anchor_top = 0.415
-anchor_right = 0.870
-anchor_bottom = 0.585
+anchor_left = 0.52
+anchor_top = 0.08
+anchor_right = 0.98
+anchor_bottom = 0.62
 grow_horizontal = 2
 grow_vertical = 2
 mouse_default_cursor_shape = 2

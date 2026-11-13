@@ -1,10 +1,10 @@
 [gd_scene load_steps=10 format=3 uid="uid://ch14scene001"]
 
 [ext_resource type="Script" path="res://scripts/chapters/Ch14.cs" id="1_ch14"]
-[ext_resource type="Texture2D" path="res://assets/art/backgrounds/school_gate_autumn_v1.png" id="2_gate"]
-[ext_resource type="Texture2D" path="res://assets/art/backgrounds/campus_dusk_v1.png" id="3_campus"]
-[ext_resource type="Texture2D" path="res://assets/art/backgrounds/wanjiangyan_v1.png" id="4_xiaoguan"]
-[ext_resource type="Texture2D" path="res://assets/art/backgrounds/dorm_building_night_v1.png" id="5_lab"]
+[ext_resource type="Texture2D" path="res://assets/art/backgrounds/ch14_gate_march_v1.jpg" id="2_gate"]
+[ext_resource type="Texture2D" path="res://assets/art/backgrounds/ch14_campus_march_v1.jpg" id="3_campus"]
+[ext_resource type="Texture2D" path="res://assets/art/backgrounds/ch14_xiaoguan_march_v1.jpg" id="4_xiaoguan"]
+[ext_resource type="Texture2D" path="res://assets/art/backgrounds/ch14_lab_march_v1.jpg" id="5_lab"]
 
 [sub_resource type="StyleBoxFlat" id="SB_hot_normal"]
 bg_color = Color(0, 0, 0, 0)
@@ -30,7 +30,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_ch14")
-ChapterTitle = "第十四章：爱就梭哈"
+ChapterTitle = "第十四章：不算了"
 ChapterSubtitle = "不算里程"
 ChapterIndex = 14
 

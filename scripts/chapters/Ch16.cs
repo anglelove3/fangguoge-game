@@ -42,6 +42,8 @@ public partial class Ch16 : ChapterBase
     // ==================== 节点 ====================
 
     private TyphoonLabArt art;
+    private TextureRect bgStorm;
+    private TextureRect bgClear;
     private MontageReel montage;
     private Label hintLabel;
 
@@ -72,6 +74,8 @@ public partial class Ch16 : ChapterBase
         cfg = DataStore.LoadJson<ChapterConfig>("res://data/chapters/ch16.json") ?? new ChapterConfig();
 
         art = GetNode<TyphoonLabArt>("Lab");
+        bgStorm = GetNode<TextureRect>("Storm");
+        bgClear = GetNode<TextureRect>("ClearSky");
         montage = GetNode<MontageReel>("Montage");
         hintLabel = GetNode<Label>("HintLabel");
 
@@ -328,6 +332,8 @@ public partial class Ch16 : ChapterBase
           .SetTrans(Tween.TransitionType.Sine).SetEase(Tween.EaseType.InOut);
         tw.TweenProperty(art, "Clear", 1f, 2.8f)
           .SetTrans(Tween.TransitionType.Sine).SetEase(Tween.EaseType.InOut);
+        tw.TweenProperty(bgClear, "modulate:a", 1.0f, 2.8f)
+          .SetTrans(Tween.TransitionType.Sine).SetEase(Tween.EaseType.InOut);
         tw.TweenProperty(art, "Dim", 0.04f, 2.4f)
           .SetTrans(Tween.TransitionType.Sine).SetEase(Tween.EaseType.InOut);
 
@@ -357,7 +363,7 @@ public partial class Ch16 : ChapterBase
 
         GameManager.Instance.RecordRelationshipEvent("jie", "ch16_final");
 
-        // 结局章（第十七章）尚未实装——先接现有结束页
-        GoToNextChapter("res://scenes/ui/demo_end/demo_end.tscn", 99);
+        // 结局章：同一间屋子，选择只改记得的方式
+        GoToNextChapter("res://scenes/chapters/ch17/ch17.tscn", 17);
     }
 }

@@ -8,19 +8,19 @@
       },
       {
         "speaker": "",
-        "text": "这条街白天是打印店、奶茶店、修手机的。这个点还开着的，只剩招牌。"
+        "text": "这条街晚上比白天亮。艾米电竞和宙斯电竞占了两面墙，夹缝里贴着酒店、饭店的招聘。"
       },
       {
-        "speaker": "江洁",
+        "speaker": "江晚萤",
         "text": "你们这儿网吧叫什么？",
         "portrait": "jie_smile"
       },
       {
         "speaker": "我",
-        "text": "「极速。老破，但键盘好用。」"
+        "text": "「极速。夹在这两家中间，键盘倒好用。」"
       },
       {
-        "speaker": "江洁",
+        "speaker": "江晚萤",
         "text": "「键盘好用」也能当推荐理由？",
         "portrait": "jie_laugh"
       },
@@ -37,7 +37,7 @@
         "text": "招牌在二楼，蓝底白字。有一个笔画不亮了，看上去像「极 网 巴」。"
       },
       {
-        "speaker": "江洁",
+        "speaker": "江晚萤",
         "text": "就这个？",
         "portrait": "jie_surprise"
       },
@@ -57,7 +57,7 @@
       },
       {
         "speaker": "",
-        "text": "前台在左手边，玻璃柜里摆着泡面、红牛、一次性拖鞋。"
+        "text": "前台在左手边。旁边一排新键盘、鼠标和耳机，可以借；再过去一只玻璃柜，锁着几套更贵的，随时可借。沙发和矮桌也在前台这边，往里就是大厅，包间在最尽头。"
       },
       {
         "speaker": "服务员",
@@ -84,7 +84,7 @@
         "text": "「包间加二十。」"
       },
       {
-        "speaker": "江洁",
+        "speaker": "江晚萤",
         "text": "「加。」",
         "portrait": "jie_smile"
       },
@@ -93,7 +93,7 @@
         "text": "「大厅就行——」"
       },
       {
-        "speaker": "江洁",
+        "speaker": "江晚萤",
         "text": "「加。我请。」",
         "portrait": "jie_laugh"
       },
@@ -117,10 +117,10 @@
       },
       {
         "speaker": "",
-        "text": "椅子是那种旧沙发椅，扶手磨得起了皮。"
+        "text": "椅子是电竞椅，和外面大厅同一套，扶手还是凉的。"
       },
       {
-        "speaker": "江洁",
+        "speaker": "江晚萤",
         "text": "你以前坐哪个位置？",
         "portrait": "jie_smile"
       },
@@ -129,7 +129,7 @@
         "text": "「最里面那个。背对门，谁也看不见我在干什么。」"
       },
       {
-        "speaker": "江洁",
+        "speaker": "江晚萤",
         "text": "「那你现在坐外面。」",
         "portrait": "jie_laugh"
       },
@@ -138,7 +138,7 @@
         "text": "「为什么？」"
       },
       {
-        "speaker": "江洁",
+        "speaker": "江晚萤",
         "text": "「我坐里面。有人进来，我先看见。」",
         "portrait": "jie_smile"
       },
@@ -147,7 +147,7 @@
         "text": "她把外套脱下来搭在椅背上，坐下，耳机往头上一扣，扣完又摘下来一只。"
       },
       {
-        "speaker": "江洁",
+        "speaker": "江晚萤",
         "text": "「你玩什么？」",
         "portrait": "jie_surprise"
       },
@@ -156,7 +156,7 @@
         "text": "「都行。你呢？」"
       },
       {
-        "speaker": "江洁",
+        "speaker": "江晚萤",
         "text": "「我菜。但我敢冲。」",
         "portrait": "jie_laugh"
       },
@@ -171,7 +171,7 @@
         "text": "开机，登号，组队。"
       },
       {
-        "speaker": "江洁",
+        "speaker": "江晚萤",
         "text": "「说好了，输了不许让我。」",
         "portrait": "jie_smile"
       },
@@ -190,7 +190,7 @@
         "text": "赢了。三比一。"
       },
       {
-        "speaker": "江洁",
+        "speaker": "江晚萤",
         "text": "「你手真快。」",
         "portrait": "jie_laugh"
       },
@@ -199,7 +199,7 @@
         "text": "「练出来的。」"
       },
       {
-        "speaker": "江洁",
+        "speaker": "江晚萤",
         "text": "「通宵练的？」",
         "portrait": "jie_smile"
       },
@@ -218,7 +218,7 @@
         "text": "输了。一比三。"
       },
       {
-        "speaker": "江洁",
+        "speaker": "江晚萤",
         "text": "「你别让我啊。」",
         "portrait": "jie_surprise"
       },
@@ -227,7 +227,7 @@
         "text": "「没让。」"
       },
       {
-        "speaker": "江洁",
+        "speaker": "江晚萤",
         "text": "「那你刚才那个技能为什么不用？」",
         "portrait": "jie_laugh"
       },
@@ -258,7 +258,7 @@
         "text": "她说话开始变慢，一句说完要停半秒才接下一句。"
       },
       {
-        "speaker": "江洁",
+        "speaker": "江晚萤",
         "text": "「你们这儿……通宵到几点？」",
         "portrait": "jie_winter_smile"
       },
@@ -267,7 +267,7 @@
         "text": "「早上七点。老板娘六点半开始拖地，赶人。」"
       },
       {
-        "speaker": "江洁",
+        "speaker": "江晚萤",
         "text": "「那还有五个小时。」",
         "portrait": "jie_smile"
       },
@@ -276,7 +276,7 @@
         "text": "她把耳机摘了，挂在脖子上。"
       },
       {
-        "speaker": "江洁",
+        "speaker": "江晚萤",
         "text": "「我眯一会儿。就一会儿。」"
       },
       {
@@ -303,7 +303,7 @@
         "text": "动作很慢。慢到自己都觉得可笑。"
       },
       {
-        "speaker": "江洁",
+        "speaker": "江晚萤",
         "text": "「……嗯。」"
       },
       {
@@ -347,7 +347,7 @@
         "text": "「回去睡。宿舍还能进。」"
       },
       {
-        "speaker": "江洁",
+        "speaker": "江晚萤",
         "text": "「……不回。」",
         "portrait": "jie_winter_smile"
       },
@@ -370,7 +370,7 @@
         "text": "她醒的时候，我先醒的。"
       },
       {
-        "speaker": "江洁",
+        "speaker": "江晚萤",
         "text": "「你怎么不睡？」",
         "portrait": "jie_shy"
       },
@@ -379,7 +379,7 @@
         "text": "「睡了。」"
       },
       {
-        "speaker": "江洁",
+        "speaker": "江晚萤",
         "text": "「骗人。」",
         "portrait": "jie_smile"
       },
@@ -392,7 +392,7 @@
         "text": "她愣了一下，笑出来，笑完低头看自己的肩。"
       },
       {
-        "speaker": "江洁",
+        "speaker": "江晚萤",
         "text": "「你外套……」",
         "portrait": "jie_shy"
       },
@@ -401,7 +401,7 @@
         "text": "「脏了。回去洗。」"
       },
       {
-        "speaker": "江洁",
+        "speaker": "江晚萤",
         "text": "「我是说，谢谢。」",
         "portrait": "jie_smile"
       },
@@ -417,7 +417,7 @@
       },
       {
         "speaker": "",
-        "text": "（第十六章《今天天气晴》——下一轮。）"
+        "text": "（天边已经泛白。外套还搭在她肩上。）"
       },
       {
         "speaker": "",

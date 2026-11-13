@@ -49,8 +49,8 @@ public partial class Ch05 : ChapterBase
 
         // 热点按美术图坐标登记（背景 cover 缩放也不漂）
         // 第三轮反馈 11：换成床视角——手机就躺在被子上
-        ArtAnchor.TrackFraction(phoneBtn, new Rect2(0.46f, 0.52f, 0.14f, 0.12f));
-        ArtAnchor.TrackFraction(bedBtn, new Rect2(0.12f, 0.38f, 0.42f, 0.48f)); // 下铺（真的床）
+        ArtAnchor.TrackFraction(phoneBtn, new Rect2(0.50f, 0.50f, 0.08f, 0.07f)); // 书桌上的手机
+        ArtAnchor.TrackFraction(bedBtn, new Rect2(0.58f, 0.64f, 0.40f, 0.34f));    // 右侧那张床
 
         // "点万物有回应"（沿用宿舍那套：泡面碗、走廊声控灯）
         AddChild(FlavorSpots.Create(hotspotsRoot, "ch05"));

@@ -26,6 +26,10 @@ public partial class Ch15 : ChapterBase
     // ==================== 节点 ====================
 
     private NetcafeArt art;
+    private TextureRect bgStreet;
+    private TextureRect bgHall;
+    private TextureRect bgBooth;
+    private TextureRect bgBoothDim;
     private ColorRect veil;
     private Label neonLabel;
     private Label hintLabel;
@@ -61,6 +65,10 @@ public partial class Ch15 : ChapterBase
         AudioManager.Instance?.PlayBgm(AudioManager.BgmGym3, -18f, 2.0f);
 
         art = GetNode<NetcafeArt>("Netcafe");
+        bgStreet = GetNode<TextureRect>("Street");
+        bgHall = GetNode<TextureRect>("Hall");
+        bgBooth = GetNode<TextureRect>("Booth");
+        bgBoothDim = GetNode<TextureRect>("BoothDim");
         veil = GetNode<ColorRect>("Veil");
         neonLabel = GetNode<Label>("NeonLabel");
         hintLabel = GetNode<Label>("HintLabel");
@@ -84,11 +92,10 @@ public partial class Ch15 : ChapterBase
 
         UiSounds.WireAll(this);
 
-        // 街那一段：网咖还看不见，先压成一块深色底（文字落在上面）
         StoryClock.ClearSegment();
+        // 街景先露出来，薄薄一层夜色留给开场字。
         art.Mode = NetcafeArt.ViewMode.Hall;
-        art.Dim = 1f;
-        veil.Modulate = new Color(1, 1, 1, 1);
+        veil.Modulate = new Color(1, 1, 1, 0.28f);
         neonLabel.Visible = false;
 
         hotspotsRoot.Visible = false;
@@ -193,9 +200,11 @@ public partial class Ch15 : ChapterBase
 
         var tw = CreateTween();
         tw.SetParallel(true);
-        tw.TweenProperty(veil, "modulate:a", 0.0f, 1.4f)
+        tw.TweenProperty(bgStreet, "modulate:a", 0.0f, 1.4f)
           .SetTrans(Tween.TransitionType.Sine).SetEase(Tween.EaseType.InOut);
-        tw.TweenProperty(art, "Dim", 0.25f, 1.6f)
+        tw.TweenProperty(bgHall, "modulate:a", 1.0f, 1.4f)
+          .SetTrans(Tween.TransitionType.Sine).SetEase(Tween.EaseType.InOut);
+        tw.TweenProperty(veil, "modulate:a", 0.0f, 1.4f)
           .SetTrans(Tween.TransitionType.Sine).SetEase(Tween.EaseType.InOut);
         tw.Chain().TweenCallback(Callable.From(() =>
         {
@@ -218,7 +227,10 @@ public partial class Ch15 : ChapterBase
 
         art.Mode = NetcafeArt.ViewMode.Booth;
         var tw = CreateTween();
-        tw.TweenProperty(art, "Dim", 0.0f, 1.2f)
+        tw.SetParallel(true);
+        tw.TweenProperty(bgHall, "modulate:a", 0.0f, 1.2f)
+          .SetTrans(Tween.TransitionType.Sine).SetEase(Tween.EaseType.InOut);
+        tw.TweenProperty(bgBooth, "modulate:a", 1.0f, 1.2f)
           .SetTrans(Tween.TransitionType.Sine).SetEase(Tween.EaseType.InOut);
 
         DialogueManager.Instance.PlaySequence(ChapterId, "booth", () =>
@@ -292,7 +304,10 @@ public partial class Ch15 : ChapterBase
 
         StoryClock.UseSegment("deep");
         var tw = CreateTween();
-        tw.TweenProperty(art, "Dim", 0.85f, 1.8f)
+        tw.SetParallel(true);
+        tw.TweenProperty(bgBooth, "modulate", new Color(0.55f, 0.62f, 0.78f, 1f), 1.8f)
+          .SetTrans(Tween.TransitionType.Sine).SetEase(Tween.EaseType.InOut);
+        tw.TweenProperty(bgBoothDim, "modulate:a", 1.0f, 1.8f)
           .SetTrans(Tween.TransitionType.Sine).SetEase(Tween.EaseType.InOut);
 
         dm.PlaySequence(ChapterId, "deep", () =>
@@ -310,7 +325,7 @@ public partial class Ch15 : ChapterBase
         if (index == 1)
         {
             var tw = CreateTween();
-            tw.TweenProperty(art, "HerScreen", 0.10f, 1.1f)
+            tw.TweenProperty(bgBoothDim, "modulate:a", 1.0f, 1.1f)
               .SetTrans(Tween.TransitionType.Sine).SetEase(Tween.EaseType.InOut);
         }
 
@@ -323,7 +338,7 @@ public partial class Ch15 : ChapterBase
             AudioManager.Instance?.PlayBgm(AudioManager.BgmGym1, -19f, 4.0f);
 
             var tw = CreateTween();
-            tw.TweenProperty(art, "Dim", 0.45f, 2.5f)
+            tw.TweenProperty(bgBoothDim, "modulate", new Color(1.08f, 1.04f, 0.96f, 1f), 2.5f)
               .SetTrans(Tween.TransitionType.Sine).SetEase(Tween.EaseType.InOut);
 
             dm.PlaySequence(ChapterId, "dawn", () =>

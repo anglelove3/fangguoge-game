@@ -1,7 +1,7 @@
 [gd_scene load_steps=10 format=3 uid="uid://prologue001"]
 
 [ext_resource type="Script" path="res://scripts/chapters/Prologue.cs" id="1_prologue"]
-[ext_resource type="Texture2D" path="res://assets/art/backgrounds/night_lab_v1.png" id="2_bg"]
+[ext_resource type="Texture2D" path="res://assets/art/backgrounds/prologue_night_v3.jpg" id="2_bg"]
 
 [sub_resource type="StyleBoxFlat" id="SB_hot_normal"]
 bg_color = Color(0, 0, 0, 0)
@@ -104,10 +104,10 @@ mouse_filter = 2
 [node name="ComputerBtn" type="Button" parent="Hotspots"]
 layout_mode = 1
 anchors_preset = -1
-anchor_left = 0.12
-anchor_top = 0.16
-anchor_right = 0.44
-anchor_bottom = 0.62
+anchor_left = 0.05
+anchor_top = 0.24
+anchor_right = 0.35
+anchor_bottom = 0.72
 grow_horizontal = 2
 grow_vertical = 2
 mouse_default_cursor_shape = 2
@@ -119,10 +119,10 @@ theme_override_styles/disabled = SubResource("SB_hot_disabled")
 [node name="EarphonesBtn" type="Button" parent="Hotspots"]
 layout_mode = 1
 anchors_preset = -1
-anchor_left = 0.5
-anchor_top = 0.48
-anchor_right = 0.68
-anchor_bottom = 0.64
+anchor_left = 0.28
+anchor_top = 0.64
+anchor_right = 0.46
+anchor_bottom = 0.78
 grow_horizontal = 2
 grow_vertical = 2
 mouse_default_cursor_shape = 2
@@ -134,10 +134,10 @@ theme_override_styles/disabled = SubResource("SB_hot_disabled")
 [node name="WindowBtn" type="Button" parent="Hotspots"]
 layout_mode = 1
 anchors_preset = -1
-anchor_left = 0.48
+anchor_left = 0.55
 anchor_top = 0.02
-anchor_right = 0.99
-anchor_bottom = 0.45
+anchor_right = 0.98
+anchor_bottom = 0.40
 grow_horizontal = 2
 grow_vertical = 2
 mouse_default_cursor_shape = 2

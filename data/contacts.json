@@ -2,7 +2,7 @@
   "contacts": [
     {
       "id": "jie",
-      "name": "江洁",
+      "name": "江晚萤",
       "avatar": "res://assets/art/chat/avatar_jie.png",
       "chatFile": "ch10_jie",
       "chatFileFrom": {
@@ -156,7 +156,7 @@
     },
     {
       "id": "daoshi",
-      "name": "研究生导师",
+      "name": "汪老师",
       "sessionTime": "周一",
       "messages": [
         {
@@ -186,7 +186,7 @@
       "readOnly": true,
       "chatFile": "lilab_group",
       "sessionTime": "上午 8:02",
-      "previewText": "[4条] 研究生导师: @全体成员 今天组会提前到九点。",
+      "previewText": "[4条] 汪老师: @全体成员 今天组会提前到九点。",
       "groupAvatars": [
         "res://assets/art/chat/avatar_daoshi.png",
         "res://assets/art/chat/avatar_sanjin.png",

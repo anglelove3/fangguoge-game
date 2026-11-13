@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 
 /// <summary>
-/// 第一章：寄居蟹
+/// 第一章：都行
 ///
 /// 流程：白天实验室开场 → 淡入转场到川菜馆 → 探索两处（菜单/大家）
 ///      → 服务员来点菜 → 点菜选择（勇气值 ±）→ 各自后续 → 尾声（朋友圈）→ DEMO 结束页
@@ -24,9 +24,16 @@ public partial class Ch01 : ChapterBase
     private ulong lastActivityMsec;
     private const ulong IdleHintDelayMsec = 12000;
 
+    public override void _ExitTree()
+    {
+        DialogueManager.Instance?.SetPaperDialogue(false);
+        base._ExitTree();
+    }
+
     protected override void OnChapterReady()
     {
-        GD.Print("第一章：寄居蟹 —— 热闹是他们的，壳是自己的");
+        GD.Print("第一章：都行 —— 热闹是他们的，壳是自己的");
+        DialogueManager.Instance?.SetPaperDialogue(true);
 
         hotspotsRoot = GetNode<Control>("Hotspots");
         hintLabel = GetNode<Label>("HintLabel");
@@ -41,8 +48,8 @@ public partial class Ch01 : ChapterBase
         glows["group"] = HotspotGlow.Attach(groupBtn);
 
         // 第十五轮：热点按"美术图坐标"登记（窗口不成 16:9 时背景会偏移，热点跟着走）
-        ArtAnchor.TrackFraction(menuBtn, new Rect2(0.185f, 0.77f, 0.285f, 0.225f));
-        ArtAnchor.TrackFraction(groupBtn, new Rect2(0.2f, 0.12f, 0.7f, 0.58f));
+        ArtAnchor.TrackFraction(menuBtn, new Rect2(0.02f, 0.62f, 0.22f, 0.32f));
+        ArtAnchor.TrackFraction(groupBtn, new Rect2(0.02f, 0.08f, 0.52f, 0.62f));
 
         // "点万物有回应"：墙上的菜牌、门口的红灯笼、手边的茶碗（data/flavor/ch01.json）
         AddChild(FlavorSpots.Create(hotspotsRoot, "ch01"));

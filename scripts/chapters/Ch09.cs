@@ -87,10 +87,10 @@ public partial class Ch09 : ChapterBase
         seatFarGlow = HotspotGlow.Attach(seatFarBtn);
 
         // 第十五轮：热点按"美术图坐标"登记（手机 = 宿舍美术实测位置）
-        ArtAnchor.Track(phoneBtn, new Rect2(1616f, 880f, 168f, 88f));
-        ArtAnchor.TrackFraction(tableBtn, new Rect2(0.22f, 0.6f, 0.56f, 0.33f));
-        ArtAnchor.TrackFraction(seatNearBtn, new Rect2(0.66f, 0.44f, 0.16f, 0.28f));
-        ArtAnchor.TrackFraction(seatFarBtn, new Rect2(0.15f, 0.43f, 0.18f, 0.29f));
+        ArtAnchor.TrackFraction(phoneBtn, new Rect2(0.50f, 0.50f, 0.08f, 0.07f)); // 宿舍书桌上的手机
+        ArtAnchor.TrackFraction(tableBtn, new Rect2(0.18f, 0.52f, 0.55f, 0.36f)); // 主台球桌台面
+        ArtAnchor.TrackFraction(seatNearBtn, new Rect2(0.16f, 0.40f, 0.14f, 0.26f)); // 江晚萤左侧那把空椅
+        ArtAnchor.TrackFraction(seatFarBtn, new Rect2(0.02f, 0.58f, 0.17f, 0.38f)); // 靠门拉开的空椅
 
         // "点万物有回应"：三个场景各一套，跟着阶段开关
         flavorDorm = MakeFlavorLayer("ch09_dorm");
@@ -327,6 +327,8 @@ public partial class Ch09 : ChapterBase
     private void EnterRmt()
     {
         phase = Phase.Rmt;
+        // 离开宿舍后，手机不再钉在书桌上，改到画面左侧，避开右下角的返回菜单
+        ArtAnchor.TrackFraction(phoneBtn, new Rect2(0.02f, 0.68f, 0.08f, 0.16f));
         hotspotsRoot.Visible = true;
         flavorDorm.Visible = false;
         flavorRmt.Visible = true;

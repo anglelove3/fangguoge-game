@@ -1,8 +1,8 @@
 [gd_scene load_steps=12 format=3 uid="uid://ch01scene001"]
 
 [ext_resource type="Script" path="res://scripts/chapters/Ch01.cs" id="1_ch01"]
-[ext_resource type="Texture2D" path="res://assets/art/backgrounds/day_lab_v1.png" id="2_day"]
-[ext_resource type="Texture2D" path="res://assets/art/backgrounds/restaurant_v2.png" id="3_rest"]
+[ext_resource type="Texture2D" path="res://assets/art/backgrounds/day_lab_v3.jpg" id="2_day"]
+[ext_resource type="Texture2D" path="res://assets/art/backgrounds/ch01_restaurant_v4.jpg" id="3_rest"]
 
 [sub_resource type="StyleBoxFlat" id="SB_hot_normal"]
 bg_color = Color(0, 0, 0, 0)
@@ -52,7 +52,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_ch01")
-ChapterTitle = "第一章：寄居蟹"
+ChapterTitle = "第一章：都行"
 ChapterSubtitle = "热闹是他们的，壳是自己的"
 ChapterIndex = 1
 
@@ -161,7 +161,7 @@ theme_override_colors/font_color = Color(1, 0.97, 0.92, 1)
 theme_override_colors/font_outline_color = Color(0.05, 0.05, 0.1, 0.9)
 theme_override_constants/outline_size = 8
 theme_override_font_sizes/font_size = 76
-text = "第一章：寄居蟹"
+text = "第一章：都行"
 horizontal_alignment = 1
 
 [node name="ChapterSubtitle" type="Label" parent="."]

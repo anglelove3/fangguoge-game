@@ -17,7 +17,7 @@
     { "sender": "other", "senderName": "金艮", "text": "师兄你头发还好吗。", "gateChoice": "ch11_gate_lab" },
     { "sender": "other", "senderName": "三金师兄", "text": "头发没事，数据有事。重跑。", "gateChoice": "ch11_gate_lab" },
     { "sender": "other", "senderName": "小米师妹", "text": "[蜡烛] 给数据上一个", "gateChoice": "ch11_gate_lab" },
-    { "sender": "other", "senderName": "小米师妹", "text": "@我 师兄今天怎么一条都不回，江洁都说你高冷。", "gateChoice": "ch11_gate_lab" },
+    { "sender": "other", "senderName": "小米师妹", "text": "@我 师兄今天怎么一条都不回，江晚萤都说你高冷。", "gateChoice": "ch11_gate_lab" },
     { "sender": "other", "senderName": "金艮", "text": "高冷？？他？他昨天还问我奶茶三分糖是加多少来着。", "gateChoice": "ch11_gate_lab" },
 
     { "type": "divider", "text": "周四 深夜 11:42", "gateChoice": "ch11_gate_night2" },

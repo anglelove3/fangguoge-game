@@ -7,27 +7,28 @@ using Godot;
 public static class ChapterJump
 {
     /// <summary>目前开发到的最后一章</summary>
-    public const int LastChapter = 16;
+    public const int LastChapter = 17;
 
     public static readonly string[] ChapterNames =
     {
         "序章 · 那首歌",
-        "第一章 · 寄居蟹",
+        "第一章 · 都行",
         "第二章 · 一千公里",
         "第三章 · 天平",
         "第四章 · 星月",
         "第五章 · 晚安",
-        "第六章 · 手滑",
-        "第七章 · 碧蓝蓝天",
+        "第六章 · 最近还好吗",
+        "第七章 · 来了就行",
         "第八章 · 放过自己",
         "第九章 · 三点水",
         "第十章 · 还想再见",
         "第十一章 · 置顶",
         "第十二章 · 向南",
         "第十三章 · 十里长亭",
-        "第十四章 · 爱就梭哈",
+        "第十四章 · 不算了",
         "第十五章 · 那束光",
         "第十六章 · 今天天气晴",
+        "第十七章 · 后来",
     };
 
     /// <summary>章号 → 场景路径（0 = 序章）</summary>

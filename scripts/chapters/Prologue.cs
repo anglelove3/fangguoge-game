@@ -39,12 +39,19 @@ public partial class Prologue : ChapterBase
         base._Ready(); // 基类负责找节点、绑定返回按钮、存档
     }
 
+    public override void _ExitTree()
+    {
+        DialogueManager.Instance?.SetPaperDialogue(false);
+        base._ExitTree();
+    }
+
     /// <summary>
     /// 重写基类的虚方法，写序章特有的逻辑
     /// </summary>
     protected override void OnChapterReady()
     {
         GD.Print("序章：那首歌 —— 深夜实验室，循环播放《开始懂了》");
+        DialogueManager.Instance?.SetPaperDialogue(true);
 
         hotspotsRoot = GetNode<Control>("Hotspots");
         hintLabel = GetNode<Label>("HintLabel");
@@ -64,9 +71,9 @@ public partial class Prologue : ChapterBase
         glows["window"] = HotspotGlow.Attach(windowBtn);
 
         // 第十五轮：热点按"美术图坐标"登记（窗口不成 16:9 时背景会偏移，热点跟着走）
-        ArtAnchor.TrackFraction(computerBtn, new Rect2(0.12f, 0.16f, 0.32f, 0.46f));
-        ArtAnchor.TrackFraction(earphonesBtn, new Rect2(0.5f, 0.48f, 0.18f, 0.16f));
-        ArtAnchor.TrackFraction(windowBtn, new Rect2(0.48f, 0.02f, 0.51f, 0.43f));
+        ArtAnchor.TrackFraction(computerBtn, new Rect2(0.05f, 0.24f, 0.30f, 0.48f));
+        ArtAnchor.TrackFraction(earphonesBtn, new Rect2(0.28f, 0.64f, 0.18f, 0.14f));
+        ArtAnchor.TrackFraction(windowBtn, new Rect2(0.55f, 0.02f, 0.43f, 0.38f));
 
         // "点万物有回应"：墙角、桌面、桌肚……没任务的小地方（data/flavor/prologue.json）
         AddChild(FlavorSpots.Create(hotspotsRoot, "prologue"));

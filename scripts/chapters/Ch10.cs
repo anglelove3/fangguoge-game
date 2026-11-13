@@ -165,23 +165,23 @@ public partial class Ch10 : ChapterBase
         wedExitGlow = HotspotGlow.Attach(wedExitBtn);
 
         // 热点位置按"美术图比例"登记（背景 cover 缩放时也跟着贴在原处）
-        ArtAnchor.TrackFraction(phoneBtn, new Rect2(0.902f, 0.859f, 0.094f, 0.086f)); // 桌上那台手机
-        ArtAnchor.TrackFraction(bedBtn, new Rect2(0.44f, 0.10f, 0.26f, 0.10f));       // 上铺
+        ArtAnchor.TrackFraction(phoneBtn, new Rect2(0.50f, 0.50f, 0.08f, 0.07f)); // 书桌上的手机
+        ArtAnchor.TrackFraction(bedBtn, new Rect2(0.58f, 0.64f, 0.40f, 0.34f));    // 右侧那张床
         ArtAnchor.TrackFraction(labPhoneBtn, new Rect2(0.544f, 0.771f, 0.095f, 0.098f));
-        ArtAnchor.TrackFraction(labExitBtn, new Rect2(0.708f, 0.40f, 0.06f, 0.19f));   // 实验室的门
-        ArtAnchor.TrackFraction(wedPhoneBtn, new Rect2(0.585f, 0.775f, 0.075f, 0.08f));
-        ArtAnchor.TrackFraction(signBtn, new Rect2(0.90f, 0.66f, 0.10f, 0.14f));       // 签到簿
-        ArtAnchor.TrackFraction(photoBtn, new Rect2(0.61f, 0.25f, 0.20f, 0.20f));      // 婚纱照背景布
-        ArtAnchor.TrackFraction(candyBtn, new Rect2(0.485f, 0.775f, 0.09f, 0.09f));    // 喜糖盘
-        ArtAnchor.TrackFraction(toastBtn, new Rect2(0.30f, 0.80f, 0.12f, 0.12f));      // 主桌这一头
-        ArtAnchor.TrackFraction(wedExitBtn, new Rect2(0.90f, 0.82f, 0.10f, 0.16f));    // 门口
+        ArtAnchor.TrackFraction(labExitBtn, new Rect2(0.58f, 0.36f, 0.09f, 0.20f));   // 走廊尽头的门
+        ArtAnchor.TrackFraction(wedPhoneBtn, new Rect2(0.10f, 0.78f, 0.10f, 0.10f)); // 主桌左侧扣着的手机
+        ArtAnchor.TrackFraction(signBtn, new Rect2(0.83f, 0.56f, 0.15f, 0.16f));       // 右侧签到簿
+        ArtAnchor.TrackFraction(photoBtn, new Rect2(0.36f, 0.16f, 0.24f, 0.36f));      // 空白背景布和纱椅
+        ArtAnchor.TrackFraction(candyBtn, new Rect2(0.42f, 0.80f, 0.20f, 0.16f));    // 喜糖盘
+        ArtAnchor.TrackFraction(toastBtn, new Rect2(0.30f, 0.64f, 0.16f, 0.12f));      // 主桌这一头
+        ArtAnchor.TrackFraction(wedExitBtn, new Rect2(0.90f, 0.20f, 0.09f, 0.24f));    // 右后门口
 
         // 第二十轮 F1：没拉的礼花筒拆成贴片（立在喜糖盘旁）——
         // 拉响（收走）之后从桌上消失。挂在婚宴背景层下面，婚宴淡入淡出时贴片跟着走。
         crackerPatch = HiddenPatch.CreateAtFraction(
             "res://assets/art/props/patch_cracker.png",
             null,
-            new Rect2(0.565f, 0.775f, 0.038f, 0.088f));
+            new Rect2(0.62f, 0.78f, 0.038f, 0.088f));
         bgWedding.AddChild(crackerPatch);
         if (GameManager.Instance.HasHiddenItem(cfg.CrackerItem))
             crackerPatch.HideImmediately(); // 读档进来就已经收过了

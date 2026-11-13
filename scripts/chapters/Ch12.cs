@@ -130,19 +130,19 @@ public partial class Ch12 : ChapterBase
         shopExitGlow = HotspotGlow.Attach(shopExitBtn);
 
         // 热点位置按"美术图比例"登记
-        ArtAnchor.TrackFraction(phoneBtn, new Rect2(0.902f, 0.859f, 0.094f, 0.086f)); // 桌上手机
-        ArtAnchor.TrackFraction(bedBtn, new Rect2(0.44f, 0.10f, 0.26f, 0.10f));       // 上铺
-        ArtAnchor.TrackFraction(chargerBtn, new Rect2(0.06f, 0.58f, 0.14f, 0.10f));   // 桌上的充电器
-        ArtAnchor.TrackFraction(raincoatBtn, new Rect2(0.08f, 0.75f, 0.14f, 0.12f));  // 门后的雨衣
-        ArtAnchor.TrackFraction(shopPhoneBtn, new Rect2(0.544f, 0.771f, 0.095f, 0.098f));
-        ArtAnchor.TrackFraction(shopExitBtn, new Rect2(0.05f, 0.40f, 0.10f, 0.24f));  // 店门口的路
+        ArtAnchor.TrackFraction(phoneBtn, new Rect2(0.50f, 0.50f, 0.08f, 0.07f)); // 书桌上的手机
+        ArtAnchor.TrackFraction(bedBtn, new Rect2(0.58f, 0.64f, 0.40f, 0.34f));    // 右侧那张床
+        ArtAnchor.TrackFraction(chargerBtn, new Rect2(0.52f, 0.56f, 0.08f, 0.06f)); // 桌上的充电器
+        ArtAnchor.TrackFraction(raincoatBtn, new Rect2(0.02f, 0.36f, 0.14f, 0.40f)); // 进门左侧
+        ArtAnchor.TrackFraction(shopPhoneBtn, new Rect2(0.52f, 0.62f, 0.12f, 0.14f)); // 陆洵手边的手机
+        ArtAnchor.TrackFraction(shopExitBtn, new Rect2(0.72f, 0.28f, 0.27f, 0.48f));  // 小店右侧的国道
 
         // "点万物有回应"：宿舍 / 小店各一层
         flavorDorm = MakeFlavorLayer("ch12_dorm");
         flavorShop = MakeFlavorLayer("ch12_shop");
 
         // 骑行层：底图 + 电机声先备好（层默认隐藏）
-        ride.SetBackground(GD.Load<Texture2D>("res://assets/art/backgrounds/road_v1.png"));
+        ride.SetBackground(GD.Load<Texture2D>("res://assets/art/backgrounds/ch12_road_v2.jpg"));
         if (!string.IsNullOrEmpty(cfg.ScooterSfx))
             ride.SetEngineStream(GD.Load<AudioStream>(cfg.ScooterSfx));
 

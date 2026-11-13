@@ -137,11 +137,11 @@ public partial class Ch11 : ChapterBase
         bridgeGlow = HotspotGlow.Attach(bridgeBtn);
 
         // 热点位置按"美术图比例"登记（背景 cover 缩放时也跟着贴在原处）
-        ArtAnchor.TrackFraction(phoneBtn, new Rect2(0.902f, 0.859f, 0.094f, 0.086f)); // 桌上那台手机
-        ArtAnchor.TrackFraction(bedBtn, new Rect2(0.44f, 0.10f, 0.26f, 0.10f));       // 上铺
+        ArtAnchor.TrackFraction(phoneBtn, new Rect2(0.50f, 0.50f, 0.08f, 0.07f)); // 书桌上的手机
+        ArtAnchor.TrackFraction(bedBtn, new Rect2(0.58f, 0.64f, 0.40f, 0.34f));    // 右侧那张床
         ArtAnchor.TrackFraction(labPhoneBtn, new Rect2(0.544f, 0.771f, 0.095f, 0.098f));
-        ArtAnchor.TrackFraction(labExitBtn, new Rect2(0.708f, 0.40f, 0.06f, 0.19f));   // 实验室的门
-        ArtAnchor.TrackFraction(bridgeBtn, new Rect2(0.70f, 0.28f, 0.18f, 0.30f));     // 桥洞那边
+        ArtAnchor.TrackFraction(labExitBtn, new Rect2(0.58f, 0.36f, 0.09f, 0.20f));   // 走廊尽头的门
+        ArtAnchor.TrackFraction(bridgeBtn, new Rect2(0.72f, 0.30f, 0.26f, 0.24f)); // 近处桥洞里的风铃
 
         // "点万物有回应"：三个场景各一套，跟着幕开关
         flavorDorm = MakeFlavorLayer("ch11_dorm");

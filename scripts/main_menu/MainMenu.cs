@@ -88,12 +88,10 @@ public partial class MainMenu : Control
         haloTween.TweenProperty(halo, "modulate:a", 0.95f, 1.75)
                  .SetTrans(Tween.TransitionType.Sine).SetEase(Tween.EaseType.InOut);
 
-        // 3) 暖金浮尘：远处一层（大、慢、淡）+ 近处一层（小、快、亮），制造景深
-        GetNode<Node2D>("FxBehind").AddChild(MakeDustLayer(64, 0.05f, 0.2f, 0.5f, -2.5f));
-        GetNode<Node2D>("FxFront").AddChild(MakeDustLayer(22, 0.1f, 0.34f, 0.3f, -4.0f));
+        // 3) 纸面浮尘：回忆册背景已经很满，粒子只留一层很淡的，避免盖住照片和左侧文字
+        GetNode<Node2D>("FxBehind").AddChild(MakeDustLayer(28, 0.04f, 0.12f, 0.16f, -1.5f));
 
-        // 5) 咖啡杯蒸汽：从杯子位置缓缓升起白色半透明雾气
-        AddChild(MakeSteamParticles());
+        // 旧主菜单的咖啡杯蒸汽对着左下角的杯子。回忆册左侧是空白纸面，蒸汽会挡标题，不再生成。
 
         // 4) 按钮果冻反馈
         WireButtonJuice(startButton);
@@ -175,71 +173,6 @@ public partial class MainMenu : Control
             new Color(1, 1, 1, 0f),
         };
         return gradient;
-    }
-
-    /// <summary>
-    /// 咖啡杯蒸汽：从杯口位置缓缓升起的白色半透明雾气
-    /// 咖啡杯在背景图左下，杯口大约在 viewport (344, 631)
-    /// </summary>
-    private static CpuParticles2D MakeSteamParticles()
-    {
-        // 蒸汽贴图：比浮尘更大、更软的白色圆斑
-        var steamGradient = new Gradient();
-        steamGradient.Offsets = new float[] { 0f, 0.3f, 0.7f, 1f };
-        steamGradient.Colors = new Color[]
-        {
-            new Color(1, 1, 1, 0.6f),
-            new Color(1, 1, 1, 0.35f),
-            new Color(1, 1, 1, 0.1f),
-            new Color(1, 1, 1, 0f),
-        };
-        var steamTexture = new GradientTexture2D
-        {
-            Gradient = steamGradient,
-            Width = 128,
-            Height = 128,
-            Fill = GradientTexture2D.FillEnum.Radial,
-            FillFrom = new Vector2(0.5f, 0.5f),
-            FillTo = new Vector2(1f, 0.5f),
-        };
-
-        // 蒸汽颜色渐变：从白色半透明 → 完全透明
-        var steamRamp = new Gradient();
-        steamRamp.Offsets = new float[] { 0f, 0.15f, 0.6f, 1f };
-        steamRamp.Colors = new Color[]
-        {
-            new Color(1, 1, 1, 0f),
-            new Color(1, 1, 1, 0.22f),
-            new Color(1, 1, 1, 0.12f),
-            new Color(1, 1, 1, 0f),
-        };
-
-        return new CpuParticles2D
-        {
-            Name = "CoffeeSteam",
-            Amount = 10,
-            Lifetime = 2.8,
-            Preprocess = 2.0, // 提前"热身"，进菜单就能看到蒸汽
-            Randomness = 0.5f,
-            LifetimeRandomness = 0.4f,
-            Position = new Vector2(344, 631), // 杯口位置（viewport 坐标）
-            EmissionShape = CpuParticles2D.EmissionShapeEnum.Rectangle,
-            EmissionRectExtents = new Vector2(50, 8), // 窄长的发射区域（杯口宽度）
-            Direction = new Vector2(0, -1),
-            Spread = 25.0f, // 轻微左右散开
-            Gravity = new Vector2(0, -12), // 缓慢上升
-            InitialVelocityMin = 8.0f,
-            InitialVelocityMax = 18.0f,
-            ScaleAmountMin = 0.4f,
-            ScaleAmountMax = 1.2f,
-            AngularVelocityMin = -15f,
-            AngularVelocityMax = 15f,
-            Color = Colors.White,
-            Texture = steamTexture,
-            ColorRamp = steamRamp,
-            // 正常混合（不用 Add，蒸汽是半透明白色而非发光）
-            Seed = GD.Randi(),
-        };
     }
 
     /// <summary>
@@ -325,12 +258,9 @@ public partial class MainMenu : Control
 
         // 第三轮反馈 9：点继续游戏 → 在已经玩过的章节里自己选（不用只从存档那一章续）
         int current = GameManager.Instance.CurrentChapter;
-        int maxChapter = current >= 99 ? LastChapter : Mathf.Clamp(current, 0, LastChapter);
+        int maxChapter = current >= 99 ? ChapterJump.LastChapter : Mathf.Clamp(current, 0, ChapterJump.LastChapter);
         ChapterJump.ShowPanel(this, maxChapter);
     }
-
-    /// <summary>目前开发到的最后一章（通关档的"重玩落点"）</summary>
-    private const int LastChapter = 16;
 
     /// <summary>
     /// 点击"设置"→ 打开设置界面

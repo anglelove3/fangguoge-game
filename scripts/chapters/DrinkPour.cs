@@ -34,7 +34,9 @@ public partial class DrinkPour : Node2D
     private const float GlassOuterW = 50f;     // 杯壁外沿半宽
 
     // ==================== 酒瓶几何 ====================
-    private const float BottleDx = -226f;      // 酒瓶立在这个 x（杯底中心为 0）——对准底图里那瓶酒
+    private const float BottleDx = 160f;       // 酒瓶立在两杯之间、靠烤炉那一侧（杯底中心为 0）
+    private const float BottleDy = -90f;       // 往柜台深处收，避开陆洵的手和烟盒
+    private const float PourSign = -1f;        // 瓶在杯子右边，倒酒时朝左倾进陆洵那只杯
     private const float BottleH = 330f;        // 瓶高（瓶口到瓶底）——和底图那瓶等高
     // 第三轮反馈 6：底图画的是矮胖啤酒瓶/宽口杯，程序道具原来又瘦又高，叠上去像两个东西。
     // 这两个横向系数把贴片"压宽/收窄"，跟底图的形状对齐，看起来才是同一件东西。
@@ -43,10 +45,10 @@ public partial class DrinkPour : Node2D
     private const float PourAngle = 0.56f;     // 倒酒时倾斜的角度（弧度，约 32°）
 
     // ==================== 金艮的小杯子 ====================
-    private static readonly Vector2 FriendHome = new(111f, 58f);   // 原位（对准底图右边那只杯）
-    private static readonly Vector2 FriendClink = new(66f, 52f);   // 碰杯点
-    private static readonly Vector2 MineClink = new(36f, 4f);      // 我这边挪过去的位置
-    private const float FriendScale = 0.92f;
+    private static readonly Vector2 FriendHome = new(335f, 71f);  // 金艮那只，桌前靠右、更近
+    private static readonly Vector2 FriendClink = new(255f, 40f); // 碰杯点
+    private static readonly Vector2 MineClink = new(80f, 16f);     // 陆洵这只往中间靠
+    private const float FriendScale = 1.5f;
 
     // ==================== 倒酒节奏 ====================
     private const float TiltIn = 0.4f;
@@ -82,18 +84,15 @@ public partial class DrinkPour : Node2D
     // 程序画的几何瓶子/杯子在 AI 水彩背景前出戏——现在瓶和杯换成水彩贴片
     // （assets/art/props/），倒酒/碰杯动画不变；酒面、泡沫、影子仍是程序画
     // （液体是动态的，色块叠在水彩杯上不违和）。
-    private Texture2D bottleTex, glassTex;
+    private Texture2D bottleTex;
     // 第三轮反馈 6：bottle_v1 是亮绿色，在暗棕夜摊里像荧光棒；改用压暗去饱和的 v2
     private const string BottleTexPath = "res://assets/art/props/bottle_v2.png";
-    private const string GlassTexPath = "res://assets/art/props/glass_v1.png";
 
     public override void _Ready()
     {
         friendPos = FriendHome;
         if (ResourceLoader.Exists(BottleTexPath))
             bottleTex = GD.Load<Texture2D>(BottleTexPath);
-        if (ResourceLoader.Exists(GlassTexPath))
-            glassTex = GD.Load<Texture2D>(GlassTexPath);
     }
 
     // ==================== 对外 API（章节脚本调用） ====================
@@ -242,22 +241,23 @@ public partial class DrinkPour : Node2D
         // ---- 桌面上的影子（第二十四轮 F27：加深加扁，让瓶杯「坐」在桌布上而不是悬浮） ----
         DrawEllipseLocal(myOffset + new Vector2(0f, 3f), 74f * GlassWidthMul, 11f, new Color(0f, 0f, 0f, 0.26f));
         DrawEllipseLocal(friendPos + new Vector2(0f, 2f), 58f * GlassWidthMul * FriendScale, 9f, new Color(0f, 0f, 0f, 0.22f));
-        DrawEllipseLocal(new Vector2(BottleDx + 8f, 3f), 46f * BottleWidthMul, 9f, new Color(0f, 0f, 0f, 0.25f));
+        DrawEllipseLocal(new Vector2(BottleDx + 8f, BottleDy + 3f), 46f * BottleWidthMul, 9f, new Color(0f, 0f, 0f, 0.25f));
 
-        // ---- 酒瓶（倒酒时绕瓶底旋转、并朝杯子挪一点） ----
-        float angle = 0f;
+        // ---- 酒瓶（倒酒时绕瓶底旋转、并朝陆洵那只杯子挪一点） ----
+        float mag = 0f;
         if (pourT >= 0f)
         {
             if (pourT < TiltIn)
-                angle = PourAngle * EaseOutCubic(pourT / TiltIn);
+                mag = PourAngle * EaseOutCubic(pourT / TiltIn);
             else if (pourT < TiltIn + HoldDur)
-                angle = PourAngle + Mathf.Sin((pourT - TiltIn) * 9f) * 0.008f; // 微小颤动
+                mag = PourAngle + Mathf.Sin((pourT - TiltIn) * 9f) * 0.008f; // 微小颤动
             else
-                angle = PourAngle * (1f - EaseOutCubic((pourT - TiltIn - HoldDur) / TiltOut));
+                mag = PourAngle * (1f - EaseOutCubic((pourT - TiltIn - HoldDur) / TiltOut));
         }
 
-        float bottleShift = angle / PourAngle * 24f; // 倾斜越多，瓶身越靠向杯子
-        var bottleBase = new Vector2(BottleDx + bottleShift, 0f);
+        float angle = mag * PourSign;
+        float bottleShift = (PourAngle > 0f ? mag / PourAngle : 0f) * 24f * PourSign; // 倾斜越多，瓶身越靠向杯子
+        var bottleBase = new Vector2(BottleDx + bottleShift, BottleDy);
 
         DrawSetTransform(bottleBase, angle, Vector2.One);
         DrawBottleLocal();
@@ -287,13 +287,7 @@ public partial class DrinkPour : Node2D
     /// </summary>
     private void DrawGlassLocal(float level, bool mine)
     {
-        // ---- 水彩杯贴片（301x716 → 高 176px，杯底对齐原点） ----
-        if (glassTex != null)
-        {
-            float gh = 176f;
-            float gw = gh * (glassTex.GetWidth() / (float)glassTex.GetHeight()) * GlassWidthMul;
-            DrawTextureRect(glassTex, new Rect2(-gw / 2f, -gh + 6f, gw, gh), false);
-        }
+        // 夜摊底图已经画了两只杯子。这里只叠酒面、泡沫和气泡，不再盖第二套杯贴片。
 
         // 酒面
         float surfY = GsurfaceY(level);

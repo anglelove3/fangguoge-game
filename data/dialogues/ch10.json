@@ -41,7 +41,7 @@
     "draft_end": [
       { "speaker": "", "text": "群里慢慢冷下来。金艮发了张表情包，被三金师兄一句「明早组会」打散。" },
       { "speaker": "我", "text": "（八点半。离心机的空档得夜里占。）" },
-      { "speaker": "", "text": "台灯的光圈缩在稿纸上一小块。上铺翻了个身，床板吱呀一声。" },
+      { "speaker": "", "text": "台灯的光圈缩在稿纸上一小块。左边那张床上有人翻了个身，床板吱呀一声。" },
       { "speaker": "我", "text": "（睡吧。明天还得去实验室。）" }
     ],
     "sleep1": [
@@ -51,7 +51,7 @@
     ],
     "lab_arrive": [
       { "speaker": "", "text": "组会开到十点半。投影仪的蓝光打在白板上，导师的红笔从第一页划到第七页。" },
-      { "speaker": "研究生导师", "text": "还行。再改改。" },
+      { "speaker": "汪老师", "text": "还行。再改改。" },
       { "speaker": "我", "text": "（第 18 遍。上次是第 17 遍。这两个字好像越来越轻了。）" },
       { "speaker": "三金师兄", "text": "走走走，吃饭去。你脸色比离心机的转子还白。" },
       { "speaker": "", "text": "屋里的人陆陆续续散了。太阳从西边那排窗斜进来，把桌面的漆照得发白。" }
@@ -59,7 +59,7 @@
     "lab_card": [
       { "speaker": "小米师妹", "text": "（私聊）师兄师兄师兄！！在吗在吗在吗" },
       { "speaker": "小米师妹", "text": "（私聊）我把我朋友名片推你了啊！！" },
-      { "speaker": "小米师妹", "text": "（私聊）江洁。江河的江，洁白的洁。你别装没看见，我盯着呢。[拳头]" },
+      { "speaker": "小米师妹", "text": "（私聊）江晚萤。江河的江，洁白的洁。你别装没看见，我盯着呢。[拳头]" },
       { "speaker": "我", "text": "（名片。微信里多了一个「新的朋友」，红点小得像故意不让人看见。）" },
       { "speaker": "我", "text": "（……通讯录。第一行。）" }
     ],
@@ -85,7 +85,7 @@
       { "speaker": "我", "text": "（备注。她现在的备注还是那三个字。改不改，改什么。）" }
     ],
     "remark_0": [
-      { "speaker": "", "text": "「江洁」。本名，规规矩矩，谁看见都挑不出毛病。" },
+      { "speaker": "", "text": "「江晚萤」。本名，规规矩矩，谁看见都挑不出毛病。" },
       { "speaker": "我", "text": "（这样最稳。稳得有点像同事。）" }
     ],
     "remark_1": [
@@ -174,19 +174,19 @@
     ],
     "where_0": [
       { "speaker": "", "text": "「看个电影吧，省话。」发出去以后他后悔了——省什么话。" },
-      { "speaker": "江洁", "text": "行。那我看票。" },
+      { "speaker": "江晚萤", "text": "行。那我看票。" },
       { "speaker": "我", "text": "（她说都行的时候，其实最想看你怎么定。）" }
     ],
     "where_1": [
       { "speaker": "", "text": "「沿河堤走一圈，边走边说。」" },
-      { "speaker": "江洁", "text": "河堤风大。" },
-      { "speaker": "江洁", "text": "……行。我带围巾。" },
+      { "speaker": "江晚萤", "text": "河堤风大。" },
+      { "speaker": "江晚萤", "text": "……行。我带围巾。" },
       { "speaker": "我", "text": "（她说都行的时候，其实最想看你怎么定。）" }
     ],
     "where_2": [
       { "speaker": "", "text": "「还去罗曼蒂克，再打两杆。」" },
-      { "speaker": "江洁", "text": "你倒是省事。" },
-      { "speaker": "江洁", "text": "行。这次不让了。" },
+      { "speaker": "江晚萤", "text": "你倒是省事。" },
+      { "speaker": "江晚萤", "text": "行。这次不让了。" },
       { "speaker": "我", "text": "（她说都行的时候，其实最想看你怎么定。）" }
     ],
     "night3_end": [
@@ -197,18 +197,18 @@
     ],
     "gate_arrive": [
       { "speaker": "", "text": "老校门口的石柱还立着，铁门的漆掉了大半。围挡上贴着拆迁公告，纸角被风掀起，啪嗒啪嗒地响。" },
-      { "speaker": "", "text": "她来得比约定晚了十分钟，围巾把下半张脸埋住，露出来的眼睛在笑。" },
-      { "speaker": "江洁", "text": "你到的挺早。", "portrait": "jie_shy" },
-      { "speaker": "江洁", "text": "……风真大。这地方你以前常来？", "portrait": "jie_smile" },
+      { "speaker": "", "text": "她来得比约定晚了十分钟，围巾松松地绕在脖子上，眼睛在笑。" },
+      { "speaker": "江晚萤", "text": "你到的挺早。", "portrait": "jie_shy" },
+      { "speaker": "江晚萤", "text": "……风真大。这地方你以前常来？", "portrait": "jie_smile" },
       { "speaker": "我", "text": "常来。翻墙出去吃，两块钱一局球。" },
-      { "speaker": "江洁", "text": "现在呢。", "portrait": "jie_smile" },
+      { "speaker": "江晚萤", "text": "现在呢。", "portrait": "jie_smile" },
       { "speaker": "我", "text": "（现在只剩一个门柱了。）" }
     ],
     "outro": [
       { "speaker": "", "text": "两个人沿着围挡慢慢走。她的手插在口袋里，他的也是。" },
       { "speaker": "", "text": "他从口袋里摸出那枚礼花筒，捏了两下，又塞回去。" },
       { "speaker": "我", "text": "（这个先不拉。）" },
-      { "speaker": "江洁", "text": "（兜里鼓鼓的，是什么呀。）", "portrait": "jie_smile" },
+      { "speaker": "江晚萤", "text": "（兜里鼓鼓的，是什么呀。）", "portrait": "jie_smile" },
       { "speaker": "我", "text": "「没什么。……下次的东西。」" },
       { "speaker": "", "text": "风把梧桐叶从头顶扯下来，一片，两片。她没有再问。" },
       { "speaker": "我", "text": "（原来「还想再见」不是一个念头，是一个要出口的东西。）" },
@@ -235,7 +235,7 @@
       "promptSpeaker": "我",
       "promptPortrait": "",
       "options": [
-        { "text": "「江洁」——本名，规规矩矩", "affection": -1, "courage": 3 },
+        { "text": "「江晚萤」——本名，规规矩矩", "affection": -1, "courage": 3 },
         { "text": "「三点水」——自己起的代号，藏着事", "affection": 4, "courage": -2 },
         { "text": "「洁」——少一个字，怕被人看见", "affection": 3, "courage": -1 }
       ]
@@ -271,7 +271,7 @@
           "lines": [
             { "speaker": "我", "text": "（报家门。稳妥得像去面试。）" },
             { "speaker": "我", "text": "「我是俊杰师兄那边的那个。」" },
-            { "speaker": "江洁", "text": "我知道你是谁。小米说了三遍。", "portrait": "jie_smile" }
+            { "speaker": "江晚萤", "text": "我知道你是谁。小米说了三遍。", "portrait": "jie_smile" }
           ]
         },
         {
@@ -279,16 +279,16 @@
           "lines": [
             { "speaker": "我", "text": "（先把上周那局翻出来。她应该记得。）" },
             { "speaker": "我", "text": "「今天那杆球，你是不是让着我。」" },
-            { "speaker": "江洁", "text": "让了。让了两厘米。", "portrait": "jie_smile" },
-            { "speaker": "江洁", "text": "下次我可不让了。", "portrait": "jie_laugh" }
+            { "speaker": "江晚萤", "text": "让了。让了两厘米。", "portrait": "jie_smile" },
+            { "speaker": "江晚萤", "text": "下次我可不让了。", "portrait": "jie_laugh" }
           ]
         },
         {
           "text": "翻半天表情面板，发一个「握手」",
           "lines": [
             { "speaker": "", "text": "表情面板翻了半天，翻出一个「握手」。老得像是我爸那辈人用的。发出去了。" },
-            { "speaker": "江洁", "text": "……" },
-            { "speaker": "江洁", "text": "[笑脸]", "portrait": "jie_laugh" },
+            { "speaker": "江晚萤", "text": "……" },
+            { "speaker": "江晚萤", "text": "[笑脸]", "portrait": "jie_laugh" },
             { "speaker": "我", "text": "（这个回合我输了。）" }
           ]
         }

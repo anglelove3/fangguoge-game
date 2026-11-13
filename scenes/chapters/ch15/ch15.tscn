@@ -3,6 +3,10 @@
 [ext_resource type="Script" path="res://scripts/chapters/Ch15.cs" id="1_ch15"]
 [ext_resource type="Script" path="res://scripts/chapters/NetcafeArt.cs" id="2_art"]
 [ext_resource type="Script" path="res://scripts/chapters/LanPartyQte.cs" id="3_qte"]
+[ext_resource type="Texture2D" path="res://assets/art/backgrounds/ch15_street_v3.jpg" id="4_street"]
+[ext_resource type="Texture2D" path="res://assets/art/backgrounds/ch15_hall_v14.jpg" id="5_hall"]
+[ext_resource type="Texture2D" path="res://assets/art/backgrounds/ch15_booth_v3.jpg" id="6_booth"]
+[ext_resource type="Texture2D" path="res://assets/art/backgrounds/ch15_booth_dim_v4.jpg" id="7_dim"]
 
 [sub_resource type="StyleBoxFlat" id="SB_hot_normal"]
 bg_color = Color(0, 0, 0, 0)
@@ -32,7 +36,59 @@ ChapterTitle = "第十五章：那束光"
 ChapterSubtitle = "不用算里程的那一夜"
 ChapterIndex = 15
 
+[node name="Street" type="TextureRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("4_street")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="Hall" type="TextureRect" parent="."]
+modulate = Color(1, 1, 1, 0)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("5_hall")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="Booth" type="TextureRect" parent="."]
+modulate = Color(1, 1, 1, 0)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("6_booth")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="BoothDim" type="TextureRect" parent="."]
+modulate = Color(1, 1, 1, 0)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("7_dim")
+expand_mode = 1
+stretch_mode = 6
+
 [node name="Netcafe" type="Control" parent="."]
+visible = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -56,10 +112,10 @@ color = Color(0.035, 0.045, 0.062, 1)
 visible = false
 layout_mode = 1
 anchors_preset = -1
-anchor_left = 0.62
-anchor_top = 0.125
-anchor_right = 0.80
-anchor_bottom = 0.20
+anchor_left = 0.34
+anchor_top = 0.02
+anchor_right = 0.58
+anchor_bottom = 0.09
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2

@@ -1,7 +1,7 @@
 [gd_scene load_steps=11 format=3 uid="uid://ch08scene001"]
 
 [ext_resource type="Script" path="res://scripts/chapters/Ch08.cs" id="1_ch08"]
-[ext_resource type="Texture2D" path="res://assets/art/backgrounds/night_stall_v1.png" id="2_stall"]
+[ext_resource type="Texture2D" path="res://assets/art/backgrounds/ch08_stall_v6.jpg" id="2_stall"]
 [ext_resource type="Script" path="res://scripts/chapters/DrinkPour.cs" id="3_drink"]
 
 [sub_resource type="StyleBoxFlat" id="SB_hot_normal"]

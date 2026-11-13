@@ -1,11 +1,11 @@
 [gd_scene load_steps=14 format=3 uid="uid://ch07scene001"]
 
 [ext_resource type="Script" path="res://scripts/chapters/Ch07.cs" id="1_ch07"]
-[ext_resource type="Texture2D" path="res://assets/art/backgrounds/day_lab_v1.png" id="2_lab"]
-[ext_resource type="Texture2D" path="res://assets/art/backgrounds/campus_dusk_v1.png" id="3_campus"]
-[ext_resource type="Texture2D" path="res://assets/art/backgrounds/lanting_rain_v1.png" id="4_lanting"]
-[ext_resource type="Texture2D" path="res://assets/art/backgrounds/dorm_night_v3.png" id="5_dorm"]
-[ext_resource type="Texture2D" path="res://assets/art/backgrounds/beach_day_v1.png" id="6_beach"]
+[ext_resource type="Texture2D" path="res://assets/art/backgrounds/ch07_lab_v3.jpg" id="2_lab"]
+[ext_resource type="Texture2D" path="res://assets/art/backgrounds/ch07_campus_v3.jpg" id="3_campus"]
+[ext_resource type="Texture2D" path="res://assets/art/backgrounds/ch07_lanting_v8.jpg" id="4_lanting"]
+[ext_resource type="Texture2D" path="res://assets/art/backgrounds/dorm_break_night_v2.jpg" id="5_dorm"]
+[ext_resource type="Texture2D" path="res://assets/art/backgrounds/ch07_beach_v4.jpg" id="6_beach"]
 
 [sub_resource type="StyleBoxFlat" id="SB_hot_normal"]
 bg_color = Color(0, 0, 0, 0)
@@ -55,7 +55,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_ch07")
-ChapterTitle = "第七章：碧蓝蓝天"
+ChapterTitle = "第七章：来了就行"
 ChapterSubtitle = "被朋友捞出来的那个傍晚"
 ChapterIndex = 7
 

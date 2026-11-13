@@ -15,13 +15,13 @@
     {
       "choice": "ch01_order_food",
       "chapter": "ch01",
-      "where": "第一章《寄居蟹》",
+      "where": "第一章《都行》",
       "label": "川菜馆点菜，你最后点的是"
     },
     {
       "choice": "ch01_heart_menu",
       "chapter": "ch01",
-      "where": "第一章《寄居蟹》",
+      "where": "第一章《都行》",
       "label": "菜单翻回来的时候，你"
     },
     {
@@ -57,25 +57,25 @@
     {
       "choice": "ch06_night",
       "chapter": "ch06",
-      "where": "第六章《手滑》",
+      "where": "第六章《最近还好吗》",
       "label": "凌晨一点半，你选择了"
     },
     {
       "choice": "ch06_heart_words",
       "chapter": "ch06",
-      "where": "第六章《手滑》",
+      "where": "第六章《最近还好吗》",
       "label": "手机暗下去之后，你"
     },
     {
       "choice": "ch07_comfort",
       "chapter": "ch07",
-      "where": "第七章《碧蓝蓝天》",
+      "where": "第七章《来了就行》",
       "label": "群里喊你聚会，你回的是"
     },
     {
       "choice": "ch07_heart_rain",
       "chapter": "ch07",
-      "where": "第七章《碧蓝蓝天》",
+      "where": "第七章《来了就行》",
       "label": "兰亭窗外落着雨，你"
     },
     {
@@ -118,7 +118,7 @@
       "choice": "ch09_billiard",
       "chapter": "ch09",
       "where": "第九章《三点水》",
-      "label": "跟江洁的那局台球，最后"
+      "label": "跟江晚萤的那局台球，最后"
     },
     {
       "choice": "ch10_draft",
@@ -249,13 +249,13 @@
     {
       "choice": "ch14_heart_supper_heart",
       "chapter": "ch14",
-      "where": "第十四章《爱就梭哈》",
+      "where": "第十四章《不算了》",
       "label": "她说「那我们怎么办」，你心里想的是"
     },
     {
       "choice": "ch14_heartbeat",
       "chapter": "ch14",
-      "where": "第十四章《爱就梭哈》",
+      "where": "第十四章《不算了》",
       "label": "她说「你的心跳得好快」，你"
     },
     {

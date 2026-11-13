@@ -1,9 +1,9 @@
 [gd_scene load_steps=10 format=3 uid="uid://ch13scene001"]
 
 [ext_resource type="Script" path="res://scripts/chapters/Ch13.cs" id="1_ch13"]
-[ext_resource type="Texture2D" path="res://assets/art/backgrounds/old_street_v1.png" id="2_street"]
-[ext_resource type="Texture2D" path="res://assets/art/backgrounds/winter_bank_v1.png" id="3_bank"]
-[ext_resource type="Texture2D" path="res://assets/art/backgrounds/xiaoguan_night_v1.png" id="4_shop"]
+[ext_resource type="Texture2D" path="res://assets/art/backgrounds/ch13_old_street_v4.jpg" id="2_street"]
+[ext_resource type="Texture2D" path="res://assets/art/backgrounds/ch13_winter_bank_v3.jpg" id="3_bank"]
+[ext_resource type="Texture2D" path="res://assets/art/backgrounds/ch13_xiaoguan_v12.jpg" id="4_shop"]
 
 [sub_resource type="StyleBoxFlat" id="SB_hot_normal"]
 bg_color = Color(0, 0, 0, 0)
@@ -67,6 +67,24 @@ grow_vertical = 2
 texture = ExtResource("4_shop")
 expand_mode = 1
 stretch_mode = 6
+
+[node name="ShopName" type="Label" parent="Xiaoguan"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -180.0
+offset_top = 28.0
+offset_right = 180.0
+offset_bottom = 72.0
+grow_horizontal = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.98, 0.94, 0.86, 1)
+theme_override_colors/font_outline_color = Color(0.16, 0.08, 0.04, 0.85)
+theme_override_constants/outline_size = 8
+theme_override_font_sizes/font_size = 28
+text = "盛鲜生杀猪粉"
+horizontal_alignment = 1
 
 [node name="Vignette" type="ColorRect" parent="."]
 layout_mode = 1

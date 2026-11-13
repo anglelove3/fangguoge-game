@@ -2,7 +2,7 @@ using Godot;
 using System.Collections.Generic;
 
 /// <summary>
-/// 第六章：手滑
+/// 第六章：最近还好吗
 ///
 /// 流程：分手当夜凌晨的宿舍 → 打开旧聊天（只读 + 幽灵打字）
 ///      → 深夜三选一（出去走走 / 继续看手机 / 打电话给朋友）
@@ -59,33 +59,23 @@ public partial class Ch06 : ChapterBase
         // 第三轮反馈 5/7/9：手机热点原来登记在 (1616,880)——换算后正好压在右下角"返回菜单"上，
         // 而且这一章画面里根本没画手机，玩家点到的是桌上的烟盒。现在手机贴片挂回窗台，
         // 热点跟着贴片走，离开 HUD 安全区。
-        ArtAnchor.Track(phoneBtn, new Rect2(200f, 701f, 175f, 98f));
-        ArtAnchor.TrackFraction(ashtrayBtn, new Rect2(0.565f, 0.7f, 0.14f, 0.13f));
-        // 耳机：直接挂在底图里画好的那副头戴耳机上（和第二章同一处、同一套贴片）
-        ArtAnchor.Track(earphoneBtn, new Rect2(1085f, 473f, 231f, 149f));
+        // 新宿舍：手机和耳机都在书桌上，烟灰缸在台灯旁边。
+        // 旧贴片是上一张书桌特写裁的，盖上来会对不齐，耳机只留热点。
+        ArtAnchor.TrackFraction(phoneBtn, new Rect2(0.50f, 0.50f, 0.07f, 0.06f));
+        ArtAnchor.TrackFraction(ashtrayBtn, new Rect2(0.60f, 0.52f, 0.05f, 0.045f));
+        ArtAnchor.TrackFraction(earphoneBtn, new Rect2(0.52f, 0.49f, 0.07f, 0.05f));
+        earphonePatch = null;
 
-        // 第三轮反馈 3：原来桌面中央凭空摆着一卷白耳机线（抠图边缘硬、比周围亮一档），
-        // 和背景完全不在一个次元。改成复用底图里画好的头戴耳机——
-        // 贴片 = 同图裁的原物、净底 = 抹净版，收起耳机时露出干净桌面，纹理零色差。
-        earphonePatch = HiddenPatch.Create(
-            "res://assets/art/props/patch/earphone_prop.png",
-            "res://assets/art/props/patch/clean_desk_b.png",
-            new Rect2(1085f, 473f, 231f, 149f), exactFill: true);
-        background.AddChild(earphonePatch);
-        if (GameManager.Instance.HasHiddenItem("earphone"))
-            earphonePatch.HideImmediately(); // 读档进来就已经收过了
-
-        // 手机贴片（第三轮反馈 5/9：这一章剧情说"只有手机屏幕还亮着"，画面里却没有手机）
         var phoneSprite = new TextureRect
         {
             Texture = ResourceLoader.Exists("res://assets/art/props/patch/phone_prop_v2.png")
                 ? GD.Load<Texture2D>("res://assets/art/props/patch/phone_prop_v2.png") : null,
             ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,
-            StretchMode = TextureRect.StretchModeEnum.Scale,
+            StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered,
             MouseFilter = MouseFilterEnum.Ignore,
         };
         background.AddChild(phoneSprite);
-        ArtAnchor.Track(phoneSprite, new Rect2(200f, 701f, 175f, 98f));
+        ArtAnchor.TrackFraction(phoneSprite, new Rect2(0.50f, 0.50f, 0.07f, 0.06f));
 
         // "点万物有回应"：窗外的灯、柜门上的照片、那两桶泡面（data/flavor/ch06.json）
         AddChild(FlavorSpots.Create(hotspotsRoot, "ch06"));
@@ -281,7 +271,7 @@ public partial class Ch06 : ChapterBase
         hotspotsRoot.Visible = false;
         hintLabel.Visible = false;
 
-        var dayLab = GD.Load<Texture2D>("res://assets/art/backgrounds/day_lab_v1.png");
+        var dayLab = GD.Load<Texture2D>("res://assets/art/backgrounds/day_lab_v3.jpg");
         // 天亮了：深夜那首退场，回到主题曲（跟着画面一起淡过来）
         AudioManager.Instance?.PlayBgm(AudioManager.BgmGym1, -14f, 2.2f);
         var tw = CreateTween();
