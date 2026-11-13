@@ -58,7 +58,7 @@ Godot 4.7.2（Mono/.NET 8）· C# 3.31 万行（84 个文件）· GDScript 测�
 - `data/` — 剧情/聊天/角色卡/数值等 JSON（93 份）
 - `scenes/` — 场景文件（各章 + UI）
 - `CHANGELOG.md` — 每轮发布说明（日期 + 改动明细 + 回归数字）
-- Releases — 试玩包下载（v1.5.0，固定直链 `releases/latest/download/fangguoge-demo-win64.zip`）
+- Releases — 试玩包在 [fangguoge-demo](https://github.com/anglelove3/fangguoge-demo)。当前直链是 v1.7.0，上一版 v1.5.0 仍可下载
 
 ## 📜 素材说明
 
