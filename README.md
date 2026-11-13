@@ -6,7 +6,8 @@
 
 | 版本 | 内容 | 下载 |
 |---|---|---|
-| **demo v1.7.0** | 序章 + 第一~十七章（水彩场景，解压即玩） | [Windows x64（zip 解压即玩，已内嵌 .NET 运行时）](https://github.com/anglelove3/fangguoge-demo/releases/latest) |
+| **现在这一版 v1.7.0** | 序章到第十七章。点下面的链接会直接下 zip | [⬇ 直接下载 fangguoge-demo-win64.zip](https://github.com/anglelove3/fangguoge-demo/releases/latest/download/fangguoge-demo-win64.zip) |
+| 上一版 v1.5.0（保留） | 序章到第十四章的旧试玩包，没有删 | [⬇ v1.5.0](https://github.com/anglelove3/fangguoge-demo/releases/download/v1.5.0/fangguoge-demo-win64.zip) |
 | 开发仓 | 源码、美术和数据。场景与头像已收到铅笔水彩，第十七章《后来》已接上 | [fangguoge-game](https://github.com/anglelove3/fangguoge-game) |
 
 > 试玩版单独放在 **[fangguoge-demo](https://github.com/anglelove3/fangguoge-demo)**（只放发布物，秋招期间给这一个链接）；
