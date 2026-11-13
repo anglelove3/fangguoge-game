@@ -20,7 +20,7 @@ import subprocess
 import sys
 import urllib.request
 
-REPO = "anglelove3/fangguoge-game"
+DEFAULT_REPO = "anglelove3/fangguoge-game"
 
 
 def token_from_git() -> str:
@@ -43,7 +43,7 @@ def api(url: str, token: str, method="GET", data=None, content_type="application
     if data is not None:
         req.add_header("Content-Type", content_type)
         req.data = data
-    with urllib.request.urlopen(req, timeout=300) as r:
+    with urllib.request.urlopen(req, timeout=1800) as r:
         return json.loads(r.read().decode() or "{}")
 
 
@@ -54,6 +54,7 @@ def main():
     ap.add_argument("--notes", required=True, help="发布说明（markdown 文件）")
     ap.add_argument("--name", default="", help="Release 标题（默认用版本号）")
     ap.add_argument("--prerelease", action="store_true", help="标记为预发布（试玩版）")
+    ap.add_argument("--repo", default=DEFAULT_REPO, help="owner/name，试玩仓用 anglelove3/fangguoge-demo")
     args = ap.parse_args()
 
     if not os.path.exists(args.exe):
@@ -73,19 +74,19 @@ def main():
         "prerelease": args.prerelease,
     }).encode()
     try:
-        rel = api(f"https://api.github.com/repos/{REPO}/releases", token, "POST", payload)
+        rel = api(f"https://api.github.com/repos/{args.repo}/releases", token, "POST", payload)
         print(f"[2/3] Release 已建：{rel.get('html_url')}")
     except urllib.error.HTTPError as e:
         detail = e.read().decode()
         if e.code == 422 and "already_exists" in detail:
-            rel = api(f"https://api.github.com/repos/{REPO}/releases/tags/{args.version}", token)
+            rel = api(f"https://api.github.com/repos/{args.repo}/releases/tags/{args.version}", token)
             print(f"[2/3] Release 已存在，复用：{rel.get('html_url')}")
         else:
             sys.exit(f"建 Release 失败 {e.code}: {detail[:300]}")
 
     # ---- 上传 asset ----
     name = os.path.basename(args.exe)
-    url = f"https://uploads.github.com/repos/{REPO}/releases/{rel['id']}/assets?name={urllib.parse.quote(name)}"
+    url = f"https://uploads.github.com/repos/{args.repo}/releases/{rel['id']}/assets?name={urllib.parse.quote(name)}"
     with open(args.exe, "rb") as f:
         data = f.read()
     print(f"[3/3] 上传 {name} ...")
